@@ -30,6 +30,7 @@
         </div>
     </header>
 
+
     <div class="content">
         <jsp:include page="${content}"></jsp:include>
 
