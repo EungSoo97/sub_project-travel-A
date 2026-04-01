@@ -217,7 +217,17 @@ button, input { font: inherit; }
     height: 38px;
     background: #fff;
 }
-
+/*    price    */
+.price-box {
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: #fbfdff;
+}
+.price-box__label {
+    font-size: 0.88rem;
+    font-weight: 700;
+}
 /* ── Chips ── */
 .chip-group-wrap { margin-top: 18px; }
 .chip-group {

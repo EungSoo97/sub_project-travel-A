@@ -49,6 +49,19 @@
                     </div>
                 </div>
 
+                <div class="search-card__row">
+                    <div class="price-box">
+                        <span class="price-box__label">예상 여행 경비</span>
+                        <div class="form-field input">
+                            <input type="number" id="minPrice" min="0" name="min-price" step="10000" placeholder="예상 최저 금액 ₩" required>
+                            <div class="price-box__label">~</div>
+                            <input type="number" id="maxPrice" min="0" name="max-price" step="10000" placeholder="예상 최대 금액 ₩" required>
+
+                        </div>
+                    </div>
+
+                </div>
+
                 <div class="chip-group-wrap">
                     <h3>여행 스타일</h3>
                     <div class="chip-group">
@@ -70,6 +83,13 @@
                         <label class="chip"><input type="checkbox" name="mood" value="모험"><span>모험</span></label>
                     </div>
                 </div>
+
+                <div class="chip-group-wrap">
+                    <h3>커스텀 태그</h3>
+                    <div class="chip-group">
+                        <label class="chip"><input type="text" name="custom" placeholder="커스텀 태그" hidden>+</label>
+                    </div>
+
 
                 <button type="submit" class="btn btn--primary btn--block">AI 여행 일정 만들기</button>
         </div>
