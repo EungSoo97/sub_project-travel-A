@@ -1,13 +1,46 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <title>JSP - Hello World</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel-A(AI) | AI 여행 플래너</title>
+    <link rel="stylesheet" href="css/base.css">
 </head>
 <body>
-<h1><%= "Hello World!" %>
-</h1>
-<br/>
-<a href="hello-servlet">Hello Servlet</a>
+<div class="page">
+    <header class="site-header">
+        <div class="container site-header__inner">
+            <a href="${pageContext.request.contextPath}/" class="site-logo">✈ Travel-A(AI)</a>
+
+            <nav class="site-nav" id="siteNav">
+                <a href="${pageContext.request.contextPath}/">여행 계획</a>
+                <a href="${pageContext.request.contextPath}/explore">탐색</a>
+                <a href="${pageContext.request.contextPath}/live">실시간 여행</a>
+                <a href="${pageContext.request.contextPath}/mypage">마이페이지</a>
+            </nav>
+
+            <div class="site-actions">
+                <a href="${pageContext.request.contextPath}/login" class="btn btn--ghost">로그인</a>
+                <a href="${pageContext.request.contextPath}/join" class="btn btn--primary">회원가입</a>
+                <button type="button" class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="content">
+        <jsp:include page="${content}"></jsp:include>
+
+
+    </div>
+
+    <footer class="site-footer">
+        <div class="container site-footer__inner">
+            <p>© 2026 Travel-A(AI). 여행의 모든 순간을 스마트하게.</p>
+        </div>
+    </footer>
+</div>
+<script src="js/main.js"></script>
 </body>
 </html>
