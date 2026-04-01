@@ -58,3 +58,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+const minInput = document.getElementById('minPrice');
+const maxInput = document.getElementById('maxPrice');
+
+minInput.addEventListener('input', () => {
+    maxInput.min = minInput.value;
+});
+
