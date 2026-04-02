@@ -6,9 +6,8 @@
 .explore-header h1 { font-size: 36px; margin-bottom: 10px; }
 .explore-header p { color: #666; font-size: 16px; }
 
-/* 💡 메인 박스들 60% 너비 & 가운데 정렬 (여기가 빠져있었습니다!) */
 .search-box, .filter-box, .trending-box, .popular-box {
-    width: 60%;
+    width: 95%;
     margin: 20px auto;
     box-sizing: border-box;
 }
@@ -24,7 +23,6 @@
 }
 .search-box input:focus { border-color: #333; }
 
-/* 하얀색 네모 박스 (공통) */
 .card-box {
     background-color: #ffffff;
     border: 1px solid #e0e0e0;
@@ -32,7 +30,6 @@
     padding: 24px;
 }
 
-/* 필터 아이템 스타일 */
 .filter-box h3 { margin-top: 0; margin-bottom: 15px; }
 
 .filter-item {
@@ -49,14 +46,12 @@
 }
 .filter-item.active { background: #000; color: #fff; }
 
-/* 트렌딩 목적지 제목 */
 .trending-box h3 {
     margin-top: 0;
     margin-bottom: 20px;
     font-size: 18px;
 }
 
-/* 트렌딩 목록 개별 아이템 */
 .trend-item {
     display: flex;
     align-items: center;
@@ -65,20 +60,17 @@
     cursor: pointer;
 }
 
-/* 마지막 항목은 밑줄 제거 */
 .trend-item:last-child {
     border-bottom: none;
     padding-bottom: 0;
 }
 
-/* 순위 숫자 */
 .trend-item .rank {
     font-weight: bold;
     width: 30px;
     text-align: left;
 }
 
-/* 도시 이름과 플랜 개수 그룹 */
 .trend-item .trend-info {
     flex-grow: 1;
     display: flex;
@@ -97,7 +89,6 @@
     color: #888;
 }
 
-/* 증감률 */
 .trend-item .trend-rate {
     font-size: 14px;
     font-weight: bold;
@@ -106,12 +97,10 @@
     color: #007bff;
 }
 
-/* 카드 영역 */
 .card-section {
     flex: 1;
 }
 
-/* 카드 헤더 (제목과 옵션 박스 양쪽 끝 배치) */
 .card-header {
     display: flex;
     justify-content: space-between;
@@ -123,7 +112,6 @@
     margin: 0;
 }
 
-/* 드롭다운 스타일 */
 .card-header select {
     appearance: none;
     -webkit-appearance: none;
@@ -148,14 +136,12 @@
 .card-header select:focus { border-color: #333; }
 .card-header select option { color: #333; background-color: #fff; padding: 10px; }
 
-/* 💡 카드 리스트 기본 설정 (PC화면 2열) - 이 부분이 아까 빠져있었습니다! */
 .card-list {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     gap: 20px;
 }
 
-/* 개별 카드 디자인 */
 .card {
     background: #fff;
     border-radius: 15px;
@@ -217,39 +203,24 @@
     color: #555;
 }
 
-/* 📱 반응형 설정 (화면 800px 이하일 때) */
-@media screen and (max-width: 800px) {
-    /* 1. 카드를 1열로 꽉 차게 변경 */
-    .card-list {
-        grid-template-columns: 1fr;
-    }
-
-    /* 2. 화면이 좁아지면 박스 너비를 95%로 넓게 사용 */
-    .search-box, .filter-box, .trending-box, .popular-box {
-        width: 95%;
-    }
-}
-
 .more-btn-container {
-    text-align: center; /* 버튼을 가로 중앙에 뙇! 배치 */
-    margin-top: 30px;   /* 위쪽 카드들과의 간격 */
+    text-align: center;
+    margin-top: 30px;
     margin-bottom: 10px;
 }
 
-/* 버튼 자체의 예쁜 디자인 */
 .more-btn {
     background-color: #ffffff;
-    border: 1px solid #e0e0e0; /* 연한 회색 테두리 */
-    border-radius: 12px;       /* 둥근 모서리 (이미지처럼 살짝 더 둥글게) */
-    padding: 14px 40px;        /* 위아래 14px, 양옆 40px로 넉넉한 공간 */
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 14px 40px;
     font-size: 16px;
-    font-family: inherit;      /* 폰트 통일 */
+    font-family: inherit;
     color: #333;
-    cursor: pointer;           /* 마우스 올리면 손가락 모양 */
-    transition: 0.2s;          /* 부드러운 애니메이션 */
+    cursor: pointer;
+    transition: 0.2s;
 }
 
-/* 버튼에 마우스 올렸을 때 살짝 변하는 효과 */
 .more-btn:hover {
     background-color: #f9f9f9;
     border-color: #ccc;
