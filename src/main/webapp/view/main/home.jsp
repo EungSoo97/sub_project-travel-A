@@ -53,9 +53,9 @@
                     <div class="price-box">
                         <span class="price-box__label">예상 여행 경비</span>
                         <div class="form-field input">
-                            <input type="number" id="minPrice" min="0" name="min-price" step="10000" placeholder="예상 최저 금액 ₩" required>
+                            <input type="number" id="minPrice" min="0" name="min-budget" step="10000" placeholder="예상 최저 금액 ₩" required>
                             <div class="price-box__label">~</div>
-                            <input type="number" id="maxPrice" min="0" name="max-price" step="10000" placeholder="예상 최대 금액 ₩" required>
+                            <input type="number" id="maxPrice" min="0" name="max-budget" step="10000" placeholder="예상 최대 금액 ₩" required>
 
                         </div>
                     </div>
