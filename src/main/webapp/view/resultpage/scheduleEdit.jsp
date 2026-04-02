@@ -3,6 +3,7 @@
 <html>
 <head>
     <title>scheduleEdit</title>
+    <link rel="stylesheet" href="../../css/result-page.css">
 </head>
 <body>
 <div>

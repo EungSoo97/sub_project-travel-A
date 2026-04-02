@@ -3,6 +3,7 @@
 <html>
 <head>
     <title>Resultpage</title>
+    <link rel="stylesheet" href="../../css/result-page.css">
 
 </head>
 <body>
