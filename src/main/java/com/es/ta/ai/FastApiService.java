@@ -25,6 +25,10 @@ public class FastApiService {
             String json = mapper.writeValueAsString(dto);
             System.out.println("보내는 JSON = " + json);
 
+            Path requestPath = Paths.get("C:/Users/soldesk/Desktop/travelA/src/main/webapp/json/request.json");
+            Files.write(requestPath, json.getBytes(StandardCharsets.UTF_8));
+
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(FAST_API_URL))
                     .header("Content-Type", "application/json")
