@@ -23,7 +23,7 @@
                 <a href="${pageContext.request.contextPath}/">여행 계획</a>
                 <a href="${pageContext.request.contextPath}/explore">탐색</a>
                 <a href="${pageContext.request.contextPath}/live">실시간 여행</a>
-                <a href="${pageContext.request.contextPath}/mypage">마이페이지</a>
+                <a href="result-page">마이페이지</a>
             </nav>
 
             <div class="site-actions">
@@ -44,8 +44,7 @@
 
 
     </div>
-    <form action="result-page">
-        <button >임시</button></form>
+
     <footer class="site-footer">
         <div class="container site-footer__inner">
             <p>© 2026 Travel-A(AI). 여행의 모든 순간을 스마트하게.</p>
