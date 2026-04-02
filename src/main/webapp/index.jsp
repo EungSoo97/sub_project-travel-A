@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Travel-A(AI) | AI 여행 플래너</title>
     <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="../../css/result-page.css">
 </head>
 <body>
 <form id="planForm" action="planner/result" method="get" class="space-y-5">
@@ -36,7 +37,8 @@
 
 
     </div>
-
+    <form action="result-page">
+        <button >임시</button></form>
     <footer class="site-footer">
         <div class="container site-footer__inner">
             <p>© 2026 Travel-A(AI). 여행의 모든 순간을 스마트하게.</p>
