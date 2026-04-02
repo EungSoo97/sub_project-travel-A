@@ -1,78 +1,143 @@
 package com.es.ta.ai;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.*;
 import java.util.List;
 
+/**
+ * AI 여행 플래너 응답 데이터 전송 객체 (DTO) - Lombok 버전
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TravelResponseDto {
     private boolean success;
     private String message;
     private Summary summary;
     private List<ItineraryItem> itinerary;
+    private List<FlightOption> flights;
+    private List<HotelOption> hotels;
 
-    public boolean isSuccess() { return success; }
-    public void setSuccess(boolean success) { this.success = success; }
-    public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
-    public Summary getSummary() { return summary; }
-    public void setSummary(Summary summary) { this.summary = summary; }
-    public List<ItineraryItem> getItinerary() { return itinerary; }
-    public void setItinerary(List<ItineraryItem> itinerary) { this.itinerary = itinerary; }
-
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Summary {
         private String destination;
+        private String title;
+        private String startDate;
+        private String endDate;
         private int days;
-        private String estimatedTotalCost;
-
-        public String getDestination() { return destination; }
-        public void setDestination(String destination) { this.destination = destination; }
-        public int getDays() { return days; }
-        public void setDays(int days) { this.days = days; }
-        public String getEstimatedTotalCost() { return estimatedTotalCost; }
-        public void setEstimatedTotalCost(String estimatedTotalCost) { this.estimatedTotalCost = estimatedTotalCost; }
+        private int travelers;
+        private String travelStyle;
+        private int totalEstimatedCost;
+        private String currency;
+        private String overview;
     }
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ItineraryItem {
         private int day;
         private String date;
-        private String totalDistance;
-        private String estimatedCost;
+        private String dayLabel;
+        private String transportation;
+        private double totalDistanceKm;
+        private int totalTravelTimeMinutes;
+        private int estimatedCost;
+        private String currency;
+        private String summary;
+        private List<RoutePoint> routePoints;
         private List<Activity> activities;
-
-        public int getDay() { return day; }
-        public void setDay(int day) { this.day = day; }
-        public String getDate() { return date; }
-        public void setDate(String date) { this.date = date; }
-        public String getTotalDistance() { return totalDistance; }
-        public void setTotalDistance(String totalDistance) { this.totalDistance = totalDistance; }
-        public String getEstimatedCost() { return estimatedCost; }
-        public void setEstimatedCost(String estimatedCost) { this.estimatedCost = estimatedCost; }
-        public List<Activity> getActivities() { return activities; }
-        public void setActivities(List<Activity> activities) { this.activities = activities; }
     }
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Activity {
+        private String id;
         private String time;
+        private String endTime;
+        private int durationMinutes;
+        private String category;
+        private String categoryCode;
         private String type;
         private String name;
         private String description;
         private String location;
-        private String cost;
+        private String address;
+        private double lat;
+        private double lng;
+        private int cost;
+        private String currency;
+        private Double rating;
+        private String googlePlaceId;
+        private String googleMapsUrl;
+    }
 
-        public String getTime() { return time; }
-        public void setTime(String time) { this.time = time; }
-        public String getType() { return type; }
-        public void setType(String type) { this.type = type; }
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-        public String getDescription() { return description; }
-        public void setDescription(String description) { this.description = description; }
-        public String getLocation() { return location; }
-        public void setLocation(String location) { this.location = location; }
-        public String getCost() { return cost; }
-        public void setCost(String cost) { this.cost = cost; }
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class RoutePoint {
+        private int order;
+        private String name;
+        private String type;
+        private double lat;
+        private double lng;
+        private int day;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class FlightOption {
+        private String id;
+        private String airline;
+        private String flightNumber;
+        private String tripType;
+        private int price;
+        private String currency;
+        private boolean pricePerPerson;
+        private String departureAirport;
+        private String departureAirportCode;
+        private String arrivalAirport;
+        private String arrivalAirportCode;
+        private String departureTime;
+        private String arrivalTime;
+        private int stops;
+        private String bookingUrl;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class HotelOption {
+        private String id;
+        private String name;
+        private int pricePerNight;
+        private String currency;
+        private Double rating;
+        private Integer reviewCount;
+        private String location;
+        private String address;
+        private double lat;
+        private double lng;
+        private Integer hotelClass;
+        private String imageUrl;
+        private String bookingUrl;
     }
 }
