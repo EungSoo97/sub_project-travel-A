@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Travel-A(AI) | AI 여행 플래너</title>
     <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="../../css/result-page.css">
+
 </head>
 <body>
 <div class="page">
