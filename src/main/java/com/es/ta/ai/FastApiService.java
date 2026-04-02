@@ -54,9 +54,11 @@ public class FastApiService {
             if (response.statusCode() != 200) {
                 throw new RuntimeException("FastAPI returned status code: " + response.statusCode() + " body: " + response.body());
             }
-            Path path = Paths.get("C:/Users/soldesk/Desktop/travelA/src/main/webapp/json/result.json");
+            String responseBody = response.body();
+            Path responsePath = jsonDir.resolve("result.json");
+            Files.writeString(responsePath, responseBody, StandardCharsets.UTF_8);
 
-            Files.write(path, response.body().getBytes(StandardCharsets.UTF_8));
+
             return mapper.readValue(response.body(), TravelResponseDto.class);
 
         } catch (Exception e) {
