@@ -7,15 +7,15 @@
 
 </head>
 <body>
+<div class="result-page">
 
-
-    <div class="container">
+    <div class="container-result">
 
         <div class="header">
             <div ><a href="hello-servlet">← 검색으로 돌아가기</a></div>
 
             <div class="title-area">
-                <h1> AI 맞춤 여행 일정</h1>
+                <h1 class="result-h1"> AI 맞춤 여행 일정</h1>
                 <p class="sub">오사카 · 6일 여행</p>
 <%--            EL 문으로 잡
 
@@ -302,7 +302,7 @@
 
 
     </div>
-
+</div>
     </body>
     </html>
 

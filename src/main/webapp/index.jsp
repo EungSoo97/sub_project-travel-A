@@ -15,18 +15,11 @@
         <div class="container site-header__inner">
             <a href="${pageContext.request.contextPath}/" class="site-logo">✈ Travel-A(AI)</a>
 
-            <nav class="site-nav" id="siteNav">
-                <div class="login-register">
+            <div class="site-actions">
+                <div class="login-register" id="headerLoginBtns">
                     <a href="${pageContext.request.contextPath}/login" class="btn--login">로그인</a>
                     <a href="account" class="btn--register">회원가입</a>
                 </div>
-                <a href="${pageContext.request.contextPath}/">여행 계획</a>
-                <a href="${pageContext.request.contextPath}/explore">탐색</a>
-                <a href="${pageContext.request.contextPath}/live">실시간 여행</a>
-                <a href="result-page">마이페이지</a>
-            </nav>
-
-            <div class="site-actions">
                 <div class="mobile-menu-btn" id="mobileMenuBtn">
                     <a class="menu-trigger">
                         <span></span>
@@ -35,8 +28,34 @@
                     </a>
                 </div>
             </div>
+
+            <nav class="site-nav" id="siteNav">
+<%--                <div class="login-register">--%>
+<%--                    <a href="${pageContext.request.contextPath}/login" class="btn--login">로그인</a>--%>
+<%--                    <a href="account" class="btn--register">회원가입</a>--%>
+<%--                </div>--%>
+                <a href="${pageContext.request.contextPath}/">여행 계획</a>
+                <a href="${pageContext.request.contextPath}/explore">탐색</a>
+                <a href="${pageContext.request.contextPath}/live">실시간 여행</a>
+                <a href="result-page">마이페이지</a>
+            </nav>
+
         </div>
     </header>
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+
+    <nav class="site-nav" id="siteNav">
+        <div class="drawer-header">
+            <span class="drawer-title">✈ Travel-A(AI)</span>
+            <button class="drawer-close" id="drawerClose">✕</button>
+        </div>
+        <div class="drawer-links">
+            <a href="...">🗺 여행 계획</a>
+            <a href="...">🔍 탐색</a>
+            <a href="...">📍 실시간 여행</a>
+            <a href="...">👤 마이페이지</a>
+        </div>
+    </nav>
 
 
     <div class="content">
@@ -54,15 +73,28 @@
 <script src="js/main.js"></script>
 
 </body>
-<script> // 햄버거 아이콘
+<script>
 const trigger = document.querySelector('.menu-trigger');
 const nav = document.querySelector('.site-nav');
+const loginBtns = document.getElementById('headerLoginBtns');
 
 if (trigger && nav) {
     trigger.addEventListener('click', function (e) {
         e.preventDefault();
-        this.classList.toggle('is-active');
-        nav.classList.toggle('is-open');
+        const isActive = this.classList.toggle('is-active');
+        loginBtns && loginBtns.classList.toggle('is-visible', isActive);
+
+        if (isActive) {
+            // display:flex 먼저 적용 후 transition 실행
+            nav.style.display = 'flex';
+            requestAnimationFrame(() => nav.classList.add('is-open'));
+        } else {
+            nav.classList.remove('is-open');
+            nav.addEventListener('transitionend', () => {
+            if (!nav.classList.contains('is-open')) nav.style.display = 'none';
+            }, { once: true });
+        }
     });
-}</script>
+}
+</script>
 </html>

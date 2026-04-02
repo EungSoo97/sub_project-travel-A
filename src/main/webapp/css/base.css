@@ -64,29 +64,76 @@ button, input { font: inherit; }
     display: none;
     position: absolute;
     top: 60px;
-    left: 16px;
-    right: 16px;
+    right: 16px;           /* 왼쪽 full width 대신 오른쪽 고정 */
+    width: 280px;          /* 원하는 너비로 조절 */
     background: #fff;
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
-    padding: 14px;
+    padding: 10px 12px;
     box-shadow: var(--shadow);
     flex-direction: column;
     align-items: flex-start;
-    gap: 14px;
+    gap: 2px;
+
+    /* 오른쪽에서 펼쳐지는 애니메이션 */
+    transform-origin: top right;
+    transform: scale(0.85);
+    opacity: 0;
+    transition: transform 0.22s ease, opacity 0.22s ease;
 }
-.site-nav.is-open { display: flex; }
+.site-nav.is-open {
+    display: flex;
+    transform: scale(1);
+    opacity: 1; }
 .site-nav a {
     color: #475569;
-    font-weight: 500;
-    font-size: 1rem;
+    font-weight: 600;
+    font-size: 1.15rem;
+    padding: 15px 14px;  /* 추가 — 터치 영역 확보 */
+    border-radius: 12px;
+    transition: background 0.15s, color 0.15s;
 }
-.site-nav a:hover { color: var(--primary); }
+.site-nav a:hover {
+    color: var(--primary);
+    background: #eef4ff;
+}
 
 /*로그인 회원가입*/
-.site-nav .btn--register { background: var(--primary); color: #fff; }
-.site-nav .btn--register:hover { background: var(--primary-dark); color: #fff; }
-.site-nav .btn--login { background: #fff; border: 1px solid var(--line); color: var(--text); }
+#headerLoginBtns {
+    display: none;
+    align-items: center;
+    gap: 8px;
+}
+#headerLoginBtns.is-visible {
+    display: flex;
+}
+
+.btn--register {
+    background: var(--primary);
+    color: #fff;
+    border-radius: 10px;
+    padding: 7px 13px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.btn--register:hover { background: var(--primary-dark); }
+.btn--login {
+    background: #fff;
+    border: 1px solid var(--line);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 7px 13px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.site-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
 .mobile-menu-btn {
     display: inline-grid;
