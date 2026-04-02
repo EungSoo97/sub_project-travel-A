@@ -179,3 +179,14 @@ form.addEventListener("submit", function (e) {
       window.location.reload();
     });
 });
+// 햄버거 아이콘
+const trigger = document.querySelector('.menu-trigger');
+const nav = document.querySelector('.site-nav');
+
+if (trigger && nav) {
+  trigger.addEventListener('click', function (e) {
+    e.preventDefault();
+    this.classList.toggle('is-active');
+    nav.classList.toggle('is-open');
+  });
+}

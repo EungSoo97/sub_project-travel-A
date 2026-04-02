@@ -15,6 +15,10 @@
             <a href="${pageContext.request.contextPath}/" class="site-logo">✈ Travel-A(AI)</a>
 
             <nav class="site-nav" id="siteNav">
+                <div class="login-register">
+                    <a href="${pageContext.request.contextPath}/login" class="btn--login">로그인</a>
+                    <a href="account" class="btn--register">회원가입</a>
+                </div>
                 <a href="${pageContext.request.contextPath}/">여행 계획</a>
                 <a href="${pageContext.request.contextPath}/explore">탐색</a>
                 <a href="${pageContext.request.contextPath}/live">실시간 여행</a>
@@ -22,9 +26,13 @@
             </nav>
 
             <div class="site-actions">
-                <a href="${pageContext.request.contextPath}/login" class="btn btn--ghost">로그인</a>
-                <a href="${pageContext.request.contextPath}/join" class="btn btn--primary">회원가입</a>
-                <button type="button" class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+                <div class="mobile-menu-btn" id="mobileMenuBtn">
+                    <a class="menu-trigger" href="#">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </a>
+                </div>
             </div>
         </div>
     </header>

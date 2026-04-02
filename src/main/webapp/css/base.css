@@ -83,7 +83,10 @@ button, input { font: inherit; }
 }
 .site-nav a:hover { color: var(--primary); }
 
-.site-actions .btn { display: none; }  /* 헤더 CTA 버튼 숨김 */
+/*로그인 회원가입*/
+.site-nav .btn--register { background: var(--primary); color: #fff; }
+.site-nav .btn--register:hover { background: var(--primary-dark); color: #fff; }
+.site-nav .btn--login { background: #fff; border: 1px solid var(--line); color: var(--text); }
 
 .mobile-menu-btn {
     display: inline-grid;
@@ -271,7 +274,6 @@ button, input { font: inherit; }
 }
 .btn--block { width: 100%; margin-top: 20px; }
 .btn--primary { background: var(--primary); color: #fff; }
-.btn--primary:hover { background: var(--primary-dark); }
 .btn--ghost { background: #fff; border: 1px solid var(--line); color: var(--text); }
 .btn--light { background: #fff; color: var(--primary); }
 
@@ -372,4 +374,49 @@ button, input { font: inherit; }
     display: none;
     justify-content: center;
     align-items: center;
+}
+
+/* ── 햄버거 메뉴 버튼 ── */
+.mobile-menu-btn {
+    display: flex;
+    align-items: center;
+}
+
+.menu-trigger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    gap: 5px;
+    cursor: pointer;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.menu-trigger span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #333;
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease;
+    transform-origin: center;
+}
+.menu-trigger.is-active{
+    background: rgba(0, 0, 0, 0.06);
+
+}
+.menu-trigger.is-active span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.menu-trigger.is-active span:nth-child(2) {
+    opacity: 0;
+    width: 0;
+}
+
+.menu-trigger.is-active span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
 }
