@@ -28,7 +28,7 @@
 
             <div class="site-actions">
                 <div class="mobile-menu-btn" id="mobileMenuBtn">
-                    <a class="menu-trigger" href="#">
+                    <a class="menu-trigger">
                         <span></span>
                         <span></span>
                         <span></span>
@@ -54,4 +54,15 @@
 <script src="js/main.js"></script>
 
 </body>
+<script> // 햄버거 아이콘
+const trigger = document.querySelector('.menu-trigger');
+const nav = document.querySelector('.site-nav');
+
+if (trigger && nav) {
+    trigger.addEventListener('click', function (e) {
+        e.preventDefault();
+        this.classList.toggle('is-active');
+        nav.classList.toggle('is-open');
+    });
+}</script>
 </html>
