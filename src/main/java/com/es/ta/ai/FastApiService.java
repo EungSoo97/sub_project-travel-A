@@ -16,7 +16,7 @@ import java.time.Duration;
 
 public class FastApiService {
 
-    private static final String FAST_API_URL = "http://127.0.0.1:8000/api/v1/travel/plan";
+    private static final String FAST_API_URL = "http://10.1.82.128:8000/api/v1/travel/plan";
 
     public static TravelResponseDto callFastApi(TravelRequestDto dto) {
         try {
@@ -25,10 +25,14 @@ public class FastApiService {
             String json = mapper.writeValueAsString(dto);
             System.out.println("보내는 JSON = " + json);
 
+            Path requestPath = Paths.get("C:/Users/soldesk/Desktop/travelA/src/main/webapp/json/request.json");
+            Files.write(requestPath, json.getBytes(StandardCharsets.UTF_8));
+
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(FAST_API_URL))
                     .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(90))
+                    .timeout(Duration.ofSeconds(300))
                     .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
                     .build();
 

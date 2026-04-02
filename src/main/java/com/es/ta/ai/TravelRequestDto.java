@@ -11,4 +11,6 @@ public class TravelRequestDto {
     private int budget;
     private List<String> styles;
     private List<String> themes;
+    private int minbudget;
+    private int maxbudget;
 }
