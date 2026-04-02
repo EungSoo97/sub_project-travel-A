@@ -21,8 +21,12 @@ public class TravelPlanServlet extends HttpServlet {
             String startDate = req.getParameter("startDate");
             String endDate = req.getParameter("endDate");
             int travelers = Integer.parseInt(req.getParameter("travelers"));
+            String minStr = req.getParameter("min-budget");
+            String maxStr = req.getParameter("max-budget");
 
             TravelRequestDto dto = new TravelRequestDto();
+            dto.setMinbudget(Integer.parseInt(minStr));
+            dto.setMaxbudget(Integer.parseInt(maxStr));
             dto.setDestination(destination);
             dto.setStartDate(startDate);
             dto.setEndDate(endDate);
