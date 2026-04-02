@@ -94,86 +94,79 @@
 
                 <button type="submit" class="btn btn--primary btn--block">AI 여행 일정 만들기</button>
         </div>
+            </div>
     </section>
     </form>
 
-    <div id="loadingOverlay" class="fixed inset-0 bg-white z-50 hidden items-center justify-center">
-        <div class="max-w-2xl w-full px-6">
+    <div id="loadingOverlay">
+        <div class="loading-container">
 
-            <div class="text-center mb-12">
-                <div class="relative w-32 h-32 mx-auto mb-6">
-                    <div class="absolute inset-0 bg-blue-100 rounded-full animate-ping"></div>
-                    <div class="absolute inset-4 bg-blue-200 rounded-full opacity-70"></div>
-                    <div class="absolute inset-8 bg-blue-600 rounded-full flex items-center justify-center" style="animation: pulse-ring 2s infinite;">
-                        <i data-lucide="sparkles" class="w-10 h-10 text-white animate-pulse"></i>
+            <!-- 메인 애니메이션 -->
+            <div class="loading-header">
+                <div class="loading-circle">
+                    <div class="circle ping"></div>
+                    <div class="circle pulse"></div>
+                    <div class="circle core">
+                        <i data-lucide="sparkles"></i>
                     </div>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-800 mb-2">AI가 여행 일정을 생성하고 있어요</h2>
-                <p id="loadingMetaContext" class="text-gray-500 font-medium">도쿄 · 2명</p>
+                <h2>AI가 여행 일정을 생성하고 있어요</h2>
+                <p id="loadingMetaContext"></p>
             </div>
 
-            <!-- 진행률 바 -->
-            <div class="mb-12">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm text-gray-500 font-medium">진행 상태</span>
-                    <span id="progressText" class="text-sm font-bold text-blue-600">0%</span>
+            <!-- 진행률 -->
+            <div class="progress-box">
+                <div class="progress-text">
+                    <span>진행 상태</span>
+                    <span id="progressText">0%</span>
                 </div>
-                <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div id="progressBar" class="h-full bg-blue-600 transition-all duration-300 ease-out" style="width: 0%"></div>
-                </div>
-            </div>
-
-            <!-- 단계별 상태창 -->
-            <div class="space-y-4" id="stepsContainer">
-                <!-- 1단계 -->
-                <div id="step0" class="flex items-start gap-4 p-4 rounded-xl transition-all duration-500 bg-blue-50 border-2 border-blue-500 shadow-sm scale-105">
-                    <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-blue-100 text-blue-600">
-                        <i data-lucide="map" class="w-6 h-6 animate-pulse"></i>
-                    </div>
-                    <div class="flex-1 mt-1">
-                        <h3 class="font-bold text-blue-700 mb-1">여행지 정보 수집 중</h3>
-                        <p class="text-sm text-gray-600">실시간 관광지 정보와 리뷰를 분석하고 있어요</p>
-                    </div>
-                </div>
-
-                <!-- 2단계 -->
-                <div id="step1" class="flex items-start gap-4 p-4 rounded-xl transition-all duration-500 bg-gray-50 opacity-60">
-                    <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-white text-gray-400">
-                        <i data-lucide="trending-up" class="w-6 h-6"></i>
-                    </div>
-                    <div class="flex-1 mt-1">
-                        <h3 class="font-bold text-gray-700 mb-1">최적 동선 계산 중</h3>
-                        <p class="text-sm text-gray-500">이동 시간과 거리를 고려한 효율적인 경로를 찾고 있어요</p>
-                    </div>
-                </div>
-
-                <!-- 3단계 -->
-                <div id="step2" class="flex items-start gap-4 p-4 rounded-xl transition-all duration-500 bg-gray-50 opacity-60">
-                    <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-white text-gray-400">
-                        <i data-lucide="calendar" class="w-6 h-6"></i>
-                    </div>
-                    <div class="flex-1 mt-1">
-                        <h3 class="font-bold text-gray-700 mb-1">혼잡도 파악 및 조율 중</h3>
-                        <p class="text-sm text-gray-500">시간대별 혼잡도와 영업시간을 확인하고 있어요</p>
-                    </div>
-                </div>
-
-                <!-- 4단계 -->
-                <div id="step3" class="flex items-start gap-4 p-4 rounded-xl transition-all duration-500 bg-gray-50 opacity-60">
-                    <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-white text-gray-400">
-                        <i data-lucide="sparkles" class="w-6 h-6"></i>
-                    </div>
-                    <div class="flex-1 mt-1">
-                        <h3 class="font-bold text-gray-700 mb-1">맞춤 일정 생성 중</h3>
-                        <p class="text-sm text-gray-500">스타일에 맞는 완벽한 데이터를 포맷팅하고 있어요</p>
-                    </div>
+                <div class="progress-bar-bg">
+                    <div id="progressBar" class="progress-bar"></div>
                 </div>
             </div>
 
-            <!-- 하단 힌트 -->
-            <div class="mt-10 text-center text-sm text-gray-500 bg-gray-50 p-4 rounded-lg">
-                <p>💡 AI가 방대한 경우의 수를 연산하기 위해 <b>약 30~50초</b> 정도 걸릴 수 있습니다.</p>
+            <!-- 단계 -->
+            <div class="steps">
+
+                <div id="step0" class="step active">
+                    <div class="icon"><i data-lucide="map"></i></div>
+                    <div>
+                        <h3>여행지 정보 수집 중</h3>
+                        <p>실시간 관광지 정보와 리뷰를 분석하고 있어요</p>
+                    </div>
+                </div>
+
+                <div id="step1" class="step">
+                    <div class="icon"><i data-lucide="trending-up"></i></div>
+                    <div>
+                        <h3>최적 동선 계산 중</h3>
+                        <p>이동 시간과 거리를 고려한 효율적인 경로를 찾고 있어요</p>
+                    </div>
+                </div>
+
+                <div id="step2" class="step">
+                    <div class="icon"><i data-lucide="calendar"></i></div>
+                    <div>
+                        <h3>혼잡도 분석 중</h3>
+                        <p>실시간 혼잡도와 영업시간을 확인하고 있어요</p>
+                    </div>
+                </div>
+
+                <div id="step3" class="step">
+                    <div class="icon"><i data-lucide="sparkles"></i></div>
+                    <div>
+                        <h3>맞춤 일정 생성 중</h3>
+                        <p>여행 스타일에 맞는 완벽한 일정을 만들고 있어요</p>
+                    </div>
+                </div>
+
             </div>
+
+            <!-- AI 메시지 -->
+            <div class="ai-msg">
+                <p id="aiMessage"></p>
+            </div>
+
         </div>
     </div>
 
