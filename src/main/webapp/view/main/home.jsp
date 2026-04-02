@@ -99,8 +99,7 @@
 
     <div id="loadingOverlay">
         <div class="loading-container">
-
-            <!-- 메인 애니메이션 -->
+            <!-- 상단 헤더: 애니메이션 서클 -->
             <div class="loading-header">
                 <div class="loading-circle">
                     <div class="circle ping"></div>
@@ -109,65 +108,61 @@
                         <i data-lucide="sparkles"></i>
                     </div>
                 </div>
-                <h2>AI가 여행 일정을 생성하고 있어요</h2>
-                <p id="loadingMetaContext"></p>
+                <h2 class="loading-title">AI가 완벽한 일정을<br>설계하고 있어요</h2>
+                <div id="loadingMetaContext" class="loading-meta"></div>
             </div>
 
-            <!-- 진행률 -->
-            <div class="progress-box">
-                <div class="progress-text">
-                    <span>진행 상태</span>
-                    <span id="progressText">0%</span>
+            <!-- 진행률 섹션 -->
+            <div class="progress-section">
+                <div class="progress-info">
+                    <span class="progress-label">심층 분석 중...</span>
+                    <span id="progressText" class="progress-percentage">0%</span>
                 </div>
                 <div class="progress-bar-bg">
                     <div id="progressBar" class="progress-bar"></div>
                 </div>
             </div>
 
-            <!-- 단계 -->
-            <div class="steps">
-
+            <!-- 단계별 상태 (Step) -->
+            <div class="steps-wrapper">
                 <div id="step0" class="step active">
-                    <div class="icon"><i data-lucide="map"></i></div>
-                    <div>
-                        <h3>여행지 정보 수집 중</h3>
-                        <p>실시간 관광지 정보와 리뷰를 분석하고 있어요</p>
+                    <div class="step-icon"><i data-lucide="map"></i></div>
+                    <div class="step-content">
+                        <h3>여행지 정보 수집</h3>
+                        <p>실시간 명소 정보와 리뷰 분석</p>
                     </div>
                 </div>
-
                 <div id="step1" class="step">
-                    <div class="icon"><i data-lucide="trending-up"></i></div>
-                    <div>
-                        <h3>최적 동선 계산 중</h3>
-                        <p>이동 시간과 거리를 고려한 효율적인 경로를 찾고 있어요</p>
+                    <div class="step-icon"><i data-lucide="trending-up"></i></div>
+                    <div class="step-content">
+                        <h3>최적 동선 계산</h3>
+                        <p>거리와 이동 시간을 고려한 경로 최적화</p>
                     </div>
                 </div>
-
                 <div id="step2" class="step">
-                    <div class="icon"><i data-lucide="calendar"></i></div>
-                    <div>
-                        <h3>혼잡도 분석 중</h3>
-                        <p>실시간 혼잡도와 영업시간을 확인하고 있어요</p>
+                    <div class="step-icon"><i data-lucide="calendar"></i></div>
+                    <div class="step-content">
+                        <h3>운영 시간 및 혼잡도 확인</h3>
+                        <p>데이터 기반 혼잡도 예측 분석</p>
                     </div>
                 </div>
-
                 <div id="step3" class="step">
-                    <div class="icon"><i data-lucide="sparkles"></i></div>
-                    <div>
-                        <h3>맞춤 일정 생성 중</h3>
-                        <p>여행 스타일에 맞는 완벽한 일정을 만들고 있어요</p>
+                    <div class="step-icon"><i data-lucide="sparkles"></i></div>
+                    <div class="step-content">
+                        <h3>개인화 일정 확정</h3>
+                        <p>취향에 맞춘 최종 일정 브리핑 생성</p>
                     </div>
                 </div>
-
             </div>
 
-            <!-- AI 메시지 -->
-            <div class="ai-msg">
-                <p id="aiMessage"></p>
+            <!-- AI 실시간 메시지 카드 -->
+            <div class="ai-msg-card">
+                <div class="ai-msg-icon"><i data-lucide="bot"></i></div>
+                <p id="aiMessage" class="ai-msg-text">데이터 엔진 가동 중...</p>
             </div>
-
         </div>
     </div>
+
 
     <section class="section">
         <div class="container">
