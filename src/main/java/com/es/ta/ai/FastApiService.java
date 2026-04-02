@@ -9,6 +9,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 
 public class FastApiService {
@@ -43,7 +46,9 @@ public class FastApiService {
             if (response.statusCode() != 200) {
                 throw new RuntimeException("FastAPI returned status code: " + response.statusCode() + " body: " + response.body());
             }
+            Path path = Paths.get("C:/Users/soldesk/Desktop/travelA/src/main/webapp/json/result.json");
 
+            Files.write(path, response.body().getBytes(StandardCharsets.UTF_8));
             return mapper.readValue(response.body(), TravelResponseDto.class);
 
         } catch (Exception e) {
