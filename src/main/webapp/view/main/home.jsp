@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Travel-A(AI) | AI 여행 플래너</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 <main>
@@ -14,7 +15,7 @@
         </div>
     </section>
     <form id="planForm" action="planner/result" method="get" class="space-y-5">
-    <section class="search section search-section">
+    <section class="search section search-section" id="searchContainer">
         <div class="container">
                 <div class="search-card__header">
                     <h2>여행 조건 입력</h2>    <!--       -->
