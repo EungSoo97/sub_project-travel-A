@@ -74,108 +74,145 @@ const progressBar = document.getElementById("progressBar");
 const progressText = document.getElementById("progressText");
 const destinationInput = document.querySelector('input[name="destination"]');
 const travelersInput = document.querySelector('input[name="travelers"]');
+const aiMessage = document.getElementById("aiMessage");
 
 let progress = 0;
 let currentStep = 0;
-const totalEstimatedTimeMs = 1000000; // 예상 생성 시간: 45초 (Gemini 2.5 JSON 생성기반)
 
-form.addEventListener("submit", function (e) {
-  e.preventDefault(); // 기본 form submit 보류 (AJAX 처리)
+const messages = [
+  "1,247개의 관광지 데이터를 분석하고 있습니다...",
+  "37개의 가능한 경로를 비교하고 있습니다...",
+  "실시간 영업시간과 혼잡도를 확인하고 있습니다...",
+  "맞춤형 여행 일정을 생성 중입니다..."
+];
 
-  // 1. 화면 전환 애니메이션
-  searchContainer.classList.add("opacity-0");
-  setTimeout(() => {
+function updateAIMessage() {
+  if (aiMessage) {
+    aiMessage.innerText = messages[currentStep];
+  }
+}
+
+function markStepDone(stepEl) {
+  if (!stepEl) return;
+
+  stepEl.classList.remove("active");
+  stepEl.classList.add("done");
+
+  const iconEl = stepEl.querySelector(".icon");
+  if (iconEl) {
+    iconEl.innerHTML = '<i data-lucide="check"></i>';
+  }
+}
+
+function markStepActive(stepEl) {
+  if (!stepEl) return;
+
+  stepEl.classList.add("active");
+}
+
+function resetLoadingState() {
+  progress = 0;
+  currentStep = 0;
+
+  if (progressBar) progressBar.style.width = "0%";
+  if (progressText) progressText.innerText = "0%";
+
+  for (let i = 0; i < 4; i++) {
+    const stepEl = document.getElementById("step" + i);
+    if (!stepEl) continue;
+
+    stepEl.classList.remove("active", "done");
+
+    const iconEl = stepEl.querySelector(".icon");
+    if (!iconEl) continue;
+
+    if (i === 0) {
+      stepEl.classList.add("active");
+      iconEl.innerHTML = '<i data-lucide="map"></i>';
+    } else if (i === 1) {
+      iconEl.innerHTML = '<i data-lucide="trending-up"></i>';
+    } else if (i === 2) {
+      iconEl.innerHTML = '<i data-lucide="calendar"></i>';
+    } else if (i === 3) {
+      iconEl.innerHTML = '<i data-lucide="sparkles"></i>';
+    }
+  }
+
+  updateAIMessage();
+  lucide.createIcons();
+}
+
+if (form) {
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    resetLoadingState();
+
     searchContainer.style.display = "none";
     loadingOverlay.style.display = "flex";
-    document.getElementById("loadingMetaContext").innerText =
-      destinationInput.value + " · " + travelersInput.value + "명";
-  }, 300);
 
-  // 2. 가짜 프로그래스 바 (45초 동안 95%까지 서서히 차오르게)
-  const intervalTime = totalEstimatedTimeMs / 95;
-  const progressInterval = setInterval(() => {
-    if (progress < 95) {
-      progress += 1;
-      progressBar.style.width = progress + "%";
-      progressText.innerText = progress + "%";
+    const destination = destinationInput ? destinationInput.value : "";
+    const travelers = travelersInput ? travelersInput.value : "";
+
+    const metaContext = document.getElementById("loadingMetaContext");
+    if (metaContext) {
+      metaContext.innerText = destination + " · " + travelers + "명";
     }
-  }, intervalTime);
 
-  // 3. 4개의 스텝 애니메이션 렌더링
-  const stepDuration = totalEstimatedTimeMs / 4;
-  const stepInterval = setInterval(() => {
-    if (currentStep < 3) {
-      // 이전 스텝 완료 처리
-      const prevDiv = document.getElementById("step" + currentStep);
-      prevDiv.classList.remove(
-        "bg-blue-50",
-        "border-2",
-        "border-blue-500",
-        "scale-105",
-      );
-      prevDiv.classList.add("bg-gray-100");
-      // 아이콘 체크 표시로 변경 (Lucide 아이콘 객체화)
-      prevDiv
-        .querySelector(".flex-shrink-0")
-        .classList.replace("bg-blue-100", "bg-blue-600");
-      prevDiv
-        .querySelector(".flex-shrink-0")
-        .classList.replace("text-blue-600", "text-white");
-      prevDiv.querySelector(".flex-shrink-0").innerHTML =
-        '<i data-lucide="check" class="w-6 h-6"></i>';
-      prevDiv
-        .querySelector("h3")
-        .classList.replace("text-blue-700", "text-gray-800");
+    // 진행률: 6초 동안 100%
+    const progressInterval = setInterval(() => {
+      if (progress < 100) {
+        progress++;
+        if (progressBar) progressBar.style.width = progress + "%";
+        if (progressText) progressText.innerText = progress + "%";
+      } else {
+        clearInterval(progressInterval);
+      }
+    }, 60);
 
-      currentStep += 1;
+    // 단계 전환: 1.5초마다
+    const stepInterval = setInterval(() => {
+      if (currentStep < 3) {
+        const prevStep = document.getElementById("step" + currentStep);
+        markStepDone(prevStep);
 
-      // 다음 스텝 활성화
-      const currDiv = document.getElementById("step" + currentStep);
-      currDiv.classList.remove("bg-gray-50", "opacity-60");
-      currDiv.classList.add(
-        "bg-blue-50",
-        "border-2",
-        "border-blue-500",
-        "scale-105",
-      );
+        currentStep++;
 
-      const currIconBg = currDiv.querySelector(".flex-shrink-0");
-      currIconBg.classList.replace("bg-white", "bg-blue-100");
-      currIconBg.classList.replace("text-gray-400", "text-blue-600");
-      // 현재 아이콘에 펄스 애니메이션 추가
-      currIconBg.querySelector("i").classList.add("animate-pulse");
-      currDiv
-        .querySelector("h3")
-        .classList.replace("text-gray-700", "text-blue-700");
+        const currentStepEl = document.getElementById("step" + currentStep);
+        markStepActive(currentStepEl);
 
-      lucide.createIcons(); // 새로운 아이콘 렌더링
-    }
-  }, stepDuration);
+        updateAIMessage();
+        lucide.createIcons();
+      } else {
+        clearInterval(stepInterval);
+      }
+    }, 1500);
 
-  // 4. AJAX 전송
-  const formData = new FormData(form);
-  const queryString = new URLSearchParams(formData).toString();
+    const formData = new FormData(form);
+    const queryString = new URLSearchParams(formData).toString();
 
-  fetch("planner/result?" + queryString, {
-    method: "GET",
-  })
-    .then((response) => response.text())
-    .then((html) => {
-      // 통신 완료! 강제로 100%
-      clearInterval(progressInterval);
-      clearInterval(stepInterval);
-      progressBar.style.width = "100%";
-      progressText.innerText = "100%";
-
-      setTimeout(() => {
-        // 받아온 JSP 결과 화면으로 페이지 완전 치환
-        document.open();
-        document.write(html);
-        document.close();
-      }, 800);
+    fetch("planner/result?" + queryString, {
+      method: "GET",
     })
-    .catch((err) => {
-      alert("서버 연결에 실패했습니다: " + err);
-      window.location.reload();
-    });
-});
+        .then((response) => response.text())
+        .then((html) => {
+          clearInterval(progressInterval);
+          clearInterval(stepInterval);
+
+          if (progressBar) progressBar.style.width = "100%";
+          if (progressText) progressText.innerText = "100%";
+
+          setTimeout(() => {
+            document.open();
+            document.write(html);
+            document.close();
+          }, 800);
+        })
+        .catch((err) => {
+          clearInterval(progressInterval);
+          clearInterval(stepInterval);
+          alert("서버 연결에 실패했습니다: " + err);
+          window.location.reload();
+        });
+  });
+}

@@ -420,3 +420,104 @@ button, input { font: inherit; }
 .menu-trigger.is-active span:nth-child(3) {
     transform: translateY(-7px) rotate(-45deg);
 }
+.loading-container {
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+}
+
+.loading-circle {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+}
+
+.circle {
+    position: absolute;
+    border-radius: 50%;
+    inset: 0;
+}
+
+.ping {
+    background: rgba(37,99,235,0.2);
+    animation: ping 1.5s infinite;
+}
+
+.pulse {
+    inset: 10px;
+    background: rgba(37,99,235,0.3);
+    animation: pulse 1.5s infinite;
+}
+
+.core {
+    inset: 25px;
+    background: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+@keyframes ping {
+    0% { transform: scale(1); opacity:1; }
+    100% { transform: scale(1.5); opacity:0; }
+}
+
+@keyframes pulse {
+    0%,100% { opacity:0.5; }
+    50% { opacity:1; }
+}
+
+/* progress */
+.progress-box { margin-top: 30px; }
+.progress-bar-bg {
+    height: 8px;
+    background: #eee;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--primary);
+}
+
+/* steps */
+.step {
+    display: flex;
+    gap: 10px;
+    padding: 12px;
+    margin-top: 10px;
+    background: #f3f4f6;
+    border-radius: 12px;
+    opacity: 0.6;
+}
+
+.step.active {
+    background: #dbeafe;
+    border: 2px solid var(--primary);
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.step.done {
+    background: #e5e7eb;
+}
+
+.icon {
+    width: 40px;
+    height: 40px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.ai-msg {
+    margin-top: 20px;
+    padding: 15px;
+    background: #eef4ff;
+    border-radius: 12px;
+}
