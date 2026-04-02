@@ -29,6 +29,9 @@ public class FastApiService {
             Path jsonDir = Paths.get(baseDir, "debug-json");
             Files.createDirectories(jsonDir);
 
+            System.out.println("현재 파일 저장 위치 (BaseDir): " + baseDir);
+
+
             Path requestPath = jsonDir.resolve("request.json");
             Files.writeString(requestPath, json, StandardCharsets.UTF_8);
 
