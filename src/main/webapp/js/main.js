@@ -216,3 +216,65 @@ if (form) {
         });
   });
 }
+
+const customAddBtn  = document.getElementById('customAddBtn');
+const customGroup   = document.getElementById('customChipGroup');
+const backdrop      = document.getElementById('backdrop');
+const inputSheet    = document.getElementById('inputSheet');
+const sheetInput    = document.getElementById('sheetInput');
+const sheetConfirm  = document.getElementById('sheetConfirm');
+const sheetCancel   = document.getElementById('sheetCancel');
+
+function openSheet() {
+  backdrop.classList.add('is-open');
+  inputSheet.classList.add('is-open');
+  setTimeout(() => sheetInput.focus(), 300);
+}
+
+function closeSheet() {
+  backdrop.classList.remove('is-open');
+  inputSheet.classList.remove('is-open');
+  sheetInput.value = '';
+}
+
+function addCustomChip() {
+  const val = sheetInput.value.trim();
+  if (!val) { closeSheet(); return; }
+
+  const label = document.createElement('label');
+  label.className = 'chip chip--custom';
+
+  const cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.name = 'customTag';
+  cb.value = val;
+  cb.checked = true;
+
+  const span = document.createElement('span');
+  span.textContent = val;
+
+  const xBtn = document.createElement('button');
+  xBtn.type = 'button';
+  xBtn.className = 'chip-remove';
+  xBtn.textContent = '✕';
+  xBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    label.remove();
+  });
+
+  span.appendChild(xBtn);
+  label.appendChild(cb);
+  label.appendChild(span);
+  customGroup.insertBefore(label, customAddBtn);
+  closeSheet();
+}
+
+if (customAddBtn) {
+  customAddBtn.addEventListener('click', openSheet);
+  backdrop.addEventListener('click', closeSheet);
+  sheetConfirm.addEventListener('click', addCustomChip);
+  sheetCancel.addEventListener('click', closeSheet);
+  sheetInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') addCustomChip();
+  });
+}
