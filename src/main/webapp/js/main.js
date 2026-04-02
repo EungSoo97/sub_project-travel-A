@@ -77,7 +77,7 @@ const travelersInput = document.querySelector('input[name="travelers"]');
 
 let progress = 0;
 let currentStep = 0;
-const totalEstimatedTimeMs = 100000; // 예상 생성 시간: 45초 (Gemini 2.5 JSON 생성기반)
+const totalEstimatedTimeMs = 1000000; // 예상 생성 시간: 45초 (Gemini 2.5 JSON 생성기반)
 
 form.addEventListener("submit", function (e) {
   e.preventDefault(); // 기본 form submit 보류 (AJAX 처리)
@@ -179,3 +179,14 @@ form.addEventListener("submit", function (e) {
       window.location.reload();
     });
 });
+// 햄버거 아이콘
+const trigger = document.querySelector('.menu-trigger');
+const nav = document.querySelector('.site-nav');
+
+if (trigger && nav) {
+  trigger.addEventListener('click', function (e) {
+    e.preventDefault();
+    this.classList.toggle('is-active');
+    nav.classList.toggle('is-open');
+  });
+}
