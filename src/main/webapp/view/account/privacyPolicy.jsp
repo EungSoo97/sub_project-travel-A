@@ -155,7 +155,9 @@
     <br><div class="terms-list">
     본 약관은 대한민국 법률을 따르며, 분쟁 발생 시 관할 법원은 회사 소재지 법원으로 합니다. <br>
     <hr></div>
-
+        <div>
+        <button class="btn btn--primary btn--block" onclick="history.back()">뒤로가기</button>
+        </div>
 </div>
 
 

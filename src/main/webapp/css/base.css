@@ -521,3 +521,7 @@ button, input { font: inherit; }
     background: #eef4ff;
     border-radius: 12px;
 }
+.acouunt-check
+{
+    width: auto;
+}

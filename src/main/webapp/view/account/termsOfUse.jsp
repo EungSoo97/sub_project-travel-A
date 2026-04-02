@@ -148,7 +148,9 @@
   본 방침은 법령 및 서비스 변경에 따라 수정될 수 있으며, 변경 시 공지합니다. <br>
   <hr>
   </div>
-
+  <div>
+    <button class="btn btn--primary btn--block" onclick="history.back()">뒤로가기</button>
+  </div>
 </div>
 
 </body>

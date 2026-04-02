@@ -3,7 +3,7 @@
 <html>
 <head>
     <title>Resultpage</title>
-
+    <link rel="stylesheet" href="result-page.css">
 </head>
 <body>
 
@@ -15,7 +15,7 @@
 
             <div class="title-area">
                 <h1> AI 맞춤 여행 일정</h1>
-                <p class="sub">${result.destination} · 6일 여행</p>
+                <p class="sub">${result.summary.destination} · 6일 여행</p>
 
 
 <%--            EL 문으로 잡아줄예정--%>
@@ -23,12 +23,14 @@
 
 
             <div class="actions">
-                <button>✏️</button>
+                <form action="result-page" method="post">
+                <button >✏️</button>
+                </form>
                 <button>♡</button>
                 <button>🔗</button>
 <%--                공유 버튼은 url 복사만 --%>
                 <button class="download">⬇ 다운로드</button>
-                <button class="download">계시하기</button>
+                <button class="download">개시하기</button>
             </div>
         </div>
 
