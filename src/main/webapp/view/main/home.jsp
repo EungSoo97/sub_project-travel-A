@@ -85,15 +85,14 @@
                     </div>
                 </div>
 
-                <div class="chip-group-wrap">
-                    <h3>커스텀 태그</h3>
-                    <div class="chip-group">
-                        <label class="chip"><input type="text" name="custom" placeholder="커스텀 태그" hidden>+</label>
-                    </div>
-
+            <div class="chip-group-wrap">
+                <h3>커스텀 태그</h3>
+                <div class="chip-group" id="customChipGroup">
+                    <button type="button" class="chip-add-btn" id="customAddBtn">+ 추가</button>
+                </div>
+            </div>
 
                 <button type="submit" class="btn btn--primary btn--block">AI 여행 일정 만들기</button>
-        </div>
             </div>
     </section>
     </form>
@@ -301,6 +300,17 @@
     </section>
 </main>
 
+
+<div class="input-sheet-backdrop" id="backdrop"></div>
+<div class="input-sheet" id="inputSheet">
+    <div class="sheet-handle"></div>
+    <p class="sheet-title">태그 추가</p>
+    <div class="sheet-input-row">
+        <input type="text" id="sheetInput" placeholder="예: 온천, 야경, 현지 시장" maxlength="12">
+        <button class="sheet-confirm" id="sheetConfirm">추가</button>
+    </div>
+    <button class="sheet-cancel" id="sheetCancel">취소</button>
+</div>
 
 </body>
 </html>

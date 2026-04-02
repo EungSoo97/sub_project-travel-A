@@ -1,62 +1,48 @@
 package com.es.ta.ai;
 
-
-import com.google.gson.Gson;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 @WebServlet("/planner/result")
 public class TravelPlanServlet extends HttpServlet {
+
+    private final TravelDao travelDao = new TravelDao();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
         try {
+            // 1. 파라미터 추출 및 DTO 생성
+            TravelRequestDto dto = TravelRequestDto.builder()
+                    .destination(req.getParameter("destination"))
+                    .startDate(req.getParameter("startDate"))
+                    .endDate(req.getParameter("endDate"))
+                    .travelers(Integer.parseInt(req.getParameter("travelers")))
+                    .minbudget(Integer.parseInt(req.getParameter("min-budget")))
+                    .maxbudget(Integer.parseInt(req.getParameter("max-budget")))
+                    .styles(Arrays.asList("healing", "food")) // 기본값 또는 추가 파라미터 처리
+                    .themes(Arrays.asList("shopping", "cafe"))
+                    .build();
 
-            String destination = req.getParameter("destination");
-            String startDate = req.getParameter("startDate");
-            String endDate = req.getParameter("endDate");
-            int travelers = Integer.parseInt(req.getParameter("travelers"));
-            String minStr = req.getParameter("min-budget");
-            String maxStr = req.getParameter("max-budget");
+            // 2. DAO를 통한 로그 기록 (Real Path 전달)
+            String logPath = req.getServletContext().getRealPath("/json");
+            travelDao.saveRequestLog(dto, logPath);
 
-            TravelRequestDto dto = new TravelRequestDto();
-            dto.setMinbudget(Integer.parseInt(minStr));
-            dto.setMaxbudget(Integer.parseInt(maxStr));
-            dto.setDestination(destination);
-            dto.setStartDate(startDate);
-            dto.setEndDate(endDate);
-            dto.setTravelers(travelers);
-            dto.setStyles(Arrays.asList("healing", "food"));
-            dto.setThemes(Arrays.asList("shopping", "cafe"));
+            // 3. DAO를 통한 AI 데이터 획득
+            TravelResponseDto result = travelDao.fetchTravelPlan(dto);
 
-            Gson gson = new Gson();
-            String json = gson.toJson(dto);
-
-            String dirPath = req.getServletContext().getRealPath("/json");
-            Path dir = Paths.get(dirPath);
-            Files.createDirectories(dir);
-
-            Path requestPath = dir.resolve("request.json");
-            Files.write(requestPath, json.getBytes(StandardCharsets.UTF_8));
-
-            TravelResponseDto result = FastApiService.callFastApi(dto);
-
-            if (result == null) {
-                req.setAttribute("error", "FastAPI 응답 실패 또는 JSON 형식 오류");
-                req.getRequestDispatcher("/result.jsp").forward(req, resp);
-                return;
+            // 4. 결과 검증 및 응답 제어
+            if (result == null || !result.isSuccess()) {
+                String errorMsg = (result != null) ? result.getMessage() : "AI 응답 실패";
+                req.setAttribute("error", errorMsg);
+            } else {
+                req.setAttribute("result", result);
             }
 
             req.setAttribute("result", result);
