@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="css/base.css">
 </head>
 <body>
-<form id="planForm" action="planner/result" method="get" class="space-y-5">
 <div class="page">
     <header class="site-header">
         <div class="container site-header__inner">
