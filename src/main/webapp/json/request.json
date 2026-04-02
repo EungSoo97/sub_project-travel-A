@@ -1,1 +1,17 @@
-{"destination":"오사카","startDate":"2026-04-13","endDate":"2026-04-15","travelers":2,"budget":0,"styles":["healing","food"],"themes":["shopping","cafe"],"minbudget":10000,"maxbudget":100000}
+{
+  "destination": "오사카",
+  "startDate": "2026-04-13",
+  "endDate": "2026-04-15",
+  "travelers": 2,
+  "budget": 0,
+  "styles": [
+    "healing",
+    "food"
+  ],
+  "themes": [
+    "shopping",
+    "cafe"
+  ],
+  "minbudget": 10000,
+  "maxbudget": 100000
+}

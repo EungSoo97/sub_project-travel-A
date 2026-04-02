@@ -3,7 +3,6 @@
 <html>
 <head>
     <title>Resultpage</title>
-    <link rel="stylesheet" href="../../css/result-page.css">
 
 </head>
 <body>
@@ -16,13 +15,12 @@
 
             <div class="title-area">
                 <h1> AI 맞춤 여행 일정</h1>
-                <p class="sub">오사카 · 6일 여행</p>
-<%--            EL 문으로 잡
+                <p class="sub">${result.destination} · 6일 여행</p>
 
 
-
-아줄예정--%>
+<%--            EL 문으로 잡아줄예정--%>
             </div>
+
 
             <div class="actions">
                 <button>✏️</button>
