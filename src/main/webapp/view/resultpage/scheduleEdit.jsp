@@ -15,7 +15,17 @@
   <button >💾저장</button></div>
 </div>
 <div class="schedule">
+<h3>Day1</h3>
+    <button>➕활동 추가</button>
+<div class="detail-schedule">
+    00:00 <br>
+    공항에서 숙소로 이동
+    나맅
 
+
+
+
+</div>
 </div>
 
 
