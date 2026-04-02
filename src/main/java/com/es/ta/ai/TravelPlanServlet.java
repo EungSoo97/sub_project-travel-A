@@ -1,12 +1,18 @@
 package com.es.ta.ai;
 
 
+import com.google.gson.Gson;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 @WebServlet("/planner/result")
@@ -17,6 +23,7 @@ public class TravelPlanServlet extends HttpServlet {
             throws ServletException, IOException {
 
         try {
+
             String destination = req.getParameter("destination");
             String startDate = req.getParameter("startDate");
             String endDate = req.getParameter("endDate");
@@ -33,6 +40,16 @@ public class TravelPlanServlet extends HttpServlet {
             dto.setTravelers(travelers);
             dto.setStyles(Arrays.asList("healing", "food"));
             dto.setThemes(Arrays.asList("shopping", "cafe"));
+
+            Gson gson = new Gson();
+            String json = gson.toJson(dto);
+
+            String dirPath = req.getServletContext().getRealPath("/json");
+            Path dir = Paths.get(dirPath);
+            Files.createDirectories(dir);
+
+            Path requestPath = dir.resolve("request.json");
+            Files.write(requestPath, json.getBytes(StandardCharsets.UTF_8));
 
             TravelResponseDto result = FastApiService.callFastApi(dto);
 
