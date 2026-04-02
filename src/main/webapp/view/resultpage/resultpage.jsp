@@ -3,8 +3,7 @@
 <html>
 <head>
     <title>Resultpage</title>
-    <link rel="stylesheet" href="../../css/result-page.css">
-
+    <link rel="stylesheet" href="result-page.css">
 </head>
 <body>
 <div class="result-page">
@@ -15,22 +14,23 @@
             <div ><a href="hello-servlet">← 검색으로 돌아가기</a></div>
 
             <div class="title-area">
-                <h1 class="result-h1"> AI 맞춤 여행 일정</h1>
-                <p class="sub">오사카 · 6일 여행</p>
-<%--            EL 문으로 잡
+                <h1> AI 맞춤 여행 일정</h1>
+                <p class="sub">${result.summary.destination} · 6일 여행</p>
 
 
-
-아줄예정--%>
+<%--            EL 문으로 잡아줄예정--%>
             </div>
 
+
             <div class="actions">
-                <button>✏️</button>
+                <form action="result-page" method="post">
+                <button >✏️</button>
+                </form>
                 <button>♡</button>
                 <button>🔗</button>
 <%--                공유 버튼은 url 복사만 --%>
                 <button class="download">⬇ 다운로드</button>
-                <button class="download">계시하기</button>
+                <button class="download">개시하기</button>
             </div>
         </div>
 

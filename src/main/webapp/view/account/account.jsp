@@ -99,7 +99,9 @@
 
                 <div class="form-field">
                     <label style="display:flex; align-items:center; gap:8px;">
-                        <input type="checkbox">
+                        <div class="acouunt-check">
+                        <input type="checkbox" >
+                </div>
                         <span>
                 <a href="terms">이용약관</a>및
               <a href="terms" methods="post">개인정보처리방침</a> 동의

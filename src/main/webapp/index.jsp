@@ -7,7 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Travel-A(AI) | AI 여행 플래너</title>
     <link rel="stylesheet" href="css/base.css">
-
+    <link rel="stylesheet" href="css/result-page.css">
+    <link rel="stylesheet" href="../../css/edit-schedule.css">
 </head>
 <body>
 <div class="page">
@@ -71,6 +72,9 @@
     </footer>
 </div>
 <script src="js/main.js"></script>
+
+<form action="result-page">
+    <button >backdoor</button></form>
 
 </body>
 <script>

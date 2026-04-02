@@ -21,6 +21,9 @@ public class ResultpageC extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        request.setAttribute("content", "view/resultpage/scheduleEdit.jsp");
+        request.getRequestDispatcher("index.jsp").forward(request, response);
+
 
 
     }

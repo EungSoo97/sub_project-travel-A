@@ -45,7 +45,9 @@ public class TravelPlanServlet extends HttpServlet {
                 req.setAttribute("result", result);
             }
 
-            req.getRequestDispatcher("/result.jsp").forward(req, resp);
+            req.setAttribute("result", result);
+            req.setAttribute("content", "view/resultpage/resultpage.jsp");
+            req.getRequestDispatcher("/index.jsp").forward(req, resp);
 
         } catch (Exception e) {
             e.printStackTrace();
