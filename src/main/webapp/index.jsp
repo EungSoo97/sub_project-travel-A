@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Travel-A(AI) | AI 여행 플래너</title>
     <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="../../css/result-page.css">
 </head>
 <body>
 <div class="page">
@@ -22,7 +23,7 @@
                 <a href="${pageContext.request.contextPath}/">여행 계획</a>
                 <a href="${pageContext.request.contextPath}/explore">탐색</a>
                 <a href="${pageContext.request.contextPath}/live">실시간 여행</a>
-                <a href="${pageContext.request.contextPath}/mypage">마이페이지</a>
+                <a href="result-page">마이페이지</a>
             </nav>
 
             <div class="site-actions">

@@ -104,6 +104,8 @@
                 <a href="terms">이용약관</a>및
               <a href="terms" methods="post">개인정보처리방침</a> 동의
             </span>
+
+
                     </label>
                 </div>
 
