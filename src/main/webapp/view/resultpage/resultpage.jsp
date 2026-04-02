@@ -7,9 +7,9 @@
 
 </head>
 <body>
+<div class="result-page">
 
-
-    <div class="container">
+    <div class="container-result">
 
         <div class="header">
             <div ><a href="hello-servlet">← 검색으로 돌아가기</a></div>
@@ -302,7 +302,7 @@
 
 
     </div>
-
+</div>
     </body>
     </html>
 
