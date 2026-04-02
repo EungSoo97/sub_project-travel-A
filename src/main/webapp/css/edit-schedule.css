@@ -1,0 +1,249 @@
+
+.edit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px 16px 16px;
+    gap: 12px;
+}
+
+.edit-header__left h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.edit-header__left p {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.edit-header__actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.btn-recalc,
+.btn-save {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn-recalc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+}
+
+.btn-recalc:active { background: var(--bg); }
+
+.btn-save {
+    background: var(--primary);
+    border: 1px solid var(--primary);
+    color: white;
+}
+
+.btn-save:active { background: #2563EB; }
+
+/* ── Day 블록 ── */
+.day-block {
+    margin: 0 16px 20px;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.day-block__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.day-block__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.btn-add-activity {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.btn-add-activity:active {
+    background: var(--bg);
+}
+
+/* ── 활동 목록 ── */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── 활동 아이템 ── */
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--surface);
+    transition: background 0.1s, box-shadow 0.1s;
+    cursor: grab;
+    position: relative;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+/* 드래그 중 스타일 */
+.activity-item.dragging {
+    opacity: 0.5;
+    background: var(--bg);
+    cursor: grabbing;
+}
+
+/* 드래그 오버 표시 */
+.activity-item.drag-over {
+    border-top: 2px solid var(--primary);
+    background: var(--primary-light);
+}
+
+/* ── 드래그 핸들 ── */
+.activity-item__drag {
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: grab;
+    padding-top: 2px;
+    flex-shrink: 0;
+    letter-spacing: -2px;
+    user-select: none;
+}
+
+/* ── 아이콘 ── */
+.activity-item__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+}
+
+.activity-item--move  .activity-item__icon { background: var(--bg); }
+.activity-item--spot  .activity-item__icon { background: var(--primary-light); }
+.activity-item--food  .activity-item__icon { background: var(--orange-light); }
+
+/* ── 본문 ── */
+.activity-item__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.activity-item__top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+}
+
+.activity-item__time {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg);
+    padding: 1px 7px;
+    border-radius: 4px;
+}
+
+.activity-item__title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.activity-item__desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+/* ── 메타 태그 ── */
+.activity-item__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.meta-tag {
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.meta-tag--location {
+    background: var(--bg);
+    color: var(--text-secondary);
+}
+
+.meta-tag--time {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.meta-tag--cost {
+    background: var(--orange-light);
+    color: var(--orange);
+}
+
+/* ── 삭제 버튼 ── */
+.activity-item__delete {
+    border: none;
+    background: none;
+    font-size: 16px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: color 0.15s, background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.activity-item__delete:hover,
+.activity-item__delete:active {
+    color: var(--red);
+    background: #FEF2F2;
+}
