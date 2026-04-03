@@ -1,11 +1,14 @@
 package com.es.ta.ai;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -14,41 +17,74 @@ import java.util.List;
 public class TravelPlanServlet extends HttpServlet {
 
     private final TravelDao travelDao = new TravelDao();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        req.setCharacterEncoding("UTF-8");
+        resp.setCharacterEncoding("UTF-8");
+        resp.setContentType("text/html; charset=UTF-8");
+
         try {
+            String traceId = "TP-" + System.currentTimeMillis();
+            req.setAttribute("traceId", traceId);
+            System.out.println("[" + traceId + "] TravelPlanServlet.doGet START " + LocalDateTime.now());
+            System.out.println("[" + traceId + "] URI=" + req.getRequestURI() + " QUERY=" + req.getQueryString());
 
             String[] customTagsArr = req.getParameterValues("customTag");
 
             List<String> customTags = (customTagsArr != null)
                     ? Arrays.asList(customTagsArr)
                     : Collections.emptyList();
-            // 1. 파라미터 추출 및 DTO 생성
-            TravelRequestDto dto = TravelRequestDto.builder()
+
+            // 1. 요청 DTO 생성
+            TravelRequestDto requestDto = TravelRequestDto.builder()
                     .destination(req.getParameter("destination"))
                     .startDate(req.getParameter("startDate"))
                     .endDate(req.getParameter("endDate"))
-                    .travelers(Integer.parseInt(req.getParameter("travelers")))
-                    .minbudget(Integer.parseInt(req.getParameter("min-budget")))
-                    .maxbudget(Integer.parseInt(req.getParameter("max-budget")))
-                    .styles(Arrays.asList("healing", "food")) // 기본값 또는 추가 파라미터 처리
+                    .travelers(parseInt(req.getParameter("travelers"), 1))
+                    .minbudget(parseInt(req.getParameter("min-budget"), 0))
+                    .maxbudget(parseInt(req.getParameter("max-budget"), 0))
+                    .styles(Arrays.asList("healing", "food"))
                     .themes(Arrays.asList("shopping", "cafe"))
                     .customTag(customTags)
                     .build();
+            System.out.println("[" + traceId + "] requestDto created: destination=" + requestDto.getDestination()
+                    + ", startDate=" + requestDto.getStartDate()
+                    + ", endDate=" + requestDto.getEndDate()
+                    + ", travelers=" + requestDto.getTravelers());
 
-            // 2. DAO를 통한 로그 기록 (Real Path 전달)
+            // 2. 요청 로그 저장
             String logPath = req.getServletContext().getRealPath("/json");
-            travelDao.saveRequestLog(dto, logPath);
+            travelDao.saveRequestLog(requestDto, logPath);
+            System.out.println("[" + traceId + "] request log saved path=" + logPath);
 
+            // 3. AI 응답 받기
+            System.out.println("[" + traceId + "] calling TravelDao.fetchTravelPlan()");
+            TravelResponseDto result = travelDao.fetchTravelPlan(requestDto);
+            System.out.println("[" + traceId + "] fetchTravelPlan completed. resultNull=" + (result == null)
+                    + ", success=" + (result != null && result.isSuccess()));
 
+            // 4. 응답 JSON 문자열 만들기
+            String responseJson = objectMapper.writeValueAsString(result);
+            System.out.println("[" + traceId + "] responseJson length=" + responseJson.length());
 
-            // 3. DAO를 통한 AI 데이터 획득
-            TravelResponseDto result = travelDao.fetchTravelPlan(dto);
+            // 5. DB 저장
+            if (result != null) {
+                try {
+                    System.out.println("[" + traceId + "] calling TravelDao.insertTravelPlan()");
+                    travelDao.insertTravelPlan(requestDto, result, responseJson);
+                    System.out.println("[" + traceId + "] insertTravelPlan completed");
+                } catch (Exception dbError) {
+                    dbError.printStackTrace();
+                    System.out.println("[" + traceId + "] insertTravelPlan failed: " + dbError.getMessage());
+                    req.setAttribute("dbWarning", "일정 생성은 성공했지만 DB 저장에는 실패했습니다.");
+                }
+            }
 
-            // 4. 결과 검증 및 응답 제어
+            // 6. 화면 전달
             if (result == null || !result.isSuccess()) {
                 String errorMsg = (result != null) ? result.getMessage() : "AI 응답 실패";
                 req.setAttribute("error", errorMsg);
@@ -56,14 +92,23 @@ public class TravelPlanServlet extends HttpServlet {
                 req.setAttribute("result", result);
             }
 
-            req.setAttribute("result", result);
             req.setAttribute("content", "view/resultpage/resultpage.jsp");
+            System.out.println("[" + traceId + "] forwarding to /index.jsp");
             req.getRequestDispatcher("/index.jsp").forward(req, resp);
 
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("[TravelPlanServlet] ERROR: " + e.getMessage());
             req.setAttribute("error", "서버 처리 중 오류 발생: " + e.getMessage());
             req.getRequestDispatcher("/result.jsp").forward(req, resp);
+        }
+    }
+
+    private int parseInt(String value, int defaultValue) {
+        try {
+            return (value == null || value.trim().isEmpty()) ? defaultValue : Integer.parseInt(value);
+        } catch (Exception e) {
+            return defaultValue;
         }
     }
 }

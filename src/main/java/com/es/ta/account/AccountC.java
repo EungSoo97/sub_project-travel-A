@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 public class AccountC extends HttpServlet {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+
         request.setAttribute("content", "view/account/account.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
 
@@ -19,9 +20,11 @@ public class AccountC extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("utf-8");
 
-
-
+        AccountDAO.newuser(request);
+        request.setAttribute("content", "view/main/home.jsp");
+        request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 
     public void destroy() {

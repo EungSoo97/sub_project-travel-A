@@ -1,14 +1,15 @@
 package com.es.ta.ai;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpConnectTimeoutException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,29 +17,29 @@ import java.time.Duration;
 
 public class FastApiService {
 
-    private static final String FAST_API_URL = "http://10.1.82.128:8000/api/v1/travel/plan";
+    private static final String DEFAULT_FAST_API_URL = "http://127.0.0.1:8000/api/v1/travel/plan";
 
     public static TravelResponseDto callFastApi(TravelRequestDto dto) {
         try {
             ObjectMapper mapper = new ObjectMapper();
-
             String json = mapper.writeValueAsString(dto);
-            System.out.println("보내는 JSON = " + json);
+            String fastApiUrl = resolveFastApiUrl();
 
-            String baseDir = System.getProperty("user.dir");
-            Path jsonDir = Paths.get(baseDir, "debug-json");
+            System.out.println("[FastApiService] callFastApi START");
+            System.out.println("Request JSON = " + json);
+            System.out.println("FastAPI URL = " + fastApiUrl);
+
+            Path jsonDir = Paths.get(System.getProperty("java.io.tmpdir"), "travelA-debug-json");
             Files.createDirectories(jsonDir);
-
-            System.out.println("현재 파일 저장 위치 (BaseDir): " + baseDir);
-
+            System.out.println("Debug JSON dir = " + jsonDir.toAbsolutePath());
 
             Path requestPath = jsonDir.resolve("request.json");
             Files.writeString(requestPath, json, StandardCharsets.UTF_8);
 
-
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(FAST_API_URL))
-                    .header("Content-Type", "application/json")
+                    .uri(URI.create(fastApiUrl))
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .header("Accept", "application/json")
                     .timeout(Duration.ofSeconds(300))
                     .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
                     .build();
@@ -47,27 +48,55 @@ public class FastApiService {
                     .version(HttpClient.Version.HTTP_1_1)
                     .connectTimeout(Duration.ofSeconds(5))
                     .build();
+
+            System.out.println("[FastApiService] sending HTTP request to FastAPI");
             HttpResponse<String> response =
                     client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
 
             System.out.println("====== RESPONSE RECEIVED ======");
-            System.out.println("응답 status = " + response.statusCode());
-            System.out.println("응답 body = " + response.body());
+            System.out.println("Response status = " + response.statusCode());
+            System.out.println("Response body = " + response.body());
 
             if (response.statusCode() != 200) {
                 throw new RuntimeException("FastAPI returned status code: " + response.statusCode() + " body: " + response.body());
             }
+
             String responseBody = response.body();
             Path responsePath = jsonDir.resolve("result.json");
             Files.writeString(responsePath, responseBody, StandardCharsets.UTF_8);
 
+            TravelResponseDto parsed = mapper.readValue(responseBody, TravelResponseDto.class);
+            System.out.println("[FastApiService] callFastApi END parseSuccess=true");
+            return parsed;
 
-            return mapper.readValue(response.body(), TravelResponseDto.class);
-
+        } catch (HttpConnectTimeoutException e) {
+            System.out.println("[FastApiService] CONNECT TIMEOUT: " + e.getMessage());
+            throw new RuntimeException("Could not connect to FastAPI before the connect timeout. Check host/port and whether the FastAPI server is running.", e);
+        } catch (HttpTimeoutException e) {
+            System.out.println("[FastApiService] REQUEST TIMEOUT: " + e.getMessage());
+            throw new RuntimeException("FastAPI request timed out. Check whether the FastAPI server is running and responding.", e);
+        } catch (ConnectException e) {
+            System.out.println("[FastApiService] CONNECT ERROR: " + e.getMessage());
+            throw new RuntimeException("Could not connect to FastAPI. Check host/port and whether the FastAPI server is running.", e);
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("FastApiService 통신 에러 발생: " + e.getMessage());
-            throw new RuntimeException("API 통신 에러: " + e.getMessage(), e);
+            System.err.println("FastApiService communication error: " + e.getMessage());
+            System.out.println("[FastApiService] callFastApi ERROR: " + e.getClass().getName() + " / " + e.getMessage());
+            throw new RuntimeException("API communication error: " + e.getMessage(), e);
         }
+    }
+
+    private static String resolveFastApiUrl() {
+        String systemPropertyUrl = System.getProperty("fastapi.url");
+        if (systemPropertyUrl != null && !systemPropertyUrl.trim().isEmpty()) {
+            return systemPropertyUrl.trim();
+        }
+
+        String envUrl = System.getenv("FAST_API_URL");
+        if (envUrl != null && !envUrl.trim().isEmpty()) {
+            return envUrl.trim();
+        }
+
+        return DEFAULT_FAST_API_URL;
     }
 }
