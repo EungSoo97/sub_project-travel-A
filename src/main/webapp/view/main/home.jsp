@@ -28,14 +28,18 @@
                         <input id="destination" name="destination" type="text" placeholder="예: 일본, 시코쿠, 규슈" required>
                     </div>
 
-                    <div class="form-field">
-                        <label for="startDate">출발일</label>
-                        <input id="startDate" name="startDate" type="date" required>
-                    </div>
-
-                    <div class="form-field">
-                        <label for="endDate">도착일</label>
-                        <input id="endDate" name="endDate" type="date" required>
+                    <div class="form-field form-field--wide">
+                        <label>여행 기간</label>
+                        <div class="date-trigger" id="dateTrigger">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--primary);flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                            <div class="trigger-main">
+                                <span class="trigger-label">출발일 · 도착일</span>
+                                <span class="trigger-val" id="triggerVal">날짜를 선택해주세요</span>
+                            </div>
+                            <span class="trigger-nights" id="triggerNights"></span>
+                        </div>
+                        <input type="hidden" id="startDate" name="startDate">
+                        <input type="hidden" id="endDate" name="endDate">
                     </div>
                 </div>
 
@@ -307,5 +311,33 @@
     <button class="sheet-cancel" id="sheetCancel">취소</button>
 </div>
 
+
+<div class="sheet-backdrop" id="dateBackdrop"></div>
+<div class="bottom-sheet" id="dateSheet">
+    <div class="sheet-handle-wrap"><div class="sheet-handle"></div></div>
+    <div class="sheet-head">
+        <span class="sheet-head-title">여행 기간 선택</span>
+        <button type="button" class="sheet-close-btn" id="dateSheetClose">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+    </div>
+    <div class="date-summary">
+        <div class="summary-col">
+            <span class="summary-lbl">출발일</span>
+            <span class="summary-date empty" id="sumStart">선택 전</span>
+        </div>
+        <div class="summary-arrow">→</div>
+        <div class="summary-col" style="text-align:right">
+            <span class="summary-lbl">도착일</span>
+            <span class="summary-date empty" id="sumEnd">선택 전</span>
+        </div>
+        <div class="summary-nights" id="sumNights"></div>
+    </div>
+    <div class="cal-scroll" id="calScroll"></div>
+    <div class="sheet-footer">
+        <div class="footer-info" id="footerInfo">출발일을 먼저 선택하세요</div>
+        <button type="button" class="btn-cal-apply" id="calApplyBtn" disabled>적용하기</button>
+    </div>
+</div>
 </body>
 </html>
