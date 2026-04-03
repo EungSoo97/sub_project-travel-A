@@ -34,8 +34,20 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
           <div class="site-actions">
             <div class="login-register" id="headerLoginBtns">
-              <a href="login" class="btn--login">로그인</a>
-              <a href="account" class="btn--register">회원가입</a>
+                <c:choose>
+                    <c:when test="${not empty sessionScope.user}">
+                        <div class="drawer-user-name">👤 ${sessionScope.user.name}님</div>
+                        <a href="${pageContext.request.contextPath}/logout" class="drawer-logout">로그아웃</a>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="drawer-links" style="display:flex; gap:8px; padding: 8px 14px;">
+                            <a href="login" class="btn--login">로그인</a>
+                            <a href="account" class="btn--register">회원가입</a>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
+<%--              <a href="login" class="btn--login">로그인</a>--%>
+<%--              <a href="account" class="btn--register">회원가입</a>--%>
             </div>
             <div class="mobile-menu-btn" id="mobileMenuBtn">
               <a class="menu-trigger">
