@@ -1,0 +1,365 @@
+/* --- 기본 페이지 & 헤더 세팅 --- */
+body {
+    background-color: #fafafa;
+    margin: 0;
+    padding: 0;
+}
+
+.live-header {
+    text-align: center;
+    margin-top: 30px; /* 모바일 환경에 맞게 상단 여백 축소 */
+}
+.live-header h1 { font-size: 26px; margin-bottom: 8px; }
+.live-header p { color: #666; font-size: 14px; margin: 0; }
+
+/* --- 박스 공통 레이아웃 (모바일 400px 최적화) --- */
+/* --- 박스 공통 레이아웃 (모바일 400px 최적화) --- */
+.realtime-box,
+.next-schedule-box,
+.nearby-booking-box,
+.weather-box,       /* 👈 추가됨 */
+.traffic-box,       /* 👈 추가됨 */
+.emergency-box {    /* 👈 추가됨 */
+    width: 92%;              /* 모바일 화면을 시원하게 채우도록 92% 할당 */
+    margin: 15px auto;       /* 박스 간 간격 축소 및 중앙 정렬 */
+    box-sizing: border-box;
+}
+.card-box {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;     /* 모바일에 맞게 곡률 12px로 조정 */
+    padding: 20px;           /* 내부 여백을 20px로 줄여 공간 확보 */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+
+/* --- 현재 시각 박스 --- */
+.time-box {
+    background-color: #f4f4f4;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    border: 1px solid #ebebeb;
+}
+.time-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.time-label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.time-display {
+    font-size: 28px;         /* 400px 폭에 맞게 폰트 크기 조절 */
+    font-weight: 900;
+    color: #000;
+    letter-spacing: -0.5px;
+}
+.time-bottom {
+    color: #888;
+    font-size: 12px;
+}
+
+/* --- 진행 중인 액티비티 카드 --- */
+.activity-card {
+    border: 1px solid #f0f0f0;
+    border-radius: 12px;
+    padding: 16px;
+    background-color: #fff;
+}
+.activity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+.status-badge {
+    color: #4caf50;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: bold;
+}
+.status-badge .dot {
+    width: 8px;
+    height: 8px;
+    background-color: #4caf50;
+    border-radius: 50%;
+}
+.time-remaining { color: #666; }
+.time-remaining strong { color: #000; font-size: 14px; }
+
+.activity-title {
+    font-size: 22px;         /* 한 줄에 예쁘게 들어오게 조정 */
+    font-weight: 800;
+    margin: 0 0 6px 0;
+}
+.activity-address {
+    font-size: 13px;
+    color: #888;
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+/* --- 3단 정보 그리드 --- */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.info-item {
+    background-color: #fafafa;
+    padding: 12px 4px;       /* 3등분 시 텍스트가 잘리지 않게 패딩 축소 */
+    border-radius: 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.info-label {
+    font-size: 11px;
+    color: #888;
+}
+.info-value {
+    font-size: 15px;
+    font-weight: bold;
+    color: #000;
+}
+.info-value.status-good {
+    color: #1bba53;
+}
+
+/* --- 혼잡도 배너 --- */
+.congestion-banner {
+    background-color: #eaf8ee;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.banner-icon { font-size: 20px; }
+.banner-text strong {
+    display: block;
+    font-size: 13px;
+    color: #1bba53;
+    margin-bottom: 2px;
+}
+.banner-text p {
+    margin: 0;
+    font-size: 12px;
+    color: #666;
+}
+
+/* --- 다음 일정 & 주변 예약 공통 --- */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.section-title {
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.section-title svg { margin-bottom: 2px; }
+.subtitle { font-size: 12px; color: #888; }
+
+/* --- 다음 일정 (Next Schedule) --- */
+.schedule-content {
+    display: flex;
+    flex-direction: column;  /* 모바일에서는 버튼을 아래로 내리는 것이 깔끔함 */
+    gap: 12px;
+    align-items: flex-start;
+}
+.schedule-info h3 {
+    font-size: 18px;
+    margin: 0 0 4px 0;
+    color: #111;
+}
+.schedule-info p {
+    font-size: 13px;
+    color: #888;
+    margin: 0;
+}
+.btn-dark {
+    width: 100%;             /* 버튼 터치가 쉽도록 풀사이즈 */
+    background-color: #2563eb;
+    color: #ffffff;
+    padding: 14px 0;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+    text-align: center;
+}
+.btn-dark:hover { background-color: #1d4ed8; }
+
+/* --- 주변 즉시 예약 (Nearby Booking) & 인생샷 스폿 --- */
+.booking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.booking-item {
+    background-color: #fafafa;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #f0f0f0;
+}
+
+.place-title-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+}.place-title-row h4 {
+     margin: 0;
+     font-size: 15px;
+     color: #111;
+     word-break: keep-all; /* 💡 추가: 한글이 글자 단위가 아닌 단어 단위로 예쁘게 줄바꿈됨 */
+ }
+
+.badge-gray {
+    background-color: #e0e0e0;
+    color: #555;
+    padding: 3px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: bold;
+    white-space: nowrap; /* 💡 추가: '숨은 명소' 같은 배지 안의 글자가 절대 두 줄로 깨지지 않음 */
+    flex-shrink: 0;      /* 💡 추가: 공간이 부족해도 배지가 찌그러지지 않음 */
+}
+
+.place-info p {
+    margin: 0;
+    font-size: 12px;
+    color: #888;
+    word-break: keep-all; /* 💡 추가: 설명 텍스트도 예쁘게 줄바꿈 */
+}
+
+.btn-outline {
+    background-color: #ffffff;
+    border: 1px solid #333;
+    color: #333;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 13px;
+    transition: 0.2s;
+    white-space: nowrap; /* 💡 핵심: '위치 보기' 텍스트가 무조건 한 줄로 나오게 강제함 */
+    flex-shrink: 0;      /* 💡 핵심: 왼쪽 텍스트가 길어져도 버튼 영역이 좁아지지 않도록 방어함 */
+    margin-left: 10px;   /* 💡 추가: 텍스트와 버튼 사이의 최소 여백 확보 */
+}
+
+.btn-outline:hover {
+    background-color: #f5f5f5;
+}
+
+.disabled-text {
+    font-size: 12px;
+    color: #aaa;
+    padding-right: 5px;
+    white-space: nowrap; /* 💡 추가: 예약 불가 텍스트 한 줄 고정 */
+}
+/* ==========================================================================
+   추가 정보 섹션 (날씨, 교통, 긴급 연락처)
+   ========================================================================== */
+
+/* --- 실시간 날씨 --- */
+.weather-main {
+    text-align: center;
+    margin: 15px 0 20px 0;
+}
+.weather-main h2 {
+    font-size: 42px;
+    font-weight: 300; /* 깔끔하고 얇은 폰트 느낌 */
+    margin: 0 0 5px 0;
+    color: #111;
+}
+.weather-main p {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+}
+
+.weather-details {
+    display: flex;
+    gap: 10px;
+}
+.detail-item {
+    flex: 1;
+    background-color: #f9f9f9; /* 연한 회색 배경 */
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+.detail-label {
+    font-size: 12px;
+    color: #888;
+}
+.detail-value {
+    font-size: 15px;
+    font-weight: bold;
+    color: #111;
+}
+
+/* --- 리스트형 정보 공통 (교통, 긴급 연락처) --- */
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* 행 간격 */
+    margin-top: 15px;
+}
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.info-name {
+    font-size: 14px;
+    color: #111;
+}
+.info-name.text-gray {
+    color: #777; /* 긴급 연락처의 왼쪽 텍스트 색상 */
+}
+.info-value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #111;
+}
+
+/* 상태 표시 텍스트 (아이콘 + 글씨) */
+.status-text {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: bold;
+}
+.status-text.good {
+    color: #1bba53; /* 정상 운행 초록색 */
+}
+.status-text.warning {
+    color: #f5a623; /* 지연 주황/노란색 */
+}
