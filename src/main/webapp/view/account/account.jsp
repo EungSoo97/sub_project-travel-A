@@ -34,7 +34,7 @@
 }</style>
 </head>
 <body>
-
+<form action="account" method="post">
 <div class="section">
     <div class="container">
         <div class="search-card" style="max-width: 520px; margin: 0 auto;">
@@ -48,26 +48,26 @@
 
                 <div class="form-field">
                     <label>이름</label>
-                    <input type="text" placeholder="이름을 입력해주세요 (필수)">
+                    <input type="text" placeholder="이름을 입력해주세요 (필수)" name="name">
                 </div>
 
                 <div class="form-field">
                     <label>성별</label>
                     <div style="display:flex; gap:12px;">
-                        <label><input type="radio" name="gender"> 남</label>
-                        <label><input type="radio" name="gender"> 여</label>
+                        <label><input type="radio" name="gender" value="M"> 남</label>
+                        <label><input type="radio" name="gender" value="F"> 여</label>
                     </div>
                 </div>
 
                 <div class="form-field">
                     <label>생년월일</label>
-                    <input type="date" name="birth" required>
+                    <input type="date" name="birth_date" required>
                 </div>
 
                 <div class="form-field">
                     <label>Email</label>
                     <div style="display:flex; gap:8px;">
-                        <input type="text" placeholder="아이디">
+                        <input type="text" placeholder="아이디" name="email">
                         <select id="emailDomain">
                             <option value="naver.com">@naver.com</option>
                             <option value="gmail.com">@gmail.com</option>
@@ -82,14 +82,14 @@
                 <div class="form-field">
                     <label>ID</label>
                     <div style="display:flex; gap:8px;">
-                        <input type="text" placeholder="(필수)">
+                        <input type="text" placeholder="(필수)" name="login_id">
                         <button class="btn btn--ghost">중복확인</button>
                     </div>
                 </div>
 
                 <div class="form-field">
                     <label>비밀번호</label>
-                    <input type="password" placeholder="(필수)">
+                    <input type="password" placeholder="(필수)" name="password">
                 </div>
 
                 <div class="form-field">
@@ -118,7 +118,7 @@
         </div>
     </div>
 </div>
-
+</form>
 <script>
     const select = document.getElementById("emailDomain");
     const custom = document.getElementById("customDomain");
