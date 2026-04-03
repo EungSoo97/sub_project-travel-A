@@ -25,6 +25,7 @@ public class FastApiService {
             String json = mapper.writeValueAsString(dto);
             String fastApiUrl = resolveFastApiUrl();
 
+            System.out.println("[FastApiService] callFastApi START");
             System.out.println("Request JSON = " + json);
             System.out.println("FastAPI URL = " + fastApiUrl);
 
@@ -48,6 +49,7 @@ public class FastApiService {
                     .connectTimeout(Duration.ofSeconds(5))
                     .build();
 
+            System.out.println("[FastApiService] sending HTTP request to FastAPI");
             HttpResponse<String> response =
                     client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
 
@@ -63,17 +65,23 @@ public class FastApiService {
             Path responsePath = jsonDir.resolve("result.json");
             Files.writeString(responsePath, responseBody, StandardCharsets.UTF_8);
 
-            return mapper.readValue(responseBody, TravelResponseDto.class);
+            TravelResponseDto parsed = mapper.readValue(responseBody, TravelResponseDto.class);
+            System.out.println("[FastApiService] callFastApi END parseSuccess=true");
+            return parsed;
 
         } catch (HttpConnectTimeoutException e) {
+            System.out.println("[FastApiService] CONNECT TIMEOUT: " + e.getMessage());
             throw new RuntimeException("Could not connect to FastAPI before the connect timeout. Check host/port and whether the FastAPI server is running.", e);
         } catch (HttpTimeoutException e) {
+            System.out.println("[FastApiService] REQUEST TIMEOUT: " + e.getMessage());
             throw new RuntimeException("FastAPI request timed out. Check whether the FastAPI server is running and responding.", e);
         } catch (ConnectException e) {
+            System.out.println("[FastApiService] CONNECT ERROR: " + e.getMessage());
             throw new RuntimeException("Could not connect to FastAPI. Check host/port and whether the FastAPI server is running.", e);
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("FastApiService communication error: " + e.getMessage());
+            System.out.println("[FastApiService] callFastApi ERROR: " + e.getClass().getName() + " / " + e.getMessage());
             throw new RuntimeException("API communication error: " + e.getMessage(), e);
         }
     }
