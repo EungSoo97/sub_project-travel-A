@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 public class AccountC extends HttpServlet {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        AccountDAO.login(request);
         request.setAttribute("content", "view/account/account.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
 
