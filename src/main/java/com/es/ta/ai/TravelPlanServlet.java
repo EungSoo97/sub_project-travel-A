@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @WebServlet("/planner/result")
 public class TravelPlanServlet extends HttpServlet {
@@ -18,6 +20,12 @@ public class TravelPlanServlet extends HttpServlet {
             throws ServletException, IOException {
 
         try {
+
+            String[] customTagsArr = req.getParameterValues("customTag");
+
+            List<String> customTags = (customTagsArr != null)
+                    ? Arrays.asList(customTagsArr)
+                    : Collections.emptyList();
             // 1. 파라미터 추출 및 DTO 생성
             TravelRequestDto dto = TravelRequestDto.builder()
                     .destination(req.getParameter("destination"))
@@ -28,11 +36,14 @@ public class TravelPlanServlet extends HttpServlet {
                     .maxbudget(Integer.parseInt(req.getParameter("max-budget")))
                     .styles(Arrays.asList("healing", "food")) // 기본값 또는 추가 파라미터 처리
                     .themes(Arrays.asList("shopping", "cafe"))
+                    .customTag(customTags)
                     .build();
 
             // 2. DAO를 통한 로그 기록 (Real Path 전달)
             String logPath = req.getServletContext().getRealPath("/json");
             travelDao.saveRequestLog(dto, logPath);
+
+
 
             // 3. DAO를 통한 AI 데이터 획득
             TravelResponseDto result = travelDao.fetchTravelPlan(dto);
