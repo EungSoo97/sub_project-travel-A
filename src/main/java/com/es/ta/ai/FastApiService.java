@@ -17,7 +17,7 @@ import java.time.Duration;
 
 public class FastApiService {
 
-    private static final String DEFAULT_FAST_API_URL = "http://127.0.0.1:8000/api/v1/travel/plan";
+    private static final String DEFAULT_FAST_API_URL = "http://10.1.82.128:8000/api/v1/travel/plan";
 
     public static TravelResponseDto callFastApi(TravelRequestDto dto) {
         try {
