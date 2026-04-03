@@ -4,7 +4,6 @@
     <title>일정 편집하기</title>
 
     <link rel="stylesheet" href="../../css/edit-schedule.css">
-    <script src="js/scheduleEdit.js"></script>
 </head>
 <body>
 
@@ -36,7 +35,28 @@
                 <span>+</span> 활동 추가
             </button>
         </div>
+        <!-- 활동 추가 모달 -->
+        <div class="modal" id="activityModal">
+            <div class="modal-content">
 
+                <h2>활동 추가</h2>
+
+                <label>시간</label>
+                <input type="time" id="newTime">
+
+                <label>제목</label>
+                <input type="text" id="newTitle" placeholder="예: 점심 식사">
+
+                <label>설명</label>
+                <input type="text" id="newDesc" placeholder="간단 설명">
+
+                <div class="modal-actions">
+                    <button id="addActivityBtn">추가</button>
+                    <button id="closeModalBtn">취소</button>
+                </div>
+
+            </div>
+        </div>
         <!-- 일정 아이템 목록 (드래그 영역) -->
         <div class="activity-list" id="day1-list">
 
@@ -144,6 +164,7 @@
 </div>
 <!-- /container -->
 
-<script src="edit-schedule.js"></script>
 </body>
+<script src="${pageContext.request.contextPath}/js/scheduleEdit.js"></script>
+
 </html>

@@ -8,7 +8,7 @@
 }
 
 .edit-header__left h1 {
-    font-size: 22px;
+    font-size: 19px;
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 4px;
@@ -246,4 +246,48 @@
 .activity-item__delete:active {
     color: var(--red);
     background: #FEF2F2;
+}
+.activity-item__drag {
+    position: relative; /* absolute 제거 */
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 320px;
+}
+
+.modal-content input {
+    width: 100%;
+    margin: 6px 0 12px;
+    padding: 8px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.modal-actions button {
+    flex: 1;
+    padding: 8px;
+    background-color :#2563eb;
+    border-radius: 8px;
+    color: white;
 }
