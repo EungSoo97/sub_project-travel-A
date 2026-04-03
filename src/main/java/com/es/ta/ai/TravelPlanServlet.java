@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +28,11 @@ public class TravelPlanServlet extends HttpServlet {
         resp.setContentType("text/html; charset=UTF-8");
 
         try {
+            String traceId = "TP-" + System.currentTimeMillis();
+            req.setAttribute("traceId", traceId);
+            System.out.println("[" + traceId + "] TravelPlanServlet.doGet START " + LocalDateTime.now());
+            System.out.println("[" + traceId + "] URI=" + req.getRequestURI() + " QUERY=" + req.getQueryString());
+
             String[] customTagsArr = req.getParameterValues("customTag");
 
             List<String> customTags = (customTagsArr != null)
@@ -45,23 +51,35 @@ public class TravelPlanServlet extends HttpServlet {
                     .themes(Arrays.asList("shopping", "cafe"))
                     .customTag(customTags)
                     .build();
+            System.out.println("[" + traceId + "] requestDto created: destination=" + requestDto.getDestination()
+                    + ", startDate=" + requestDto.getStartDate()
+                    + ", endDate=" + requestDto.getEndDate()
+                    + ", travelers=" + requestDto.getTravelers());
 
             // 2. 요청 로그 저장
             String logPath = req.getServletContext().getRealPath("/json");
             travelDao.saveRequestLog(requestDto, logPath);
+            System.out.println("[" + traceId + "] request log saved path=" + logPath);
 
             // 3. AI 응답 받기
+            System.out.println("[" + traceId + "] calling TravelDao.fetchTravelPlan()");
             TravelResponseDto result = travelDao.fetchTravelPlan(requestDto);
+            System.out.println("[" + traceId + "] fetchTravelPlan completed. resultNull=" + (result == null)
+                    + ", success=" + (result != null && result.isSuccess()));
 
             // 4. 응답 JSON 문자열 만들기
             String responseJson = objectMapper.writeValueAsString(result);
+            System.out.println("[" + traceId + "] responseJson length=" + responseJson.length());
 
             // 5. DB 저장
             if (result != null) {
                 try {
+                    System.out.println("[" + traceId + "] calling TravelDao.insertTravelPlan()");
                     travelDao.insertTravelPlan(requestDto, result, responseJson);
+                    System.out.println("[" + traceId + "] insertTravelPlan completed");
                 } catch (Exception dbError) {
                     dbError.printStackTrace();
+                    System.out.println("[" + traceId + "] insertTravelPlan failed: " + dbError.getMessage());
                     req.setAttribute("dbWarning", "일정 생성은 성공했지만 DB 저장에는 실패했습니다.");
                 }
             }
@@ -75,10 +93,12 @@ public class TravelPlanServlet extends HttpServlet {
             }
 
             req.setAttribute("content", "view/resultpage/resultpage.jsp");
+            System.out.println("[" + traceId + "] forwarding to /index.jsp");
             req.getRequestDispatcher("/index.jsp").forward(req, resp);
 
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("[TravelPlanServlet] ERROR: " + e.getMessage());
             req.setAttribute("error", "서버 처리 중 오류 발생: " + e.getMessage());
             req.getRequestDispatcher("/result.jsp").forward(req, resp);
         }

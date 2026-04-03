@@ -13,6 +13,16 @@ public class TravelDao {
 
     public static final TravelDao MDAO = new TravelDao();
 
+    public TravelResponseDto fetchTravelPlan(TravelRequestDto dto) {
+        System.out.println("[TravelDao] fetchTravelPlan START destination=" + dto.getDestination()
+                + ", startDate=" + dto.getStartDate()
+                + ", endDate=" + dto.getEndDate());
+        TravelResponseDto response = FastApiService.callFastApi(dto);
+        System.out.println("[TravelDao] fetchTravelPlan END resultNull=" + (response == null)
+                + ", success=" + (response != null && response.isSuccess()));
+        return response;
+    }
+
     public void insertTravelPlan(TravelRequestDto requestDto,
                                  TravelResponseDto responseDto,
                                  String responseJson) {
@@ -29,6 +39,7 @@ public class TravelDao {
                         ")";
 
         try {
+            System.out.println("[TravelDao] insertTravelPlan START");
             con = DBManager_new.connect();
             ps = con.prepareStatement(sql);
 
@@ -76,13 +87,18 @@ public class TravelDao {
             // 14. response_json
             ps.setString(14, getSafeString(responseJson, "{}"));
 
+            System.out.println("[TravelDao] executing insert. destination=" + getDestination(requestDto, summary)
+                    + ", title=" + getSafeString(summary != null ? summary.getTitle() : null)
+                    + ", jsonLength=" + (responseJson == null ? 0 : responseJson.length()));
             ps.executeUpdate();
             System.out.println("travel_plan 저장 성공");
 
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("[TravelDao] insertTravelPlan ERROR: " + e.getMessage());
         } finally {
             DBManager_new.close(con, ps,null);
+            System.out.println("[TravelDao] insertTravelPlan END");
         }
     }
 
@@ -167,8 +183,4 @@ public class TravelDao {
         // 기존 로직 유지
     }
 
-    public TravelResponseDto fetchTravelPlan(TravelRequestDto dto) {
-        // 기존 로직 유지
-        return null;
-    }
 }
