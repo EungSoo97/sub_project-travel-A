@@ -21,15 +21,24 @@
 <div class="search-box">
     <input type="text" placeholder="여행지, 키워드, 작성자 검색..." />
 </div>
-
 <div class="filter-box card-box">
     <h3>🔎 필터</h3>
-    <div class="filter-item active">🌍 전체</div>
-    <div class="filter-item">🍽 미식</div>
-    <div class="filter-item">🧘 힐링</div>
-    <div class="filter-item">🏃 액티브</div>
-    <div class="filter-item">🏛 문화</div>
-    <div class="filter-item">🛍 쇼핑</div>
+
+    <div class="filter-items" id="filterContainer">
+        <div class="filter-item active">🌍 전체</div>
+        <div class="filter-item">🍽 미식</div>
+        <div class="filter-item">🧘 힐링</div>
+        <div class="filter-item">🏃 액티브</div>
+        <div class="filter-item">🏛 문화</div>
+        <div class="filter-item">🛍 쇼핑</div>
+        <div class="filter-item add-filter-btn" id="showInputBtn">➕ 추가</div>
+    </div>
+
+    <div class="custom-filter-input" id="customInputArea" style="display: none;">
+        <input type="text" id="newFilterInput" placeholder="새로운 필터 입력..." />
+        <button id="addFilterBtn">확인</button>
+        <button id="cancelFilterBtn" class="cancel-btn">취소</button>
+    </div>
 </div>
 
 <div class="trending-box card-box">
