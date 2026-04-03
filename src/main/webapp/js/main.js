@@ -278,3 +278,175 @@ if (customAddBtn) {
     if (e.key === 'Enter') addCustomChip();
   });
 }
+
+
+// ── Date Range Picker (Bottom Sheet) ──
+(function () {
+  const DAYS_KO   = ['일','월','화','수','목','금','토'];
+  const MONTHS_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  const toYMD     = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const parseYMD  = s => { const [y,m,d] = s.split('-'); return new Date(+y, +m-1, +d); };
+  const diffDays  = (a, b) => Math.round((b - a) / 86400000);
+  const fmtMid    = d => `${d.getMonth()+1}월 ${d.getDate()}일`;
+  const fmtShort  = d => `${d.getMonth()+1}.${d.getDate()}`;
+  const today     = new Date(); today.setHours(0, 0, 0, 0);
+
+  let startDate = null, endDate = null, phase = 0;
+
+  const dateTrigger   = document.getElementById('dateTrigger');
+  const triggerVal    = document.getElementById('triggerVal');
+  const triggerNights = document.getElementById('triggerNights');
+  const backdrop      = document.getElementById('dateBackdrop');
+  const sheet         = document.getElementById('dateSheet');
+  const sheetClose    = document.getElementById('dateSheetClose');
+  const calScroll     = document.getElementById('calScroll');
+  const sumStart      = document.getElementById('sumStart');
+  const sumEnd        = document.getElementById('sumEnd');
+  const sumNights     = document.getElementById('sumNights');
+  const footerInfo    = document.getElementById('footerInfo');
+  const applyBtn      = document.getElementById('calApplyBtn');
+  const hidStart      = document.getElementById('startDate');
+  const hidEnd        = document.getElementById('endDate');
+
+  if (!dateTrigger) return;
+
+  function openSheet() {
+    backdrop.classList.add('open');
+    sheet.classList.add('open');
+    if (!calScroll.innerHTML) buildCalendars();
+  }
+  function closeSheet() {
+    backdrop.classList.remove('open');
+    sheet.classList.remove('open');
+  }
+
+  dateTrigger.addEventListener('click', openSheet);
+  backdrop.addEventListener('click', closeSheet);
+  sheetClose.addEventListener('click', closeSheet);
+
+  function buildCalendars() {
+    const now = new Date();
+    let html = '';
+    for (let i = 0; i < 6; i++) {
+      const yr = now.getFullYear() + Math.floor((now.getMonth() + i) / 12);
+      const mo = (now.getMonth() + i) % 12;
+      html += buildMonth(yr, mo);
+    }
+    calScroll.innerHTML = html;
+    calScroll.querySelectorAll('.cal-day[data-ymd]').forEach(el => {
+      el.addEventListener('click', onDayClick);
+    });
+  }
+
+  function buildMonth(yr, mo) {
+    const first = new Date(yr, mo, 1);
+    const last  = new Date(yr, mo + 1, 0);
+    const dow   = first.getDay();
+    let days = '';
+    for (let i = 0; i < dow; i++) days += `<div class="cal-day empty"></div>`;
+    for (let d = 1; d <= last.getDate(); d++) {
+      const dt  = new Date(yr, mo, d);
+      const ymd = toYMD(dt);
+      let cls   = 'cal-day';
+      if (dt < today)                    cls += ' past';
+      else if (dt.getTime() === today.getTime()) cls += ' today';
+      days += `<div class="${cls}" data-ymd="${ymd}">${d}</div>`;
+    }
+    return `<div class="cal-month">
+      <div class="cal-month-label">${yr}년 ${MONTHS_KO[mo]}</div>
+      <div class="cal-dow"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
+      <div class="cal-days">${days}</div>
+    </div>`;
+  }
+
+  function onDayClick(e) {
+    const d = parseYMD(e.currentTarget.dataset.ymd);
+
+    if (phase === 0) {
+      startDate = d; endDate = null; phase = 1;
+
+    } else if (phase === 1) {
+      if (d.getTime() === startDate.getTime()) {
+        // 출발일 재클릭 → 선택 전체 취소
+        startDate = null; endDate = null; phase = 0;
+      } else if (d < startDate) {
+        endDate = startDate; startDate = d; phase = 2;
+      } else {
+        endDate = d; phase = 2;
+      }
+
+    } else if (phase === 2) {
+      if (d.getTime() === startDate.getTime()) {
+        // 출발일 재클릭 → 출발일만 취소, 도착일을 새 출발일로
+        startDate = endDate; endDate = null; phase = 1;
+      } else if (d.getTime() === endDate.getTime()) {
+        // 도착일 재클릭 → 도착일만 취소
+        endDate = null; phase = 1;
+      } else {
+        // 다른 날짜 → 출발일부터 새로 선택
+        startDate = d; endDate = null; phase = 1;
+      }
+    }
+
+    applyBtn.disabled = !(startDate && endDate);
+    refreshHighlight();
+  }
+
+  function refreshHighlight() {
+    calScroll.querySelectorAll('.cal-day[data-ymd]').forEach(el => {
+      el.classList.remove('sel-start', 'sel-end', 'in-range', 'range-start-cap', 'range-end-cap');
+      const d = parseYMD(el.dataset.ymd);
+      if (startDate && d.getTime() === startDate.getTime()) el.classList.add('sel-start');
+      if (endDate   && d.getTime() === endDate.getTime())   el.classList.add('sel-end');
+      if (startDate && endDate && d > startDate && d < endDate) {
+        el.classList.add('in-range');
+        const prev = new Date(d); prev.setDate(prev.getDate() - 1);
+        const next = new Date(d); next.setDate(next.getDate() + 1);
+        if (prev.getTime() === startDate.getTime()) el.classList.add('range-start-cap');
+        if (next.getTime() === endDate.getTime())   el.classList.add('range-end-cap');
+      }
+    });
+    updateSummary();
+  }
+
+  function updateSummary() {
+    if (startDate) {
+      sumStart.textContent = `${fmtMid(startDate)} (${DAYS_KO[startDate.getDay()]})`;
+      sumStart.classList.remove('empty');
+    } else {
+      sumStart.textContent = '선택 전';
+      sumStart.classList.add('empty');
+    }
+    if (endDate) {
+      sumEnd.textContent = `${fmtMid(endDate)} (${DAYS_KO[endDate.getDay()]})`;
+      sumEnd.classList.remove('empty');
+    } else {
+      sumEnd.textContent = '선택 전';
+      sumEnd.classList.add('empty');
+    }
+    if (startDate && endDate) {
+      const n = diffDays(startDate, endDate);
+      sumNights.textContent = `${n}박 ${n+1}일`;
+      sumNights.classList.add('visible');
+      footerInfo.innerHTML = `<strong>${fmtShort(startDate)} ~ ${fmtShort(endDate)}</strong>${n}박 ${n+1}일`;
+    } else if (startDate) {
+      sumNights.classList.remove('visible');
+      footerInfo.textContent = '도착일을 선택하세요';
+    } else {
+      sumNights.classList.remove('visible');
+      footerInfo.textContent = '출발일을 먼저 선택하세요';
+    }
+  }
+
+  applyBtn.addEventListener('click', () => {
+    if (!startDate || !endDate) return;
+    const n = diffDays(startDate, endDate);
+    triggerVal.textContent      = `${fmtMid(startDate)} ~ ${fmtMid(endDate)}`;
+    triggerNights.textContent   = `${n}박 ${n+1}일`;
+    triggerNights.style.display = 'inline-flex';
+    dateTrigger.classList.add('has-value', 'active');
+    hidStart.value = toYMD(startDate);
+    hidEnd.value   = toYMD(endDate);
+    closeSheet();
+  });
+})();
