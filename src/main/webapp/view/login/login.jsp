@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <html>
 <head>
     <title>Login</title>
@@ -46,19 +48,57 @@
     .login-box button:hover {
         background: #1d4ed8;
     }
+    /* 오류 메시지 */
+    .login-error {
+        color: #dc2626;
+        font-size: 0.85rem;
+        text-align: center;
+        background: #fee2e2;
+        border-radius: 8px;
+        padding: 8px 12px;
+    }
 
+    /* 회원가입 링크 */
+    .login-footer {
+        font-size: 0.85rem;
+        color: #64748b;
+        text-align: center;
+    }
+    .login-footer a {
+        color: #2563eb;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .login-footer a:hover {
+        text-decoration: underline;
+    }
 
     </style>
 </head>
 <body>
 <div class="login-wrap">
     <a href="${pageContext.request.contextPath}/" class="site-logo">✈ Travel-A(AI)</a>
+<%--    <form action="">--%>
+<%--    <div class="login-box">--%>
+<%--        <input type="text" placeholder="아이디" name="loginId">--%>
+<%--        <input type="password" placeholder="비밀번호" name="password">--%>
+<%--        <button>로그인</button>--%>
+<%--    </div>--%>
+<%--    </form>--%>
+<%--</div>--%>
+<c:if test="${not empty loginError}">
+<div class="login-error">${loginError}</div>
+</c:if >
 
-    <div class="login-box">
-        <input type="text" placeholder="아이디">
-        <input type="password" placeholder="비밀번호">
-        <button>로그인</button>
-    </div>
+<form class="login-box" method="post" action="${pageContext.request.contextPath}/login">
+    <input type="text"     name="loginId"  placeholder="아이디" required>
+    <input type="password" name="password" placeholder="비밀번호" required>
+    <button type="submit">로그인</button>
+</form>
+
+<div class="login-footer">
+    아직 계정이 없으신가요? <a href="${pageContext.request.contextPath}/account">회원가입</a>
+</div>
 </div>
 </body>
 </html>
