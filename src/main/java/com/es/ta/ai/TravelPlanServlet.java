@@ -22,6 +22,10 @@ public class TravelPlanServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        req.setCharacterEncoding("UTF-8");
+        resp.setCharacterEncoding("UTF-8");
+        resp.setContentType("text/html; charset=UTF-8");
+
         try {
             String[] customTagsArr = req.getParameterValues("customTag");
 
@@ -54,7 +58,12 @@ public class TravelPlanServlet extends HttpServlet {
 
             // 5. DB 저장
             if (result != null) {
-                travelDao.insertTravelPlan(requestDto, result, responseJson);
+                try {
+                    travelDao.insertTravelPlan(requestDto, result, responseJson);
+                } catch (Exception dbError) {
+                    dbError.printStackTrace();
+                    req.setAttribute("dbWarning", "일정 생성은 성공했지만 DB 저장에는 실패했습니다.");
+                }
             }
 
             // 6. 화면 전달

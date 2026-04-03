@@ -7,11 +7,14 @@ import java.sql.PreparedStatement;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 
 public class TravelDao {
 
     public static final TravelDao MDAO = new TravelDao();
+
+    public TravelResponseDto fetchTravelPlan(TravelRequestDto dto) {
+        return FastApiService.callFastApi(dto);
+    }
 
     public void insertTravelPlan(TravelRequestDto requestDto,
                                  TravelResponseDto responseDto,
@@ -32,58 +35,41 @@ public class TravelDao {
             con = DBManager_new.connect();
             ps = con.prepareStatement(sql);
 
-            TravelResponseDto.Summary summary = responseDto != null ? responseDto.getSummary() : null;
+            TravelResponseDto.Summary summary =
+                    (responseDto != null) ? responseDto.getSummary() : null;
 
-            // 1. user_id
-            ps.setNull(1, Types.NUMERIC);
+            ps.setNull(1, Types.NUMERIC); // user_id
 
-            // 2. destination
             ps.setString(2, getDestination(requestDto, summary));
-
-            // 3. title
             ps.setString(3, getSafeString(summary != null ? summary.getTitle() : null));
 
-            // 4. start_date
             setDateOrNull(ps, 4, getStartDate(requestDto, summary));
-
-            // 5. end_date
             setDateOrNull(ps, 5, getEndDate(requestDto, summary));
 
-            // 6. days
             ps.setInt(6, getDays(requestDto, summary));
-
-            // 7. travelers
             ps.setInt(7, getTravelers(requestDto, summary));
-
-            // 8. travel_style
             ps.setString(8, getTravelStyle(requestDto, summary));
 
-            // 9. total_estimated_cost
             ps.setInt(9, summary != null ? summary.getTotalEstimatedCost() : 0);
-
-            // 10. currency
             ps.setString(10, getSafeString(summary != null ? summary.getCurrency() : null, "KRW"));
-
-            // 11. overview
             ps.setString(11, getSafeString(summary != null ? summary.getOverview() : null));
 
-            // 12. success
             ps.setInt(12, (responseDto != null && responseDto.isSuccess()) ? 1 : 0);
-
-            // 13. message
             ps.setString(13, getSafeString(responseDto != null ? responseDto.getMessage() : null));
-
-            // 14. response_json
             ps.setString(14, getSafeString(responseJson, "{}"));
 
             ps.executeUpdate();
             System.out.println("travel_plan 저장 성공");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("travel_plan 저장 실패", e);
         } finally {
-            DBManager_new.close(con, ps,null);
+            DBManager_new.close(con, ps, null);
         }
+    }
+
+    public void saveRequestLog(TravelRequestDto dto, String logPath) {
+        // 기존 요청 로그 저장 로직
     }
 
     private void setDateOrNull(PreparedStatement ps, int index, String dateStr) throws Exception {
@@ -120,19 +106,13 @@ public class TravelDao {
             return summary.getDays();
         }
 
-        String startDate = requestDto != null ? requestDto.getStartDate() : null;
-        String endDate = requestDto != null ? requestDto.getEndDate() : null;
-
         try {
-            if (startDate != null && endDate != null) {
-                LocalDate start = LocalDate.parse(startDate);
-                LocalDate end = LocalDate.parse(endDate);
-                return (int) ChronoUnit.DAYS.between(start, end) + 1;
-            }
-        } catch (Exception ignored) {
+            LocalDate start = LocalDate.parse(requestDto.getStartDate());
+            LocalDate end = LocalDate.parse(requestDto.getEndDate());
+            return (int) ChronoUnit.DAYS.between(start, end) + 1;
+        } catch (Exception e) {
+            return 0;
         }
-
-        return 0;
     }
 
     private int getTravelers(TravelRequestDto requestDto, TravelResponseDto.Summary summary) {
@@ -146,11 +126,9 @@ public class TravelDao {
         if (summary != null && summary.getTravelStyle() != null && !summary.getTravelStyle().isBlank()) {
             return summary.getTravelStyle();
         }
-
         if (requestDto != null && requestDto.getStyles() != null && !requestDto.getStyles().isEmpty()) {
             return String.join(", ", requestDto.getStyles());
         }
-
         return "";
     }
 
@@ -160,15 +138,5 @@ public class TravelDao {
 
     private String getSafeString(String value, String defaultValue) {
         return (value == null || value.isBlank()) ? defaultValue : value;
-    }
-
-    // 기존 메서드
-    public void saveRequestLog(TravelRequestDto dto, String logPath) {
-        // 기존 로직 유지
-    }
-
-    public TravelResponseDto fetchTravelPlan(TravelRequestDto dto) {
-        // 기존 로직 유지
-        return null;
     }
 }
