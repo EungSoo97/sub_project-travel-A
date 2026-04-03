@@ -1,0 +1,257 @@
+/* ==========================================================================
+   [마이페이지] 전용 스타일
+   ========================================================================== */
+
+/* --- 1. 프로필 섹션 (가로 100% 꽉 채워서 헤더랑 연결) --- */
+.profile-section {
+    width: 100%;
+    margin-top: 0;
+    border-radius: 0;
+    background: #ffffff; /* 💡 그라데이션 싹 빼고 순백색으로! */
+    padding: 20px 0 30px 0;
+    /* 그림자도 빼서 헤더랑 한 몸처럼 보이게 만듭니다 */
+    box-shadow: none;
+}
+/* 프로필 안쪽 내용물은 다른 박스들처럼 92%로 맞춤 */
+.profile-inner {
+    width: 92%;
+    margin: 0 auto;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.profile-img-wrap {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.profile-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+
+.profile-info { flex: 1; }
+.name-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.name-row h2 { margin: 0; font-size: 22px; color: #111; font-weight: 800; }
+.action-icons {
+    display: flex;
+    gap: 8px;
+}
+
+.action-icons button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px; /* 터치하기 편하게 여백 살짝 증가 */
+    color: #444; /* 세련된 진회색 */
+    opacity: 0.6;
+    display: flex; /* 💡 SVG 아이콘이 버튼 중앙에 오도록 정렬 */
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%; /* 마우스 올렸을 때 둥근 배경을 위해 */
+    transition: all 0.2s;
+}
+
+.action-icons button:hover {
+    opacity: 1;
+    color: #111; /* 마우스 올리면 까맣게 변함 */
+    background-color: #f0f0f0; /* 마우스 올리면 은은한 회색 배경 표시 */
+}
+.email { margin: 4px 0 10px 0; font-size: 13px; color: #777; }
+
+.badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.badge {
+    font-size: 11px;
+    font-weight: bold;
+    color: #333;
+    background: #f4f4f4;
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: none;
+}
+/* 4단 통계 박스 */
+.stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+}
+.stat-box {
+    background-color: #f8f9fa; /* 💡 하얀 배경 위에서 돋보이도록 아주 연한 회색 */
+    padding: 14px 6px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid #f0f0f0; /* 은은한 테두리 */
+    box-shadow: none; /* 💡 촌스러운 그림자 제거, 요즘 유행하는 플랫 스타일 */
+}
+.stat-num {
+    display: block;
+    font-size: 20px;
+    font-weight: 800;
+    color: #111;
+    margin-bottom: 2px;
+}
+.stat-label {
+    font-size: 11px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* --- 2. 탭 메뉴 --- */
+.tabs {
+    display: flex;
+    justify-content: space-around;
+    width: 92%;
+    margin: 10px auto 0;
+    border-bottom: 1px solid #ebebeb;
+    position: sticky; top: 0; /* 스크롤 시 상단 고정 */
+    background-color: #fafafa; /* 기본 배경색과 동일하게 */
+    z-index: 10;
+}
+.tab {
+    flex: 1; padding: 14px 0;
+    background: none; border: none;
+    font-size: 14px; font-weight: 500; color: #888;
+    cursor: pointer; position: relative;
+}
+.tab.active { color: #111; font-weight: bold; }
+.tab.active::after {
+    content: ''; position: absolute;
+    bottom: -1px; left: 20%; width: 60%; height: 2px;
+    background-color: #111; border-radius: 2px;
+}
+
+/* 기본 마이페이지 콘텐츠 영역 */
+.mypage-content {
+    padding: 24px;
+}
+
+/* 개별 여행 카드 스타일 */
+.trip-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* 이미지처럼 은은한 그림자 */
+    border: 1px solid #f0f0f0; /* 은은한 테두리 */
+    margin-bottom: 20px; /* 카드 간격 */
+}
+/* 카드 상단 이미지 영역 (위치 고정용) */
+.card-img-wrap {
+    position: relative; /* badge 위치 고정용 */
+    height: 180px; /* 모바일 폭에 맞게 이미지 높이 축소 */
+    overflow: hidden;
+}
+
+.card-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 이미지 비율 유지하며 채움 */
+}
+/* 예정됨 배지 스타일 */
+.status-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    backdrop-filter: blur(4px); /* 블러 효과 추가 */
+}
+/* --- 기존에 있던 파란색 배지 --- */
+.status-badge.blue {
+    background-color: rgba(0, 102, 255, 0.85);
+}
+
+/* 💡 새로 추가하는 색상들 */
+.status-badge.yellow {
+    background-color: rgba(245, 166, 35, 0.85); /* 경쾌한 주황/노란색 */
+}
+
+.status-badge.green {
+    background-color: rgba(27, 186, 83, 0.85); /* 편안한 초록색 */
+}
+/* 카드 본문 내용 영역 */
+.card-body {
+    padding: 16px; /* 모바일에 맞게 패딩 축소 */
+}
+
+.card-body h3 {
+    margin: 0 0 12px 0;
+    font-size: 18px; /* 한 줄에 예쁘게 들어오게 조정 */
+    color: #111;
+}
+/* 여행 상세 정보 목록 */
+.trip-details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px; /* 버튼과의 간격 */
+}
+
+.trip-details p {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* 아이콘과 텍스트 간격 */
+}
+
+/* 이모지 아이콘 크기 통일 */
+.trip-details p span {
+    font-size: 14px;
+}
+
+/* 💡 이 버튼을 새로 추가했습니다! (풀 폭 블랙 버튼) */
+.btn-detail {
+    display: block; /* 줄 바꿈 */
+    width: 100%; /* 풀 폭 */
+    background-color: #2563eb;; /* 진한 검정/남색 */
+    color: #ffffff;
+    padding: 14px 0;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s; /* 부드러운 호버 효과 */
+    text-align: center;
+}
+
+.btn-detail:hover {
+    background-color: #1a2238; /* 살짝 연한 색 */
+}
+/* --- 탭 콘텐츠 숨김/표시 처리 --- */
+.tab-content {
+    display: none; /* 💡 기본적으로 모든 박스를 숨김 */
+    animation: fadeIn 0.3s ease; /* 탭 누를 때 부드럽게 나타나는 효과 */
+}
+
+/* active 클래스가 붙은 박스만 화면에 보여줌! */
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- 빈 화면(Empty State) 스타일 --- */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #f0f0f0;
+    color: #888;
+    font-size: 14px;
+    font-weight: 500;
+}
