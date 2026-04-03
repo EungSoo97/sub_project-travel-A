@@ -9,6 +9,12 @@
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/result-page.css">
     <link rel="stylesheet" href="../../css/edit-schedule.css">
+
+    <!-- 푸터 하단 고정 -->
+    <style>
+    .page { display: flex; flex-direction: column; min-height: 100vh; }
+    .content { flex: 1; }
+    </style>
 </head>
 <body>
 <div class="page">
@@ -18,7 +24,7 @@
 
             <div class="site-actions">
                 <div class="login-register" id="headerLoginBtns">
-                    <a href="${pageContext.request.contextPath}/login" class="btn--login">로그인</a>
+                    <a href="login" class="btn--login">로그인</a>
                     <a href="account" class="btn--register">회원가입</a>
                 </div>
                 <div class="mobile-menu-btn" id="mobileMenuBtn">
@@ -73,8 +79,7 @@
 </div>
 <script src="js/main.js"></script>
 
-<form action="result-page">
-    <button >backdoor</button></form>
+
 
 </body>
 <script>
