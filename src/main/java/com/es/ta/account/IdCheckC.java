@@ -6,16 +6,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
 @WebServlet(name = "IdCheckC", value = "/idcheck")
 public class IdCheckC extends HttpServlet {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        System.out.println("json id 요청(get)");
+        response.setContentType("application/json; charset=UTF-8");
 
-        //비동기 로그인 체크
-        AccountDAO.
+        String loginId = request.getParameter("login_id");
+        int count = AccountDAO.idcheck(loginId);
 
-
+        response.getWriter().write(String.valueOf(count));
     }
 
     @Override

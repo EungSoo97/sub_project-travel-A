@@ -31,6 +31,8 @@
         .form-field a:hover {
             text-decoration: underline;
         }</style>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
 </head>
 <body>
 <form action="account" method="post"  onsubmit="return validateForm()">
@@ -84,21 +86,11 @@
                         <label>ID</label>
                         <div style="display:flex; gap:8px;">
                             <input type="text" placeholder="(필수)" name="login_id">
-                            <form action="idcheck">
-                            <button type="button" class="btn btn--ghost">중복확인</button>
-                            </form>
+                            <button type="button" id="check-btn" class="btn btn--ghost">중복확인</button>
                         </div>
+                        <!-- 결과 메시지 input 바로 아래 -->
+                        <div class="result"></div>
                     </div>
-                    <div>
-                    test
-                    </div>
-
-                    <script src="js/idcheck.js" defer></script>
-
-                    <button id ="check-btn" >중복확인</button>
-                    <div class="result"></div>
-
-
 
                     <div class="form-field">
                         <label>비밀번호</label>
@@ -130,87 +122,9 @@
         </div>
     </div>
 </form>
-<script>
-    const select = document.getElementById("emailDomain");
-    const custom = document.getElementById("customDomain");
 
-    // 도메인 선택
-    select.addEventListener("change", function () {
-        if (this.value === "direct") {
-            custom.style.display = "inline";
-        } else {
-            custom.style.display = "none";
-        }
-    });
-
-    // 이메일 합치기
-    function setEmail() {
-        const emailInput = document.querySelector('input[name="email"]');
-        const domainSelect = document.getElementById("emailDomain").value;
-        const customDomain = document.getElementById("customDomain").value.trim();
-
-        let id = emailInput.value;
-        let domain = "";
-
-        if (domainSelect === "direct") {
-            if (!customDomain) {
-                alert("도메인을 입력해주세요");
-                return false;
-            }
-            domain = customDomain.replace("@", "");
-        } else {
-            domain = domainSelect;
-        }
-
-        if (!id) {
-            alert("이메일을 입력해주세요");
-            return false;
-        }
-
-        emailInput.value = id + "@" + domain;
-        return true;
-    }
-
-    // 비밀번호 체크
-    function checkPassword() {
-        const pw1 = document.getElementById("pw1").value;
-        const pw2 = document.getElementById("pw2").value;
-        const msg = document.getElementById("pw-msg");
-
-        if (!pw2) {
-            msg.innerText = "";
-            return;
-        }
-
-        if (pw1 === pw2) {
-            msg.innerText = "비밀번호 일치";
-            msg.style.color = "green";
-        } else {
-            msg.innerText = "비밀번호 불일치";
-            msg.style.color = "red";
-        }
-
-    }
-    function checkAgree() {
-        const agree = document.getElementById("agree");
-
-        if (!agree.checked) {
-            alert("이용약관에 동의해주세요");
-            return false;
-        }
-
-        return true;
-    }
-    function validateForm() {
-        if (!checkAgree()) return false;
-        if (!setEmail()) return false;
-
-        return true;
-    }
-
-    <%--<script src="${pageContext.request.contextPath}/js/scheduleEdit.js"></script>--%>
-
-</script>
+<script src="${pageContext.request.contextPath}/js/idcheck.js"></script>
+<script src="${pageContext.request.contextPath}/js/account.js"></script>
 
 </body>
 </html>
