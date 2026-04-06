@@ -96,7 +96,7 @@ input {
   padding: 10px 12px;
   box-shadow: var(--shadow);
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 2px;
   z-index: 100;
 
@@ -109,11 +109,12 @@ input {
     opacity 0.22s ease;
 }
 .site-nav.is-open {
-  display: flex;
+
   transform: scale(1);
   opacity: 1;
 }
 .site-nav a {
+  display: block;
   color: #475569;
   font-weight: 600;
   font-size: 1.15rem;

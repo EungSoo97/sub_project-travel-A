@@ -23,21 +23,16 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     </style>
   </head>
   <body>
-    <div class="page"
-
-    >
+    <div class="page">
       <header class="site-header">
         <div class="container site-header__inner">
-          <a href="${pageContext.request.contextPath}/" class="site-logo"
-            >✈ Travel-A(AI)</a
-          >
-
+          <a href="${pageContext.request.contextPath}/" class="site-logo">✈ Travel-A(AI)</a>
           <div class="site-actions">
             <div class="login-register" id="headerLoginBtns">
                 <c:choose>
                     <c:when test="${not empty sessionScope.user}">
                         <div class="drawer-user-name">👤 ${sessionScope.user.name}님</div>
-                        <a href="${pageContext.request.contextPath}/logout" class="drawer-logout">로그아웃</a>
+                        <a href="${pageContext.request.contextPath}/logout" class="drawer-logout" style="color:#1d4ed8; font-weight:600">로그아웃</a>
                     </c:when>
                     <c:otherwise>
                         <div class="drawer-links" style="display:flex; gap:8px; padding: 8px 14px;">
@@ -65,19 +60,6 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
         </div>
       </header>
       <div class="drawer-overlay" id="drawerOverlay"></div>
-
-      <nav class="site-nav" id="siteNav">
-        <div class="drawer-header">
-          <span class="drawer-title">✈ Travel-A(AI)</span>
-          <button class="drawer-close" id="drawerClose">✕</button>
-        </div>
-        <div class="drawer-links">
-          <a href="...">🗺 여행 계획</a>
-          <a href="...">🔍 탐색</a>
-          <a href="...">📍 실시간 여행</a>
-          <a href="...">👤 마이페이지</a>
-        </div>
-      </nav>
 
       <div class="content">
         <jsp:include page="${content}"></jsp:include>
