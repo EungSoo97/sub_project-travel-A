@@ -85,7 +85,9 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
       <div class="content">
         <jsp:include page="${content}"></jsp:include>
       </div>
-
+        <form action="result-page">
+            <button >backdoor</button>
+        </form>
       <footer class="site-footer">
         <div class="container site-footer__inner">
           <p>© 2026 Travel-A(AI). 여행의 모든 순간을 스마트하게.</p>

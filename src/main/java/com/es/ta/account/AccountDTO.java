@@ -1,4 +1,5 @@
 package com.es.ta.account;
+import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,5 +18,11 @@ public class AccountDTO {
     private String gender;
     private Date birthDate;
     private String email;
+
+
+    public String toJSON(){
+        Gson gson =new Gson();
+        return gson.toJson(this);
+    }
 
 }
