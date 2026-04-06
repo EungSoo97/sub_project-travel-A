@@ -43,3 +43,4 @@ bin/
 .DS_Store
 .idea
 DBManager_new.java
+application.properties

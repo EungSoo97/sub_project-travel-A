@@ -73,7 +73,7 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
         </div>
       </footer>
     </div>
-    <script src="js/main.js"></script>
+    <script src="js/main.js" defer></script>
   </body>
   <script>
     const trigger = document.querySelector(".menu-trigger");

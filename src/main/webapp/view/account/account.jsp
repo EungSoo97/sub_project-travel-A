@@ -86,7 +86,7 @@
                         <label>ID</label>
                         <div style="display:flex; gap:8px;">
                             <input type="text" placeholder="(필수)" name="login_id">
-                            <button type="button" id="check-btn" class="btn btn--ghost">중복확인</button>
+                            <button type="button" id="check-btn" class="dup-check">중복확인</button>
                         </div>
                         <!-- 결과 메시지 input 바로 아래 -->
                         <div class="result"></div>
