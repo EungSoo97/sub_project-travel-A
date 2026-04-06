@@ -9,6 +9,7 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/result-page.css" />
     <link rel="stylesheet" href="css/edit-schedule.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/settings.css" />
 
     <!-- 푸터 하단 고정 -->
     <style>
@@ -61,6 +62,8 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
             <a href="${pageContext.request.contextPath}/explore">탐색</a>
             <a href="${pageContext.request.contextPath}/live">실시간 여행</a>
             <a href="${pageContext.request.contextPath}/mypage">마이페이지</a>
+
+
           </nav>
         </div>
       </header>
