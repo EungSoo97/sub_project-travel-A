@@ -43,29 +43,69 @@
                     </div>
                 </div>
 
-                <div class="search-card__row">
-                    <div class="traveler-box">
-                        <span class="traveler-box__label">여행 인원</span>
-                        <div class="counter">
-                            <button type="button" class="counter__btn" data-counter-minus>-</button>
-                            <input type="number" id="travelers" name="travelers" value="2" min="1" max="20" readonly>
-                            <button type="button" class="counter__btn" data-counter-plus>+</button>
+            <div class="search-card__row">
+                <label class="traveler-box__label">여행 인원</label>
+                <div class="traveler-box">
+                    <div class="traveler-box__head">
+                        <span class="traveler-box__badge" id="travelerBadge">둘이</span>
+                    </div>
+                    <div class="traveler-box__body">
+                        <div class="traveler-count-display">
+                            <span class="count-num" id="countDisplay">2</span>
+                            <span class="count-unit">명</span>
+                        </div>
+                        <div class="traveler-stepper">
+                            <button class="stepper-btn" type="button" data-counter-minus>−</button>
+                            <button class="stepper-btn" type="button" data-counter-plus>+</button>
                         </div>
                     </div>
+                    <div class="traveler-presets">
+                        <button class="preset-chip" type="button" data-val="1">혼자</button>
+                        <button class="preset-chip is-active" type="button" data-val="2">2명</button>
+                        <button class="preset-chip" type="button" data-val="3">3명</button>
+                        <button class="preset-chip" type="button" data-val="4">4명+</button>
+                    </div>
+                    <input type="number" class="budget-summary" id="travelers" name="travelers" value="2" min="1" max="20">
                 </div>
+            </div>
 
-                <div class="search-card__row">
-                    <div class="price-box">
-                        <span class="price-box__label">예상 여행 경비</span>
-                        <div class="form-field input">
-                            <input type="number" id="minPrice" min="0" name="min-budget" step="10000" placeholder="예상 최저 금액 ₩" required>
-                            <div class="price-box__label">~</div>
-                            <input type="number" id="maxPrice" min="0" name="max-budget" step="10000" placeholder="예상 최대 금액 ₩" required>
-
+            <div class="search-card__row">
+                <label class="traveler-box__label">예상 여행 경비</label>
+                <div class="price-box">
+                    <div class="price-box__head">
+                        <span class="price-box__badge">1인 기준</span>
+                    </div>
+                    <div class="budget-range-track">
+                        <div class="budget-range-fill" id="rangeFill"></div>
+                    </div>
+                    <div class="budget-sliders">
+                        <input type="range" id="rangeMin" name="min-budget" min="0" max="5000000" step="10000" value="0">
+                        <input type="range" id="rangeMax" name="max-budget" min="0" max="5000000" step="10000" value="1000000">
+                    </div>
+                    <div class="budget-amounts">
+                        <div class="budget-amount-box budget-amount-box--min">
+                            <span class="budget-amount-box__label">최소</span>
+                            <input type="number" id="minPrice" placeholder="0 원" step="10000" min="0">
+                        </div>
+                        <span class="budget-amounts-sep">—</span>
+                        <div class="budget-amount-box budget-amount-box--max">
+                            <span class="budget-amount-box__label">최대</span>
+                            <input type="number" id="maxPrice" placeholder="제한 없음" step="10000" min="0">
                         </div>
                     </div>
-
+                    <div class="budget-presets">
+                        <button class="budget-preset-btn" type="button" data-range="0,500000">~50만</button>
+                        <button class="budget-preset-btn is-active" type="button" data-range="0,1000000">~100만</button>
+                        <button class="budget-preset-btn" type="button" data-range="500000,2000000">50~200만</button>
+                        <button class="budget-preset-btn" type="button" data-range="1500000,4000000">150~400만</button>
+                        <button class="budget-preset-btn" type="button" data-range="0,5000000">제한없음</button>
+                    </div>
+                    <div class="budget-summary">
+                        <span class="budget-summary__text">설정된 예산 범위</span>
+                        <span class="budget-summary__value" id="budgetSummaryVal">100만 원 이하</span>
+                    </div>
                 </div>
+            </div>
 
                 <div class="chip-group-wrap">
                     <h3>여행 스타일</h3>
