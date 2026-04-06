@@ -13,7 +13,7 @@
     }
 
     /* 로고 */
-    .site-logo {
+    .site-logo__login {
         font-size: 24px;
         font-weight: bold;
         text-decoration: none;
@@ -77,15 +77,7 @@
 </head>
 <body>
 <div class="login-wrap">
-    <a href="${pageContext.request.contextPath}/" class="site-logo">✈ Travel-A(AI)</a>
-<%--    <form action="">--%>
-<%--    <div class="login-box">--%>
-<%--        <input type="text" placeholder="아이디" name="loginId">--%>
-<%--        <input type="password" placeholder="비밀번호" name="password">--%>
-<%--        <button>로그인</button>--%>
-<%--    </div>--%>
-<%--    </form>--%>
-<%--</div>--%>
+    <a href="${pageContext.request.contextPath}/" class="site-logo__login">✈ Travel-A(AI)</a>
 <c:if test="${not empty loginError}">
 <div class="login-error">${loginError}</div>
 </c:if >

@@ -1,69 +1,144 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const menuBtn = document.getElementById("mobileMenuBtn");
-  const nav = document.getElementById("siteNav");
-  const travelerInput = document.getElementById("travelers");
-  const plusBtn = document.querySelector("[data-counter-plus]");
-  const minusBtn = document.querySelector("[data-counter-minus]");
-  const uploadTrigger = document.getElementById("uploadTrigger");
-  const imageFile = document.getElementById("imageFile");
-  const uploadPreview = document.getElementById("uploadPreview");
+(function initTraveler() {
+  const hiddenInput = document.getElementById("travelers");
+  const countEl     = document.getElementById("countDisplay");
+  const minusBtn    = document.querySelector("[data-counter-minus]");
+  const plusBtn     = document.querySelector("[data-counter-plus]");
+  const presets     = document.querySelectorAll(".preset-chip");
+  const badge       = document.getElementById("travelerBadge");
+  const MIN = 1, MAX = 20;
+  let count = 2;
 
-  document.querySelector(".mobile-menu-btn").addEventListener("click", () => {
-    document.querySelector(".site-nav").classList.toggle("is-open");
+  const LABELS = { 1: "혼자", 2: "둘이", 3: "셋이", 4: "넷이서" };
+
+  function render() {
+    countEl.textContent = count;
+    hiddenInput.value   = count;
+    countEl.style.transform = "scale(1.28)";
+    setTimeout(() => (countEl.style.transform = "scale(1)"), 140);
+    minusBtn.disabled = count <= MIN;
+    plusBtn.disabled  = count >= MAX;
+    if (badge) badge.textContent = LABELS[count] || count + "명";
+    presets.forEach(c => c.classList.toggle("is-active", Number(c.dataset.val) === count));
+  }
+
+  minusBtn.addEventListener("click", () => { if (count > MIN) { count--; render(); } });
+  plusBtn.addEventListener("click",  () => { if (count < MAX) { count++; render(); } });
+  presets.forEach(c => c.addEventListener("click", () => {
+    const v = Number(c.dataset.val);
+    if (v >= MIN && v <= MAX) { count = v; render(); }
+  }));
+
+  hiddenInput.addEventListener("input", () => {
+    let v = parseInt(hiddenInput.value, 10);
+    if (isNaN(v)) return;
+    count = Math.min(MAX, Math.max(MIN, v));
+    hiddenInput.value = count;
+    countEl.textContent = count;
+    countEl.style.transform = "scale(1.28)";
+    setTimeout(() => (countEl.style.transform = "scale(1)"), 140);
+    minusBtn.disabled = count <= MIN;
+    plusBtn.disabled  = count >= MAX;
+    if (badge) badge.textContent = LABELS[count] || count + "명";
+    presets.forEach(c => c.classList.toggle("is-active", Number(c.dataset.val) === count));
   });
-  if (menuBtn && nav) {
-    menuBtn.addEventListener("click", function () {
-      nav.classList.toggle("is-open");
+
+  render();
+})();
+
+(function initBudget() {
+  const STEP = 10000, ABS_MIN = 0, ABS_MAX = 5000000;
+
+  const rangeMin  = document.getElementById("rangeMin");
+  const rangeMax  = document.getElementById("rangeMax");
+  const fill      = document.getElementById("rangeFill");
+  const textMin   = document.getElementById("minPrice");
+  const textMax   = document.getElementById("maxPrice");
+  const summaryEl = document.getElementById("budgetSummaryVal");
+  const boxMin    = document.querySelector(".budget-amount-box--min");
+  const boxMax    = document.querySelector(".budget-amount-box--max");
+  const presets   = document.querySelectorAll(".budget-preset-btn");
+
+  if (!rangeMin || !rangeMax) return;
+
+  let minVal = 0, maxVal = 5000000;
+
+  function fmt(n) {
+    if (n >= 5000000) return "500만+";
+    if (n >= 1000000)  return Math.floor(n / 10000) + "만";
+    return n.toLocaleString("ko-KR");
+  }
+  function fmtFull(n) {
+    if (n >= 10000000) return "500만 원+";
+    return n.toLocaleString("ko-KR") + " 원";
+  }
+
+  function syncAll() {
+    minVal = Math.max(ABS_MIN, Math.min(minVal, ABS_MAX - STEP));
+    maxVal = Math.max(ABS_MIN + STEP, Math.min(maxVal, ABS_MAX));
+    if (minVal >= maxVal) minVal = maxVal - STEP;
+
+    rangeMin.value = minVal;
+    rangeMax.value = maxVal;
+
+    if (document.activeElement !== textMin)
+      textMin.value = minVal === 0 ? "" : minVal;
+    if (document.activeElement !== textMax)
+      textMax.value = maxVal === ABS_MAX ? "" : maxVal;
+
+    const pMin = (minVal / ABS_MAX) * 100;
+    const pMax = (maxVal / ABS_MAX) * 100;
+    fill.style.left  = pMin + "%";
+    fill.style.width = (pMax - pMin) + "%";
+
+    if (minVal === 0 && maxVal === ABS_MAX) {
+      summaryEl.textContent = "제한 없음";
+    } else if (minVal === 0) {
+      summaryEl.textContent = fmtFull(maxVal) + " 이하";
+    } else if (maxVal === ABS_MAX) {
+      summaryEl.textContent = fmtFull(minVal) + " 이상";
+    } else {
+      summaryEl.textContent = fmt(minVal) + " ~ " + fmtFull(maxVal);
+    }
+
+    presets.forEach(btn => {
+      const [pMin, pMax] = btn.dataset.range.split(",").map(Number);
+      btn.classList.toggle("is-active", pMin === minVal && pMax === maxVal);
     });
   }
 
-  if (travelerInput && plusBtn && minusBtn) {
-    plusBtn.addEventListener("click", function () {
-      const current = Number(travelerInput.value || 1);
-      travelerInput.value = String(Math.min(current + 1, 20));
+  rangeMin.addEventListener("input", () => {
+    minVal = Number(rangeMin.value);
+    if (minVal >= maxVal) minVal = maxVal - STEP;
+    syncAll();
+  });
+  rangeMax.addEventListener("input", () => {
+    maxVal = Number(rangeMax.value);
+    if (maxVal <= minVal) maxVal = minVal + STEP;
+    syncAll();
+  });
+
+  [textMin, textMax].forEach((el, i) => {
+    const box = i === 0 ? boxMin : boxMax;
+    el.addEventListener("focus", () => box && box.classList.add("is-focused"));
+    el.addEventListener("blur",  () => {
+      box && box.classList.remove("is-focused");
+      const v = parseInt(el.value, 10);
+      if (!isNaN(v)) {
+        if (i === 0) minVal = Math.round(v / STEP) * STEP;
+        else         maxVal = Math.round(v / STEP) * STEP;
+        syncAll();
+      }
     });
+  });
 
-    minusBtn.addEventListener("click", function () {
-      const current = Number(travelerInput.value || 1);
-      travelerInput.value = String(Math.max(current - 1, 1));
-    });
-  }
+  presets.forEach(btn => btn.addEventListener("click", () => {
+    const [pMin, pMax] = btn.dataset.range.split(",").map(Number);
+    minVal = pMin; maxVal = pMax; syncAll();
+  }));
 
-  if (uploadTrigger && imageFile) {
-    uploadTrigger.addEventListener("click", function () {
-      imageFile.click();
-    });
+  syncAll();
+})();
 
-    imageFile.addEventListener("change", function (e) {
-      const file = e.target.files && e.target.files[0];
-      if (!file || !uploadPreview) return;
-
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        uploadPreview.innerHTML = "";
-
-        const img = document.createElement("img");
-        img.src = event.target.result;
-        img.alt = "업로드 이미지 미리보기";
-
-        const text = document.createElement("p");
-        text.textContent =
-          "이미지 업로드 완료 - 실제 AI 분석 API 연결 전 단계입니다.";
-
-        uploadPreview.appendChild(img);
-        uploadPreview.appendChild(text);
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-});
-
-const minInput = document.getElementById("minPrice");
-const maxInput = document.getElementById("maxPrice");
-
-minInput.addEventListener("input", () => {
-  maxInput.min = minInput.value;
-});
 
 lucide.createIcons();
 
