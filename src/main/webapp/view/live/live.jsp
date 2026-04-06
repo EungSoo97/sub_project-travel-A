@@ -1,10 +1,4 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: soldesk
-  Date: 2026-04-02
-  Time: 오후 5:09
-  To change this template use File | Settings | File Templates.
---%>
+
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -127,22 +121,7 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>
             실시간 날씨
         </div>
-
-        <div class="weather-main">
-            <h2>18°C</h2>
-            <p>맑음</p>
-        </div>
-
-        <div class="weather-details">
-            <div class="detail-item">
-                <span class="detail-label">습도</span>
-                <span class="detail-value">55%</span>
-            </div>
-            <div class="detail-item">
-                <span class="detail-label">풍속</span>
-                <span class="detail-value">2m/s</span>
-            </div>
-        </div>
+        <div id="weatherArea">날씨 불러오는 중...</div>
     </div>
 
     <div class="traffic-box card-box">
@@ -227,6 +206,52 @@
 
     updateClock();
     setInterval(updateClock, 1000);
+
+
+        function loadWeather() {
+        const destination = "도쿄";
+
+        fetch("/weather?destination=" + encodeURIComponent(destination))
+        .then(res => res.json())
+        .then(data => {
+        if (data.error) {
+        document.getElementById("weatherArea").innerHTML =
+        "<p>" + data.error + "</p>";
+        return;
+    }
+
+            document.getElementById("weatherArea").innerHTML =
+
+                "<div class='weather-main'>" +
+                "<h2>" + data.temp + "°C</h2>" +
+                "<p>" + data.description + "</p>" +
+                "</div>" +
+
+                "<div class='weather-details'>" +
+                "<div class='detail-item'>" +
+                "<span class='detail-label'>습도</span>" +
+                "<span class='detail-value'>" + data.humidity + "%</span>" +
+                "</div>" +
+                "<div class='detail-item'>" +
+                "<span class='detail-label'>풍속</span>" +
+                "<span class='detail-value'>" + data.windSpeed + "m/s</span>" +
+                "</div>" +
+                "</div>";
+    })
+        .catch(err => {
+        console.error(err);
+        document.getElementById("weatherArea").innerHTML =
+        "<p>날씨 로딩 실패</p>";
+    });
+    }
+
+        loadWeather();
+
+    setInterval(() => {
+        if (!document.hidden) {
+            loadWeather();
+        }
+    }, 300000);
 </script>
 
 </body>
