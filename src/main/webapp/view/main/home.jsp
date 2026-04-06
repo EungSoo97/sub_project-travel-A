@@ -44,9 +44,9 @@
                 </div>
 
             <div class="search-card__row">
+                <label class="traveler-box__label">여행 인원</label>
                 <div class="traveler-box">
                     <div class="traveler-box__head">
-                        <span class="traveler-box__label">여행 인원</span>
                         <span class="traveler-box__badge" id="travelerBadge">둘이</span>
                     </div>
                     <div class="traveler-box__body">
@@ -65,22 +65,22 @@
                         <button class="preset-chip" type="button" data-val="3">3명</button>
                         <button class="preset-chip" type="button" data-val="4">4명+</button>
                     </div>
-                    <input type="number" id="travelers" name="travelers" value="2" min="1" max="20" readonly>
+                    <input type="number" class="budget-summary" id="travelers" name="travelers" value="2" min="1" max="20">
                 </div>
             </div>
 
             <div class="search-card__row">
+                <label class="traveler-box__label">예상 여행 경비</label>
                 <div class="price-box">
                     <div class="price-box__head">
-                        <span class="price-box__label">예상 여행 경비</span>
                         <span class="price-box__badge">1인 기준</span>
                     </div>
                     <div class="budget-range-track">
                         <div class="budget-range-fill" id="rangeFill"></div>
                     </div>
                     <div class="budget-sliders">
-                        <input type="range" id="rangeMin" name="min-budget" min="0" max="10000000" step="10000" value="0">
-                        <input type="range" id="rangeMax" name="max-budget" min="0" max="10000000" step="10000" value="1000000">
+                        <input type="range" id="rangeMin" name="min-budget" min="0" max="5000000" step="10000" value="0">
+                        <input type="range" id="rangeMax" name="max-budget" min="0" max="5000000" step="10000" value="1000000">
                     </div>
                     <div class="budget-amounts">
                         <div class="budget-amount-box budget-amount-box--min">
@@ -97,8 +97,8 @@
                         <button class="budget-preset-btn" type="button" data-range="0,500000">~50만</button>
                         <button class="budget-preset-btn is-active" type="button" data-range="0,1000000">~100만</button>
                         <button class="budget-preset-btn" type="button" data-range="500000,2000000">50~200만</button>
-                        <button class="budget-preset-btn" type="button" data-range="1000000,5000000">100~500만</button>
-                        <button class="budget-preset-btn" type="button" data-range="0,10000000">제한없음</button>
+                        <button class="budget-preset-btn" type="button" data-range="1500000,4000000">150~400만</button>
+                        <button class="budget-preset-btn" type="button" data-range="0,5000000">제한없음</button>
                     </div>
                     <div class="budget-summary">
                         <span class="budget-summary__text">설정된 예산 범위</span>

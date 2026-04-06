@@ -46,8 +46,6 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
                         </div>
                     </c:otherwise>
                 </c:choose>
-<%--              <a href="login" class="btn--login">로그인</a>--%>
-<%--              <a href="account" class="btn--register">회원가입</a>--%>
             </div>
             <div class="mobile-menu-btn" id="mobileMenuBtn">
               <a class="menu-trigger">
@@ -59,17 +57,6 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
           </div>
 
           <nav class="site-nav" id="siteNav">
-            <%--
-            <div class="login-register">
-              --%> <%--
-              <a
-                href="${pageContext.request.contextPath}/login"
-                class="btn--login"
-                >로그인</a
-              >--%> <%--
-              <a href="account" class="btn--register">회원가입</a>--%> <%--
-            </div>
-            --%>
             <a href="${pageContext.request.contextPath}/">여행 계획</a>
             <a href="${pageContext.request.contextPath}/explore">탐색</a>
             <a href="${pageContext.request.contextPath}/live">실시간 여행</a>

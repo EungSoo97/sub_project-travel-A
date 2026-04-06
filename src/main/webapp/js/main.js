@@ -28,11 +28,25 @@
     if (v >= MIN && v <= MAX) { count = v; render(); }
   }));
 
+  hiddenInput.addEventListener("input", () => {
+    let v = parseInt(hiddenInput.value, 10);
+    if (isNaN(v)) return;
+    count = Math.min(MAX, Math.max(MIN, v));
+    hiddenInput.value = count;
+    countEl.textContent = count;
+    countEl.style.transform = "scale(1.28)";
+    setTimeout(() => (countEl.style.transform = "scale(1)"), 140);
+    minusBtn.disabled = count <= MIN;
+    plusBtn.disabled  = count >= MAX;
+    if (badge) badge.textContent = LABELS[count] || count + "명";
+    presets.forEach(c => c.classList.toggle("is-active", Number(c.dataset.val) === count));
+  });
+
   render();
 })();
 
 (function initBudget() {
-  const STEP = 10000, ABS_MIN = 0, ABS_MAX = 10000000;
+  const STEP = 10000, ABS_MIN = 0, ABS_MAX = 5000000;
 
   const rangeMin  = document.getElementById("rangeMin");
   const rangeMax  = document.getElementById("rangeMax");
@@ -46,15 +60,15 @@
 
   if (!rangeMin || !rangeMax) return;
 
-  let minVal = 0, maxVal = 1000000;
+  let minVal = 0, maxVal = 5000000;
 
   function fmt(n) {
-    if (n >= 10000000) return "1,000만+";
+    if (n >= 5000000) return "500만+";
     if (n >= 1000000)  return Math.floor(n / 10000) + "만";
     return n.toLocaleString("ko-KR");
   }
   function fmtFull(n) {
-    if (n >= 10000000) return "1,000만 원+";
+    if (n >= 10000000) return "500만 원+";
     return n.toLocaleString("ko-KR") + " 원";
   }
 
