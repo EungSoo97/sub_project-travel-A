@@ -159,15 +159,20 @@ public class TravelDao {
         return requestDto != null ? requestDto.getTravelers() : 0;
     }
 
+    /**
+     * DB 단일 컬럼용 문자열. FastAPI가 내려주는 {@code summary.requestStyles}가 있으면 그 목록을 우선 저장한다.
+     * (구버전은 {@code travelStyle} 한 줄만 있어서 첫 태그만 보였음.)
+     */
     private String getTravelStyle(TravelRequestDto requestDto, TravelResponseDto.Summary summary) {
+        if (summary != null && summary.getRequestStyles() != null && !summary.getRequestStyles().isEmpty()) {
+            return String.join(", ", summary.getRequestStyles());
+        }
         if (summary != null && summary.getTravelStyle() != null && !summary.getTravelStyle().isBlank()) {
             return summary.getTravelStyle();
         }
-
         if (requestDto != null && requestDto.getStyles() != null && !requestDto.getStyles().isEmpty()) {
             return String.join(", ", requestDto.getStyles());
         }
-
         return "";
     }
 
@@ -190,9 +195,7 @@ public class TravelDao {
         ResultSet rs = null;
         String json = null;
 
-        // plan_id를 기준으로 response_json 컬럼만 가져옵니다.
-//        String sql = "SELECT response_json FROM travel_plan WHERE plan_id = ?";
-        String sql = "SELECT response_json FROM travel_plan WHERE DESTINATION = ?";
+        String sql = "SELECT response_json FROM travel_plan WHERE plan_id = ?";
 
         try {
             con = DBManager_new.connect();
