@@ -1,5 +1,8 @@
 package com.es.ta.resultpage;
 
+import com.es.ta.ai.TravelRequestDto;
+import com.es.ta.ai.TravelResponseDto;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -21,9 +24,14 @@ public class ResultpageC extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        request.setAttribute("content", "view/resultpage/scheduleEdit.jsp");
-        request.getRequestDispatcher("index.jsp").forward(request, response);
-
+//        int id = Integer.parseInt(request.getParameter("id"));
+//
+//        TravelRequestDto result = ResultpageDAO.detailpage(id);
+//
+//        request.setAttribute("result", result);
+//        request.setAttribute("content", "view/detailpage/detailpage.jsp");
+//        request.getRequestDispatcher("index.jsp").forward(request, response);
+// detail page C로 get요청 할꺼임
 
 
     }
