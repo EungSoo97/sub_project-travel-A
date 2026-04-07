@@ -94,7 +94,7 @@ public class AccountDAO {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String sql = "SELECT COUNT(*) FROM user_info WHERE u_login_id = ?";
+        String sql = "SELECT u_login_id FROM user_info WHERE u_login_id = ?";
         int count = 0;
 
         try {
