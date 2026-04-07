@@ -37,3 +37,5 @@ INSERT INTO travel_plan (
          );
 
 select * from travel_plan;
+
+SELECT plan_id FROM travel_plan;

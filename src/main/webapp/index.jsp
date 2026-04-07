@@ -9,6 +9,7 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/result-page.css" />
     <link rel="stylesheet" href="css/edit-schedule.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/settings.css">
 
     <!-- 푸터 하단 고정 -->
     <style>
@@ -56,6 +57,15 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
             <a href="${pageContext.request.contextPath}/explore">탐색</a>
             <a href="${pageContext.request.contextPath}/live">실시간 여행</a>
             <a href="${pageContext.request.contextPath}/mypage">마이페이지</a>
+
+<%--              <c:choose>--%>
+<%--                  <c:when test="${not empty sessionScope.user}">--%>
+<%--                      <a href="${pageContext.request.contextPath}/mypage?no=${}">마이페이지</a>--%>
+<%--                  </c:when>--%>
+<%--                  <c:otherwise>--%>
+<%--                          <a href="login" onclick="loginAlert()">마이페이지</a>--%>
+<%--                  </c:otherwise>--%>
+<%--              </c:choose>--%>
           </nav>
         </div>
       </header>
@@ -64,44 +74,46 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
       <div class="content">
         <jsp:include page="${content}"></jsp:include>
       </div>
-        <form action="result-page">
-            <button >backdoor</button>
-        </form>
+
       <footer class="site-footer">
         <div class="container site-footer__inner">
           <p>© 2026 Travel-A(AI). 여행의 모든 순간을 스마트하게.</p>
         </div>
       </footer>
     </div>
-    <script src="js/main.js" defer></script>
-  </body>
-  <script>
-    const trigger = document.querySelector(".menu-trigger");
+    <script src="js/main.js"></script>
+    <script>
+        function loginAlert () {
+            alert("로그인이 필요한 기능 입니다.");
+        }
+    </script>
+    <script>const trigger = document.querySelector(".menu-trigger");
     const nav = document.querySelector(".site-nav");
     const loginBtns = document.getElementById("headerLoginBtns");
 
     if (trigger && nav) {
-      trigger.addEventListener("click", function (e) {
-        e.preventDefault();
-        const isActive = this.classList.toggle("is-active");
-        loginBtns && loginBtns.classList.toggle("is-visible", isActive);
+        trigger.addEventListener("click", function (e) {
+            e.preventDefault();
+            const isActive = this.classList.toggle("is-active");
+            loginBtns && loginBtns.classList.toggle("is-visible", isActive);
 
-        if (isActive) {
-          // display:flex 먼저 적용 후 transition 실행
-          nav.style.display = "flex";
-          requestAnimationFrame(() => nav.classList.add("is-open"));
-        } else {
-          nav.classList.remove("is-open");
-          nav.addEventListener(
-            "transitionend",
-            () => {
-              if (!nav.classList.contains("is-open"))
-                nav.style.display = "none";
-            },
-            { once: true },
-          );
-        }
-      });
-    }
-  </script>
+            if (isActive) {
+                // display:flex 먼저 적용 후 transition 실행
+                nav.style.display = "flex";
+                requestAnimationFrame(() => nav.classList.add("is-open"));
+            } else {
+                nav.classList.remove("is-open");
+                nav.addEventListener(
+                    "transitionend",
+                    () => {
+                        if (!nav.classList.contains("is-open"))
+                            nav.style.display = "none";
+                    },
+                    { once: true },
+                );
+            }
+        });
+    }</script>
+  </body>
+
 </html>

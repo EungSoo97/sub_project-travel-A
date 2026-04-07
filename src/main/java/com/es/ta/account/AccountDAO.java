@@ -19,6 +19,7 @@ public class AccountDAO {
      * @return 로그인 성공 여부
      */
     public static boolean loginProcess(HttpServletRequest request) {
+
         String loginId = request.getParameter("loginId");
         String password = request.getParameter("password");
 
@@ -28,7 +29,8 @@ public class AccountDAO {
 
         try {
             con = DBManager_new.connect();
-            String sql = "SELECT u_user_id, u_login_id, u_name, u_gender, u_birth_date, u_email FROM user_info WHERE u_login_id = ? AND u_password = ?";
+            String sql = "SELECT u_user_id, u_login_id, u_name, u_gender, u_birth_date, u_email, u_profile_img " +
+                    "FROM user_info WHERE u_login_id = ? AND u_password = ?";
             ps = con.prepareStatement(sql);
             ps.setString(1, loginId);
             ps.setString(2, password);
@@ -41,7 +43,7 @@ public class AccountDAO {
                 user.setName(rs.getString("u_name"));
                 user.setGender(rs.getString("u_gender"));
                 user.setEmail(rs.getString("u_email"));
-
+                user.setProfileImg(rs.getString("u_profile_img"));
                 HttpSession session = request.getSession();
                 session.setAttribute("user", user);
                 return true;
@@ -49,19 +51,9 @@ public class AccountDAO {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+
         }
         return false;
-    }
-
-    public boolean loginCheck(HttpServletRequest request) {
-        AccountDTO user = (AccountDTO) request.getSession().getAttribute("user");
-        if (user != null) {
-            request.setAttribute("loginPage", "view/login/login_ok.jsp");
-            return true;
-        } else {
-            request.setAttribute("loginPage", "view/login/not_login.jsp");
-            return false;
-        }
     }
 
     public static void newuser(HttpServletRequest request) {
@@ -102,7 +94,7 @@ public class AccountDAO {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String sql = "SELECT COUNT(*) FROM user_info WHERE u_login_id = ?";
+        String sql = "SELECT u_login_id FROM user_info WHERE u_login_id = ?";
         int count = 0;
 
         try {
