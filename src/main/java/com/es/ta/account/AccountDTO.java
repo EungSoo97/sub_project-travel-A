@@ -10,7 +10,6 @@ import java.util.Date;
 @NoArgsConstructor
 @Data
 public class AccountDTO {
-
     private int user_id;
     private String loginId;
     private String password;
@@ -18,10 +17,11 @@ public class AccountDTO {
     private String gender;
     private Date birthDate;
     private String email;
+    private String profileImg;
 
 
-    public String toJSON(){
-        Gson gson =new Gson();
+    public String toJSON() {
+        Gson gson = new Gson();
         return gson.toJson(this);
     }
 

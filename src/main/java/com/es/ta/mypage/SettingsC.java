@@ -1,22 +1,77 @@
 package com.es.ta.mypage;
 
+import com.es.ta.account.AccountDTO;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 import java.io.IOException;
 
-@WebServlet(name = "SettingsC", value = "/settings")
+@WebServlet("/settings")
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024,
+        maxFileSize = 1024 * 1024 * 5,
+        maxRequestSize = 1024 * 1024 * 25
+)
 public class SettingsC extends HttpServlet {
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        HttpSession session = request.getSession();
+        AccountDTO loginUser = (AccountDTO) session.getAttribute("user");
+
+        if (loginUser == null) {
+            response.sendRedirect("login");
+            return;
+        }
+
+        AccountDTO userInfo = SettingsDAO.getUserInfo(request);
+        request.setAttribute("userInfo", userInfo);
 
         request.setAttribute("content", "view/mypage/settings.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
-
     }
 
-    public void destroy() {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        request.setCharacterEncoding("utf-8");
+
+        HttpSession session = request.getSession();
+        AccountDTO loginUser = (AccountDTO) session.getAttribute("user");
+
+        if (loginUser == null) {
+            response.sendRedirect("login");
+            return;
+        }
+
+        String action = request.getParameter("action");
+
+        if ("delete".equals(action)) {
+            boolean result = SettingsDAO.deleteUser(request);
+
+            if (result) {
+                response.sendRedirect("home");
+            } else {
+                request.setAttribute("error", "회원 탈퇴 실패");
+                request.setAttribute("content", "view/mypage/settings.jsp");
+                request.getRequestDispatcher("index.jsp").forward(request, response);
+            }
+            return;
+        }
+
+        boolean result = SettingsDAO.updateUserInfo(request);
+
+        if (result) {
+            response.sendRedirect("settings?success=1");   // ✅ 여기
+        } else {
+            request.setAttribute("error", "회원정보 수정 실패");
+            request.setAttribute("content", "view/mypage/settings.jsp");
+            request.getRequestDispatcher("index.jsp").forward(request, response);
+        }
     }
 }
