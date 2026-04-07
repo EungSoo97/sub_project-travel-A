@@ -99,4 +99,17 @@ public class FastApiService {
 
         return DEFAULT_FAST_API_URL;
     }
+
+    /**
+     * FastAPI 베이스 URL (예: http://host:8000/api/v1).
+     * {@code fastapi.url} / {@code FAST_API_URL} 이 {@code .../travel/plan} 전체일 때 접미사를 제거한다.
+     */
+    public static String resolveFastApiBaseUrl() {
+        String endpoint = resolveFastApiUrl();
+        final String suffix = "/travel/plan";
+        if (endpoint.endsWith(suffix)) {
+            return endpoint.substring(0, endpoint.length() - suffix.length());
+        }
+        return endpoint;
+    }
 }
