@@ -4,6 +4,7 @@ import com.es.ta.main.DBManager_new;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -181,6 +182,35 @@ public class TravelDao {
     // 기존 메서드
     public void saveRequestLog(TravelRequestDto dto, String logPath) {
         // 기존 로직 유지
+    }
+
+    public String getSavedTravelPlanJson(int planId) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String json = null;
+
+        // plan_id를 기준으로 response_json 컬럼만 가져옵니다.
+//        String sql = "SELECT response_json FROM travel_plan WHERE plan_id = ?";
+        String sql = "SELECT response_json FROM travel_plan WHERE DESTINATION = ?";
+
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, planId);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                json = rs.getString("response_json");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("[TravelDao] getSavedTravelPlanJson ERROR: " + e.getMessage());
+        } finally {
+            // ResultSet(rs)까지 닫아주어야 합니다.
+            DBManager_new.close(con, ps, rs);
+        }
+        return json;
     }
 
 }
