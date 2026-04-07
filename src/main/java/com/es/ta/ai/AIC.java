@@ -1,5 +1,6 @@
 package com.es.ta.ai;
 
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -7,10 +8,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-@WebServlet(name = "AIC", value = "/ai")
+@WebServlet(name = "AIC", value = "/ac")
 public class AIC extends HttpServlet {
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+
+
     }
 
     public void destroy() {
