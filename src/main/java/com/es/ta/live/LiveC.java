@@ -14,6 +14,7 @@ public class LiveC extends HttpServlet {
 
         request.setAttribute("content","view/live/live.jsp");
         request.getRequestDispatcher("index.jsp").forward(request,response);
+
     }
 
     public void destroy() {

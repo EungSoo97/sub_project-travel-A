@@ -257,11 +257,14 @@
         <div class="container">
             <div class="section-head">
                 <h2>인기 여행지</h2>
-                <p>현재는 정적 카드로 구성했고, 나중에는 JSTL의 c:forEach로 서버 데이터만 바꿔서 렌더링할 수 있습니다.</p>
+                <p>카드를 누르면 관련 여행 플랜을 확인할 수 있습니다.</p>
             </div>
 
             <div class="destination-grid">
-                <article class="destination-card">
+                <article class="destination-card"
+                         onclick="openPlanSheet(this)"
+                         data-category="교토"
+                         data-label="교토 · 일본">
                     <div class="destination-card__image">
                         <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80" alt="교토">
                         <div class="destination-card__overlay">
@@ -272,7 +275,10 @@
                     <div class="destination-card__body"><p>벚꽃과 전통 문화의 도시</p></div>
                 </article>
 
-                <article class="destination-card">
+                <article class="destination-card"
+                         onclick="openPlanSheet(this)"
+                         data-category="도쿄"
+                         data-label="도쿄 · 일본">
                     <div class="destination-card__image">
                         <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80" alt="도쿄">
                         <div class="destination-card__overlay">
@@ -283,7 +289,10 @@
                     <div class="destination-card__body"><p>현대와 전통이 공존하는 도시</p></div>
                 </article>
 
-                <article class="destination-card">
+                <article class="destination-card"
+                         onclick="openPlanSheet(this)"
+                         data-category="오사카"
+                         data-label="오사카 · 일본">
                     <div class="destination-card__image">
                         <img src="https://images.unsplash.com/photo-1590559899731-a382839e5549?auto=format&fit=crop&w=1200&q=80" alt="오사카">
                         <div class="destination-card__overlay">
@@ -294,7 +303,10 @@
                     <div class="destination-card__body"><p>맛과 활기가 살아있는 도시</p></div>
                 </article>
 
-                <article class="destination-card">
+                <article class="destination-card"
+                         onclick="openPlanSheet(this)"
+                         data-category="자연여행"
+                         data-label="자연 여행 · 테마">
                     <div class="destination-card__image">
                         <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80" alt="자연 여행">
                         <div class="destination-card__overlay">
@@ -305,7 +317,10 @@
                     <div class="destination-card__body"><p>휴식과 힐링 중심 코스</p></div>
                 </article>
 
-                <article class="destination-card">
+                <article class="destination-card"
+                         onclick="openPlanSheet(this)"
+                         data-category="해안드라이브"
+                         data-label="해안 드라이브 · 테마">
                     <div class="destination-card__image">
                         <img src="https://images.unsplash.com/photo-1468413253725-0d5181091126?auto=format&fit=crop&w=1200&q=80" alt="해안 드라이브">
                         <div class="destination-card__overlay">
@@ -316,7 +331,10 @@
                     <div class="destination-card__body"><p>바다와 함께하는 여행 코스</p></div>
                 </article>
 
-                <article class="destination-card">
+                <article class="destination-card"
+                         onclick="openPlanSheet(this)"
+                         data-category="역사투어"
+                         data-label="역사 투어 · 테마">
                     <div class="destination-card__image">
                         <img src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=1200&q=80" alt="역사 투어">
                         <div class="destination-card__overlay">
@@ -379,5 +397,35 @@
         <button type="button" class="btn-cal-apply" id="calApplyBtn" disabled>적용하기</button>
     </div>
 </div>
+<!-- 백드롭 -->
+<div id="planBackdrop" onclick="closePlanSheet()"></div>
+<!-- Plan 선택 Bottom Sheet -->
+<div id="planSheet" role="dialog" aria-modal="true" aria-labelledby="planSheetTitle">
+
+    <div class="plan-sheet__handle-wrap">
+        <div class="plan-sheet__handle"></div>
+    </div>
+
+    <div class="plan-sheet__head">
+        <div>
+            <p id="planSheetTitle" class="plan-sheet__title">추천 여행 플랜</p>
+            <p class="plan-sheet__sub" id="planSheetSub">인기 플랜 중 마음에 드는 것을 선택하세요</p>
+        </div>
+        <button class="plan-sheet__close" onclick="closePlanSheet()" aria-label="닫기">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- 플랜 목록 (JS가 동적 렌더) -->
+    <div class="plan-sheet__body" id="planSheetBody">
+        <div class="plan-sheet__state">
+            <div class="plan-sheet__spinner"></div>
+            <span>플랜을 불러오는 중…</span>
+        </div>
+    </div>
+</div>
+<script src="/js/cardModal.js"></script>
 </body>
 </html>

@@ -56,17 +56,6 @@ public class AccountDAO {
         return false;
     }
 
-    public boolean loginCheck(HttpServletRequest request) {
-        AccountDTO user = (AccountDTO) request.getSession().getAttribute("user");
-        if (user != null) {
-            request.setAttribute("loginPage", "view/login/login_ok.jsp");
-            return true;
-        } else {
-            request.setAttribute("loginPage", "view/login/not_login.jsp");
-            return false;
-        }
-    }
-
     public static void newuser(HttpServletRequest request) {
 
         Connection con = null;

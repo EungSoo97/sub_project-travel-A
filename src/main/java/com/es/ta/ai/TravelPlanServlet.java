@@ -84,6 +84,32 @@ public class TravelPlanServlet extends HttpServlet {
                 }
             }
 
+
+            try {
+                String jsonDir = req.getServletContext().getRealPath("/json/response");
+                java.nio.file.Path dirPath = java.nio.file.Paths.get(jsonDir);
+
+                // 디렉토리 없으면 생성
+                java.nio.file.Files.createDirectories(dirPath);
+
+                // 파일명: traceId 기반
+                String fileName = "response_" + traceId + ".json";
+                java.nio.file.Path filePath = dirPath.resolve(fileName);
+
+                // JSON 저장
+                java.nio.file.Files.writeString(
+                        filePath,
+                        responseJson,
+                        java.nio.charset.StandardCharsets.UTF_8
+                );
+
+                System.out.println("[" + traceId + "] JSON 파일 저장 완료: " + filePath);
+
+            } catch (Exception fileError) {
+                fileError.printStackTrace();
+                System.out.println("[" + traceId + "] JSON 파일 저장 실패: " + fileError.getMessage());
+            }
+
             // 6. 화면 전달
             if (result == null || !result.isSuccess()) {
                 String errorMsg = (result != null) ? result.getMessage() : "AI 응답 실패";

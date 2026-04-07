@@ -24,21 +24,16 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     </style>
   </head>
   <body>
-    <div class="page"
-
-    >
+    <div class="page">
       <header class="site-header">
         <div class="container site-header__inner">
-          <a href="${pageContext.request.contextPath}/" class="site-logo"
-            >✈ Travel-A(AI)</a
-          >
-
+          <a href="${pageContext.request.contextPath}/" class="site-logo">✈ Travel-A(AI)</a>
           <div class="site-actions">
             <div class="login-register" id="headerLoginBtns">
                 <c:choose>
                     <c:when test="${not empty sessionScope.user}">
                         <div class="drawer-user-name">👤 ${sessionScope.user.name}님</div>
-                        <a href="${pageContext.request.contextPath}/logout" class="drawer-logout">로그아웃</a>
+                        <a href="${pageContext.request.contextPath}/logout" class="drawer-logout" style="color:#1d4ed8; font-weight:600">로그아웃</a>
                     </c:when>
                     <c:otherwise>
                         <div class="drawer-links" style="display:flex; gap:8px; padding: 8px 14px;">
@@ -63,24 +58,18 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
             <a href="${pageContext.request.contextPath}/live">실시간 여행</a>
             <a href="${pageContext.request.contextPath}/mypage">마이페이지</a>
 
-
+<%--              <c:choose>--%>
+<%--                  <c:when test="${not empty sessionScope.user}">--%>
+<%--                      <a href="${pageContext.request.contextPath}/mypage?no=${}">마이페이지</a>--%>
+<%--                  </c:when>--%>
+<%--                  <c:otherwise>--%>
+<%--                          <a href="login" onclick="loginAlert()">마이페이지</a>--%>
+<%--                  </c:otherwise>--%>
+<%--              </c:choose>--%>
           </nav>
         </div>
       </header>
       <div class="drawer-overlay" id="drawerOverlay"></div>
-
-      <nav class="site-nav" id="siteNav">
-        <div class="drawer-header">
-          <span class="drawer-title">✈ Travel-A(AI)</span>
-          <button class="drawer-close" id="drawerClose">✕</button>
-        </div>
-        <div class="drawer-links">
-          <a href="...">🗺 여행 계획</a>
-          <a href="...">🔍 탐색</a>
-          <a href="...">📍 실시간 여행</a>
-          <a href="...">👤 마이페이지</a>
-        </div>
-      </nav>
 
       <div class="content">
         <jsp:include page="${content}"></jsp:include>
@@ -93,34 +82,38 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
       </footer>
     </div>
     <script src="js/main.js"></script>
-  </body>
-  <script>
-    const trigger = document.querySelector(".menu-trigger");
+    <script>
+        function loginAlert () {
+            alert("로그인이 필요한 기능 입니다.");
+        }
+    </script>
+    <script>const trigger = document.querySelector(".menu-trigger");
     const nav = document.querySelector(".site-nav");
     const loginBtns = document.getElementById("headerLoginBtns");
 
     if (trigger && nav) {
-      trigger.addEventListener("click", function (e) {
-        e.preventDefault();
-        const isActive = this.classList.toggle("is-active");
-        loginBtns && loginBtns.classList.toggle("is-visible", isActive);
+        trigger.addEventListener("click", function (e) {
+            e.preventDefault();
+            const isActive = this.classList.toggle("is-active");
+            loginBtns && loginBtns.classList.toggle("is-visible", isActive);
 
-        if (isActive) {
-          // display:flex 먼저 적용 후 transition 실행
-          nav.style.display = "flex";
-          requestAnimationFrame(() => nav.classList.add("is-open"));
-        } else {
-          nav.classList.remove("is-open");
-          nav.addEventListener(
-            "transitionend",
-            () => {
-              if (!nav.classList.contains("is-open"))
-                nav.style.display = "none";
-            },
-            { once: true },
-          );
-        }
-      });
-    }
-  </script>
+            if (isActive) {
+                // display:flex 먼저 적용 후 transition 실행
+                nav.style.display = "flex";
+                requestAnimationFrame(() => nav.classList.add("is-open"));
+            } else {
+                nav.classList.remove("is-open");
+                nav.addEventListener(
+                    "transitionend",
+                    () => {
+                        if (!nav.classList.contains("is-open"))
+                            nav.style.display = "none";
+                    },
+                    { once: true },
+                );
+            }
+        });
+    }</script>
+  </body>
+
 </html>
