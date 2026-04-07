@@ -3,13 +3,13 @@
     /* ── 상수 ── */
     // 플랜 상세 URL 패턴: /planner/detail?planId={id}
     // 서버에서 plan_id를 실제로 매핑해야 하면 이 패턴을 수정하세요.
-    const DETAIL_URL = '/planner/detail';
+    const DETAIL_URL = 'planner/detail';
 
     // DB에서 가져오는 API 엔드포인트.
     // TravelDao.getSavedTravelPlanJson()을 호출하는 서블릿을 만들어서 연결하세요.
     // 현재는 destination(카테고리) 기준으로 조회합니다.
     //   GET /planner/plans?destination=교토  → JSON array 응답
-    const PLANS_API = '/planner/plans';
+    const PLANS_API = 'planner/plans';
 
     /* ── 상태 ── */
     let currentCategory = null;
@@ -79,20 +79,40 @@
 })();
 
     /* ── 데이터 로드 ── */
-    function fetchPlans(category) {
-    // ① 실제 서블릿이 준비됐을 때 아래 fetch 사용
-    // fetch(PLANS_API + '?destination=' + encodeURIComponent(category))
-    //   .then(r => r.json())
-    //   .then(data => renderPlans(data))
-    //   .catch(() => renderError());
+    // function fetchPlans(category) {
+    // // ① 실제 서블릿이 준비됐을 때 아래 fetch 사용
+    // // fetch(PLANS_API + '?destination=' + encodeURIComponent(category))
+    // //   .then(r => r.json())
+    // //   .then(data => renderPlans(data))
+    // //   .catch(() => renderError());
+    //     function fetchPlans(category) {
+    //         fetch(PLANS_API +'?modal=' + encodeURIComponent(category))
+    //             .then(function (r) {
+    //                 if (!r.ok) throw new Error('서버 오류');
+    //                 return r.json();
+    //             })
+    //             .then(function (data) { renderPlans(data); })
+    //             .catch(function () { renderError(); });
+    //     }
+    // }
+        function fetchPlans(category) {
+            // 로딩 상태 표시
+            renderLoading();
 
-    // ② 서블릿 준비 전 — 목 데이터로 동작 확인
-    setTimeout(() => {
-    const mock = getMockPlans(category);
-    renderPlans(mock);
-}, 600);
-}
-
+            // URL 확인: /planner/plans 가 맞는지, 컨텍스트 패스가 필요한지 확인하세요.
+            fetch('/planner/plans?destination=' + encodeURIComponent(category))
+                .then(function (r) {
+                    if (!r.ok) throw new Error('서버 오류');
+                    return r.json();
+                })
+                .then(function (data) {
+                    renderPlans(data);
+                })
+                .catch(function (err) {
+                    console.error(err);
+                    renderError();
+                });
+        }
     /* ── 렌더링 ── */
     function renderLoading() {
     document.getElementById('planSheetBody').innerHTML = `
@@ -218,3 +238,15 @@
     if (dy > 80) closePlanSheet();
 }, { passive: true });
 })();
+    function formatCost(cost, currency) {
+        if (!cost) return '정보 없음';
+        const symbol = currency === 'KRW' ? '₩' : (currency || '');
+        return symbol + Number(cost).toLocaleString();
+    }
+
+    function escHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>"']/g, function(m) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+        });
+    }

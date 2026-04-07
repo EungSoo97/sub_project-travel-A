@@ -45,6 +45,8 @@ CREATE TABLE travel_plan (
 
 
 drop table travel_plan;
+
+
 select * from travel_plan;
 
 -- -----------------------------------------------------------------------------
