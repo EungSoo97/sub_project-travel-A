@@ -2,6 +2,7 @@ package com.es.ta.ai;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
+
 import java.util.List;
 
 /**
@@ -19,6 +20,12 @@ public class TravelResponseDto {
     private List<ItineraryItem> itinerary;
     private List<FlightOption> flights;
     private List<HotelOption> hotels;
+
+    // 실패/부분 성공 관련 최소 필드 추가
+    private String errorCode;         // 예: FLIGHT_PLACEHOLDER_NOT_ALLOWED
+    private Boolean retryable;        // 재시도 가치 있는지
+    private Boolean partial;          // 부분 성공 여부
+    private List<String> processingLog; // 처리 단계 로그
 
     @Data
     @NoArgsConstructor

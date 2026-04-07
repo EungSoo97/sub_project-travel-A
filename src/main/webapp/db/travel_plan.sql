@@ -36,4 +36,6 @@ INSERT INTO travel_plan (
              travel_plan_seq.NEXTVAL, 'Seoul', '{}'
          );
 
-select * from travel_plan;
+select * from TRAVEL_PLAN;
+
+delete TRAVEL_PLAN;
