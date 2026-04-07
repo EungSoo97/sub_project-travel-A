@@ -8,7 +8,10 @@ import java.sql.ResultSet;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TravelDao {
 
@@ -159,20 +162,15 @@ public class TravelDao {
         return requestDto != null ? requestDto.getTravelers() : 0;
     }
 
-    /**
-     * DB 단일 컬럼용 문자열. FastAPI가 내려주는 {@code summary.requestStyles}가 있으면 그 목록을 우선 저장한다.
-     * (구버전은 {@code travelStyle} 한 줄만 있어서 첫 태그만 보였음.)
-     */
     private String getTravelStyle(TravelRequestDto requestDto, TravelResponseDto.Summary summary) {
-        if (summary != null && summary.getRequestStyles() != null && !summary.getRequestStyles().isEmpty()) {
-            return String.join(", ", summary.getRequestStyles());
-        }
         if (summary != null && summary.getTravelStyle() != null && !summary.getTravelStyle().isBlank()) {
             return summary.getTravelStyle();
         }
+
         if (requestDto != null && requestDto.getStyles() != null && !requestDto.getStyles().isEmpty()) {
             return String.join(", ", requestDto.getStyles());
         }
+
         return "";
     }
 
@@ -189,31 +187,90 @@ public class TravelDao {
         // 기존 로직 유지
     }
 
-    public String getSavedTravelPlanJson(int planId) {
+//    public String getSavedTravelPlanJson(int planId) {
+//        Connection con = null;
+//        PreparedStatement ps = null;
+//        ResultSet rs = null;
+//        String json = null;
+//
+//        // plan_id를 기준으로 response_json 컬럼만 가져옵니다.
+////        String sql = "SELECT response_json FROM travel_plan WHERE plan_id = ?";
+//        String sql = "SELECT response_json FROM travel_plan WHERE DESTINATION = ?";
+//
+//        try {
+//            con = DBManager_new.connect();
+//            ps = con.prepareStatement(sql);
+//            ps.setInt(1, planId);
+//            rs = ps.executeQuery();
+//
+//            if (rs.next()) {
+//                json = rs.getString("response_json");
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            System.out.println("[TravelDao] getSavedTravelPlanJson ERROR: " + e.getMessage());
+//        } finally {
+//            // ResultSet(rs)까지 닫아주어야 합니다.
+//            DBManager_new.close(con, ps, rs);
+//        }
+//        return json;
+//    }
+    public List<Map<String, Object>> getPlansByDestination(String destination) {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String json = null;
+        List<Map<String, Object>> list = new ArrayList<>();
 
-        String sql = "SELECT response_json FROM travel_plan WHERE plan_id = ?";
+        String sql = "SELECT plan_id, title, overview, days, travelers, " +
+                "       travel_style, total_estimated_cost, currency, " +
+                "       destination, quality_score, start_date, end_date " +
+                "FROM travel_plan " +
+                "WHERE UPPER(destination) = UPPER(?) AND success = 1 " +
+                "ORDER BY plan_id DESC";
 
         try {
             con = DBManager_new.connect();
             ps = con.prepareStatement(sql);
-            ps.setInt(1, planId);
+            ps.setString(1, destination);
             rs = ps.executeQuery();
 
-            if (rs.next()) {
-                json = rs.getString("response_json");
+            while (rs.next()) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                row.put("planId",             rs.getInt("plan_id"));
+                row.put("title",              nullSafe(rs.getString("title")));
+                row.put("overview",           nullSafe(rs.getString("overview")));
+                row.put("days",               rs.getInt("days"));
+                row.put("travelers",          rs.getInt("travelers"));
+                row.put("travelStyle",        nullSafe(rs.getString("travel_style")));
+                row.put("totalEstimatedCost", rs.getInt("total_estimated_cost"));
+                row.put("currency",           nullSafe(rs.getString("currency"), "KRW"));
+                row.put("destination",        nullSafe(rs.getString("destination")));
+                row.put("qualityScore",       rs.getInt("quality_score"));
+
+                java.sql.Date startDate = rs.getDate("start_date");
+                java.sql.Date endDate   = rs.getDate("end_date");
+                row.put("startDate", startDate != null ? startDate.toString() : "");
+                row.put("endDate",   endDate   != null ? endDate.toString()   : "");
+
+                list.add(row);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("[TravelDao] getSavedTravelPlanJson ERROR: " + e.getMessage());
         } finally {
-            // ResultSet(rs)까지 닫아주어야 합니다.
             DBManager_new.close(con, ps, rs);
         }
-        return json;
+        return list;
     }
 
+    private String nullSafe(String value) {
+        return value != null ? value : "";
+    }
+
+    private String nullSafe(String value, String defaultValue) {
+        return (value != null && !value.isBlank()) ? value : defaultValue;
+    }
+
+
 }
+
