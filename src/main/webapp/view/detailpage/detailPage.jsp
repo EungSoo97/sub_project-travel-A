@@ -18,8 +18,30 @@
             <div><a href="explore">← 목록으로 돌아가기</a></div>
 
             <div class="title-area">
-                <h1>${plan.summary.title}</h1>
+                <h1>${plan.summary.destination}</h1>
                 <p class="sub">${plan.summary.destination} · ${plan.summary.days}일 여행</p>
+            </div>
+            <div class="actions">
+
+                <button onclick="toggleHeart(this)">♡</button>
+
+                <button onclick="copyUrl()">🔗</button>
+                <%-- 공유 버튼은 url 복사만 --%>
+                <form action="pdf" method="get">
+                    <button type="submit"  style="background-color: #2563eb; color: white; font-size: 13px;font-weight: 600;">PDF 다운로드</button>
+                </form>
+                <button class="download">저장하기</button>
+                <button class="download" onclick="openModal()">후기쓰기</button>
+                <%--모달 페이지--%>
+                <div class = >
+                    <div id="modal" class="modal">
+                        <span class="close" onclick="closeModal()">×</span>
+                        <h2>모달 제목</h2>
+                        <p>여기에 내용 들어감</p>
+                    </div>
+
+                </div>
+
             </div>
         </div>
 
@@ -170,5 +192,26 @@
 
 
 </div>
+
 </body>
+<script>
+    function copyUrl() {
+        const url = window.location.href;
+
+        navigator.clipboard.writeText(url)
+            .then(() => {
+                alert("URL이 복사되었습니다!");
+            })
+            .catch(err => {
+                console.error("복사 실패:", err);
+            });
+    }
+    function toggleHeart(btn) {
+        if (btn.innerText === "♡") {
+            btn.innerText = "❤";
+        } else {
+            btn.innerText = "♡";
+        }
+    }
+</script>
 </html>

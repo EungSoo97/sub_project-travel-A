@@ -22,10 +22,11 @@
                 <form action="edit-plan" >
                     <button>✏️</button>
                 </form>
-                <button>♡</button>
-                <button>🔗</button>
+                <button onclick="toggleHeart(this)">♡</button>
                 <%-- 공유 버튼은 url 복사만 --%>
-                <button class="download">⬇ 다운로드</button>
+                <form action="pdf" method="get">
+                    <button type="submit"  style="background-color: #2563eb; color: white; font-size: 13px;font-weight: 600;">PDF 다운로드</button>
+                </form>
                 <button class="download">게시하기</button>
             </div>
         </div>
@@ -213,4 +214,15 @@
     </div>
 </div>
 </body>
+<script>
+
+    function toggleHeart(btn) {
+        if (btn.innerText === "♡") {
+            btn.innerText = "❤";
+        } else {
+            btn.innerText = "♡";
+        }
+    }
+</script>
+
 </html>
