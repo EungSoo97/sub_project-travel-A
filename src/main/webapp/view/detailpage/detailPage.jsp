@@ -12,31 +12,34 @@
 
             <div class="title-area">
                 <h1>${plan.summary.destination}</h1>
-                <p class="sub">${plan.summary.destination} · ${plan.summary.days}일 여행</p>
-            </div>
-            <div class="actions">
-                <button class="ui-button" onclick="toggleHeart(this)">♡</button>
-                <button class="ui-button" onclick="copyUrl()">🔗</button>
 
-                <form action="${pageContext.request.contextPath}/pdf" method="get" class="form-flex">
-                    <button class="download" type="submit">PDF 다운로드</button>
-                </form>
+                <div class="sub-row">
+                    <p class="sub">${plan.summary.destination} · ${plan.summary.days}일 여행</p>
 
-                <button class="download">저장하기</button>
-                <button class="download" id="openModalBtn">후기쓰기</button>
-                <button class="download">후기전체보기</button>
-
-                <!-- 모달  -->
-                <div id="Modal" class="modal">
-                    <div class="modal-content">
-                        <span id="closeModalBtn" class="close">&times;</span>
-                        <a onclick="function ">후기 작성</a>
-                        <textarea class="textarea" id="reviewText" rows="5" cols="40" placeholder="여기에 후기를 작성해주세요"></textarea>
-                        <br>
-                        <button class="ui-button" id="submitReview">작성 완료</button>
-                    </div>
                 </div>
             </div>
+
+            <div class="actions">
+
+                <!-- 아이콘 따로 -->
+                <div class="icon-group">
+                    <button class="ui-button">♡</button>
+                    <button class="ui-button">🔗</button>
+                    <a href="#" class="review-link"> ✨후기전체보기✨</a>
+                </div>
+
+                <!-- 버튼 3개 -->
+                <div class="main-buttons">
+                    <form action="${pageContext.request.contextPath}/pdf" method="get">
+                        <button class="download" type="submit">PDF 다운로드</button>
+                    </form>
+
+                    <button class="download">저장하기</button>
+                    <button class="download" onclick="openPlanSheet()">후기쓰기</button>
+                </div>
+
+            </div>
+
         </div>
 
         <!-- 여행 정보 -->
@@ -187,4 +190,28 @@
 
 </div>
 
+<div id="planBackdrop" onclick="closePlanSheet()"></div>
+
+<div id="planSheet" role="dialog" aria-modal="true" aria-labelledby="planSheetTitle">
+    <div class="plan-sheethandle-wrap">
+        <div class="plan-sheethandle"></div>
+    </div>
+
+    <div class="plan-sheethead">
+        <div>
+            <p id="planSheetTitle" class="plan-sheettitle">모달 제목</p>
+            <p class="plan-sheetsub" id="planSheetSub">여기에 보조 설명을 입력하세요</p>
+        </div>
+        <button class="plan-sheetclose" onclick="closePlanSheet()" aria-label="닫기">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </button>
+    </div>
+
+    <div class="plan-sheet__body" id="planSheetBody">
+    </div>
+</div>
+
 <script src="${pageContext.request.contextPath}/js/detailpage.js"></script>
+<script src="${pageContext.request.contextPath}/js/reiviewModal.js"></script>
