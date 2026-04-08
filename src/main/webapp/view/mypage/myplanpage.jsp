@@ -270,7 +270,7 @@
 
                     <div class="recommend-grid">
                         <div class="recommend-card">
-                            <h3>저가 항공권 최저가</h3>
+                            <h3>✈️ 저가 항공권 최저가</h3>
                             <c:choose>
                                 <c:when test="${empty result.flights}">
                                     <p>항공권 정보를 불러오지 못했습니다.</p>
@@ -293,7 +293,7 @@
                         </div>
 
                         <div class="recommend-card">
-                            <h3>호텔 숙박 추천</h3>
+                            <h3>🏨 숙박 추천</h3>
                             <c:choose>
                                 <c:when test="${empty result.hotels}">
                                     <p>숙박 정보를 불러오지 못했습니다.</p>
