@@ -763,15 +763,15 @@
 .ui-button {
     padding: 10px 20px;
     border: none;
-    background-color: #2563eb; /* 파란색 */
+    background-color: var(--primary); /* 파란색 */
     color: #fff;
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.2s ease;
 }
-button:hover {
-    background-color: #1d4ed8; /* 진한 파랑 */
+.ui-button:hover {
+    background-color: var(--primary-dark); /* 진한 파랑 */
 }
 
 .menu-button

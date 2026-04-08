@@ -305,7 +305,7 @@
 
                 <article class="destination-card"
                          onclick="openPlanSheet(this)"
-                         data-category="자연여행"
+                         data-category="자연"
                          data-label="자연 여행 · 테마">
                     <div class="destination-card__image">
                         <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80" alt="자연 여행">
@@ -314,7 +314,7 @@
                             <span>테마</span>
                         </div>
                     </div>
-                    <div class="destination-card__body"><p>휴식과 힐링 중심 코스</p></div>
+                    <div class="destination-card__body"><p>자연 속 휴식과 힐링 중심 코스</p></div>
                 </article>
 
                 <article class="destination-card"
@@ -333,16 +333,16 @@
 
                 <article class="destination-card"
                          onclick="openPlanSheet(this)"
-                         data-category="역사투어"
-                         data-label="역사 투어 · 테마">
+                         data-category="문화"
+                         data-label="문화 투어 · 테마">
                     <div class="destination-card__image">
                         <img src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=1200&q=80" alt="역사 투어">
                         <div class="destination-card__overlay">
-                            <strong>역사 투어</strong>
+                            <strong>문화 투어</strong>
                             <span>테마</span>
                         </div>
                     </div>
-                    <div class="destination-card__body"><p>성곽과 유적 중심의 여행</p></div>
+                    <div class="destination-card__body"><p>문화를 직접 느낄 수있는 여행</p></div>
                 </article>
             </div>
         </div>
