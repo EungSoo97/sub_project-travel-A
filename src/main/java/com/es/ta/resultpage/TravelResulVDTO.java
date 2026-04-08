@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TravelResponseDTO {
+public class TravelResulVDTO {
     private int planId;
     private boolean success;
     private String message;
