@@ -49,7 +49,7 @@ public class ResultpageC extends HttpServlet {
                 if (savedPlan == null) {
                     request.setAttribute("errorMsg", "해당 여행 플랜을 찾을 수 없습니다.");
                 } else {
-                    TravelResulVDTO result = TravelJsonParser.parse(savedPlan.getResponseJson());
+                    TravelResultVDTO result = TravelJsonParser.parse(savedPlan.getResponseJson());
 
                     session.setAttribute("latestTravelResult", result);
                     request.setAttribute("savedPlan", savedPlan);
