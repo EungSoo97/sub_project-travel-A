@@ -3,7 +3,7 @@
     /* ── 상수 ── */
     // 플랜 상세 URL 패턴: /planner/detail?planId={id}
     // 서버에서 plan_id를 실제로 매핑해야 하면 이 패턴을 수정하세요.
-    const DETAIL_URL = 'planner/detail';
+    const DETAIL_URL = 'detail-page';
 
     // DB에서 가져오는 API 엔드포인트.
     // TravelDao.getSavedTravelPlanJson()을 호출하는 서블릿을 만들어서 연결하세요.
@@ -85,16 +85,7 @@
     // //   .then(r => r.json())
     // //   .then(data => renderPlans(data))
     // //   .catch(() => renderError());
-    //     function fetchPlans(category) {
-    //         fetch(PLANS_API +'?modal=' + encodeURIComponent(category))
-    //             .then(function (r) {
-    //                 if (!r.ok) throw new Error('서버 오류');
-    //                 return r.json();
-    //             })
-    //             .then(function (data) { renderPlans(data); })
-    //             .catch(function () { renderError(); });
-    //     }
-    // }
+
         function fetchPlans(category) {
             // 로딩 상태 표시
             renderLoading();
@@ -151,11 +142,7 @@
             </svg>
             ${escHtml(p.travelStyle || '추천')}
           </span>
-          <span class="plan-card__arrow">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M2.5 6h7M6.5 2.5L10 6l-3.5 3.5"/>
-            </svg>
-          </span>
+        
         </div>
         <p class="plan-card__title">${escHtml(p.title || '여행 플랜')}</p>
         <p class="plan-card__overview">${escHtml(p.overview || '')}</p>
@@ -181,7 +168,7 @@
     // plan_id를 쿼리스트링으로 넘겨서 TravelPlanServlet(또는 별도 DetailServlet)에서 처리
     // URL 예시: /planner/detail?planId=42
     window.goToDetail = function (planId) {
-    location.href = DETAIL_URL + '?planId=' + planId;
+    location.href = DETAIL_URL + '?id=' + planId;
 };
 
     /* ── 유틸 ── */

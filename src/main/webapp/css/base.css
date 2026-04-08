@@ -88,7 +88,7 @@ input {
   display: none;
   position: absolute;
   top: 60px;
-  right: 16px; /* 왼쪽 full width 대신 오른쪽 고정 */
+  right: 0; /* 왼쪽 full width 대신 오른쪽 고정 */
   width: 280px; /* 원하는 너비로 조절 */
   background: #fff;
   border: 1px solid var(--line);
@@ -165,7 +165,7 @@ input {
 .site-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0;
 }
 
 .mobile-menu-btn {
@@ -1064,16 +1064,7 @@ input {
   border-radius: 999px;
   flex-shrink: 0;
 }
-.plan-card__arrow {
-  width: 28px; height: 28px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--muted);
-  flex-shrink: 0;
-}
+
 .plan-card__title {
   font-size: 0.97rem;
   font-weight: 800;
