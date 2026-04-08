@@ -2,7 +2,7 @@ package com.es.ta.mypage;
 
 import com.es.ta.account.AccountDTO;
 import com.es.ta.resultpage.TravelJsonParser;
-import com.es.ta.resultpage.TravelResulVDTO;
+import com.es.ta.resultpage.TravelResultVDTO;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -41,7 +41,7 @@ public class MyPlanPageC extends HttpServlet {
             return;
         }
 
-        TravelResulVDTO result = TravelJsonParser.parse(savedPlan.getResponseJson());
+        TravelResultVDTO result = TravelJsonParser.parse(savedPlan.getResponseJson());
         if (result == null) {
             request.setAttribute("errorMsg", "여행 계획을 불러오지 못했습니다.");
             request.setAttribute("content", "view/mypage/mypage.jsp");

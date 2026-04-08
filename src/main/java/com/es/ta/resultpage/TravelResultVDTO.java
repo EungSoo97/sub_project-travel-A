@@ -11,7 +11,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TravelResulVDTO {
+public class TravelResultVDTO {
     private int planId;
     private boolean success;
     private String message;
