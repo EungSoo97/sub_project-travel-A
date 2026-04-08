@@ -86,6 +86,35 @@ public class TravelResponseDto {
         private Boolean metricIsEstimated;
         private List<RoutePoint> routePoints;
         private List<Activity> activities;
+        /** FastAPI {@code dayRoute} — 구간별 이동수단·추천 경로 메타. */
+        private DayRouteInsight dayRoute;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class DayRouteInsight {
+        private String routePreference;
+        private String routePreferenceLabelKo;
+        private String metricSource;
+        private List<RouteLegInsight> legs;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class RouteLegInsight {
+        private int segmentIndex;
+        private int distanceMeters;
+        private int durationMinutes;
+        private List<String> travelModes;
+        private String travelModesLabelKo;
+        private String stepsSummary;
+        private List<String> lineNames;
     }
 
     @Data
