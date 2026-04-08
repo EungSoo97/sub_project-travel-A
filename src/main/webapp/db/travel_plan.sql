@@ -43,6 +43,12 @@ CREATE TABLE travel_plan (
                              updated_at        DATE           DEFAULT SYSDATE
 );
 
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> 3dc969f93285b3fb776def3a8d68ff1f0b1622b9
 select * from travel_plan;
 
 -- -----------------------------------------------------------------------------

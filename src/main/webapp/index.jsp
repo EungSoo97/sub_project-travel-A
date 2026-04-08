@@ -79,6 +79,8 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
         <div class="container site-footer__inner">
           <p>© 2026 Travel-A(AI). 여행의 모든 순간을 스마트하게.</p>
         </div>
+          <form action="result-page">
+              <button >backdoor</button></form>
       </footer>
     </div>
     <script src="${pageContext.request.contextPath}/js/main.js"></script>
