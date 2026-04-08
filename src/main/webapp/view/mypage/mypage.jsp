@@ -151,9 +151,12 @@
 
                             <button type="button"
                                     class="btn-detail"
-                                    onclick="location.href='result-page?id=${trip.planId}'">
+                                    onclick="location.href='${pageContext.request.contextPath}/detail-page?id=${trip.planId}'">
                                 자세히 보기
                             </button>
+
+
+
 
                                 <%-- 확인용. 정상 동작 확인 후 지워도 됨 --%>
                             <p>id: ${trip.planId}</p>

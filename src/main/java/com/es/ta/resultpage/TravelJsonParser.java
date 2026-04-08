@@ -9,10 +9,11 @@ public class TravelJsonParser {
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     public static TravelResponseDTO parse(String json) {
+        if (json == null || json.trim().isEmpty()) {
+            return null;
+        }
+
         try {
-            if (json == null || json.trim().isEmpty()) {
-                return null;
-            }
             return mapper.readValue(json, TravelResponseDTO.class);
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,12 +1,11 @@
 package com.es.ta.resultpage;
 
-<<<<<<< HEAD
+
 import com.es.ta.account.AccountDTO;
 import com.es.ta.mypage.TravelPlanDAO;
 import com.es.ta.mypage.TravelPlanDTO;
 
-=======
->>>>>>> 7cb11fb2f1709cbd25bd6746a5813312b8a1434a
+
 import javax.servlet.ServletException;
 import javax.servlet.ServletContext;
 import javax.servlet.annotation.WebServlet;
@@ -31,12 +30,13 @@ public class ResultpageC extends HttpServlet {
         if (loginUser == null) {
             request.setAttribute("content", "view/login/login.jsp");
             request.getRequestDispatcher("index.jsp").forward(request, response);
-            return;
+
         } else {
 
             String planIdParam = request.getParameter("id");
             if (planIdParam == null || planIdParam.trim().isEmpty()) {
-                response.sendRedirect("mypage");
+                request.setAttribute("content", "view/detailpage/detailPage.jsp");
+                request.getRequestDispatcher("index.jsp").forward(request, response);
                 return;
             }
 

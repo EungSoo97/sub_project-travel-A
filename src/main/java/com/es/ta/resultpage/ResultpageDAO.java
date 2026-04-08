@@ -1,5 +1,5 @@
 package com.es.ta.resultpage;
-import com.es.ta.resultpage.TravelResponseDTO;
+
 import com.es.ta.main.DBManager_new;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,47 +12,44 @@ import java.util.List;
 
 public class ResultpageDAO {
 
+    public static TravelResponseDTO detailpage(int planId) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
 
+        String sql = "SELECT response_json FROM travel_plan WHERE plan_id = ?";
+        System.out.println("조회 planId = " + planId);
 
+        try {
+            con = DBManager_new.connect();
+            pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, planId);
+            rs = pstmt.executeQuery();
 
-        public static TravelResponseDTO detailpage(int id) {  // ← 반환타입 변경
-            Connection con = null;
-            PreparedStatement pstmt = null;
-            ResultSet rs = null;
+            if (rs.next()) {
+                String json = rs.getString("response_json");
+                TravelResponseDTO result = TravelJsonParser.parse(json);
 
-            String sql = "SELECT response_json FROM travel_plan WHERE plan_id = ?";
-            System.out.println("조회 id = " + id);
-
-            try {
-                con = DBManager_new.connect();
-                pstmt = con.prepareStatement(sql);
-                pstmt.setInt(1, id);
-                rs = pstmt.executeQuery();
-
-                if (rs.next()) {
-                    String json = rs.getString("response_json");
-                    TravelResponseDTO result = TravelJsonParser.parse(json);
-
-                    if (result != null) {
-                        result.setPlanId(id);
-                    }
-                    return result;
+                if (result != null) {
+                    result.setPlanId(planId);
                 }
+                return result;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (con != null) con.close();
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                try {
-                    if (rs != null) rs.close();
-                    if (pstmt != null) pstmt.close();
-                    if (con != null) con.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
             }
-
-            return null;
-
         }
+
+        return null;
+    }
+
     public static List<TravelResponseDTO> getPlanList() {
         Connection con = null;
         PreparedStatement ps = null;
@@ -71,7 +68,7 @@ public class ResultpageDAO {
             while (rs.next()) {
                 String jsonString = rs.getString("response_json");
                 TravelResponseDTO dto = mapper.readValue(jsonString, TravelResponseDTO.class);
-                dto.setPlanId(rs.getInt("plan_id")); // ← PK 세팅
+                dto.setPlanId(rs.getInt("plan_id"));
                 list.add(dto);
             }
         } catch (Exception e) {
@@ -81,4 +78,4 @@ public class ResultpageDAO {
         }
         return list;
     }
-    }
+}
