@@ -187,15 +187,15 @@ public class TravelDao {
         // 기존 로직 유지
     }
 
-//    public String getSavedTravelPlanJson(int planId) {
+//    public String getPlanByPlanIdAndUserId(int planId) {
 //        Connection con = null;
 //        PreparedStatement ps = null;
 //        ResultSet rs = null;
 //        String json = null;
 //
 //        // plan_id를 기준으로 response_json 컬럼만 가져옵니다.
-////        String sql = "SELECT response_json FROM travel_plan WHERE plan_id = ?";
-//        String sql = "SELECT response_json FROM travel_plan WHERE DESTINATION = ?";
+////
+//        String sql = "SELECT response_json FROM travel_plan WHERE plan_id = ?";
 //
 //        try {
 //            con = DBManager_new.connect();

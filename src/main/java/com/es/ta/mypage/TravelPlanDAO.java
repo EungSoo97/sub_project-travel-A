@@ -1,5 +1,6 @@
 package com.es.ta.mypage;
 
+import com.es.ta.account.AccountDTO;
 import com.es.ta.resultpage.TravelResponseDTO;
 import com.es.ta.main.DBManager_new;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -125,8 +126,8 @@ public class TravelPlanDAO {
         return plans;
     }
 
-    public static TravelPlanDTO getPlanByPlanIdAndUserId(int planId, int userId) {
-        TravelPlanDTO plan = null;
+    public static TravelPlanDTO getPlanByPlanIdAndUserId(AccountDTO loginUser, String planId) {
+        TravelPlanDTO plans =  null;
 
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -141,29 +142,31 @@ public class TravelPlanDAO {
         try {
             con = DBManager_new.connect();
             pstmt = con.prepareStatement(sql);
-            pstmt.setInt(1, planId);
-            pstmt.setInt(2, userId);
+            pstmt.setString(1, planId);
+            pstmt.setInt(2, loginUser.getUser_id());
             rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                plan = new TravelPlanDTO();
-                plan.setPlanId(rs.getInt("plan_id"));
-                plan.setUserId(rs.getInt("user_id"));
-                plan.setDestination(rs.getString("destination"));
-                plan.setTitle(rs.getString("title"));
-                plan.setStartDate(rs.getDate("start_date"));
-                plan.setEndDate(rs.getDate("end_date"));
-                plan.setDays(rs.getInt("days"));
-                plan.setTravelers(rs.getInt("travelers"));
-                plan.setTravelStyle(rs.getString("travel_style"));
-                plan.setTotalEstimatedCost(rs.getInt("total_estimated_cost"));
-                plan.setCurrency(rs.getString("currency"));
-                plan.setOverview(rs.getString("overview"));
-                plan.setSuccess(rs.getInt("success"));
-                plan.setMessage(rs.getString("message"));
-                plan.setResponseJson(rs.getString("response_json"));
-                plan.setCreatedAt(rs.getDate("created_at"));
-                plan.setUpdatedAt(rs.getDate("updated_at"));
+
+                plans = new TravelPlanDTO();
+                plans.setPlanId(rs.getInt("plan_id"));
+                plans.setUserId(rs.getInt("user_id"));
+                plans.setDestination(rs.getString("destination"));
+                plans.setTitle(rs.getString("title"));
+                plans.setStartDate(rs.getDate("start_date"));
+                plans.setEndDate(rs.getDate("end_date"));
+                plans.setDays(rs.getInt("days"));
+                plans.setTravelers(rs.getInt("travelers"));
+                plans.setTravelStyle(rs.getString("travel_style"));
+                plans.setTotalEstimatedCost(rs.getInt("total_estimated_cost"));
+                plans.setCurrency(rs.getString("currency"));
+                plans.setOverview(rs.getString("overview"));
+                plans.setSuccess(rs.getInt("success"));
+                plans.setMessage(rs.getString("message"));
+                plans.setResponseJson(rs.getString("response_json"));
+                plans.setCreatedAt(rs.getDate("created_at"));
+                plans.setUpdatedAt(rs.getDate("updated_at"));
+                System.out.println("sucssess");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -177,7 +180,7 @@ public class TravelPlanDAO {
             }
         }
 
-        return plan;
+        return plans;
     }
 
 }

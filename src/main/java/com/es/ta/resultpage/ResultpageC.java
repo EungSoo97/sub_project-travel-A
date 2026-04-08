@@ -26,25 +26,23 @@ public class ResultpageC extends HttpServlet {
 
         HttpSession session = request.getSession();
         AccountDTO loginUser = (AccountDTO) session.getAttribute("user");
+        String planId = request.getParameter("id");
 
         if (loginUser == null) {
             request.setAttribute("content", "view/login/login.jsp");
             request.getRequestDispatcher("index.jsp").forward(request, response);
 
         } else {
-
-            String planIdParam = request.getParameter("id");
-            if (planIdParam == null || planIdParam.trim().isEmpty()) {
-                request.setAttribute("content", "view/detailpage/detailPage.jsp");
+            if (planId == null || planId.trim().isEmpty()) {
+                request.setAttribute("content", "view/mypage/mypage.jsp");
                 request.getRequestDispatcher("index.jsp").forward(request, response);
                 return;
             }
 
             try {
-                int planId = Integer.parseInt(planIdParam);
-                int userId = loginUser.getUser_id();
 
-                TravelPlanDTO savedPlan = TravelPlanDAO.getPlanByPlanIdAndUserId(planId, userId);
+
+                TravelPlanDTO savedPlan = TravelPlanDAO.getPlanByPlanIdAndUserId(loginUser, planId);
 
                 if (savedPlan == null) {
                     request.setAttribute("errorMsg", "해당 여행 플랜을 찾을 수 없습니다.");
@@ -61,7 +59,7 @@ public class ResultpageC extends HttpServlet {
                 request.setAttribute("errorMsg", "여행 플랜을 불러오는 중 오류가 발생했습니다.");
             }
 
-            request.setAttribute("content", "view/resultpage/resultpage.jsp");
+            request.setAttribute("content", "view/mypage/myPlanPage.jsp");
             request.getRequestDispatcher("index.jsp").forward(request, response);
         }
         }
