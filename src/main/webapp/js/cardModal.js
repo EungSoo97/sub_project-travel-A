@@ -16,29 +16,28 @@
     let touchStartY = 0;
 
     /* ── 모달 열기 ── */
-    window.openPlanSheet = function (articleEl) {
-    currentCategory = articleEl.dataset.category;
-    const label     = articleEl.dataset.label;
+        window.openPlanSheet = function (articleEl) {
+            currentCategory = articleEl.dataset.category;
+            const label = articleEl.dataset.label;
+            const type = articleEl.dataset.type || 'destination'; // 기본값은 destination
 
-    document.getElementById('planSheetTitle').textContent = label + ' 플랜';
-    document.getElementById('planSheetSub').textContent   = '인기 플랜 중 마음에 드는 것을 선택하세요';
-    renderLoading();
+            document.getElementById('planSheetTitle').textContent = label + ' 플랜';
+            document.getElementById('planSheetSub').textContent = '인기 플랜 중 마음에 드는 것을 선택하세요';
+            renderLoading();
 
-    const backdrop = document.getElementById('planBackdrop');
-    const sheet    = document.getElementById('planSheet');
-    backdrop.style.display = 'block';
-    requestAnimationFrame(() => {
-    backdrop.classList.add('open');
-    sheet.classList.add('open');
-});
+            const backdrop = document.getElementById('planBackdrop');
+            const sheet = document.getElementById('planSheet');
+            backdrop.style.display = 'block';
+            requestAnimationFrame(() => {
+                backdrop.classList.add('open');
+                sheet.classList.add('open');
+            });
 
-    document.body.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
+            history.pushState({ planSheet: true, category: currentCategory, type: type }, '', '?modal=' + encodeURIComponent(currentCategory));
 
-    // URL에 현재 카테고리 반영 (뒤로가기로 닫힘 지원)
-    history.pushState({ planSheet: true, category: currentCategory }, '', '?modal=' + encodeURIComponent(currentCategory));
-
-    fetchPlans(currentCategory);
-};
+            fetchPlans(currentCategory, type);
+        };
 
     /* ── 모달 닫기 ── */
     window.closePlanSheet = function () {
@@ -86,12 +85,15 @@
     // //   .then(data => renderPlans(data))
     // //   .catch(() => renderError());
 
-        function fetchPlans(category) {
-            // 로딩 상태 표시
+        function fetchPlans(category, type) {
             renderLoading();
 
-            // URL 확인: /planner/plans 가 맞는지, 컨텍스트 패스가 필요한지 확인하세요.
-            fetch('/planner/plans?destination=' + encodeURIComponent(category))
+            // type에 따라 다른 파라미터로 요청
+            const params = type === 'theme'
+                ? 'category=' + encodeURIComponent(category)  // 테마는 category 파라미터
+                : 'destination=' + encodeURIComponent(category);  // 지역은 destination 파라미터
+
+            fetch('/planner/plans?' + params)
                 .then(function (r) {
                     if (!r.ok) throw new Error('서버 오류');
                     return r.json();
@@ -187,33 +189,6 @@
     return Number(cost).toLocaleString() + ' ' + c;
 }
 
-    /* ── 목 데이터 (서블릿 연동 전 테스트용) ── */
-    function getMockPlans(category) {
-    const base = {
-    교토: [
-{ planId: 1, title: '교토 3박 4일 봄 여행', overview: '아라시야마 대나무 숲부터 기온 거리까지, 벚꽃 시즌에 즐기는 교토의 모든 것.', days: 4, travelers: 2, travelStyle: '문화·감성', destination: '교토', totalEstimatedCost: 950000, currency: 'KRW' },
-{ planId: 2, title: '교토 2박 3일 단풍 코스', overview: '도후쿠지와 에이칸도의 단풍을 중심으로, 조용한 사찰 투어.', days: 3, travelers: 1, travelStyle: '힐링', destination: '교토', totalEstimatedCost: 680000, currency: 'KRW' },
-{ planId: 3, title: '교토·나라 4박 5일', overview: '교토와 나라를 함께 즐기는 알찬 일정. 사슴공원과 호류지 포함.', days: 5, travelers: 2, travelStyle: '역사·자연', destination: '교토/나라', totalEstimatedCost: 1200000, currency: 'KRW' },
-    ],
-    도쿄: [
-{ planId: 10, title: '도쿄 4박 5일 도심 탐방', overview: '시부야·하라주쿠·아키하바라를 아우르는 도쿄 핵심 코스.', days: 5, travelers: 2, travelStyle: '쇼핑·관광', destination: '도쿄', totalEstimatedCost: 1100000, currency: 'KRW' },
-{ planId: 11, title: '도쿄 3박 4일 미식 투어', overview: '쓰키지·츠루통탄·오모테산도 카페 투어까지 먹방 중심 일정.', days: 4, travelers: 2, travelStyle: '미식', destination: '도쿄', totalEstimatedCost: 900000, currency: 'KRW' },
-{ planId: 12, title: '도쿄 2박 3일 빠른 코스', overview: '짧은 일정에 핵심만 담은 초압축 도쿄 여행.', days: 3, travelers: 1, travelStyle: '관광', destination: '도쿄', totalEstimatedCost: 620000, currency: 'KRW' },
-    ],
-    오사카: [
-{ planId: 20, title: '오사카 3박 4일 먹방 투어', overview: '도톤보리·구로몬 시장·타코야키 골목 완전 정복.', days: 4, travelers: 2, travelStyle: '미식', destination: '오사카', totalEstimatedCost: 820000, currency: 'KRW' },
-{ planId: 21, title: '오사카·교토 5박 6일', overview: '오사카를 베이스로 교토 당일치기를 포함한 간사이 완전 정복.', days: 6, travelers: 2, travelStyle: '관광·문화', destination: '간사이', totalEstimatedCost: 1350000, currency: 'KRW' },
-{ planId: 22, title: '오사카 2박 3일 테마파크', overview: '유니버설 스튜디오 재팬 중심의 가족 여행 코스.', days: 3, travelers: 4, travelStyle: '가족·레저', destination: '오사카', totalEstimatedCost: 1800000, currency: 'KRW' },
-    ],
-};
-
-    // 매핑 안 된 카테고리는 기본 플랜 반환
-    return base[category] || [
-{ planId: 99, title: category + ' 추천 플랜 A', overview: '현지 인기 스팟을 중심으로 구성한 여행 코스입니다.', days: 3, travelers: 2, travelStyle: '관광', destination: category, totalEstimatedCost: 750000, currency: 'KRW' },
-{ planId: 100, title: category + ' 추천 플랜 B', overview: '힐링에 초점을 맞춘 여유로운 일정입니다.', days: 4, travelers: 1, travelStyle: '힐링', destination: category, totalEstimatedCost: 600000, currency: 'KRW' },
-{ planId: 101, title: category + ' 추천 플랜 C', overview: '알찬 관광과 맛집 탐방을 동시에 즐기는 코스.', days: 5, travelers: 2, travelStyle: '미식·관광', destination: category, totalEstimatedCost: 1000000, currency: 'KRW' },
-    ];
-}
 
     /* ── 스와이프 다운으로 닫기 ── */
     const sheet = document.getElementById('planSheet');
