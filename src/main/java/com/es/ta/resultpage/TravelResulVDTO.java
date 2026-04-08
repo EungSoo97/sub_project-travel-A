@@ -54,6 +54,7 @@ public class TravelResulVDTO {
         private double lat;
         private double lng;
         private int cost;
+
     }
 
     @Data

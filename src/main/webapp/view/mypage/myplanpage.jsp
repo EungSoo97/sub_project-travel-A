@@ -17,7 +17,7 @@
             <div class="container-result">
                 <div class="header">
                     <div>
-                        <a href="${pageContext.request.contextPath}/mypage">마이페이지로 돌아가기</a>
+                        <a href="${pageContext.request.contextPath}/mypage">←마이페이지로 돌아가기</a>
                     </div>
 
                     <div class="title-area">
@@ -26,66 +26,79 @@
                     </div>
 
                     <div class="actions">
-                        <form action="${pageContext.request.contextPath}/myplan-edit" method="get">
-                            <input type="hidden" name="id" value="${savedPlan.planId}">
-                            <button type="submit">편집</button>
+                        <form action="edit-plan" >
+                            <button>✏️</button>
                         </form>
-                        <button type="button" onclick="window.print()">인쇄</button>
+                        <button onclick="toggleHeart(this)">♡</button>
+                            <%-- 공유 버튼은 url 복사만 --%>
+                        <form action="pdf" method="get">
+                            <button type="submit"   class="download">PDF 다운로드</button>
+                        </form>
+                        <button  class="download">게시하기</button>
                     </div>
                 </div>
 
+                <form action="${pageContext.request.contextPath}/save-plan" method="post">
+                    <input type="hidden" name="title" value="${result.summary.title}">
+                    <button type="submit">저장하기</button>
+                </form>
+
+                <!-- 여행 정보 카드 -->
                 <div class="info-cards">
                     <div class="card">
-                        <p class="label">여행 기간</p>
+                        <p class="label">📅 여행 기간</p>
                         <p class="value">${result.summary.startDate} ~ ${result.summary.endDate}</p>
                     </div>
 
                     <div class="card">
-                        <p class="label">여행 인원</p>
+                        <p class="label">👥 여행 인원</p>
                         <p class="value">${result.summary.travelers}명</p>
                     </div>
 
                     <div class="card">
-                        <p class="label">여행 스타일</p>
+                        <p class="label">✨ 여행 스타일</p>
                         <p class="value">${result.summary.travelStyle}</p>
                     </div>
                 </div>
 
-                <div class="map-section">
-                    <div class="map-header">
-                        <span>여행 동선 지도</span>
-                        <div class="legend">
-                            <span class="dot blue"></span> 관광지
-                            <span class="dot orange"></span> 식당
-                            <span class="dot purple"></span> 숙소
+
+                    <!-- 지도 영역 -->
+                    <div class="map-section">
+                        <div class="map-header">
+                            <span>🧭 여행 동선 지도</span>
+                            <div class="legend">
+                                <span class="dot blue"></span> 관광지
+                                <span class="dot orange"></span> 식당
+                                <span class="dot purple"></span> 숙소
+                            </div>
+                        </div>
+
+                        <div class="map-area">
+                            <div
+                                    id="travelMap"
+                                    class="travel-map"
+                                    data-google-maps-api-key="${googleMapsApiKey}"
+                                    data-google-maps-map-id="${googleMapsMapId}">
+                            </div>
+                            <div id="mapFallbackMessage" class="map-fallback-message">
+                                Google Maps API Key와 Map ID를 연결하면 여행 동선을 지도에서 볼 수 있습니다.
+                            </div>
+                        </div>
+                        <div class="map-toolbar">
+                            <div class="day-filter" id="dayFilter">
+                                <c:forEach var="item" items="${result.itinerary}" varStatus="status">
+                                    <button
+                                            type="button"
+                                            class="day-filter-button<c:if test='${status.first}'> active</c:if>"
+                                            data-day="${item.day}">
+                                        Day ${item.day}
+                                    </button>
+                                </c:forEach>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="map-area">
-                        <div
-                                id="travelMap"
-                                class="travel-map"
-                                data-google-maps-api-key="${googleMapsApiKey}"
-                                data-google-maps-map-id="${googleMapsMapId}">
-                        </div>
-                        <div id="mapFallbackMessage" class="map-fallback-message">
-                            Google Maps API Key를 연결하면 여행 동선을 지도에서 볼 수 있습니다.
-                        </div>
-                    </div>
-                    <div class="map-toolbar">
-                        <div class="day-filter" id="dayFilter">
-                            <c:forEach var="item" items="${result.itinerary}" varStatus="status">
-                                <button
-                                        type="button"
-                                        class="day-filter-button<c:if test='${status.first}'> active</c:if>"
-                                        data-day="${item.day}">
-                                    Day ${item.day}
-                                </button>
-                            </c:forEach>
-                        </div>
-                    </div>
-                </div>
-
+                <!-- 일정 리스트 -->
                 <div class="schedule">
                     <c:forEach var="item" items="${result.itinerary}">
                         <div class="day">
@@ -100,10 +113,13 @@
                 </div>
 
                 <div class="detail-container">
+
+                    <!-- 상단 -->
                     <div class="detail-header">
                         <h2>상세 일정</h2>
                         <div class="total-cost">총 예상 비용: ${result.summary.totalEstimatedCost} ${result.summary.currency}</div>
                     </div>
+
 
                     <c:forEach var="item" items="${result.itinerary}" varStatus="dayStatus">
                         <div class="day-card">
@@ -117,6 +133,7 @@
                                 </div>
                                 <div class="day-right">
                                     <span class="transport">${result.summary.destination}</span>
+                                    <span class="distance">거리 정보 없음</span>
                                 </div>
                             </div>
 
@@ -131,13 +148,27 @@
                                             data-lat="${act.lat}"
                                             data-lng="${act.lng}"
                                             data-time="${fn:escapeXml(act.time)}">
-                                        <div class="icon ${act.category eq 'HOTEL' || act.category eq 'ACCOMMODATION' ? 'hotel' : (act.category eq 'FOOD' || act.category eq 'DINING' ? 'food' : 'spot')}">
+<%--                                        <div class="icon ${act.category eq 'HOTEL' || act.category eq 'ACCOMMODATION' ? 'hotel' : (act.category eq 'FOOD' || act.category eq 'DINING' ? 'food' : 'spot')}">--%>
+<%--                                            <c:choose>--%>
+<%--                                                <c:when test="${act.category eq 'HOTEL' || act.category eq 'ACCOMMODATION'}">H</c:when>--%>
+<%--                                                <c:when test="${act.category eq 'FOOD' || act.category eq 'DINING'}">F</c:when>--%>
+<%--                                                <c:otherwise>S</c:otherwise>--%>
+<%--                                            </c:choose>--%>
+<%--                                        </div>--%>
                                             <c:choose>
-                                                <c:when test="${act.category eq 'HOTEL' || act.category eq 'ACCOMMODATION'}">H</c:when>
-                                                <c:when test="${act.category eq 'FOOD' || act.category eq 'DINING'}">F</c:when>
-                                                <c:otherwise>S</c:otherwise>
+                                                <c:when test="${act.category eq 'transport'}">
+                                                    <div class="icon move">▲</div>
+                                                </c:when>
+                                                <c:when test="${act.category eq 'food' || act.category eq 'dining'}">
+                                                    <div class="icon food">🍽</div>
+                                                </c:when>
+                                                <c:when test="${act.category eq 'hotel' || act.category eq 'accommodation'}">
+                                                    <div class="icon hotel">🏨</div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <div class="icon spot">📍</div>
+                                                </c:otherwise>
                                             </c:choose>
-                                        </div>
 
                                         <div class="content">
                                             <div class="top">
@@ -149,7 +180,14 @@
 
                                         <div class="meta">
                                             <span>${act.category}</span>
-                                            <span>${act.cost} ${result.summary.currency}</span>
+                                            <c:choose>
+                                            <c:when test="${act.cost == 0}">
+                                                <span>무료</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span>${act.cost} ${result.summary.currency}</span>
+                                            </c:otherwise>
+                                            </c:choose>
                                         </div>
                                     </div>
                                 </c:forEach>
@@ -162,6 +200,52 @@
                         </div>
                     </c:forEach>
                 </div>
+<%--        <div class="recommend-section">--%>
+
+<%--            <h2>추천 항공/숙박</h2>--%>
+
+<%--            <div class="recommend-grid">--%>
+
+<%--                <!-- 항공 -->--%>
+<%--                <div class="recommend-card">--%>
+<%--                    <h3>✈️ 항공권 최저가</h3>--%>
+<%--                    <c:choose>--%>
+<%--                        <c:when test="${empty result.flights}">--%>
+<%--                            <p>항공권 정보를 불러오지 못했습니다.</p>--%>
+<%--                        </c:when>--%>
+<%--                        <c:otherwise>--%>
+<%--                            <c:forEach var="flight" items="${result.flights}">--%>
+<%--                                <div class="recommend-item">--%>
+<%--                                    <div class="left">--%>
+<%--                                        <div class="title">${flight.airline} ${flight.flightNumber}</div>--%>
+<%--                                        <div class="desc">${flight.departureAirport} → ${flight.arrivalAirport}</div>--%>
+<%--                                    </div>--%>
+<%--                                    <div class="right">--%>
+<%--                                        <div class="price">${flight.price} ${flight.currency}</div>--%>
+<%--                                        <div class="sub">왕복 1인</div>--%>
+<%--                                    </div>--%>
+<%--                                </div>--%>
+<%--                            </c:forEach>--%>
+<%--                        </c:otherwise>--%>
+<%--                    </c:choose>--%>
+<%--                </div>--%>
+
+<%--                <!-- 숙박 -->--%>
+<%--                <div class="recommend-card">--%>
+<%--                    <h3>🏨 숙박 추천</h3>--%>
+<%--                    <c:forEach var="hotel" items="${result.hotels}">--%>
+<%--                        <div class="recommend-item">--%>
+<%--                            <div class="left">--%>
+<%--                                <div class="title">${hotel.name}</div>--%>
+<%--                                <div class="desc">⭐ ${hotel.rating} · ${hotel.location}</div>--%>
+<%--                            </div>--%>
+<%--                            <div class="right">--%>
+<%--                                <div class="price">${hotel.pricePerNight} ${hotel.currency}</div>--%>
+<%--                                <div class="sub">1박</div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                    </c:forEach>--%>
+<%--                </div>--%>
             </div>
         </div>
 

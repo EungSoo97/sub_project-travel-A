@@ -56,16 +56,15 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
             <a href="${pageContext.request.contextPath}/">여행 계획</a>
             <a href="${pageContext.request.contextPath}/explore">탐색</a>
             <a href="${pageContext.request.contextPath}/live">실시간 여행</a>
-            <a href="${pageContext.request.contextPath}/mypage">마이페이지</a>
 
-<%--              <c:choose>--%>
-<%--                  <c:when test="${not empty sessionScope.user}">--%>
-<%--                      <a href="${pageContext.request.contextPath}/mypage?no=${}">마이페이지</a>--%>
-<%--                  </c:when>--%>
-<%--                  <c:otherwise>--%>
-<%--                          <a href="login" onclick="loginAlert()">마이페이지</a>--%>
-<%--                  </c:otherwise>--%>
-<%--              </c:choose>--%>
+              <c:choose>
+                  <c:when test="${not empty sessionScope.user}">
+                      <a href="${pageContext.request.contextPath}/mypage?no=${}">마이페이지</a>
+                  </c:when>
+                  <c:otherwise>
+                          <a href="login" onclick="loginAlert()">마이페이지</a>
+                  </c:otherwise>
+              </c:choose>
           </nav>
         </div>
       </header>
