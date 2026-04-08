@@ -1,6 +1,6 @@
 package com.es.ta.mypage;
 
-import com.es.ta.resultpage.TravelResponseDTO;
+import com.es.ta.resultpage.TravelResulVDTO;
 import com.es.ta.main.DBManager_new;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 
 public class TravelPlanDAO {
-    public static boolean savePlan(int userId, TravelResponseDTO result, String title) {
+    public static boolean savePlan(int userId, TravelResulVDTO result, String title) {
         Connection con = null;
         PreparedStatement pstmt = null;
 
