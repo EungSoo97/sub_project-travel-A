@@ -105,7 +105,7 @@
                         <div class="total-cost">총 예상 비용: ${result.summary.totalEstimatedCost} ${result.summary.currency}</div>
                     </div>
 
-                    <c:forEach var="item" items="${result.itinerary}" varStatus="dayStatus">
+                    <c:forEach var="item" items="${result.itinerary}">
                         <div class="day-card">
                             <div class="day-header">
                                 <div class="day-left">
@@ -115,8 +115,27 @@
                                         <div class="day-date">${item.date}</div>
                                     </div>
                                 </div>
+
                                 <div class="day-right">
-                                    <span class="transport">${result.summary.destination}</span>
+                                    <span class="transport">
+                                        <c:choose>
+                                            <c:when test="${not empty item.dayRoute && not empty item.dayRoute.routePreferenceLabelKo}">
+                                                <c:out value="${item.dayRoute.routePreferenceLabelKo}" />
+                                            </c:when>
+                                            <c:when test="${not empty item.transportation}">
+                                                <c:out value="${item.transportation}" />
+                                            </c:when>
+                                            <c:otherwise>이동 정보 없음</c:otherwise>
+                                        </c:choose>
+                                    </span>
+                                    <span class="distance">
+                                        <c:choose>
+                                            <c:when test="${item.totalDistanceKm != null && item.totalTravelTimeMinutes != null}">
+                                                약 <c:out value="${item.totalDistanceKm}" />km · 당일 이동 약 <c:out value="${item.totalTravelTimeMinutes}" />분
+                                            </c:when>
+                                            <c:otherwise>거리 정보 없음</c:otherwise>
+                                        </c:choose>
+                                    </span>
                                 </div>
                             </div>
 
@@ -127,17 +146,24 @@
                                             data-day="${item.day}"
                                             data-order="${activityStatus.count}"
                                             data-name="${fn:escapeXml(act.name)}"
-                                            data-category="${fn:escapeXml(act.category)}"
+                                            data-category="${fn:escapeXml(empty act.categoryCode ? act.category : act.categoryCode)}"
                                             data-lat="${act.lat}"
                                             data-lng="${act.lng}"
                                             data-time="${fn:escapeXml(act.time)}">
-                                        <div class="icon ${act.category eq 'HOTEL' || act.category eq 'ACCOMMODATION' ? 'hotel' : (act.category eq 'FOOD' || act.category eq 'DINING' ? 'food' : 'spot')}">
-                                            <c:choose>
-                                                <c:when test="${act.category eq 'HOTEL' || act.category eq 'ACCOMMODATION'}">H</c:when>
-                                                <c:when test="${act.category eq 'FOOD' || act.category eq 'DINING'}">F</c:when>
-                                                <c:otherwise>S</c:otherwise>
-                                            </c:choose>
-                                        </div>
+                                        <c:choose>
+                                            <c:when test="${act.type == 'TRANSPORT'}">
+                                                <div class="icon move">→</div>
+                                            </c:when>
+                                            <c:when test="${act.type == 'DINING'}">
+                                                <div class="icon food">식</div>
+                                            </c:when>
+                                            <c:when test="${act.type == 'ACCOMMODATION'}">
+                                                <div class="icon hotel">숙</div>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <div class="icon spot">장</div>
+                                            </c:otherwise>
+                                        </c:choose>
 
                                         <div class="content">
                                             <div class="top">
@@ -148,19 +174,78 @@
                                         </div>
 
                                         <div class="meta">
-                                            <span>${act.category}</span>
-                                            <span>${act.cost} ${result.summary.currency}</span>
+                                            <span>${act.durationMinutes}분</span>
+                                            <c:choose>
+                                                <c:when test="${act.cost == 0}">
+                                                    <span>무료</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span>${act.cost} ${act.currency}</span>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </div>
                                     </div>
                                 </c:forEach>
                             </div>
 
                             <div class="day-footer">
-                                <span>${result.summary.overview}</span>
-                                <span>예상 비용: ${item.estimatedCost} ${result.summary.currency}</span>
+                                <span>${item.summary}</span>
+                                <span>예상 비용: ${item.estimatedCost} ${item.currency}</span>
                             </div>
                         </div>
                     </c:forEach>
+                </div>
+
+                <div class="recommend-section">
+                    <h2>추천 항공/호텔</h2>
+
+                    <div class="recommend-grid">
+                        <div class="recommend-card">
+                            <h3>저가 항공권 최저가</h3>
+                            <c:choose>
+                                <c:when test="${empty result.flights}">
+                                    <p>항공권 정보를 불러오지 못했습니다.</p>
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach var="flight" items="${result.flights}">
+                                        <div class="recommend-item">
+                                            <div class="left">
+                                                <div class="title">${flight.airline} ${flight.flightNumber}</div>
+                                                <div class="desc">${flight.departureAirport} → ${flight.arrivalAirport}</div>
+                                            </div>
+                                            <div class="right">
+                                                <div class="price">${flight.price} ${flight.currency}</div>
+                                                <div class="sub">항공 1인</div>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+
+                        <div class="recommend-card">
+                            <h3>호텔 숙박 추천</h3>
+                            <c:choose>
+                                <c:when test="${empty result.hotels}">
+                                    <p>숙박 정보를 불러오지 못했습니다.</p>
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach var="hotel" items="${result.hotels}">
+                                        <div class="recommend-item">
+                                            <div class="left">
+                                                <div class="title">${hotel.name}</div>
+                                                <div class="desc">⭐ ${hotel.rating} · ${hotel.location}</div>
+                                            </div>
+                                            <div class="right">
+                                                <div class="price">${hotel.pricePerNight} ${hotel.currency}</div>
+                                                <div class="sub">1박</div>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -219,15 +304,17 @@
                     polyline: null,
                     activeDay: initialDay,
                     activePointKey: null,
-                    useAdvancedMarker: false,
+                    MapClass: null,
                     AdvancedMarkerElement: null,
-                    PinElement: null
+                    PinElement: null,
+                    useAdvancedMarker: false
                 };
 
                 bindDayButtons();
                 bindScheduleItems();
 
                 if (!apiKey) {
+                    fallbackElement.textContent = "Google Maps API Key를 연결하면 여행 동선을 지도에서 볼 수 있습니다.";
                     fallbackElement.classList.add("is-visible");
                     return;
                 }
@@ -253,6 +340,13 @@
                 function bindScheduleItems() {
                     scheduleItems.forEach(function (item) {
                         item.addEventListener("click", function () {
+                            const lat = Number(item.dataset.lat);
+                            const lng = Number(item.dataset.lng);
+
+                            if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+                                return;
+                            }
+
                             const day = Number(item.dataset.day);
                             const order = Number(item.dataset.order);
 
@@ -271,11 +365,11 @@
                     const markerLibrary = await google.maps.importLibrary("marker");
                     const centerPoint = mapPoints[0];
 
+                    state.MapClass = mapsLibrary.Map;
                     state.AdvancedMarkerElement = markerLibrary.AdvancedMarkerElement;
                     state.PinElement = markerLibrary.PinElement;
                     state.useAdvancedMarker = Boolean(mapId);
                     state.infoWindow = new google.maps.InfoWindow();
-
                     const mapOptions = {
                         center: { lat: centerPoint.lat, lng: centerPoint.lng },
                         zoom: 12,
@@ -289,19 +383,25 @@
                         mapOptions.mapId = mapId;
                     }
 
-                    state.map = new mapsLibrary.Map(mapElement, mapOptions);
+                    state.map = new state.MapClass(mapElement, mapOptions);
+
                     mapElement.classList.add("is-ready");
+                    fallbackElement.classList.remove("is-visible");
                     renderDay(state.activeDay);
                 }
 
                 function renderDay(day) {
+                    if (!state.map) {
+                        return;
+                    }
+
                     clearMap();
 
                     const dayPoints = mapPoints.filter(function (point) {
                         return point.day === day;
                     });
 
-                    if (!dayPoints.length || !state.map) {
+                    if (!dayPoints.length) {
                         return;
                     }
 
@@ -309,7 +409,9 @@
                     const path = [];
 
                     dayPoints.forEach(function (point) {
-                        const marker = createMarker(point, getColor(point.category));
+                        const color = getColor(point.category);
+                        const marker = createMarker(point, color);
+
                         marker.__travelKey = getPointKey(point.day, point.order);
                         state.markers.push(marker);
                         path.push({ lat: point.lat, lng: point.lng });
@@ -357,9 +459,11 @@
                         return getPointKey(item.day, item.order) === pointKey;
                     });
 
-                    if (!point) {
+                    if (!point || !state.map) {
                         return;
                     }
+
+                    state.activePointKey = pointKey;
 
                     scheduleItems.forEach(function (item) {
                         const isActive = getPointKey(Number(item.dataset.day), Number(item.dataset.order)) === pointKey;
@@ -375,13 +479,16 @@
                     }
 
                     state.infoWindow.setContent(
-                        "<div class='map-info-window'><strong>" + escapeHtml(point.name) + "</strong>" +
+                        "<div class='map-info-window'>" +
+                        "<strong>" + escapeHtml(point.name) + "</strong>" +
                         (point.time ? "<div>" + escapeHtml(point.time) + "</div>" : "") +
                         "</div>"
                     );
-
                     if (state.useAdvancedMarker) {
-                        state.infoWindow.open({ anchor: marker, map: state.map });
+                        state.infoWindow.open({
+                            anchor: marker,
+                            map: state.map
+                        });
                     } else {
                         state.infoWindow.open(state.map, marker);
                     }
@@ -393,9 +500,23 @@
 
                 function setActiveDay(day) {
                     state.activeDay = day;
+                    state.activePointKey = null;
                     dayButtons.forEach(function (button) {
                         button.classList.toggle("active", Number(button.dataset.day) === day);
                     });
+                }
+
+                function getColor(category) {
+                    switch (category) {
+                        case "DINING":
+                        case "FOOD":
+                            return "#F97316";
+                        case "ACCOMMODATION":
+                        case "HOTEL":
+                            return "#8B5CF6";
+                        default:
+                            return "#2563EB";
+                    }
                 }
 
                 function createMarker(point, color) {
@@ -437,25 +558,16 @@
                     return marker;
                 }
 
-                function getColor(category) {
-                    switch (category) {
-                        case "DINING":
-                        case "FOOD":
-                            return "#F97316";
-                        case "ACCOMMODATION":
-                        case "HOTEL":
-                            return "#8B5CF6";
-                        default:
-                            return "#2563EB";
-                    }
-                }
-
                 function normalizeCategory(category) {
+                    if (!category) {
+                        return "ATTRACTION";
+                    }
+
                     const upperCategory = category.toUpperCase();
                     if (upperCategory === "RESTAURANT") {
                         return "DINING";
                     }
-                    return upperCategory || "ATTRACTION";
+                    return upperCategory;
                 }
 
                 function getPointKey(day, order) {
