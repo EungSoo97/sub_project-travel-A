@@ -218,7 +218,7 @@
 
                 <div class="upload-box" id="uploadBox">
                     <input type="file" id="imageFile" accept="image/*" hidden>
-                    <button type="button" class="upload-box__button" id="uploadTrigger">이미지 업로드</button>
+                    <button type="button" class="upload-box__button" id="uploadTrigger" onclick = "location.href='image-page'">이미지 업로드</button>
                     <p class="upload-box__text">클릭하거나 파일을 드래그하여 업로드하세요</p>
                     <div class="upload-preview" id="uploadPreview"></div>
                 </div>

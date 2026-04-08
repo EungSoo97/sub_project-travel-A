@@ -50,6 +50,7 @@ public class MyPlanPageC extends HttpServlet {
         }
 
         attachGoogleMapsConfig(request);
+        session.setAttribute("latestTravelResult", result);
         request.setAttribute("savedPlan", savedPlan);
         request.setAttribute("result", result);
         request.setAttribute("content", "view/mypage/myplanpage.jsp");
