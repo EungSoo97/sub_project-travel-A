@@ -49,7 +49,7 @@ public class ResultpageC extends HttpServlet {
                 if (savedPlan == null) {
                     request.setAttribute("errorMsg", "해당 여행 플랜을 찾을 수 없습니다.");
                 } else {
-                    TravelResponseDTO result = TravelJsonParser.parse(savedPlan.getResponseJson());
+                    TravelResulVDTO result = TravelJsonParser.parse(savedPlan.getResponseJson());
 
                     session.setAttribute("latestTravelResult", result);
                     request.setAttribute("savedPlan", savedPlan);
@@ -61,6 +61,7 @@ public class ResultpageC extends HttpServlet {
                 request.setAttribute("errorMsg", "여행 플랜을 불러오는 중 오류가 발생했습니다.");
             }
 
+            attachGoogleMapsConfig(request);
             request.setAttribute("content", "view/resultpage/resultpage.jsp");
             request.getRequestDispatcher("index.jsp").forward(request, response);
         }
