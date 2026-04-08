@@ -151,7 +151,7 @@
 
                             <button type="button"
                                     class="btn-detail"
-                                    onclick="location.href='${pageContext.request.contextPath}/detail-page?id=${trip.planId}'">
+                                    onclick="location.href='result-page?id=${trip.planId}'">
                                 자세히 보기
                             </button>
 

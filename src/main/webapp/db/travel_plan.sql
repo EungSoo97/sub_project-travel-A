@@ -258,3 +258,26 @@ from travel_plan
 order by plan_id desc;
 
 select *from travel_plan;
+
+ALTER TABLE travel_plan
+    ADD CONSTRAINT fk_travel_plan_user
+        FOREIGN KEY (user_id)
+            REFERENCES user_info(u_user_id);
+
+UPDATE travel_plan
+SET user_id = 1
+WHERE user_id IN (29, 22);
+
+SELECT u_user_id, u_login_id, u_name
+FROM user_info;
+
+SELECT plan_id, user_id, title, destination
+FROM travel_plan
+ORDER BY plan_id DESC;
+
+UPDATE travel_plan
+SET user_id = 1
+WHERE user_id IS NULL;
+
+ALTER TABLE travel_plan
+    MODIFY user_id NULL;

@@ -80,7 +80,7 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
           <p>© 2026 Travel-A(AI). 여행의 모든 순간을 스마트하게.</p>
         </div>
       </footer>
-        <form action="result-page">
+        <form action="result-page" method="post">
             <button>back door</button></form>
 
     </div>

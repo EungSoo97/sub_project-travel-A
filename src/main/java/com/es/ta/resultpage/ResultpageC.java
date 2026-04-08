@@ -1,8 +1,6 @@
 package com.es.ta.resultpage;
 
 import com.es.ta.account.AccountDTO;
-import com.es.ta.ai.TravelRequestDto;
-import com.es.ta.ai.TravelResponseDto;
 import com.es.ta.mypage.TravelPlanDAO;
 import com.es.ta.mypage.TravelPlanDTO;
 
@@ -21,50 +19,55 @@ public class ResultpageC extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
 
-        String planIdParam = request.getParameter("planId");
+        HttpSession session = request.getSession();
+        AccountDTO loginUser = (AccountDTO) session.getAttribute("user");
 
-        if (planIdParam != null && !planIdParam.isEmpty()) {
+        if (loginUser == null) {
+            request.setAttribute("content", "view/login/login.jsp");
+            request.getRequestDispatcher("index.jsp").forward(request, response);
+            return;
+        } else {
+
+            String planIdParam = request.getParameter("id");
+            if (planIdParam == null || planIdParam.trim().isEmpty()) {
+                response.sendRedirect("mypage");
+                return;
+            }
+
             try {
                 int planId = Integer.parseInt(planIdParam);
+                int userId = loginUser.getUser_id();
 
-                HttpSession session = request.getSession();
-                AccountDTO loginUser = (AccountDTO) session.getAttribute("user");
+                TravelPlanDTO savedPlan = TravelPlanDAO.getPlanByPlanIdAndUserId(planId, userId);
 
-                if (loginUser != null) {
-                    int userId = loginUser.getUser_id();
+                if (savedPlan == null) {
+                    request.setAttribute("errorMsg", "해당 여행 플랜을 찾을 수 없습니다.");
+                } else {
+                    TravelResponseDTO result = TravelJsonParser.parse(savedPlan.getResponseJson());
 
-                    TravelPlanDTO savedPlan = TravelPlanDAO.getPlanByPlanIdAndUserId(planId, userId);
-
-                    if (savedPlan != null) {
-                        TravelResponseDTO result = TravelJsonParser.parse(savedPlan.getResponseJson());
-
-                        request.setAttribute("savedPlan", savedPlan);
-                        request.setAttribute("result", result);
-                    }
+                    session.setAttribute("latestTravelResult", result);
+                    request.setAttribute("savedPlan", savedPlan);
+                    request.setAttribute("result", result);
                 }
+
             } catch (Exception e) {
                 e.printStackTrace();
+                request.setAttribute("errorMsg", "여행 플랜을 불러오는 중 오류가 발생했습니다.");
             }
-        }
-        request.setAttribute("content", "view/resultpage/resultpage.jsp");
-        request.getRequestDispatcher("index.jsp").forward(request, response);
 
-    }
+            request.setAttribute("content", "view/resultpage/resultpage.jsp");
+            request.getRequestDispatcher("index.jsp").forward(request, response);
+        }
+        }
+
+
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-//        int id = Integer.parseInt(request.getParameter("id"));
-//
-//        TravelRequestDto result = ResultpageDAO.detailpage(id);
-//
-//        request.setAttribute("result", result);
-//        request.setAttribute("content", "view/detailpage/detailpage.jsp");
-//        request.getRequestDispatcher("index.jsp").forward(request, response);
-// detail page C로 get요청 할꺼임
-
-
+        request.setAttribute("content", "view/resultpage/resultpage.jsp");
+        request.getRequestDispatcher("index.jsp").forward(request, response);
     }
+
 
     public void destroy() {
     }

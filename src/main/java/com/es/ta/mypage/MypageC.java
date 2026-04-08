@@ -20,21 +20,25 @@ public class MypageC extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
-
         HttpSession session = request.getSession();
         AccountDTO loginUser = (AccountDTO) session.getAttribute("user");
 
-        if (loginUser != null) {
-            // ↓↓↓ 여기 getter 이름 꼭 네 AccountDTO에 맞게 바꿔줘!
-            int userId = loginUser.getUser_id();
-
-            ArrayList<com.es.ta.mypage.TravelPlanDTO> savedTrips = com.es.ta.mypage.TravelPlanDAO.getPlansByUserId(userId);
-            request.setAttribute("savedTrips", savedTrips);
+        if (loginUser == null) {
+            response.sendRedirect("login.jsp");
+            return;
         }
 
+        int userId = loginUser.getUser_id();
+
+        ArrayList<TravelPlanDTO> plans = TravelPlanDAO.getPlansByUserId(userId);
+        System.out.println("로그인 userId = " + userId);
+        System.out.println("조회된 plan 개수 = " + plans.size());
+        request.setAttribute("savedTrips", plans);
         request.setAttribute("content", "view/mypage/mypage.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
+
     }
+
 
     @Override
     public void destroy() {
