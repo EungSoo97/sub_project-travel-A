@@ -1,0 +1,20 @@
+{
+  "success": false,
+  "message": "AI 일정 생성 중 오류: 전체 모델/키 시도 실패 - 품질 기준 미달",
+  "summary": {
+    "destination": "도쿄",
+    "title": "AI 맞춤 여행 일정",
+    "startDate": "2026-04-04",
+    "endDate": "2026-04-05",
+    "days": 0,
+    "travelers": 1,
+    "travelStyle": "자유여행",
+    "totalEstimatedCost": 0,
+    "currency": "KRW",
+    "overview": "데이터 생성에 실패했습니다.",
+    "costBreakdown": null
+  },
+  "itinerary": [],
+  "flights": [],
+  "hotels": []
+}

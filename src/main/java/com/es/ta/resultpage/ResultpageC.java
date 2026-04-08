@@ -1,16 +1,22 @@
 package com.es.ta.resultpage;
 
+<<<<<<< HEAD
 import com.es.ta.account.AccountDTO;
 import com.es.ta.mypage.TravelPlanDAO;
 import com.es.ta.mypage.TravelPlanDTO;
 
+=======
+>>>>>>> 7cb11fb2f1709cbd25bd6746a5813312b8a1434a
 import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 @WebServlet(name = "ResultpageC", value = "/result-page")
 public class ResultpageC extends HttpServlet {
@@ -70,5 +76,26 @@ public class ResultpageC extends HttpServlet {
 
 
     public void destroy() {
+    }
+
+    private void attachGoogleMapsConfig(HttpServletRequest request) {
+        Properties props = loadApplicationProperties(request.getServletContext());
+        request.setAttribute("googleMapsApiKey", props.getProperty("GOOGLE_API_KEY", ""));
+        request.setAttribute("googleMapsMapId", props.getProperty("GOOGLE_MAP_ID", ""));
+    }
+
+    private Properties loadApplicationProperties(ServletContext context) {
+        Properties props = new Properties();
+
+        try (InputStream in = context.getResourceAsStream("/WEB-INF/application.properties")) {
+            if (in == null) {
+                return props;
+            }
+            props.load(in);
+        } catch (IOException e) {
+            System.out.println("[ResultpageC] application.properties load failed: " + e.getMessage());
+        }
+
+        return props;
     }
 }

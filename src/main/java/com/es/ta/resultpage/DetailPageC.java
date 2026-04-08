@@ -18,6 +18,8 @@ public class DetailPageC extends HttpServlet {
         TravelResponseDTO result = ResultpageDAO.detailpage(id);
 
         request.setAttribute("plan", result);
+        request.getSession().setAttribute("plan", result);
+
         request.setAttribute("content", "view/detailpage/detailPage.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
         System.out.println("detail-page 들어옴");

@@ -23,7 +23,7 @@
 <div class="filter-box card-box">
     <h3>🔎 필터</h3>
 
-    ```
+
     <div class="filter-items">
         <div class="filter-item active">🌍 전체</div>
         <div class="filter-item">🍽 미식</div>
@@ -32,7 +32,7 @@
         <div class="filter-item">🏛 문화</div>
         <div class="filter-item">🛍 쇼핑</div>
     </div>
-    ```
+
 
 </div>
 
@@ -40,7 +40,7 @@
 
 <div class="popular-box card-box">
 
-    ```
+
     <div class="card-header">
         <h2>인기 여행 플랜</h2>
         <select>
@@ -83,7 +83,7 @@
                         </div>
 
                         <div>
-                            <button type="submit">자세히 보기</button>
+                            <button class="ui-button" type="submit">자세히 보기</button>
                         </div>
 
                     </div>
@@ -94,7 +94,7 @@
         </c:forEach>
 
     </div>
-    ```
+
 
 </div>
 

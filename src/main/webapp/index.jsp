@@ -6,9 +6,9 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Travel-A(AI) | AI 여행 플래너</title>
-    <link rel="stylesheet" href="css/base.css" />
-    <link rel="stylesheet" href="css/result-page.css" />
-    <link rel="stylesheet" href="css/edit-schedule.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/result-page.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/edit-schedule.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/settings.css">
 
     <!-- 푸터 하단 고정 -->
@@ -79,44 +79,52 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
         <div class="container site-footer__inner">
           <p>© 2026 Travel-A(AI). 여행의 모든 순간을 스마트하게.</p>
         </div>
+          <form action="result-page">
+              <button >backdoor</button></form>
       </footer>
         <form action="result-page" method="post">
             <button>back door</button></form>
 
     </div>
-    <script src="js/main.js"></script>
+    <script src="${pageContext.request.contextPath}/js/main.js"></script>
     <script>
         function loginAlert () {
             alert("로그인이 필요한 기능 입니다.");
         }
     </script>
-    <script>const trigger = document.querySelector(".menu-trigger");
-    const nav = document.querySelector(".site-nav");
-    const loginBtns = document.getElementById("headerLoginBtns");
+    <script>
+    (() => {
+        const menuTriggerEl = document.querySelector(".menu-trigger");
+        const navEl = document.querySelector(".site-nav");
+        const loginBtnsEl = document.getElementById("headerLoginBtns");
 
-    if (trigger && nav) {
-        trigger.addEventListener("click", function (e) {
+        if (!menuTriggerEl || !navEl) {
+            return;
+        }
+
+        menuTriggerEl.addEventListener("click", function (e) {
             e.preventDefault();
             const isActive = this.classList.toggle("is-active");
-            loginBtns && loginBtns.classList.toggle("is-visible", isActive);
+            loginBtnsEl && loginBtnsEl.classList.toggle("is-visible", isActive);
 
             if (isActive) {
-                // display:flex 먼저 적용 후 transition 실행
-                nav.style.display = "flex";
-                requestAnimationFrame(() => nav.classList.add("is-open"));
+                navEl.style.display = "flex";
+                requestAnimationFrame(() => navEl.classList.add("is-open"));
             } else {
-                nav.classList.remove("is-open");
-                nav.addEventListener(
+                navEl.classList.remove("is-open");
+                navEl.addEventListener(
                     "transitionend",
                     () => {
-                        if (!nav.classList.contains("is-open"))
-                            nav.style.display = "none";
+                        if (!navEl.classList.contains("is-open")) {
+                            navEl.style.display = "none";
+                        }
                     },
                     { once: true },
                 );
             }
         });
-    }</script>
+    })();
+    </script>
   </body>
 
 </html>
