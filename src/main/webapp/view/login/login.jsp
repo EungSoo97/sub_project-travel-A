@@ -83,8 +83,8 @@
 </c:if >
 
 <form class="login-box" method="post" action="${pageContext.request.contextPath}/login">
-    <input type="text"     name="loginId"  placeholder="아이디" required>
-    <input type="password" name="password" placeholder="비밀번호" required>
+    <input type="text"     name="loginId"  placeholder="아이디" required value="test123">
+    <input type="password" name="password" placeholder="비밀번호" required value="111">
     <button type="submit">로그인</button>
 </form>
 

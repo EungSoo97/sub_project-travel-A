@@ -26,26 +26,26 @@ public class ResultpageC extends HttpServlet {
 
         HttpSession session = request.getSession();
         AccountDTO loginUser = (AccountDTO) session.getAttribute("user");
+        int userId = loginUser.getUser_id();
+        String planId = request.getParameter("id");
 
         if (loginUser == null) {
             request.setAttribute("content", "view/login/login.jsp");
             request.getRequestDispatcher("index.jsp").forward(request, response);
 
         } else {
-
-            String planIdParam = request.getParameter("id");
-            if (planIdParam == null || planIdParam.trim().isEmpty()) {
-                request.setAttribute("content", "view/detailpage/detailPage.jsp");
+            if (planId == null || planId.trim().isEmpty()) {
+                request.setAttribute("content", "view/mypage/mypage.jsp");
                 request.getRequestDispatcher("index.jsp").forward(request, response);
                 return;
             }
 
             try {
-                int planId = Integer.parseInt(planIdParam);
-                int userId = loginUser.getUser_id();
 
-                TravelPlanDTO savedPlan = TravelPlanDAO.getPlanByPlanIdAndUserId(planId, userId);
 
+                TravelResultVDTO savedPlan = TravelPlanDAO.getPlanByPlanIdAndUserId(userId, planId);
+                request.setAttribute("plans", savedPlan);
+                request.setAttribute("planId", planId);
                 if (savedPlan == null) {
                     request.setAttribute("errorMsg", "해당 여행 플랜을 찾을 수 없습니다.");
                 } else {
