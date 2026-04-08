@@ -90,6 +90,11 @@
     gap: 8px;
     align-items: center;
 }
+.actions .download {
+    flex: 1;                 /* 🔥 3개 균등 분배 */
+    text-align: center;
+    white-space: nowrap;     /* 줄바꿈 방지 */
+}
 
 .actions button {
     border: 1px solid var(--border);

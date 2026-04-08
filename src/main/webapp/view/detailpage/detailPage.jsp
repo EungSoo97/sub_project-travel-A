@@ -25,6 +25,7 @@
                 </form>
                 <button class="download">저장하기</button>
                 <button class="download" id="openModalBtn">후기쓰기</button>
+                <button class="download">후기전체보기</button>
 
                 <!-- 모달  -->
                 <div id="Modal" class="modal">
