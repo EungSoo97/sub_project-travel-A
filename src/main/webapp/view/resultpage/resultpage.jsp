@@ -32,6 +32,10 @@
             </div>
         </div>
 
+        <form action="${pageContext.request.contextPath}/save-plan" method="post">
+            <input type="hidden" name="title" value="${result.summary.title}">
+            <button type="submit">저장하기</button>
+        </form>
         <!-- 여행 정보 카드 -->
         <div class="info-cards">
             <div class="card">
@@ -123,8 +127,8 @@
                         </div>
 
                         <div class="day-right">
-                            <span class="transport">🚆 ${item.transportation}</span>
-                            <span class="distance">총 거리: ${item.totalDistanceKm}km</span>
+                            <span class="transport">이동 정보 없음</span>
+                            <span class="distance">거리 정보 없음</span>
                         </div>
                     </div>
 
@@ -141,13 +145,13 @@
                                     data-lng="${act.lng}"
                                     data-time="${fn:escapeXml(act.time)}">
                                 <c:choose>
-                                    <c:when test="${act.categoryCode == 'TRANSPORT'}">
+                                    <c:when test="${act.type == 'TRANSPORT'}">
                                         <div class="icon move">▲</div>
                                     </c:when>
-                                    <c:when test="${act.categoryCode == 'DINING'}">
+                                    <c:when test="${act.type == 'DINING'}">
                                         <div class="icon food">🍽</div>
                                     </c:when>
-                                    <c:when test="${act.categoryCode == 'ACCOMMODATION'}">
+                                    <c:when test="${act.type == 'ACCOMMODATION'}">
                                         <div class="icon hotel">🏨</div>
                                     </c:when>
                                     <c:otherwise>
@@ -241,6 +245,7 @@
         </div>
 
     </div>
+
 </div>
 <script>
     (function () {

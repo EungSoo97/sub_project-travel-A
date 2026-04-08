@@ -29,3 +29,4 @@ ALTER TABLE user_info ADD u_profile_img VARCHAR2(300);
 UPDATE user_info
 SET u_profile_img = 'img/profile/default.png'
 WHERE u_profile_img IS NULL;
+
