@@ -531,3 +531,9 @@
     border-color: #999;
     color: #000;
 }
+.ui-button{
+    background-color: #2563eb;
+    color: white;
+    font-size: 13px;font-weight: 600;
+
+}
