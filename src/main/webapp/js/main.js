@@ -1,3 +1,4 @@
+(() => {
 (function initTraveler() {
   const hiddenInput = document.getElementById("travelers");
   const countEl     = document.getElementById("countDisplay");
@@ -524,4 +525,5 @@ if (customAddBtn) {
     hidEnd.value   = toYMD(endDate);
     closeSheet();
   });
+})();
 })();
