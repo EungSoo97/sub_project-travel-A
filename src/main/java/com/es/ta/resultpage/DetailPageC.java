@@ -20,6 +20,8 @@ public class DetailPageC extends HttpServlet {
         request.setAttribute("plan", result);
         request.setAttribute("content", "view/detailpage/detailPage.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
+        System.out.println("detail-page 들어옴");
+        System.out.println("id = " + request.getParameter("id"));
 
     }
 
@@ -32,3 +34,4 @@ public class DetailPageC extends HttpServlet {
     public void destroy() {
     }
 }
+

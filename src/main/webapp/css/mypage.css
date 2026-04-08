@@ -263,3 +263,16 @@
     font-size: 14px;
     font-weight: 500;
 }
+.tab-content {
+    width: 92%;
+    margin: 16px auto 30px;
+}
+
+.trip-card {
+    margin-bottom: 16px;
+}
+
+.card-body h3 {
+    line-height: 1.4;
+    word-break: keep-all;
+}

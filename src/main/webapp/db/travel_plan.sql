@@ -44,7 +44,7 @@ CREATE TABLE travel_plan (
 );
 
 
-drop table travel_plan;
+
 select * from travel_plan;
 
 -- -----------------------------------------------------------------------------
@@ -69,3 +69,192 @@ select * from travel_plan;
 -- TRUNCATE TABLE travel_plan;
 -- 또는
 -- DELETE FROM travel_plan;
+
+INSERT INTO travel_plan (
+    plan_id,
+    user_id,
+    destination,
+    title,
+    start_date,
+    end_date,
+    days,
+    travelers,
+    travel_style,
+    total_estimated_cost,
+    currency,
+    overview,
+    response_json
+) VALUES (
+             travel_plan_seq.NEXTVAL,
+             29,
+             'Tokyo',
+             '도쿄 벚꽃 여행',
+             TO_DATE('2026-04-20', 'YYYY-MM-DD'),
+             TO_DATE('2026-04-23', 'YYYY-MM-DD'),
+             4,
+             2,
+             '힐링',
+             1200000,
+             'KRW',
+             '벚꽃 명소와 카페를 중심으로 즐기는 여행',
+             '{}'
+         );
+INSERT INTO travel_plan (
+    plan_id,
+    user_id,
+    destination,
+    title,
+    start_date,
+    end_date,
+    days,
+    travelers,
+    response_json
+) VALUES (
+             travel_plan_seq.NEXTVAL,
+             22,
+             'Seoul',
+             '서울 주말 여행',
+             TO_DATE('2026-03-20', 'YYYY-MM-DD'),
+             TO_DATE('2026-03-22', 'YYYY-MM-DD'),
+             3,
+             1,
+             '{}'
+         );
+select * from travel_plan;
+
+UPDATE travel_plan
+SET
+    title = '도쿄 테스트 여행',
+    destination = 'Tokyo',
+    days = 3,
+    travelers = 2,
+    travel_style = '맛집',
+    total_estimated_cost = 1200000,
+    currency = 'KRW',
+    overview = '테스트용 여행 일정입니다.',
+    response_json = '{
+      "planId": 1,
+      "success": true,
+      "message": "테스트 데이터",
+      "summary": {
+        "destination": "Tokyo",
+        "title": "도쿄 테스트 여행",
+        "startDate": "2026-04-20",
+        "endDate": "2026-04-22",
+        "days": 3,
+        "travelers": 2,
+        "travelStyle": "맛집",
+        "totalEstimatedCost": 1200000,
+        "currency": "KRW",
+        "overview": "도쿄 주요 관광지와 맛집을 즐기는 3일 여행"
+      },
+      "itinerary": [
+        {
+          "day": 1,
+          "date": "2026-04-20",
+          "dayLabel": "1일차",
+          "estimatedCost": 300000,
+          "activities": [
+            {
+              "id": "a1",
+              "time": "09:00",
+              "name": "나리타 공항 도착",
+              "description": "공항 도착 후 도쿄 시내로 이동",
+              "type": "TRANSPORT",
+              "category": "이동",
+              "lat": 35.7719,
+              "lng": 140.3929,
+              "cost": 50000
+            },
+            {
+              "id": "a2",
+              "time": "13:00",
+              "name": "아사쿠사 관광",
+              "description": "센소지와 주변 상점가 구경",
+              "type": "SPOT",
+              "category": "관광",
+              "lat": 35.7148,
+              "lng": 139.7967,
+              "cost": 0
+            }
+          ]
+        },
+        {
+          "day": 2,
+          "date": "2026-04-21",
+          "dayLabel": "2일차",
+          "estimatedCost": 450000,
+          "activities": [
+            {
+              "id": "b1",
+              "time": "10:00",
+              "name": "시부야 스카이",
+              "description": "전망대 방문",
+              "type": "SPOT",
+              "category": "관광",
+              "lat": 35.6580,
+              "lng": 139.7016,
+              "cost": 25000
+            },
+            {
+              "id": "b2",
+              "time": "18:00",
+              "name": "스시 디너",
+              "description": "현지 스시 맛집 방문",
+              "type": "DINING",
+              "category": "식사",
+              "lat": 35.6717,
+              "lng": 139.7650,
+              "cost": 120000
+            }
+          ]
+        },
+        {
+          "day": 3,
+          "date": "2026-04-22",
+          "dayLabel": "3일차",
+          "estimatedCost": 200000,
+          "activities": [
+            {
+              "id": "c1",
+              "time": "11:00",
+              "name": "우에노 공원 산책",
+              "description": "출국 전 마지막 일정",
+              "type": "SPOT",
+              "category": "관광",
+              "lat": 35.7156,
+              "lng": 139.7745,
+              "cost": 0
+            }
+          ]
+        }
+      ],
+      "flights": [
+        {
+          "id": "f1",
+          "airline": "Korean Air",
+          "tripType": "왕복",
+          "price": 450000,
+          "departureAirport": "ICN",
+          "arrivalAirport": "NRT"
+        }
+      ],
+      "hotels": [
+        {
+          "id": "h1",
+          "name": "Shinjuku Hotel",
+          "pricePerNight": 180000,
+          "rating": 4.3,
+          "address": "Shinjuku, Tokyo",
+          "lat": 35.6938,
+          "lng": 139.7034
+        }
+      ]
+    }'
+WHERE plan_id = 1;
+
+select plan_id, user_id, title, destination
+from travel_plan
+order by plan_id desc;
+
+select *from travel_plan;

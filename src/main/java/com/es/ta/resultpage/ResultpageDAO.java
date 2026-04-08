@@ -16,31 +16,42 @@ public class ResultpageDAO {
 
 
         public static TravelResponseDTO detailpage(int id) {  // ← 반환타입 변경
-
-
             Connection con = null;
-            PreparedStatement ps = null;
+            PreparedStatement pstmt = null;
             ResultSet rs = null;
-            String sql = "SELECT * FROM travel_plan WHERE PLAN_ID = ?";
+
+            String sql = "SELECT response_json FROM travel_plan WHERE plan_id = ?";
+            System.out.println("조회 id = " + id);
+
             try {
                 con = DBManager_new.connect();
-                ps = con.prepareStatement(sql);
-                ps.setInt(1, id);
-                rs = ps.executeQuery();
+                pstmt = con.prepareStatement(sql);
+                pstmt.setInt(1, id);
+                rs = pstmt.executeQuery();
 
                 if (rs.next()) {
-                    String jsonString = rs.getString("response_json");
-                    ObjectMapper mapper = new ObjectMapper();
-                    mapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);  // ← 이거 추가!
-                    return mapper.readValue(jsonString, TravelResponseDTO.class);  // ← 변경
-                }
+                    String json = rs.getString("response_json");
+                    TravelResponseDTO result = TravelJsonParser.parse(json);
 
+                    if (result != null) {
+                        result.setPlanId(id);
+                    }
+                    return result;
+                }
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             } finally {
-                DBManager_new.close(con, ps, rs);
+                try {
+                    if (rs != null) rs.close();
+                    if (pstmt != null) pstmt.close();
+                    if (con != null) con.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+
             return null;
+
         }
     public static List<TravelResponseDTO> getPlanList() {
         Connection con = null;

@@ -1,5 +1,7 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
+
+<html><%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <head>
     <title>Mypage</title>
     <link rel="stylesheet" href="/css/mypage.css">
@@ -72,71 +74,101 @@
 <section class="mypage-content">
 
     <div id="content-saved" class="tab-content active">
-        <article class="trip-card">
-            <div class="card-img-wrap">
-                <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=600&q=80" alt="도쿄">
-                <span class="status-badge blue">예정됨</span>
-            </div>
-            <div class="card-body">
-                <h3>도쿄 3일 여행</h3>
-                <div class="trip-details">
-                    <p><span>📍</span> 일본 도쿄</p>
-                    <p><span>📅</span> 2026.04.15 - 2026.04.17</p>
-                    <p><span>👥</span> 2명</p>
+
+        <c:choose>
+            <c:when test="${not empty savedTrips}">
+                <c:forEach var="trip" items="${savedTrips}">
+                    <article class="trip-card">
+                        <div class="card-img-wrap">
+
+                            <c:choose>
+                                <c:when test="${trip.destination eq 'Tokyo' || trip.destination eq '도쿄'}">
+                                    <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80" alt="도쿄">
+                                </c:when>
+                                <c:when test="${trip.destination eq 'Osaka' || trip.destination eq '오사카'}">
+                                    <img src="https://images.unsplash.com/photo-1590559899731-a382839e5549?auto=format&fit=crop&w=800&q=80" alt="오사카">
+                                </c:when>
+                                <c:when test="${trip.destination eq 'Seoul' || trip.destination eq '서울'}">
+                                    <img src="https://images.unsplash.com/photo-1538485399081-7c897c8e6b7b?auto=format&fit=crop&w=800&q=80" alt="서울">
+                                </c:when>
+                                <c:otherwise>
+                                    <img src="https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=800&q=80" alt="${trip.destination}">
+                                </c:otherwise>
+                            </c:choose>
+
+                            <span class="status-badge ${trip.statusClass}">
+                                    ${trip.status}
+                            </span>
+                        </div>
+
+                        <div class="card-body">
+                            <h3>${trip.displayTitle}</h3>
+
+                            <div class="trip-details">
+                                <p>
+                                    <span>📍</span>
+                                    <c:out value="${trip.destination}" default="여행지 미정"/>
+                                </p>
+
+                                <p>
+                                    <span>📅</span>
+                                    <c:choose>
+                                        <c:when test="${not empty trip.startDate and not empty trip.endDate}">
+                                            <fmt:formatDate value="${trip.startDate}" pattern="yyyy.MM.dd" />
+                                            -
+                                            <fmt:formatDate value="${trip.endDate}" pattern="yyyy.MM.dd" />
+                                        </c:when>
+                                        <c:otherwise>
+                                            일정 미정
+                                        </c:otherwise>
+                                    </c:choose>
+                                </p>
+
+                                <p>
+                                    <span>🗓️</span>
+                                    <c:choose>
+                                        <c:when test="${trip.days > 0}">
+                                            ${trip.days}일
+                                        </c:when>
+                                        <c:otherwise>
+                                            기간 미정
+                                        </c:otherwise>
+                                    </c:choose>
+                                </p>
+
+                                <p>
+                                    <span>👥</span>
+                                    <c:choose>
+                                        <c:when test="${trip.travelers > 0}">
+                                            ${trip.travelers}명
+                                        </c:when>
+                                        <c:otherwise>
+                                            인원 미정
+                                        </c:otherwise>
+                                    </c:choose>
+                                </p>
+                            </div>
+
+                            <button type="button"
+                                    class="btn-detail"
+                                    onclick="location.href='${pageContext.request.contextPath}/detail-page?id=${trip.planId}'">
+                                자세히 보기
+                            </button>
+
+                                <%-- 확인용. 정상 동작 확인 후 지워도 됨 --%>
+                            <p>id: ${trip.planId}</p>
+                        </div>
+                    </article>
+                </c:forEach>
+            </c:when>
+
+            <c:otherwise>
+                <div class="empty-state">
+                    <p>🧳 아직 저장된 여행이 없어요!</p>
                 </div>
-                <button class="btn-detail">자세히 보기</button>
-            </div>
-        </article>
+            </c:otherwise>
+        </c:choose>
 
-        <article class="trip-card">
-            <div class="card-img-wrap">
-                <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=600&q=80" alt="교토">
-                <span class="status-badge yellow">작성 중</span>
-            </div>
-            <div class="card-body">
-                <h3>교토 힐링 여행</h3>
-                <div class="trip-details">
-                    <p><span>📍</span> 일본 교토</p>
-                    <p><span>📅</span> 2026.05.20 - 2026.05.24</p>
-                    <p><span>👥</span> 1명</p>
-                </div>
-                <button class="btn-detail">자세히 보기</button>
-            </div>
-        </article>
-
-        <article class="trip-card">
-            <div class="card-img-wrap">
-                <img src="https://images.unsplash.com/photo-1590559899731-a382839ceab5?auto=format&fit=crop&w=600&q=80" alt="오사카">
-                <span class="status-badge green">완료</span>
-            </div>
-            <div class="card-body">
-                <h3>오사카 미식 여행</h3>
-                <div class="trip-details">
-                    <p><span>📍</span> 일본 오사카</p>
-                    <p><span>📅</span> 2026.03.10 - 2026.03.13</p>
-                    <p><span>👥</span> 4명</p>
-                </div>
-                <button class="btn-detail">자세히 보기</button>
-            </div>
-        </article>
-    </div>
-
-    <div id="content-liked" class="tab-content">
-        <div class="empty-state">
-            <p>❤️ 아직 좋아요를 누른 플랜이 없어요!</p>
-        </div>
-    </div>
-
-    <div id="content-reviews" class="tab-content">
-        <div class="empty-state">
-            <p>✍️ 작성한 여행 후기가 없습니다.</p>
-        </div>
-    </div>
-
-    <div id="content-stats" class="tab-content">
-        <div class="empty-state">
-            <p>📊 여행 통계 데이터가 준비 중입니다.</p>
-        </div>
     </div>
 
 </section>
