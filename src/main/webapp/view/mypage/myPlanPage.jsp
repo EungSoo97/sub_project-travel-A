@@ -16,7 +16,7 @@
 
         <div class="header">
             <div><a href="hello-servlet">← 검색으로 돌아가기</a></div>
-
+        ${param.id}
             <div class="title-area">
                 <h1>AI 맞춤 여행 일정</h1>
                 <p class="sub">${plans.summary.destination} · ${plans.summary.days}일 여행</p>

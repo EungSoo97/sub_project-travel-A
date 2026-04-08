@@ -26,6 +26,7 @@ public class ResultpageC extends HttpServlet {
 
         HttpSession session = request.getSession();
         AccountDTO loginUser = (AccountDTO) session.getAttribute("user");
+        int userId = loginUser.getUser_id();
         String planId = request.getParameter("id");
 
         if (loginUser == null) {
@@ -42,12 +43,13 @@ public class ResultpageC extends HttpServlet {
             try {
 
 
-                TravelPlanDTO savedPlan = TravelPlanDAO.getPlanByPlanIdAndUserId(loginUser, planId);
-
+                TravelResultVDTO savedPlan = TravelPlanDAO.getPlanByPlanIdAndUserId(userId, planId);
+                request.setAttribute("plans", savedPlan);
+                request.setAttribute("planId", planId);
                 if (savedPlan == null) {
                     request.setAttribute("errorMsg", "해당 여행 플랜을 찾을 수 없습니다.");
                 } else {
-                    TravelResponseDTO result = TravelJsonParser.parse(savedPlan.getResponseJson());
+                    TravelResultVDTO result = TravelPlanDAO.getPlanByPlanIdAndUserId(userId, planId);
 
                     session.setAttribute("latestTravelResult", result);
                     request.setAttribute("savedPlan", savedPlan);

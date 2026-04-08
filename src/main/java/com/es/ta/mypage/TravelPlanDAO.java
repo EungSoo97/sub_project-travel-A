@@ -1,7 +1,6 @@
 package com.es.ta.mypage;
 
-import com.es.ta.account.AccountDTO;
-import com.es.ta.resultpage.TravelResponseDTO;
+import com.es.ta.resultpage.TravelResultVDTO;
 import com.es.ta.main.DBManager_new;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -12,7 +11,7 @@ import java.util.ArrayList;
 
 
 public class TravelPlanDAO {
-    public static boolean savePlan(int userId, TravelResponseDTO result, String title) {
+    public static boolean savePlan(int userId, TravelResultVDTO result, String title) {
         Connection con = null;
         PreparedStatement pstmt = null;
 
@@ -126,8 +125,8 @@ public class TravelPlanDAO {
         return plans;
     }
 
-    public static TravelPlanDTO getPlanByPlanIdAndUserId(AccountDTO loginUser, String planId) {
-        TravelPlanDTO plans =  null;
+    public static TravelResultVDTO getPlanByPlanIdAndUserId(int userId, String planId) {
+        TravelResultVDTO plans =  null;
 
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -143,41 +142,50 @@ public class TravelPlanDAO {
             con = DBManager_new.connect();
             pstmt = con.prepareStatement(sql);
             pstmt.setString(1, planId);
-            pstmt.setInt(2, loginUser.getUser_id());
+            pstmt.setInt(2, userId);
             rs = pstmt.executeQuery();
 
             if (rs.next()) {
 
-                plans = new TravelPlanDTO();
-                plans.setPlanId(rs.getInt("plan_id"));
-                plans.setUserId(rs.getInt("user_id"));
-                plans.setDestination(rs.getString("destination"));
-                plans.setTitle(rs.getString("title"));
-                plans.setStartDate(rs.getDate("start_date"));
-                plans.setEndDate(rs.getDate("end_date"));
-                plans.setDays(rs.getInt("days"));
-                plans.setTravelers(rs.getInt("travelers"));
-                plans.setTravelStyle(rs.getString("travel_style"));
-                plans.setTotalEstimatedCost(rs.getInt("total_estimated_cost"));
-                plans.setCurrency(rs.getString("currency"));
-                plans.setOverview(rs.getString("overview"));
-                plans.setSuccess(rs.getInt("success"));
-                plans.setMessage(rs.getString("message"));
-                plans.setResponseJson(rs.getString("response_json"));
-                plans.setCreatedAt(rs.getDate("created_at"));
-                plans.setUpdatedAt(rs.getDate("updated_at"));
-                System.out.println("sucssess");
+                String responseJson = rs.getString("response_json");
+                if (responseJson != null && !responseJson.isEmpty()) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    plans = mapper.readValue(responseJson, TravelResultVDTO.class);
+                    plans.setPlanId(rs.getInt("plan_id"));
+                } else {
+                    plans = new TravelResultVDTO();
+                    plans.setPlanId(rs.getInt("plan_id"));
+                    plans.setSuccess(rs.getInt("success") == 1);
+                                        
+                    TravelResultVDTO.Summary summary = new TravelResultVDTO.Summary();
+                    summary.setDestination(rs.getString("destination"));
+                    summary.setTitle(rs.getString("title"));
+                    summary.setStartDate(rs.getDate("start_date") != null ? rs.getDate("start_date").toString() : null);
+                    summary.setEndDate(rs.getDate("end_date") != null ? rs.getDate("end_date").toString() : null);
+                    summary.setDays(rs.getInt("days"));
+                    summary.setTravelers(rs.getInt("travelers"));
+                    summary.setTravelStyle(rs.getString("travel_style"));
+                    summary.setTotalEstimatedCost(rs.getInt("total_estimated_cost"));
+                    summary.setCurrency(rs.getString("currency"));
+                    summary.setOverview(rs.getString("overview"));
+                    
+                    plans.setSummary(summary);
+                    plans.setItinerary(new ArrayList<>());
+                    plans.setFlights(new ArrayList<>());
+                    plans.setHotels(new ArrayList<>());
+
+
+                }
+                                                                                                                                                                                                                                System.out.println("success");
+                System.out.println(userId);
+                System.out.println(planId);
             }
+            System.out.println(plans);
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (rs != null) rs.close();
-                if (pstmt != null) pstmt.close();
-                if (con != null) con.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            DBManager_new.close(con,pstmt,rs);
         }
 
         return plans;

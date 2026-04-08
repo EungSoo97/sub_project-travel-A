@@ -1,6 +1,6 @@
 package com.es.ta.explore;
 
-import com.es.ta.resultpage.TravelResponseDTO;
+import com.es.ta.resultpage.TravelResultVDTO;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 import com.lowagie.text.pdf.BaseFont;
 import javax.servlet.ServletException;
@@ -19,7 +19,7 @@ public class MakePdfC extends HttpServlet {
 
         request.setCharacterEncoding("utf-8");
 
-        TravelResponseDTO plan = (TravelResponseDTO) request.getSession().getAttribute("plan");
+        TravelResultVDTO plan = (TravelResultVDTO) request.getSession().getAttribute("plan");
 
         StringBuilder html = new StringBuilder();
 
@@ -48,14 +48,14 @@ public class MakePdfC extends HttpServlet {
         // 일정 요약
         html.append("<h3>일정</h3>");
 
-        for (TravelResponseDTO.Itinerary item : plan.getItinerary()) {
+        for (TravelResultVDTO.Itinerary item : plan.getItinerary()) {
 
             html.append("<p>");
             html.append(item.getDay()).append("일차 - ");
 
             StringJoiner joiner = new StringJoiner(" - ");
 
-            for (TravelResponseDTO.Activity act : item.getActivities()) {
+            for (TravelResultVDTO.Activity act : item.getActivities()) {
                 joiner.add(act.getName());
             }
 
@@ -66,7 +66,7 @@ public class MakePdfC extends HttpServlet {
         // 상세 일정
         html.append("<h3>상세 일정</h3>");
 
-        for (TravelResponseDTO.Itinerary item : plan.getItinerary()) {
+        for (TravelResultVDTO.Itinerary item : plan.getItinerary()) {
 
             html.append("<h4>")
                     .append(item.getDay()).append("일차 (")
@@ -75,7 +75,7 @@ public class MakePdfC extends HttpServlet {
 
             html.append("<ul>");
 
-            for (TravelResponseDTO.Activity act : item.getActivities()) {
+            for (TravelResultVDTO.Activity act : item.getActivities()) {
 
                 html.append("<li>");
 

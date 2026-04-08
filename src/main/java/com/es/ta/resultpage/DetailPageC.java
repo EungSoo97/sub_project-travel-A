@@ -26,7 +26,7 @@ public class DetailPageC extends HttpServlet {
         try {
             int id = Integer.parseInt(idParam);
 
-            TravelResponseDTO result = ResultpageDAO.detailpage(id);
+            TravelResultVDTO result = ResultpageDAO.detailpage(id);
 
             if (result == null) {
                 request.setAttribute("errorMsg", "해당 여행 정보를 찾을 수 없습니다.");

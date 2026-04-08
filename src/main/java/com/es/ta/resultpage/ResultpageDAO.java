@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ResultpageDAO {
 
-    public static TravelResponseDTO detailpage(int planId) {
+    public static TravelResultVDTO detailpage(int planId) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -28,7 +28,7 @@ public class ResultpageDAO {
 
             if (rs.next()) {
                 String json = rs.getString("response_json");
-                TravelResponseDTO result = TravelJsonParser.parse(json);
+                TravelResultVDTO result = TravelJsonParser.parse(json);
 
                 if (result != null) {
                     result.setPlanId(planId);
@@ -50,12 +50,12 @@ public class ResultpageDAO {
         return null;
     }
 
-    public static List<TravelResponseDTO> getPlanList() {
+    public static List<TravelResultVDTO> getPlanList() {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         String sql = "SELECT plan_id, response_json FROM travel_plan";
-        List<TravelResponseDTO> list = new ArrayList<>();
+        List<TravelResultVDTO> list = new ArrayList<>();
 
         try {
             con = DBManager_new.connect();
@@ -67,7 +67,7 @@ public class ResultpageDAO {
 
             while (rs.next()) {
                 String jsonString = rs.getString("response_json");
-                TravelResponseDTO dto = mapper.readValue(jsonString, TravelResponseDTO.class);
+                TravelResultVDTO dto = mapper.readValue(jsonString, TravelResultVDTO.class);
                 dto.setPlanId(rs.getInt("plan_id"));
                 list.add(dto);
             }
