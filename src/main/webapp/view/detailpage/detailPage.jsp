@@ -31,9 +31,12 @@
                     <div class="modal-content">
                         <span id="closeModalBtn" class="close">&times;</span>
                         <h2>후기 작성</h2>
-                        <textarea class="textarea" id="reviewText" rows="5" cols="40" placeholder="여기에 후기를 작성해주세요"></textarea>
+                        <form action="user-reaction" method="post">
+                        <input type="hidden" name="planId" value="${plan.planId}">
+                        <textarea class="textarea" id="reviewText" name="content" rows="5" cols="40" placeholder="여기에 후기를 작성해주세요"></textarea>
                         <br>
-                        <button class="ui-button" id="submitReview">작성 완료</button>
+                        <button class="ui-button" id="submitReview" type="submit">작성 완료</button>
+                        </form>
                     </div>
                 </div>
             </div>

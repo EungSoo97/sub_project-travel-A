@@ -125,8 +125,8 @@ public class TravelPlanDAO {
         return plans;
     }
 
-    public static TravelPlanDTO getPlanByPlanIdAndUserId(int planId, int userId) {
-        TravelPlanDTO plan = null;
+    public static TravelResultVDTO getPlanByPlanIdAndUserId(int userId, String planId) {
+        TravelResultVDTO plans =  null;
 
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -141,43 +141,54 @@ public class TravelPlanDAO {
         try {
             con = DBManager_new.connect();
             pstmt = con.prepareStatement(sql);
-            pstmt.setInt(1, planId);
+            pstmt.setString(1, planId);
             pstmt.setInt(2, userId);
             rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                plan = new TravelPlanDTO();
-                plan.setPlanId(rs.getInt("plan_id"));
-                plan.setUserId(rs.getInt("user_id"));
-                plan.setDestination(rs.getString("destination"));
-                plan.setTitle(rs.getString("title"));
-                plan.setStartDate(rs.getDate("start_date"));
-                plan.setEndDate(rs.getDate("end_date"));
-                plan.setDays(rs.getInt("days"));
-                plan.setTravelers(rs.getInt("travelers"));
-                plan.setTravelStyle(rs.getString("travel_style"));
-                plan.setTotalEstimatedCost(rs.getInt("total_estimated_cost"));
-                plan.setCurrency(rs.getString("currency"));
-                plan.setOverview(rs.getString("overview"));
-                plan.setSuccess(rs.getInt("success"));
-                plan.setMessage(rs.getString("message"));
-                plan.setResponseJson(rs.getString("response_json"));
-                plan.setCreatedAt(rs.getDate("created_at"));
-                plan.setUpdatedAt(rs.getDate("updated_at"));
+
+                String responseJson = rs.getString("response_json");
+                if (responseJson != null && !responseJson.isEmpty()) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    plans = mapper.readValue(responseJson, TravelResultVDTO.class);
+                    plans.setPlanId(rs.getInt("plan_id"));
+                } else {
+                    plans = new TravelResultVDTO();
+                    plans.setPlanId(rs.getInt("plan_id"));
+                    plans.setSuccess(rs.getInt("success") == 1);
+                                        
+                    TravelResultVDTO.Summary summary = new TravelResultVDTO.Summary();
+                    summary.setDestination(rs.getString("destination"));
+                    summary.setTitle(rs.getString("title"));
+                    summary.setStartDate(rs.getDate("start_date") != null ? rs.getDate("start_date").toString() : null);
+                    summary.setEndDate(rs.getDate("end_date") != null ? rs.getDate("end_date").toString() : null);
+                    summary.setDays(rs.getInt("days"));
+                    summary.setTravelers(rs.getInt("travelers"));
+                    summary.setTravelStyle(rs.getString("travel_style"));
+                    summary.setTotalEstimatedCost(rs.getInt("total_estimated_cost"));
+                    summary.setCurrency(rs.getString("currency"));
+                    summary.setOverview(rs.getString("overview"));
+                    
+                    plans.setSummary(summary);
+                    plans.setItinerary(new ArrayList<>());
+                    plans.setFlights(new ArrayList<>());
+                    plans.setHotels(new ArrayList<>());
+
+
+                }
+                                                                                                                                                                                                                                System.out.println("success");
+                System.out.println(userId);
+                System.out.println(planId);
             }
+            System.out.println(plans);
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (rs != null) rs.close();
-                if (pstmt != null) pstmt.close();
-                if (con != null) con.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            DBManager_new.close(con,pstmt,rs);
         }
 
-        return plan;
+        return plans;
     }
 
 }
