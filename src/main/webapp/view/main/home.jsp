@@ -306,7 +306,8 @@
                 <article class="destination-card"
                          onclick="openPlanSheet(this)"
                          data-category="자연"
-                         data-label="자연 여행 · 테마">
+                         data-label="자연 여행 · 테마"
+                         data-type="theme">  <!-- 테마 구분용 -->
                     <div class="destination-card__image">
                         <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80" alt="자연 여행">
                         <div class="destination-card__overlay">
@@ -319,22 +320,24 @@
 
                 <article class="destination-card"
                          onclick="openPlanSheet(this)"
-                         data-category="해안드라이브"
-                         data-label="해안 드라이브 · 테마">
+                         data-category="식도락"
+                         data-label="맛집 탐방 · 테마"
+                         data-type="theme">
                     <div class="destination-card__image">
                         <img src="https://images.unsplash.com/photo-1468413253725-0d5181091126?auto=format&fit=crop&w=1200&q=80" alt="해안 드라이브">
                         <div class="destination-card__overlay">
-                            <strong>해안 드라이브</strong>
+                            <strong>맛집 탐방</strong>
                             <span>테마</span>
                         </div>
                     </div>
-                    <div class="destination-card__body"><p>바다와 함께하는 여행 코스</p></div>
+                    <div class="destination-card__body"><p>입이 즐거운 미식 코스 여행</p></div>
                 </article>
 
                 <article class="destination-card"
                          onclick="openPlanSheet(this)"
                          data-category="문화"
-                         data-label="문화 투어 · 테마">
+                         data-label="문화 투어 · 테마"
+                         data-type="theme">
                     <div class="destination-card__image">
                         <img src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=1200&q=80" alt="역사 투어">
                         <div class="destination-card__overlay">
