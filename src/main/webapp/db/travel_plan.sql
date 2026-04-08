@@ -43,10 +43,6 @@ CREATE TABLE travel_plan (
                              updated_at        DATE           DEFAULT SYSDATE
 );
 
-
-drop table travel_plan;
-
-
 select * from travel_plan;
 
 -- -----------------------------------------------------------------------------
