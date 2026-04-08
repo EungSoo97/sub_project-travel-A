@@ -31,17 +31,18 @@
                     <button type="submit"  style="background-color: #2563eb; color: white; font-size: 13px;font-weight: 600;">PDF 다운로드</button>
                 </form>
                 <button class="download">저장하기</button>
-                <button class="download" onclick="openModal()">후기쓰기</button>
-                <%--모달 페이지--%>
-                <div class = >
-                    <div id="modal" class="modal">
-                        <span class="close" onclick="closeModal()">×</span>
-                        <h2>모달 제목</h2>
-                        <p>여기에 내용 들어감</p>
+                <button class="download" id="openModalBtn">후기쓰기</button>
+
+                <!-- 모달  -->
+                <div id="Modal" class="modal">
+                    <div class="modal-content">
+                        <span id="closeModalBtn" class="close">&times;</span>
+                        <h2>후기 작성</h2>
+                        <textarea id="reviewText" rows="5" cols="40" placeholder="여기에 후기를 작성해주세요"></textarea>
+                        <br>
+                        <button id="submitReview">작성 완료</button>
                     </div>
-
                 </div>
-
             </div>
         </div>
 
@@ -194,24 +195,5 @@
 </div>
 
 </body>
-<script>
-    function copyUrl() {
-        const url = window.location.href;
-
-        navigator.clipboard.writeText(url)
-            .then(() => {
-                alert("URL이 복사되었습니다!");
-            })
-            .catch(err => {
-                console.error("복사 실패:", err);
-            });
-    }
-    function toggleHeart(btn) {
-        if (btn.innerText === "♡") {
-            btn.innerText = "❤";
-        } else {
-            btn.innerText = "♡";
-        }
-    }
-</script>
+<script src="${pageContext.request.contextPath}/js/detailpage.js"></script>
 </html>
