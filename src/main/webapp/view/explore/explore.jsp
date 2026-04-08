@@ -83,7 +83,7 @@
                         </div>
 
                         <div>
-                            <button type="submit">자세히 보기</button>
+                            <button class="ui-button" type="submit">자세히 보기</button>
                         </div>
 
                     </div>

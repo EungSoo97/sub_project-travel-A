@@ -23,12 +23,12 @@
             </div>
             <div class="actions">
 
-                <button onclick="toggleHeart(this)">♡</button>
+                <button class="ui-button" onclick="toggleHeart(this)">♡</button>
 
-                <button onclick="copyUrl()">🔗</button>
+                <button class="ui-button" onclick="copyUrl()">🔗</button>
                 <%-- 공유 버튼은 url 복사만 --%>
                 <form action="pdf" method="get">
-                    <button type="submit"  style="background-color: #2563eb; color: white; font-size: 13px;font-weight: 600;">PDF 다운로드</button>
+                    <button  class="download" type="submit" >PDF 다운로드</button>
                 </form>
                 <button class="download">저장하기</button>
                 <button class="download" id="openModalBtn">후기쓰기</button>
@@ -38,9 +38,9 @@
                     <div class="modal-content">
                         <span id="closeModalBtn" class="close">&times;</span>
                         <h2>후기 작성</h2>
-                        <textarea id="reviewText" rows="5" cols="40" placeholder="여기에 후기를 작성해주세요"></textarea>
+                        <textarea class="textarea" id="reviewText" rows="5" cols="40" placeholder="여기에 후기를 작성해주세요"></textarea>
                         <br>
-                        <button id="submitReview">작성 완료</button>
+                        <button class="ui-button" id="submitReview">작성 완료</button>
                     </div>
                 </div>
             </div>
