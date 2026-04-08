@@ -116,7 +116,7 @@
                     </div>
                 </div>
 
-                <button class="btn btn--primary btn--block">회원가입</button>
+                <button class="btn btn--primary btn--block">회원가입!</button>
 
             </div>
         </div>
