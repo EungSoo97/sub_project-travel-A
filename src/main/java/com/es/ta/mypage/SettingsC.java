@@ -34,7 +34,6 @@ public class SettingsC extends HttpServlet {
         request.setAttribute("content", "view/mypage/settings.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -73,5 +72,5 @@ public class SettingsC extends HttpServlet {
             request.setAttribute("content", "view/mypage/settings.jsp");
             request.getRequestDispatcher("index.jsp").forward(request, response);
         }
-    }
+}
 }

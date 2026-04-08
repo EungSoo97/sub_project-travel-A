@@ -1,3 +1,4 @@
+
 // ── CSS 변수 fallback ──
 (function injectFallbackVars() {
     const style = document.createElement('style');

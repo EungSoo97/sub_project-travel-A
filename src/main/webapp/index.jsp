@@ -82,6 +82,9 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
           <form action="result-page">
               <button >backdoor</button></form>
       </footer>
+        <form action="result-page" method="post">
+            <button>back door</button></form>
+
     </div>
     <script src="${pageContext.request.contextPath}/js/main.js"></script>
     <script>

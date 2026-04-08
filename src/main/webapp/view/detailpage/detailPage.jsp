@@ -1,13 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<html>
-<head>
-    <title>DetailPage</title>
-    <link rel="stylesheet" href="result-page.css">
-</head>
-
-<body>
 <div class="result-page">
 
 
@@ -15,7 +8,7 @@
 
         <!-- 헤더 -->
         <div class="header">
-            <div><a href="explore">← 목록으로 돌아가기</a></div>
+            <div><a href="${pageContext.request.contextPath}/explore">← 목록으로 돌아가기</a></div>
 
             <div class="title-area">
                 <h1>${plan.summary.destination}</h1>
@@ -27,8 +20,8 @@
 
                 <button class="ui-button" onclick="copyUrl()">🔗</button>
                 <%-- 공유 버튼은 url 복사만 --%>
-                <form action="pdf" method="get">
-                    <button  class="download" type="submit" >PDF 다운로드</button>
+                <form action="${pageContext.request.contextPath}/pdf" method="get">
+                    <button class="download" type="submit">PDF 다운로드</button>
                 </form>
                 <button class="download">저장하기</button>
                 <button class="download" id="openModalBtn">후기쓰기</button>
@@ -194,6 +187,4 @@
 
 </div>
 
-</body>
 <script src="${pageContext.request.contextPath}/js/detailpage.js"></script>
-</html>
