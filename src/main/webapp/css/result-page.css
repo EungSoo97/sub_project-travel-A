@@ -89,11 +89,23 @@
     display: flex;
     gap: 8px;
     align-items: center;
+    flex-wrap: wrap; /* 🔥 버튼이 많을 경우 아래로 줄바꿈되도록 추가 */
+}
+
+.actions .form-flex {
+    flex: 1;
+    display: flex;
+    min-width: fit-content;
+}
+
+.actions .form-flex .download {
+    width: 100%;
 }
 .actions .download {
-    flex: 1;                 /* 🔥 3개 균등 분배 */
+    flex: 1;
     text-align: center;
-    white-space: nowrap;     /* 줄바꿈 방지 */
+    white-space: nowrap;
+    min-width: fit-content; /* 글자가 잘리지 않도록 최소 너비 보장 */
 }
 
 .actions button {

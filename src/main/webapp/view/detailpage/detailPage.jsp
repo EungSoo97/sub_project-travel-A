@@ -15,14 +15,13 @@
                 <p class="sub">${plan.summary.destination} · ${plan.summary.days}일 여행</p>
             </div>
             <div class="actions">
-
                 <button class="ui-button" onclick="toggleHeart(this)">♡</button>
-
                 <button class="ui-button" onclick="copyUrl()">🔗</button>
-                <%-- 공유 버튼은 url 복사만 --%>
-                <form action="${pageContext.request.contextPath}/pdf" method="get">
+
+                <form action="${pageContext.request.contextPath}/pdf" method="get" class="form-flex">
                     <button class="download" type="submit">PDF 다운로드</button>
                 </form>
+
                 <button class="download">저장하기</button>
                 <button class="download" id="openModalBtn">후기쓰기</button>
                 <button class="download">후기전체보기</button>
@@ -31,7 +30,7 @@
                 <div id="Modal" class="modal">
                     <div class="modal-content">
                         <span id="closeModalBtn" class="close">&times;</span>
-                        <h2>후기 작성</h2>
+                        <a onclick="function ">후기 작성</a>
                         <textarea class="textarea" id="reviewText" rows="5" cols="40" placeholder="여기에 후기를 작성해주세요"></textarea>
                         <br>
                         <button class="ui-button" id="submitReview">작성 완료</button>
