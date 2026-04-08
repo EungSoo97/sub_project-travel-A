@@ -127,8 +127,25 @@
                         </div>
 
                         <div class="day-right">
-                            <span class="transport">이동 정보 없음</span>
-                            <span class="distance">거리 정보 없음</span>
+    <span class="transport">
+        <c:choose>
+            <c:when test="${not empty item.dayRoute && not empty item.dayRoute.routePreferenceLabelKo}">
+                <c:out value="${item.dayRoute.routePreferenceLabelKo}" />
+            </c:when>
+            <c:when test="${not empty item.transportation}">
+                <c:out value="${item.transportation}" />
+            </c:when>
+            <c:otherwise>이동 정보 없음</c:otherwise>
+        </c:choose>
+    </span>
+                            <span class="distance">
+        <c:choose>
+            <c:when test="${item.totalDistanceKm != null && item.totalTravelTimeMinutes != null}">
+                약 <c:out value="${item.totalDistanceKm}" />km · 당일 이동 약 <c:out value="${item.totalTravelTimeMinutes}" />분
+            </c:when>
+            <c:otherwise>거리 정보 없음</c:otherwise>
+        </c:choose>
+    </span>
                         </div>
                     </div>
 
