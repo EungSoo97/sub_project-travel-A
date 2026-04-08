@@ -280,3 +280,7 @@ WHERE user_id IS NULL;
 
 ALTER TABLE travel_plan
     MODIFY user_id NULL;
+
+
+INSERT INTO review (review_id, plan_id, user_id, content, created_at)
+                VALUES (review_seq.NEXTVAL, ?, ?, ?, SYSDATE);

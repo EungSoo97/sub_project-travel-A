@@ -50,9 +50,10 @@ if (submitReview) {
       return;
     }
     console.log("작성된 후기", content);
-    if (reviewText) {
-      reviewText.value = "";
-      reviewText.style.display = "none";
+    // Find the form and submit it
+    const form = submitReview.closest('form');
+    if (form) {
+      form.submit();
     }
   };
 }

@@ -1,0 +1,78 @@
+package com.es.ta.userreaction;
+
+import com.es.ta.account.AccountDTO;
+import com.es.ta.main.DBManager_new;
+
+import javax.servlet.http.HttpServletRequest;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+public class UserreactionDAO {
+
+
+    public static void userreview(HttpServletRequest request) {
+
+        Connection con = null;
+        PreparedStatement ps = null;
+       String sql = "INSERT INTO review (review_id, plan_id, user_id, content, created_at)" +
+                "values (review_seq.NEXTVAL, ?, ?, ?, SYSDATE)";
+        try {
+
+            con=DBManager_new.connect();
+            ps =con.prepareStatement(sql);
+            // 1. 값 가져오기
+//            System.out.println("=== Debug Parameters ===");
+            String planIdStr = request.getParameter("planId");
+            String content = request.getParameter("content");
+//            System.out.println("planId parameter: " + planIdStr);
+//            System.out.println("content parameter: '" + content + "'");
+//            System.out.println("content length: " + (content != null ? content.length() : "null"));
+            
+            // 내용이 비어있으면 처리하지 않음
+            if (content == null || content.trim().isEmpty()) {
+//                System.out.println("Content is empty - skipping insert");
+                return;
+            }
+            
+            AccountDTO user = (AccountDTO) request.getSession().getAttribute("user");
+//            System.out.println("user from session: " + user);
+            
+            if (user == null) {
+//                System.out.println("User is null - not logged in!");
+                return;
+            }
+            
+            int planId = Integer.parseInt(planIdStr);
+            int userId = user.getUser_id();
+//            System.out.println("parsed planId: " + planId);
+//            System.out.println("userId: " + userId);
+
+            // 2. 바인딩
+            ps.setInt(1, planId);
+            ps.setInt(2, userId);
+            ps.setString(3, content);
+
+            // 3. 실행
+            int result = ps.executeUpdate();
+//            System.out.println("executeUpdate result: " + result);
+            if (result == 1) {
+                System.out.println("add review success");
+            } else {
+                System.out.println("add review failed - affected rows: " + result);
+            }
+
+
+
+        } catch (Exception e) {
+//            System.out.println("에러 발생!");
+
+            e.printStackTrace();
+        }finally {
+            DBManager_new.close(con, ps, null);
+        }
+
+
+
+    }
+}
