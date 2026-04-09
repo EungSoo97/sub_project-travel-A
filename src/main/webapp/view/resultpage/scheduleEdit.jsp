@@ -21,7 +21,7 @@
             <button class="btn-recalc" type="button">
                 <span class="btn-icon">↺</span> 경로 재계산
             </button>
-            <button class="btn-save" type="button" onclick="handleSave()">
+            <button type="button" class="btn-save" onclick="handleSave()">
                 <span class="btn-icon">💾</span> 저장
             </button>
         </div>
@@ -155,35 +155,84 @@
 
 <script src="${pageContext.request.contextPath}/js/scheduleEdit.js"></script>
 <script>
+    // ── planId 전역 변수 (중복 선언 방지) ──
+    var PLAN_ID = parseInt('${savedPlan.planId}') || 0;
+
     // ── 저장 ──
     function handleSave() {
-        showToast('💾 일정이 저장되었습니다!');
-        setTimeout(() => {
-            window.location.href = '${pageContext.request.contextPath}/result-page';
-        }, 1000);
+        console.log('handleSave 호출, planId:', PLAN_ID);
+
+        if (!PLAN_ID) {
+            alert('planId를 찾을 수 없습니다. 페이지를 새로고침 해주세요.');
+            return;
+        }
+
+        var days = [];
+        document.querySelectorAll('.day-block').forEach(function(block) {
+            var addBtn = block.querySelector('.btn-add-activity');
+            if (!addBtn) return;
+
+            var dayNum = addBtn.dataset.listId
+                .replace('day', '').replace('-list', '');
+
+            var activities = [];
+            block.querySelectorAll('.activity-item').forEach(function(item, idx) {
+                activities.push({
+                    order:       idx + 1,
+                    time:        (item.querySelector('.activity-item__time')  || {}).textContent.trim(),
+                    name:        (item.querySelector('.activity-item__title') || {}).textContent.trim(),
+                    description: (item.querySelector('.activity-item__desc')  || {}).textContent.trim(),
+                    type:        item.dataset.type || 'SPOT'
+                });
+            });
+
+            days.push({ day: Number(dayNum), activities: activities });
+        });
+
+        console.log('전송 데이터:', JSON.stringify({ planId: PLAN_ID, days: days }));
+
+        fetch('${pageContext.request.contextPath}/edit-plan', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ planId: PLAN_ID, days: days })
+        })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                console.log('서버 응답:', data);
+                if (data.success) {
+                    showToast('💾 저장 완료! 이동합니다.');
+                    setTimeout(function() {
+                        window.location.href =
+                            '${pageContext.request.contextPath}/myplan-page?id=' + PLAN_ID;
+                    }, 1000);
+                } else {
+                    showToast('❌ ' + (data.message || '저장 실패'));
+                }
+            })
+            .catch(function(err) {
+                console.error('fetch 오류:', err);
+                showToast('❌ 네트워크 오류');
+            });
     }
 
     // ── 토스트 ──
     function showToast(msg) {
-        let toast = document.getElementById('_globalToast');
+        var toast = document.getElementById('_globalToast');
         if (!toast) {
             toast = document.createElement('div');
             toast.id = '_globalToast';
-            toast.style.cssText = [
-                'position:fixed', 'bottom:24px', 'left:50%',
-                'transform:translateX(-50%) translateY(20px)',
-                'background:#1f2937', 'color:#fff',
-                'padding:10px 20px', 'border-radius:999px',
-                'font-size:13px', 'font-weight:600',
-                'opacity:0', 'transition:.3s', 'z-index:9999',
-                'pointer-events:none', 'white-space:nowrap'
-            ].join(';');
+            toast.style.cssText = 'position:fixed;bottom:24px;left:50%;' +
+                'transform:translateX(-50%) translateY(20px);' +
+                'background:#1f2937;color:#fff;padding:10px 20px;' +
+                'border-radius:999px;font-size:13px;font-weight:600;' +
+                'opacity:0;transition:.3s;z-index:9999;' +
+                'pointer-events:none;white-space:nowrap;';
             document.body.appendChild(toast);
         }
         toast.textContent = msg;
         toast.style.opacity = '1';
         toast.style.transform = 'translateX(-50%) translateY(0)';
-        setTimeout(() => {
+        setTimeout(function() {
             toast.style.opacity = '0';
             toast.style.transform = 'translateX(-50%) translateY(20px)';
         }, 2000);

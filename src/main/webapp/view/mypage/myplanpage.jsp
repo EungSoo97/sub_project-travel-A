@@ -28,6 +28,7 @@
                     <div class="actions">
                         <button id="heartBtn" onclick="toggleHeart(this)" class="action-btn icon-btn">♡</button>
                         <form action="edit-plan">
+                            <input type="hidden" name="id" value="${savedPlan.planId}">
                             <button type="submit" class="action-btn edit-btn">✏️ 편집</button>
                         </form>
                         <form action="pdf" method="get">
