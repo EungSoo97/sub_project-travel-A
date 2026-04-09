@@ -440,7 +440,7 @@
 
 /* ── 시간대 섹션 ── */
 .time-section {
-    padding: 0 16px;
+    padding-left: 0;
     border-bottom: 1px solid var(--border-light);
 }
 
@@ -494,6 +494,7 @@
     font-size: 14px;
     flex-shrink: 0;
     margin-top: 2px;
+    margin-left: 8px;
 }
 
 .icon.move {
@@ -570,6 +571,8 @@
     gap: 3px;
     white-space: nowrap;
     flex-shrink: 0;
+    padding-right: 10px;
+
 }
 
 .meta span:first-child {

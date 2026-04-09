@@ -42,17 +42,4 @@ window.onclick = function (event) {
   }
 };
 
-if (submitReview) {
-  submitReview.onclick = function () {
-    const content = reviewText ? reviewText.value.trim() : "";
-    if (content === "") {
-      alert("후기를 입력해주세요.");
-      return;
-    }
-    console.log("작성된 후기", content);
-    if (reviewText) {
-      reviewText.value = "";
-      reviewText.style.display = "none";
-    }
-  };
-}
+// Form will submit normally without JavaScript interference

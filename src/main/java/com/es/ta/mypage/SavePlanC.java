@@ -1,7 +1,7 @@
 package com.es.ta.mypage;
 
 import com.es.ta.account.AccountDTO;
-import com.es.ta.resultpage.TravelResulVDTO;
+import com.es.ta.resultpage.TravelResultVDTO;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -28,7 +28,7 @@ public class SavePlanC extends HttpServlet {
             return;
         }
 
-        TravelResulVDTO result = (TravelResulVDTO) session.getAttribute("latestTravelResult");
+        TravelResultVDTO result = (TravelResultVDTO) session.getAttribute("latestTravelResult");
 
         if (result == null) {
             response.sendRedirect(request.getContextPath() + "/mypage");

@@ -1,7 +1,7 @@
 package com.es.ta.explore;
 
 import com.es.ta.resultpage.ResultpageDAO;
-import com.es.ta.resultpage.TravelResulVDTO;
+import com.es.ta.resultpage.TravelResultVDTO;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,7 +17,7 @@ public class ExploreC extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
 
-        List<TravelResulVDTO> planList = ResultpageDAO.getPlanList();
+        List<TravelResultVDTO> planList = ResultpageDAO.getPlanList();
         request.setAttribute("planList", planList);
         request.setAttribute("content", "view/explore/explore.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
