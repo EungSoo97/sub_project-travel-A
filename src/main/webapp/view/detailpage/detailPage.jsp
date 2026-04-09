@@ -285,7 +285,6 @@
                     <div class="dp-review-item">
                         <p class="dp-review-writer">${review.userName}</p>
                         <p class="dp-review-text">${review.content}</p>
-                        <p class="dp-review-date">${review.createdAt}</p>
                         <p class="dp-review-date">
                             <fmt:formatDate value="${review.createdAt}" pattern="yyyy-MM-dd" />
                         </p>
