@@ -2,10 +2,7 @@ package com.es.ta.mypage;
 
 import com.es.ta.main.DBManager_new;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 
 public class MyPlanPageDAO {
 
@@ -110,5 +107,35 @@ public class MyPlanPageDAO {
             return null;
         }
         return new Date(date.getTime());
+    }
+
+    // 기존 MyPlanPageDAO 에 메서드 추가
+    public static boolean updateResponseJson(int planId, int userId, String responseJson) {
+        Connection con = null;
+        PreparedStatement ps = null;
+
+        String sql =
+        "UPDATE travel_plan " +
+        "SET response_json = ?, "+
+        "   updated_at    = sysdate "+
+        "WHERE plan_id = ? "+
+        "AND user_id = ?";
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+            ps.setString(1, responseJson);
+            ps.setInt(2, planId);
+            ps.setInt(3, userId);
+
+            int rows = ps.executeUpdate();
+            return rows > 0;
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            DBManager_new.close(con, ps, null);
+        }
+            return false;
+
     }
 }

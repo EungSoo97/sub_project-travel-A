@@ -1,5 +1,6 @@
 package com.es.ta.resultpage;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,18 +8,23 @@ import lombok.AllArgsConstructor;
 import java.util.List;
 import java.util.Map;
 
+
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TravelResultVDTO {
+    @JsonIgnore
     private int planId;
+
     private boolean success;
     private String message;
     private Summary summary;
     private List<Itinerary> itinerary;
     private List<Flight> flights;
     private List<Hotel> hotels;
+
 
     @Data
     @NoArgsConstructor
@@ -157,4 +163,6 @@ public class TravelResultVDTO {
         private String stepsSummary;
         private List<String> lineNames;
     }
+
+
 }
