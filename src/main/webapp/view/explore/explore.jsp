@@ -9,6 +9,12 @@
 
 <body class="explore-body">
 
+<c:if test="${param.reviewSuccess == 'true'}">
+    <div class="success-message" style="background-color: #d4edda; color: #155724; padding: 10px; margin: 10px 0; border-radius: 5px; text-align: center;">
+        후기 작성이 완료되었습니다!
+    </div>
+</c:if>
+
 <div class="explore-header">
     <h1>여행 플랜 탐색</h1>
     <p>다른 여행자들의 멋진 여행 계획을 둘러보고 영감을 받아보세요</p>

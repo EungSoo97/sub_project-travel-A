@@ -121,6 +121,9 @@ INSERT INTO travel_plan (
          );
 select * from travel_plan;
 
+delete
+from TRAVEL_PLAN;
+
 UPDATE travel_plan
 SET
     title = '도쿄 테스트 여행',
