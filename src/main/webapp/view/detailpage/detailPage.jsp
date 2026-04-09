@@ -5,8 +5,38 @@
 <%
     AccountDTO user = (AccountDTO) request.getSession().getAttribute("user");
     boolean isLoggedIn = (user != null);
-    request.setAttribute("isLoggedIn", isLoggedIn);
-%>
+                    pageContext.setAttribute("isLoggedIn", isLoggedIn);
+                %>
+                <c:choose>
+                    <c:when test="${isLoggedIn}">
+                        <button class="snackbar-button" onclick="toggleHeart(this, ${plan.planId})">♡</button>
+                    </c:when>
+                    <c:otherwise>
+                        <button class="snackbar-button" onclick="showLoginAlert()">♡</button>
+                    </c:otherwise>
+                </c:choose>
+                <div id="snackbar"></div>  <%-- 버튼 밖으로 빼기 --%>
+
+                <button class="ui-button" onclick="copyUrl()">🔗</button>
+                <%-- 공유 버튼은 url 복사만 --%>
+                <form action="${pageContext.request.contextPath}/pdf" method="get">
+                    <button class="download" type="submit">PDF 다운로드</button>
+                </form>
+                <button class="download">저장하기</button>
+                <button class="download" id="openModalBtn">후기쓰기</button>
+
+                <!-- 모달  -->
+                <div id="Modal" class="modal">
+                    <div class="modal-content">
+                        <span id="closeModalBtn" class="close">&times;</span>
+                        <h2>후기 작성</h2>
+
+                        <form action="review" method="post">
+                            <input type="hidden" name="planId" value="${plan.planId}">
+                            <textarea class="textarea" id="reviewText" name="content" rows="5" cols="40" placeholder="여기에 후기를 작성해주세요"></textarea>
+                            <br>
+                            <button class="ui-button" id="submitReview" type="submit">작성 완료</button>
+                        </form>
 
 <div class="dp-page">
     <div class="dp-container">

@@ -93,13 +93,12 @@ document.querySelectorAll('.activity-list').forEach(list => {
 
     // ── 터치 (모바일 핵심 수정) ──
     list.addEventListener('touchstart', e => {
-        const handle = e.target.closest('.activity-item__drag');
-        if (!handle) return;
-
-        e.preventDefault(); // ⭐ 중요
-
-        const item = handle.closest('.activity-item');
+        const item = e.target.closest('.activity-item');
         if (!item) return;
+        // 삭제 버튼, 시간 편집 클릭은 드래그 제외
+        if (e.target.closest('.activity-item__delete')) return;
+        if (e.target.closest('.activity-item__time')) return;
+
 
         onMoveStart(e.touches[0].clientY, item);
     }, { passive: false });
@@ -117,14 +116,13 @@ document.querySelectorAll('.activity-list').forEach(list => {
 
     // ── 마우스 (PC) ──
     list.addEventListener('mousedown', e => {
-        const handle = e.target.closest('.activity-item__drag');
-        if (!handle) return;
-
-        e.stopPropagation(); // ⭐ 중요
-        e.preventDefault();
-
-        const item = handle.closest('.activity-item');
+        const item = e.target.closest('.activity-item');
         if (!item) return;
+
+        if (e.target.closest('.activity-item__delete')) return;
+        if (e.target.closest('.activity-item__time')) return;
+
+
 
         onMoveStart(e.clientY, item);
 
