@@ -1,6 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+
+<%@ page import="com.es.ta.account.AccountDTO" %>
+
 <div class="result-page">
 
 
@@ -22,7 +25,24 @@
             </div>
             <div class="title-divider"></div>
             <div class="actions">
-                <button class="ui-button" onclick="toggleHeart(this)">♡</button>
+
+                <%
+    AccountDTO user = (AccountDTO) request.getSession().getAttribute("user");
+    boolean isLoggedIn = (user != null);
+%>
+<c:choose>
+    <c:when test="${isLoggedIn}">
+        <button class="snackbar-button" onclick="toggleHeart(this, ${plan.planId})">♡</button>
+        <div id="snackbar"></div>
+
+    </c:when>
+    <c:otherwise>
+        <button class="snackbar-button" onclick="showLoginAlert()">♡</button>
+        <div id="snackbar"></div>
+
+    </c:otherwise>
+</c:choose>
+
                 <button class="ui-button" onclick="copyUrl()">🔗</button>
 
                 <form action="${pageContext.request.contextPath}/pdf" method="get">
@@ -36,7 +56,17 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2>후기 작성</h2>
-                        <span id="closeModalBtn" class="close">&times;</span>
+                        <!-- <span id="closeModalBtn" class="close">&times;</span> -->
+
+                        <form action="review" method="post">
+                            <input type="hidden" name="planId" value="${plan.planId}">
+                            <textarea class="textarea" id="reviewText" name="content" rows="5" cols="40" placeholder="여기에 후기를 작성해주세요"></textarea>
+                            <br>
+                            <button class="ui-button" id="submitReview" type="submit">작성 완료</button>
+                        </form>
+
+
+
                     </div>
                     <form action="user-reaction" method="post">
                         <input type="hidden" name="planId" value="${plan.planId}">

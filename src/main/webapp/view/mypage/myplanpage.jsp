@@ -28,7 +28,7 @@
                         <p class="sub">${result.summary.destination} · ${result.summary.days}일 여행</p>
                     </div>
 
-                    <div class="actions">
+                    <!-- <div class="actions">
                         <div class="icon-actions">
                             <form action="edit-plan" method="get">
                                 <button type="submit" class="icon-btn">✏️</button>
@@ -44,10 +44,19 @@
                             <form action="${pageContext.request.contextPath}/save-plan" method="post">
                                 <input type="hidden" name="title" value="${result.summary.title}">
                                 <button type="submit" class="download">저장하기</button>
-                            </form>
+                            </form> -->
 
-                            <button type="button" class="download">게시하기</button>
-                        </div>
+                            <!-- <button type="button" class="download">게시하기</button> -->
+                        <!-- </div> -->
+                        <button id="heartBtn" onclick="toggleHeart(this)" class="action-btn icon-btn">♡</button>
+                        <form action="edit-plan">
+                            <input type="hidden" name="id" value="${savedPlan.planId}">
+                            <button type="submit" class="action-btn edit-btn">✏️ 편집</button>
+                        </form>
+                        <form action="pdf" method="get">
+                            <button type="submit" class="action-btn download-btn">⬇ PDF</button>
+                        </form>
+                        <button class="action-btn post-btn">📢 게시</button>
                     </div>
                 </div>
                 <!-- // 헤더 끝 -->
@@ -176,6 +185,7 @@
                                             data-lng="${act.lng}"
                                             data-time="${fn:escapeXml(act.time)}">
 
+<<<<<<< HEAD
                                         <c:choose>
                                             <c:when test="${act.category eq 'transport'}">
                                                 <div class="icon move">▲</div>
@@ -190,6 +200,22 @@
                                                 <div class="icon spot">📍</div>
                                             </c:otherwise>
                                         </c:choose>
+=======
+                                            <c:choose>
+                                                <c:when test="${act.category eq 'transport'}">
+                                                    <div class="icon move">▲</div>
+                                                </c:when>
+                                                <c:when test="${act.category eq 'food' || act.category eq 'dining'}">
+                                                    <div class="icon food">🍽</div>
+                                                </c:when>
+                                                <c:when test="${act.category eq 'hotel' || act.category eq 'accommodation'}">
+                                                    <div class="icon hotel">🏨</div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <div class="icon spot">📍</div>
+                                                </c:otherwise>
+                                            </c:choose>
+>>>>>>> a41f3587ba881759fae8ff1d36a23d78505f11f5
 
                                         <div class="content">
                                             <div class="top">
