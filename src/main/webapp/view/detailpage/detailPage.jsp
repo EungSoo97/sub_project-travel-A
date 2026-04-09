@@ -22,19 +22,17 @@
                 <%
     AccountDTO user = (AccountDTO) request.getSession().getAttribute("user");
     boolean isLoggedIn = (user != null);
-%>
-<c:choose>
-    <c:when test="${isLoggedIn}">
-        <button class="snackbar-button" onclick="toggleHeart(this, ${plan.planId})">♡</button>
-        <div id="snackbar"></div>
-
-    </c:when>
-    <c:otherwise>
-        <button class="snackbar-button" onclick="showLoginAlert()">♡</button>
-        <div id="snackbar"></div>
-
-    </c:otherwise>
-</c:choose>
+                    pageContext.setAttribute("isLoggedIn", isLoggedIn);
+                %>
+                <c:choose>
+                    <c:when test="${isLoggedIn}">
+                        <button class="snackbar-button" onclick="toggleHeart(this, ${plan.planId})">♡</button>
+                    </c:when>
+                    <c:otherwise>
+                        <button class="snackbar-button" onclick="showLoginAlert()">♡</button>
+                    </c:otherwise>
+                </c:choose>
+                <div id="snackbar"></div>  <%-- 버튼 밖으로 빼기 --%>
 
                 <button class="ui-button" onclick="copyUrl()">🔗</button>
                 <%-- 공유 버튼은 url 복사만 --%>
