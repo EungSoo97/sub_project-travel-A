@@ -9,6 +9,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import com.es.ta.userreaction.UserreactionDAO;
+import com.es.ta.userreaction.UserreactionDTO;
+
+import java.util.ArrayList;
 
 @WebServlet(name = "DetailPageC", value = "/detail-page")
 public class DetailPageC extends HttpServlet {
@@ -34,7 +38,11 @@ public class DetailPageC extends HttpServlet {
             if (result == null) {
                 request.setAttribute("errorMsg", "해당 여행 정보를 찾을 수 없습니다.");
             } else {
+                ArrayList<UserreactionDTO> reviews = UserreactionDAO.getReviewsByPlanId(id);
+
                 request.setAttribute("plan", result);
+                request.setAttribute("reviews", reviews);
+
                 request.getSession().setAttribute("plan", result);
                 request.getSession().setAttribute("latestTravelResult", result);
             }

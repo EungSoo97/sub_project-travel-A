@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page import="com.es.ta.account.AccountDTO" %>
-
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%
     AccountDTO user = (AccountDTO) request.getSession().getAttribute("user");
     boolean isLoggedIn = (user != null);
@@ -74,7 +74,7 @@
                     <button type="button" class="dp-modal-close" id="dpCloseModalBtn">&times;</button>
                 </div>
 
-                <form action="review" method="post">
+                <form action="${pageContext.request.contextPath}/review" method="post">
                     <input type="hidden" name="planId" value="${plan.planId}">
                     <textarea class="dp-textarea" name="content" rows="5" placeholder="여행 후기를 작성해주세요"></textarea>
                     <button class="dp-submit-btn" type="submit">작성 완료</button>
@@ -276,15 +276,23 @@
     </div>
 
     <div class="dp-sheet-body">
-        <div class="dp-review-item">
-            <p class="dp-review-writer">김민지</p>
-            <p class="dp-review-text">동선이 깔끔해서 여행하기 편했어요.</p>
-        </div>
-
-        <div class="dp-review-item">
-            <p class="dp-review-writer">이준호</p>
-            <p class="dp-review-text">맛집이랑 야경 코스가 특히 좋았습니다.</p>
-        </div>
+        <c:choose>
+            <c:when test="${empty reviews}">
+                <p class="mp-empty-text">아직 작성된 후기가 없습니다.</p>
+            </c:when>
+            <c:otherwise>
+                <c:forEach var="review" items="${reviews}">
+                    <div class="dp-review-item">
+                        <p class="dp-review-writer">${review.userName}</p>
+                        <p class="dp-review-text">${review.content}</p>
+                        <p class="dp-review-date">${review.createdAt}</p>
+                        <p class="dp-review-date">
+                            <fmt:formatDate value="${review.createdAt}" pattern="yyyy-MM-dd" />
+                        </p>
+                    </div>
+                </c:forEach>
+            </c:otherwise>
+        </c:choose>
     </div>
 </div>
 

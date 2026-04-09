@@ -2,6 +2,7 @@ package com.es.ta.userreaction;
 
 import com.es.ta.account.AccountDTO;
 import com.es.ta.main.DBManager_new;
+import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Connection;
@@ -9,7 +10,43 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class UserreactionDAO {
+    public static ArrayList<UserreactionDTO> getReviewsByPlanId(int planId) {
+        ArrayList<UserreactionDTO> reviews = new ArrayList<>();
 
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        String sql = "SELECT r.review_id, r.plan_id, r.user_id, r.content, r.created_at, u.u_name " +
+                "FROM review r " +
+                "JOIN user_info u ON r.user_id = u.u_user_id " +
+                "WHERE r.plan_id = ? " +
+                "ORDER BY r.created_at DESC";
+
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, planId);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                reviews.add(new UserreactionDTO(
+                        rs.getInt("review_id"),
+                        rs.getInt("plan_id"),
+                        rs.getInt("user_id"),
+                        rs.getString("content"),
+                        rs.getDate("created_at"),
+                        rs.getString("u_name")
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager_new.close(con, ps, rs);
+        }
+
+        return reviews;
+    }
 
     public static void userreview(HttpServletRequest request) {
 
