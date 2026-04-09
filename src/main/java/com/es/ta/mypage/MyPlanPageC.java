@@ -55,6 +55,7 @@ public class MyPlanPageC extends HttpServlet {
         request.setAttribute("result", result);
         request.setAttribute("content", "view/mypage/myplanpage.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
+
     }
 
     private Integer parsePlanId(String value) {

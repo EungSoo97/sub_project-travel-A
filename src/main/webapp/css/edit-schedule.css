@@ -291,3 +291,19 @@
     border-radius: 8px;
     color: white;
 }
+
+/* ── 시간 태그 인터랙션 ── */
+.activity-item__time {
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.activity-item__time:hover {
+    border: 1px solid var(--primary);
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+/* ── 토스트 알림 ── */
+#_toast {
+    font-family: var(--font);
+}
