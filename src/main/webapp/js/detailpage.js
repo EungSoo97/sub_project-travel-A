@@ -11,10 +11,20 @@ function copyUrl() {
     });
 }
 
-function showLoginAlert() {
-    alert('좋아요를 누르려면 로그인이 필요합니다.');
+function showSnackbar(message) {
+    const snackbar = document.getElementById("snackbar");
+    snackbar.innerText = message;
+    snackbar.classList.add("show");
+
+    setTimeout(() => {
+        snackbar.classList.remove("show");
+        // setTimeout(() => snackbar.style.visibility = "hidden", 300);
+    }, 2500);  // 2.5초 후 사라짐
 }
 
+function showLoginAlert() {
+    showSnackbar("좋아요를 누르려면 로그인이 필요합니다.");
+}
 function toggleHeart(btn, postId) {
     fetch(`/like`, {
         method: 'POST',

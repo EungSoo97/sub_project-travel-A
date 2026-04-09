@@ -25,10 +25,14 @@
 %>
 <c:choose>
     <c:when test="${isLoggedIn}">
-        <button class="ui-button" onclick="toggleHeart(this, ${plan.planId})">♡</button>
+        <button class="snackbar-button" onclick="toggleHeart(this, ${plan.planId})">♡</button>
+        <div id="snackbar"></div>
+
     </c:when>
     <c:otherwise>
-        <button class="ui-button" onclick="showLoginAlert()">♡</button>
+        <button class="snackbar-button" onclick="showLoginAlert()">♡</button>
+        <div id="snackbar"></div>
+
     </c:otherwise>
 </c:choose>
 
