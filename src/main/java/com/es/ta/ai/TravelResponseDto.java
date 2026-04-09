@@ -40,6 +40,30 @@ public class TravelResponseDto {
     private Map<String, Object> validation;
     private Map<String, Object> qualityBreakdown;
 
+    /**
+     * 아래 필드는 FastAPI {@code TravelSuccessResponse} 와 동일 키로 역직렬화된다.
+     * 저장·캘리브레이션(analysis_ready) 시 {@code effectiveQualityScore} / {@code packageMode} /
+     * {@code inventoryStatus} 가 비어 있으면 안 된다.
+     */
+    private HotelOption primaryAccommodation;
+    /** FULL_PACKAGE | GUIDED_PACKAGE | ASSISTED_PLANNING */
+    private String packageMode;
+    /** COMPLETE | REFERENCE_ONLY | PARTIAL | MISSING_* 등 */
+    private String inventoryStatus;
+    private String completenessLevel;
+    private String decisionCategory;
+    private String decisionReason;
+    private List<String> decisionFlags;
+    private String qualityTier;
+    /** HIGH | MEDIUM | LOW */
+    private String routeConfidence;
+    private Map<String, Object> completeness;
+    /** CORE | GENERAL | EDGE */
+    private String destinationTier;
+    /** 일정 품질(qualityScore) 대비 상품성 감점 반영 점수 */
+    private Integer effectiveQualityScore;
+    private Integer sellabilityPenalty;
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
