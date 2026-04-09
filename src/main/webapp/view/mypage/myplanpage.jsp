@@ -26,15 +26,15 @@
                     </div>
 
                     <div class="actions">
-                        <form action="edit-plan" >
-                            <button>✏️</button>
+                        <button id="heartBtn" onclick="toggleHeart(this)" class="action-btn icon-btn">♡</button>
+                        <form action="edit-plan">
+                            <input type="hidden" name="id" value="${savedPlan.planId}">
+                            <button type="submit" class="action-btn edit-btn">✏️ 편집</button>
                         </form>
-                        <button onclick="toggleHeart(this)">♡</button>
-                            <%-- 공유 버튼은 url 복사만 --%>
                         <form action="pdf" method="get">
-                            <button type="submit"   class="download">PDF 다운로드</button>
+                            <button type="submit" class="action-btn download-btn">⬇ PDF</button>
                         </form>
-                        <button  class="download">게시하기</button>
+                        <button class="action-btn post-btn">📢 게시</button>
                     </div>
                 </div>
 
@@ -166,13 +166,7 @@
                                             data-lat="${act.lat}"
                                             data-lng="${act.lng}"
                                             data-time="${fn:escapeXml(act.time)}">
-<%--                                        <div class="icon ${act.category eq 'HOTEL' || act.category eq 'ACCOMMODATION' ? 'hotel' : (act.category eq 'FOOD' || act.category eq 'DINING' ? 'food' : 'spot')}">--%>
-<%--                                            <c:choose>--%>
-<%--                                                <c:when test="${act.category eq 'HOTEL' || act.category eq 'ACCOMMODATION'}">H</c:when>--%>
-<%--                                                <c:when test="${act.category eq 'FOOD' || act.category eq 'DINING'}">F</c:when>--%>
-<%--                                                <c:otherwise>S</c:otherwise>--%>
-<%--                                            </c:choose>--%>
-<%--                                        </div>--%>
+
                                             <c:choose>
                                                 <c:when test="${act.category eq 'transport'}">
                                                     <div class="icon move">▲</div>
@@ -218,52 +212,6 @@
                         </div>
                     </c:forEach>
                 </div>
-<%--        <div class="recommend-section">--%>
-
-<%--            <h2>추천 항공/숙박</h2>--%>
-
-<%--            <div class="recommend-grid">--%>
-
-<%--                <!-- 항공 -->--%>
-<%--                <div class="recommend-card">--%>
-<%--                    <h3>✈️ 항공권 최저가</h3>--%>
-<%--                    <c:choose>--%>
-<%--                        <c:when test="${empty result.flights}">--%>
-<%--                            <p>항공권 정보를 불러오지 못했습니다.</p>--%>
-<%--                        </c:when>--%>
-<%--                        <c:otherwise>--%>
-<%--                            <c:forEach var="flight" items="${result.flights}">--%>
-<%--                                <div class="recommend-item">--%>
-<%--                                    <div class="left">--%>
-<%--                                        <div class="title">${flight.airline} ${flight.flightNumber}</div>--%>
-<%--                                        <div class="desc">${flight.departureAirport} → ${flight.arrivalAirport}</div>--%>
-<%--                                    </div>--%>
-<%--                                    <div class="right">--%>
-<%--                                        <div class="price">${flight.price} ${flight.currency}</div>--%>
-<%--                                        <div class="sub">왕복 1인</div>--%>
-<%--                                    </div>--%>
-<%--                                </div>--%>
-<%--                            </c:forEach>--%>
-<%--                        </c:otherwise>--%>
-<%--                    </c:choose>--%>
-<%--                </div>--%>
-
-<%--                <!-- 숙박 -->--%>
-<%--                <div class="recommend-card">--%>
-<%--                    <h3>🏨 숙박 추천</h3>--%>
-<%--                    <c:forEach var="hotel" items="${result.hotels}">--%>
-<%--                        <div class="recommend-item">--%>
-<%--                            <div class="left">--%>
-<%--                                <div class="title">${hotel.name}</div>--%>
-<%--                                <div class="desc">⭐ ${hotel.rating} · ${hotel.location}</div>--%>
-<%--                            </div>--%>
-<%--                            <div class="right">--%>
-<%--                                <div class="price">${hotel.pricePerNight} ${hotel.currency}</div>--%>
-<%--                                <div class="sub">1박</div>--%>
-<%--                            </div>--%>
-<%--                        </div>--%>
-<%--                    </c:forEach>--%>
-<%--                </div>--%>
 
                 <div class="recommend-section">
                     <h2>추천 항공/호텔</h2>

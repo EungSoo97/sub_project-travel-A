@@ -19,8 +19,8 @@ import java.util.Properties;
 public class MyPlanPageC extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        request.setCharacterEncoding("UTF-8");
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
@@ -41,6 +41,7 @@ public class MyPlanPageC extends HttpServlet {
             return;
         }
 
+        // ── 항상 DB에서 최신 JSON 파싱 (세션 캐시 사용 안 함) ──
         TravelResultVDTO result = TravelJsonParser.parse(savedPlan.getResponseJson());
         if (result == null) {
             request.setAttribute("errorMsg", "여행 계획을 불러오지 못했습니다.");
@@ -50,7 +51,10 @@ public class MyPlanPageC extends HttpServlet {
         }
 
         attachGoogleMapsConfig(request);
+
+        // 세션도 최신으로 갱신
         session.setAttribute("latestTravelResult", result);
+
         request.setAttribute("savedPlan", savedPlan);
         request.setAttribute("result", result);
         request.setAttribute("content", "view/mypage/myplanpage.jsp");
@@ -80,7 +84,6 @@ public class MyPlanPageC extends HttpServlet {
             }
             props.load(in);
         } catch (IOException e) {
-            System.out.println("[MyPlanPageC] application.properties load failed: " + e.getMessage());
         }
 
         return props;

@@ -283,3 +283,5 @@ WHERE user_id IS NULL;
 
 ALTER TABLE travel_plan
     MODIFY user_id NULL;
+
+

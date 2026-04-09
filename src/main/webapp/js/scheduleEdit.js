@@ -205,14 +205,10 @@ document.addEventListener('click', e => {
     const btn = e.target.closest('.btn-add-activity');
     if (!btn) return;
 
-    const dayBlock = btn.closest('.day-block');
-    const list = dayBlock.querySelector('.activity-list');
-
+    // data-list-id 속성으로 타겟 리스트 직접 지정
     const modal = document.getElementById('activityModal');
+    modal.dataset.targetListId = btn.dataset.listId;
     modal.classList.add('show');
-
-    // 현재 리스트 기억
-    modal.dataset.targetListId = list.id;
 });
 
 
