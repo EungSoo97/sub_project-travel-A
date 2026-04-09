@@ -10,12 +10,30 @@ function copyUrl() {
       console.error("복사 실패:", err);
     });
 }
-function toggleHeart(btn) {
-  if (btn.innerText === "♡") {
-    btn.innerText = "❤";
-  } else {
-    btn.innerText = "♡";
-  }
+
+function showLoginAlert() {
+    alert('좋아요를 누르려면 로그인이 필요합니다.');
+}
+
+function toggleHeart(btn, postId) {
+    fetch(`/like`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ planId: postId })  // ✅ 여기만 수정
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.liked) {
+                btn.innerText = "❤";
+            } else {
+                btn.innerText = "♡";
+            }
+        })
+        .catch(err => {
+            console.error(err);
+        });
 }
 
 const modal = document.getElementById("Modal");

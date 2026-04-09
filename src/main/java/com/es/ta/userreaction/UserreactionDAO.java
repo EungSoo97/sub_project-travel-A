@@ -6,6 +6,7 @@ import com.es.ta.main.DBManager_new;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class UserreactionDAO {
 
@@ -74,4 +75,125 @@ System.out.println("executeUpdate result: " + result);
 
 
     }
+
+
+    public boolean exists(int planId, int userId) {
+
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        String sql = "SELECT COUNT(*) FROM plan_like WHERE plan_id = ? AND user_id = ?";
+
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+
+            // 1. 값 세팅
+            ps.setInt(1, planId);
+            ps.setInt(2, userId);
+
+            // 2. 실행
+            rs = ps.executeQuery();
+
+            // 3. 결과 확인
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager_new.close(con, ps, rs);
+        }
+
+        return false;
+    }
+
+
+
+    public void insert(int planId, int userId) {
+
+        Connection con = null;
+        PreparedStatement ps = null;
+
+        String sql = "INSERT INTO plan_like (like_id, plan_id, user_id) VALUES (plan_like_seq.NEXTVAL, ?, ?)";
+
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+
+            // 1. 값 세팅
+            ps.setInt(1, planId);
+            ps.setInt(2, userId);
+
+            // 2. 실행
+            if (ps.executeUpdate()==1){
+                System.out.println("insert success");
+            }
+            ;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager_new.close(con, ps, null);
+        }
+    }
+
+
+    public void delete(int planId, int userId) {
+
+        Connection con = null;
+        PreparedStatement ps = null;
+
+        String sql = "DELETE FROM plan_like WHERE plan_id = ? AND user_id = ?";
+
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+
+            // 1. 값 세팅
+            ps.setInt(1, planId);
+            ps.setInt(2, userId);
+
+            // 2. 실행
+            if (ps.executeUpdate() == 1 ){
+                System.out.println("delete success");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager_new.close(con, ps, null);
+        }
+    }
+
+    public int countByPlan(int planId) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        String sql = "SELECT COUNT(*) FROM plan_like WHERE plan_id = ?";
+
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+
+            ps.setInt(1, planId);
+
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager_new.close(con, ps, rs);
+        }
+
+        return 0;
+    }
 }
+
