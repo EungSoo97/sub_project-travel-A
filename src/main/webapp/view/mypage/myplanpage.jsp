@@ -4,7 +4,7 @@
 
 <c:choose>
     <c:when test="${empty result}">
-        <section class="detail-container">
+        <section class="myplan-page detail-container">
             <div class="day-card" style="padding:24px;">
                 <h2>여행 계획을 불러오지 못했습니다.</h2>
                 <p>${errorMsg}</p>
@@ -12,12 +12,15 @@
             </div>
         </section>
     </c:when>
+
     <c:otherwise>
-        <div class="result-page">
+        <div class="myplan-page result-page">
             <div class="container-result">
+
+                <!-- 헤더 -->
                 <div class="header">
                     <div>
-                        <a href="${pageContext.request.contextPath}/mypage">←마이페이지로 돌아가기</a>
+                        <a href="${pageContext.request.contextPath}/mypage">← 마이페이지로 돌아가기</a>
                     </div>
 
                     <div class="title-area">
@@ -26,77 +29,84 @@
                     </div>
 
                     <div class="actions">
-                        <form action="edit-plan" >
-                            <button>✏️</button>
-                        </form>
-                        <button onclick="toggleHeart(this)">♡</button>
-                            <%-- 공유 버튼은 url 복사만 --%>
-                        <form action="pdf" method="get">
-                            <button type="submit"   class="download">PDF 다운로드</button>
-                        </form>
-                        <button  class="download">게시하기</button>
+                        <div class="icon-actions">
+                            <form action="edit-plan" method="get">
+                                <button type="submit" class="icon-btn">✏️</button>
+                            </form>
+                            <button type="button" class="icon-btn" onclick="toggleHeart(this)">♡</button>
+                        </div>
+
+                        <div class="main-actions">
+                            <form action="pdf" method="get">
+                                <button type="submit" class="download">PDF 다운로드</button>
+                            </form>
+
+                            <form action="${pageContext.request.contextPath}/save-plan" method="post">
+                                <input type="hidden" name="title" value="${result.summary.title}">
+                                <button type="submit" class="download">저장하기</button>
+                            </form>
+
+                            <button type="button" class="download">게시하기</button>
+                        </div>
                     </div>
                 </div>
-
-                <form action="${pageContext.request.contextPath}/save-plan" method="post">
-                    <input type="hidden" name="title" value="${result.summary.title}">
-                    <button type="submit">저장하기</button>
-                </form>
+                <!-- // 헤더 끝 -->
 
                 <!-- 여행 정보 카드 -->
                 <div class="info-cards">
                     <div class="card">
-                        <p class="label">📅 여행 기간</p>
-                        <p class="value">${result.summary.startDate} ~ ${result.summary.endDate}</p>
+                        <!-- CSS에서 flex + gap으로 정렬하려면 이렇게 분리하는 게 더 깔끔해요 -->
+                        <p class="label"><span>📅</span> 여행 기간</p>
+                        <p class="value">${plan.summary.startDate} ~ ${plan.summary.endDate}</p>
                     </div>
 
                     <div class="card">
                         <p class="label">👥 여행 인원</p>
-                        <p class="value">${result.summary.travelers}명</p>
+                        <p class="value">${plan.summary.travelers}명</p>
                     </div>
 
                     <div class="card">
                         <p class="label">✨ 여행 스타일</p>
-                        <p class="value">${result.summary.travelStyle}</p>
+                        <p class="value">${plan.summary.travelStyle}</p>
                     </div>
                 </div>
 
-
-                    <!-- 지도 영역 -->
-                    <div class="map-section">
-                        <div class="map-header">
-                            <span>🧭 여행 동선 지도</span>
-                            <div class="legend">
-                                <span class="dot blue"></span> 관광지
-                                <span class="dot orange"></span> 식당
-                                <span class="dot purple"></span> 숙소
-                            </div>
-                        </div>
-
-                        <div class="map-area">
-                            <div
-                                    id="travelMap"
-                                    class="travel-map"
-                                    data-google-maps-api-key="${googleMapsApiKey}"
-                                    data-google-maps-map-id="${googleMapsMapId}">
-                            </div>
-                            <div id="mapFallbackMessage" class="map-fallback-message">
-                                Google Maps API Key와 Map ID를 연결하면 여행 동선을 지도에서 볼 수 있습니다.
-                            </div>
-                        </div>
-                        <div class="map-toolbar">
-                            <div class="day-filter" id="dayFilter">
-                                <c:forEach var="item" items="${result.itinerary}" varStatus="status">
-                                    <button
-                                            type="button"
-                                            class="day-filter-button<c:if test='${status.first}'> active</c:if>"
-                                            data-day="${item.day}">
-                                        Day ${item.day}
-                                    </button>
-                                </c:forEach>
-                            </div>
+                <!-- 지도 영역 -->
+                <div class="map-section">
+                    <div class="map-header">
+                        <span>🧭 여행 동선 지도</span>
+                        <div class="legend">
+                            <span class="dot blue"></span> 관광지
+                            <span class="dot orange"></span> 식당
+                            <span class="dot purple"></span> 숙소
                         </div>
                     </div>
+
+                    <div class="map-area">
+                        <div
+                                id="travelMap"
+                                class="travel-map"
+                                data-google-maps-api-key="${googleMapsApiKey}"
+                                data-google-maps-map-id="${googleMapsMapId}">
+                        </div>
+                        <div id="mapFallbackMessage" class="map-fallback-message">
+                            Google Maps API Key와 Map ID를 연결하면 여행 동선을 지도에서 볼 수 있습니다.
+                        </div>
+                    </div>
+
+                    <div class="map-toolbar">
+                        <div class="day-filter" id="dayFilter">
+                            <c:forEach var="item" items="${result.itinerary}" varStatus="status">
+                                <button
+                                        type="button"
+                                        class="day-filter-button<c:if test='${status.first}'> active</c:if>"
+                                        data-day="${item.day}">
+                                    Day ${item.day}
+                                </button>
+                            </c:forEach>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- 일정 리스트 -->
                 <div class="schedule">
@@ -112,14 +122,12 @@
                     </c:forEach>
                 </div>
 
+                <!-- 상세 일정 -->
                 <div class="detail-container">
-
-                    <!-- 상단 -->
                     <div class="detail-header">
                         <h2>상세 일정</h2>
                         <div class="total-cost">총 예상 비용: ${result.summary.totalEstimatedCost} ${result.summary.currency}</div>
                     </div>
-
 
                     <c:forEach var="item" items="${result.itinerary}" varStatus="dayStatus">
                         <div class="day-card">
@@ -144,6 +152,7 @@
                                             <c:otherwise>이동 정보 없음</c:otherwise>
                                         </c:choose>
                                     </span>
+
                                     <span class="distance">
                                         <c:choose>
                                             <c:when test="${item.totalDistanceKm != null && item.totalTravelTimeMinutes != null}">
@@ -166,27 +175,21 @@
                                             data-lat="${act.lat}"
                                             data-lng="${act.lng}"
                                             data-time="${fn:escapeXml(act.time)}">
-<%--                                        <div class="icon ${act.category eq 'HOTEL' || act.category eq 'ACCOMMODATION' ? 'hotel' : (act.category eq 'FOOD' || act.category eq 'DINING' ? 'food' : 'spot')}">--%>
-<%--                                            <c:choose>--%>
-<%--                                                <c:when test="${act.category eq 'HOTEL' || act.category eq 'ACCOMMODATION'}">H</c:when>--%>
-<%--                                                <c:when test="${act.category eq 'FOOD' || act.category eq 'DINING'}">F</c:when>--%>
-<%--                                                <c:otherwise>S</c:otherwise>--%>
-<%--                                            </c:choose>--%>
-<%--                                        </div>--%>
-                                            <c:choose>
-                                                <c:when test="${act.category eq 'transport'}">
-                                                    <div class="icon move">▲</div>
-                                                </c:when>
-                                                <c:when test="${act.category eq 'food' || act.category eq 'dining'}">
-                                                    <div class="icon food">🍽</div>
-                                                </c:when>
-                                                <c:when test="${act.category eq 'hotel' || act.category eq 'accommodation'}">
-                                                    <div class="icon hotel">🏨</div>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <div class="icon spot">📍</div>
-                                                </c:otherwise>
-                                            </c:choose>
+
+                                        <c:choose>
+                                            <c:when test="${act.category eq 'transport'}">
+                                                <div class="icon move">▲</div>
+                                            </c:when>
+                                            <c:when test="${act.category eq 'food' || act.category eq 'dining'}">
+                                                <div class="icon food">🍽</div>
+                                            </c:when>
+                                            <c:when test="${act.category eq 'hotel' || act.category eq 'accommodation'}">
+                                                <div class="icon hotel">🏨</div>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <div class="icon spot">📍</div>
+                                            </c:otherwise>
+                                        </c:choose>
 
                                         <div class="content">
                                             <div class="top">
@@ -218,53 +221,8 @@
                         </div>
                     </c:forEach>
                 </div>
-<%--        <div class="recommend-section">--%>
 
-<%--            <h2>추천 항공/숙박</h2>--%>
-
-<%--            <div class="recommend-grid">--%>
-
-<%--                <!-- 항공 -->--%>
-<%--                <div class="recommend-card">--%>
-<%--                    <h3>✈️ 항공권 최저가</h3>--%>
-<%--                    <c:choose>--%>
-<%--                        <c:when test="${empty result.flights}">--%>
-<%--                            <p>항공권 정보를 불러오지 못했습니다.</p>--%>
-<%--                        </c:when>--%>
-<%--                        <c:otherwise>--%>
-<%--                            <c:forEach var="flight" items="${result.flights}">--%>
-<%--                                <div class="recommend-item">--%>
-<%--                                    <div class="left">--%>
-<%--                                        <div class="title">${flight.airline} ${flight.flightNumber}</div>--%>
-<%--                                        <div class="desc">${flight.departureAirport} → ${flight.arrivalAirport}</div>--%>
-<%--                                    </div>--%>
-<%--                                    <div class="right">--%>
-<%--                                        <div class="price">${flight.price} ${flight.currency}</div>--%>
-<%--                                        <div class="sub">왕복 1인</div>--%>
-<%--                                    </div>--%>
-<%--                                </div>--%>
-<%--                            </c:forEach>--%>
-<%--                        </c:otherwise>--%>
-<%--                    </c:choose>--%>
-<%--                </div>--%>
-
-<%--                <!-- 숙박 -->--%>
-<%--                <div class="recommend-card">--%>
-<%--                    <h3>🏨 숙박 추천</h3>--%>
-<%--                    <c:forEach var="hotel" items="${result.hotels}">--%>
-<%--                        <div class="recommend-item">--%>
-<%--                            <div class="left">--%>
-<%--                                <div class="title">${hotel.name}</div>--%>
-<%--                                <div class="desc">⭐ ${hotel.rating} · ${hotel.location}</div>--%>
-<%--                            </div>--%>
-<%--                            <div class="right">--%>
-<%--                                <div class="price">${hotel.pricePerNight} ${hotel.currency}</div>--%>
-<%--                                <div class="sub">1박</div>--%>
-<%--                            </div>--%>
-<%--                        </div>--%>
-<%--                    </c:forEach>--%>
-<%--                </div>--%>
-
+                <!-- 추천 항공/호텔 -->
                 <div class="recommend-section">
                     <h2>추천 항공/호텔</h2>
 
@@ -316,6 +274,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
 
@@ -326,18 +285,14 @@
                 const dayButtons = Array.from(document.querySelectorAll(".day-filter-button"));
                 const scheduleItems = Array.from(document.querySelectorAll(".schedule-item"));
 
-                if (!mapElement) {
-                    return;
-                }
+                if (!mapElement) return;
 
                 const mapPoints = scheduleItems
                     .map(function (item) {
                         const lat = Number(item.dataset.lat);
                         const lng = Number(item.dataset.lng);
 
-                        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-                            return null;
-                        }
+                        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
 
                         return {
                             day: Number(item.dataset.day),
@@ -351,9 +306,7 @@
                     })
                     .filter(Boolean)
                     .sort(function (a, b) {
-                        if (a.day !== b.day) {
-                            return a.day - b.day;
-                        }
+                        if (a.day !== b.day) return a.day - b.day;
                         return a.order - b.order;
                     });
 
@@ -366,6 +319,7 @@
                 const apiKey = (mapElement.dataset.googleMapsApiKey || "").trim();
                 const mapId = (mapElement.dataset.googleMapsMapId || "").trim();
                 const initialDay = dayButtons.length ? Number(dayButtons[0].dataset.day) : mapPoints[0].day;
+
                 const state = {
                     map: null,
                     infoWindow: null,
@@ -412,9 +366,7 @@
                             const lat = Number(item.dataset.lat);
                             const lng = Number(item.dataset.lng);
 
-                            if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-                                return;
-                            }
+                            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
 
                             const day = Number(item.dataset.day);
                             const order = Number(item.dataset.order);
@@ -439,6 +391,7 @@
                     state.PinElement = markerLibrary.PinElement;
                     state.useAdvancedMarker = Boolean(mapId);
                     state.infoWindow = new google.maps.InfoWindow();
+
                     const mapOptions = {
                         center: { lat: centerPoint.lat, lng: centerPoint.lng },
                         zoom: 12,
@@ -460,9 +413,7 @@
                 }
 
                 function renderDay(day) {
-                    if (!state.map) {
-                        return;
-                    }
+                    if (!state.map) return;
 
                     clearMap();
 
@@ -470,9 +421,7 @@
                         return point.day === day;
                     });
 
-                    if (!dayPoints.length) {
-                        return;
-                    }
+                    if (!dayPoints.length) return;
 
                     const bounds = new google.maps.LatLngBounds();
                     const path = [];
@@ -528,9 +477,7 @@
                         return getPointKey(item.day, item.order) === pointKey;
                     });
 
-                    if (!point || !state.map) {
-                        return;
-                    }
+                    if (!point || !state.map) return;
 
                     state.activePointKey = pointKey;
 
@@ -543,9 +490,7 @@
                         return item.__travelKey === pointKey;
                     });
 
-                    if (!marker) {
-                        return;
-                    }
+                    if (!marker) return;
 
                     state.infoWindow.setContent(
                         "<div class='map-info-window'>" +
@@ -553,6 +498,7 @@
                         (point.time ? "<div>" + escapeHtml(point.time) + "</div>" : "") +
                         "</div>"
                     );
+
                     if (state.useAdvancedMarker) {
                         state.infoWindow.open({
                             anchor: marker,
@@ -628,14 +574,9 @@
                 }
 
                 function normalizeCategory(category) {
-                    if (!category) {
-                        return "ATTRACTION";
-                    }
-
+                    if (!category) return "ATTRACTION";
                     const upperCategory = category.toUpperCase();
-                    if (upperCategory === "RESTAURANT") {
-                        return "DINING";
-                    }
+                    if (upperCategory === "RESTAURANT") return "DINING";
                     return upperCategory;
                 }
 

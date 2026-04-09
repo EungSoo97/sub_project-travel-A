@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/result-page.css">
 </head>
 <body>
-<div class="result-page">
-
+<div class="result-list-page">
+    <div class="result-page">
     <div class="container-result">
 
         <div class="header">
@@ -19,40 +19,49 @@
                 <p class="sub">${result.summary.destination} · ${result.summary.days}일 여행</p>
             </div>
 
+
             <div class="actions">
-                <form action="edit-plan" >
-                    <button>✏️</button>
-                </form>
-                <button onclick="toggleHeart(this)">♡</button>
-                <%-- 공유 버튼은 url 복사만 --%>
-                <form action="pdf" method="get">
-                    <button type="submit"   class="download">PDF 다운로드</button>
-                </form>
-                <button  class="download">게시하기</button>
-            </div>
-        </div>
+                <div class="icon-actions">
+                    <form action="edit-plan">
+                        <button type="submit" class="icon-btn">✏️</button>
+                    </form>
+                    <button type="button" class="icon-btn" onclick="toggleHeart(this)">♡</button>
+                </div>
 
-        <form action="${pageContext.request.contextPath}/save-plan" method="post">
-            <input type="hidden" name="title" value="${result.summary.title}">
-            <button type="submit">저장하기</button>
-        </form>
+                <div class="main-actions">
+                    <form action="pdf" method="get">
+                        <button type="submit" class="download">PDF 다운로드</button>
+                    </form>
+
+                    <form action="${pageContext.request.contextPath}/save-plan" method="post">
+                        <input type="hidden" name="title" value="${result.summary.title}">
+                        <button type="submit" class="download">저장하기</button>
+                    </form>
+
+                    <button type="button" class="download">게시하기</button>
+                </div>
+            </div>
+
+
+            </form>
         <!-- 여행 정보 카드 -->
-        <div class="info-cards">
-            <div class="card">
-                <p class="label">📅 여행 기간</p>
-                <p class="value">${result.summary.startDate} ~ ${result.summary.endDate}</p>
-            </div>
+            <div class="info-cards">
+                <div class="card">
+                    <!-- CSS에서 flex + gap으로 정렬하려면 이렇게 분리하는 게 더 깔끔해요 -->
+                    <p class="label"><span>📅</span> 여행 기간</p>
+                    <p class="value">${plan.summary.startDate} ~ ${plan.summary.endDate}</p>
+                </div>
 
-            <div class="card">
-                <p class="label">👥 여행 인원</p>
-                <p class="value">${result.summary.travelers}명</p>
-            </div>
+                <div class="card">
+                    <p class="label">👥 여행 인원</p>
+                    <p class="value">${plan.summary.travelers}명</p>
+                </div>
 
-            <div class="card">
-                <p class="label">✨ 여행 스타일</p>
-                <p class="value">${result.summary.travelStyle}</p>
+                <div class="card">
+                    <p class="label">✨ 여행 스타일</p>
+                    <p class="value">${plan.summary.travelStyle}</p>
+                </div>
             </div>
-        </div>
 
         <!-- 지도 영역 -->
         <div class="map-section">

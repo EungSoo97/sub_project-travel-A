@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/edit-schedule.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/settings.css">
       <link rel="stylesheet" href="${pageContext.request.contextPath}/css/detail-page.css" />
+      <link rel="stylesheet" href="${pageContext.request.contextPath}/css/myplan-page.css" />
 
     <!-- 푸터 하단 고정 -->
     <style>

@@ -1,32 +1,25 @@
-/* =============================================
-   AI 맞춤 여행 일정 - 모바일 최적화 CSS
-   ============================================= */
-
-
 :root {
-
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
     --primary-light: #EFF6FF;
     --orange: #F97316;
     --orange-light: #FFF7ED;
     --purple: #8B5CF6;
     --purple-light: #F5F3FF;
-    --green: #10B981;
     --red: #EF4444;
-
     --text-primary: #111827;
     --text-secondary: #6B7280;
     --text-muted: #9CA3AF;
     --border: #E5E7EB;
     --border-light: #F9FAFB;
-
+    --bg: #f3f4f6;
+    --surface: #ffffff;
     --radius-sm: 8px;
     --radius: 12px;
     --radius-lg: 16px;
-
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
     --shadow: 0 18px 40px rgba(37, 99, 235, 0.08);
     --shadow-lg: 0 8px 24px rgba(0,0,0,0.10);
-
     --font: "Pretendard","Noto Sans KR", Arial, sans-serif;
 }
 
@@ -40,141 +33,6 @@
     min-height: 100vh;
 }
 
-
-/* =============================================
-   헤더
-   ============================================= */
-.header {
-    background: var(--surface);
-    padding: 16px;
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 60px;
-    z-index: 50;
-    box-shadow: var(--shadow-sm);
-}
-
-.header a {
-    font-size: 13px;
-    color: var(--text-secondary);
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    margin-bottom: 12px;
-}
-
-.header a:active { opacity: 0.6; }
-
-.title-area {
-    margin-bottom: 14px;
-}
-
-.result-h1 {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 2px;
-}
-
-.title-area .sub {
-    font-size: 13px;
-    color: var(--text-secondary);
-}
-
-.actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap; /* 🔥 버튼이 많을 경우 아래로 줄바꿈되도록 추가 */
-}
-
-.actions .form-flex {
-    flex: 1;
-    display: flex;
-    min-width: fit-content;
-}
-
-.actions .form-flex .download {
-    width: 100%;
-}
-.actions .download {
-    flex: 1;
-    text-align: center;
-    white-space: nowrap;
-    min-width: fit-content; /* 글자가 잘리지 않도록 최소 너비 보장 */
-}
-
-.actions button {
-    border: 1px solid var(--border);
-    background: var(--surface);
-    border-radius: var(--radius-sm);
-    padding: 8px 10px;
-    font-size: 15px;
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: all 0.15s;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.actions button:active {
-    background: var(--bg);
-    transform: scale(0.96);
-}
-
-.actions button.download {
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-    font-size: 13px;
-    font-weight: 600;
-    padding: 8px 14px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.actions button.download:active {
-    background: #2563EB;
-}
-
-/* =============================================
-   여행 정보 카드 3종
-   ============================================= */
-.info-cards {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    padding: 14px 16px;
-}
-
-.info-cards .card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 12px 10px;
-    text-align: center;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border);
-}
-
-.info-cards .card .label {
-    font-size: 11px;
-    color: var(--text-muted);
-    margin-bottom: 4px;
-}
-
-.info-cards .card .value {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-/* =============================================
-   지도 영역
-   ============================================= */
 .map-section {
     margin: 0 16px 14px;
     background: var(--surface);
@@ -210,7 +68,7 @@
     margin-right: 2px;
 }
 
-.dot.blue   { background: var(--primary); }
+.dot.blue { background: var(--primary); }
 .dot.orange { background: var(--orange); }
 .dot.purple { background: var(--purple); }
 
@@ -290,9 +148,6 @@
     color: var(--text-primary);
 }
 
-/* =============================================
-   일정 리스트 (요약)
-   ============================================= */
 .schedule {
     margin: 0 16px 14px;
     background: var(--surface);
@@ -336,9 +191,6 @@
     line-height: 1.6;
 }
 
-/* =============================================
-   상세 일정 컨테이너
-   ============================================= */
 .detail-container {
     margin: 0 16px 14px;
 }
@@ -364,7 +216,6 @@
     border-radius: 20px;
 }
 
-/* ── 하루 카드 ── */
 .day-card {
     background: var(--surface);
     border-radius: var(--radius-lg);
@@ -374,7 +225,6 @@
     margin-bottom: 12px;
 }
 
-/* ── day-header ── */
 .day-header {
     display: flex;
     justify-content: space-between;
@@ -438,9 +288,8 @@
     color: var(--text-muted);
 }
 
-/* ── 시간대 섹션 ── */
 .time-section {
-    padding-left: 0;
+    padding: 0 16px;
     border-bottom: 1px solid var(--border-light);
 }
 
@@ -448,18 +297,6 @@
     border-bottom: none;
 }
 
-.time-section h4 {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 12px 0 8px;
-    border-bottom: 1px dashed var(--border);
-    margin-bottom: 4px;
-}
-
-/* ── 아이템 ── */
 .item {
     display: flex;
     align-items: flex-start;
@@ -483,7 +320,6 @@
     box-shadow: inset 4px 0 0 var(--primary);
 }
 
-/* 아이콘 */
 .icon {
     width: 32px;
     height: 32px;
@@ -494,7 +330,6 @@
     font-size: 14px;
     flex-shrink: 0;
     margin-top: 2px;
-    margin-left: 8px;
 }
 
 .icon.move {
@@ -518,7 +353,6 @@
     color: var(--purple);
 }
 
-/* 콘텐츠 */
 .content {
     flex: 1;
     min-width: 0;
@@ -553,17 +387,6 @@
     margin-top: 2px;
 }
 
-.content .tag {
-    display: inline-block;
-    font-size: 11px;
-    color: var(--primary);
-    background: var(--primary-light);
-    padding: 2px 7px;
-    border-radius: 4px;
-    margin-top: 4px;
-}
-
-/* 메타(오른쪽) */
 .meta {
     display: flex;
     flex-direction: column;
@@ -572,7 +395,6 @@
     white-space: nowrap;
     flex-shrink: 0;
     padding-right: 10px;
-
 }
 
 .meta span:first-child {
@@ -587,7 +409,6 @@
     color: var(--text-primary);
 }
 
-/* ── 하루 푸터 ── */
 .day-footer {
     display: flex;
     justify-content: space-between;
@@ -607,9 +428,6 @@
     color: var(--primary);
 }
 
-/* =============================================
-   추천 항공/숙박
-   ============================================= */
 .recommend-section {
     margin: 0 16px;
 }
@@ -684,76 +502,35 @@
     margin-top: 1px;
 }
 
-
-/* =============================================
-   탭 바 하단 고정 (선택적)
-   ============================================= */
-.bottom-tab {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    max-width: 480px;
-    margin: 0 auto;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    display: flex;
-    padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
-    box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
-}
-
-.bottom-tab button {
-    flex: 1;
-    border: none;
-    background: none;
-    font-family: var(--font);
-    font-size: 11px;
-    color: var(--text-muted);
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.bottom-tab button.active {
-    color: var(--primary);
-}
-
-/* 모달 배경 */
 .modal {
-    display: none; /* 기본 숨김 */
+    display: none;
     position: fixed;
     z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto; /* 내용 길면 스크롤 */
-    background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
     transition: opacity 0.3s ease;
 }
 
-/* 모달 내용 박스 */
 .modal-content {
     background-color: #fff;
-    margin: 10% auto; /* 화면 중앙 */
+    margin: 10% auto;
     padding: 20px;
     border-radius: 12px;
     width: 90%;
-    max-width: 500px; /* 최대 너비 */
+    max-width: 500px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
     animation: slideDown 0.3s ease;
 }
 
-/* 모달 열릴 때 애니메이션 */
 @keyframes slideDown {
     from { transform: translateY(-30px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
 
-/* 닫기 버튼 */
 .close {
     float: right;
     font-size: 24px;
@@ -761,17 +538,17 @@
     cursor: pointer;
     color: #333;
 }
+
 .close:hover {
     color: #f00;
 }
 
-/* textarea 스타일 */
 .textarea {
     width: 100%;
     padding: 10px;
     border-radius: 8px;
     border: 1px solid #ccc;
-    resize: vertical; /* 세로로만 크기 조절 가능 */
+    resize: vertical;
     font-size: 14px;
     font-family: inherit;
     box-sizing: border-box;
@@ -779,24 +556,41 @@
     margin-bottom: 10px;
 }
 
-/* 버튼 스타일 */
-.ui-button {
-    padding: 10px 20px;
-    border: none;
-    background-color: var(--primary); /* 파란색 */
-    color: #fff;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.2s ease;
-}
-.ui-button:hover {
-    background-color: var(--primary-dark); /* 진한 파랑 */
+/* =============================================
+   여행 정보 카드 (2+1 그리드)
+   ============================================= */
+.info-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;              /* 10px → 8px */
+    padding: 0 20px 16px;  /* 아래 여백도 살짝 */
 }
 
-.menu-button
-{
-    background-color: #2563eb;
-    color: white;
-    font-size: 13px;font-weight: 600;
+.info-cards .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 6px 8px;    /* 14px 16px → 12px 14px */
+}
+
+/* 여행 기간만 full width */
+.info-cards .card:first-child {
+    grid-column: 1 / -1;
+}
+
+.info-cards .card .label {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.info-cards .card .value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
 }

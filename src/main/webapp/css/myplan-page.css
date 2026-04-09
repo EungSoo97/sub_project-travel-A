@@ -1,0 +1,99 @@
+.myplan-page .header {
+    background: var(--surface);
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 60px;
+    z-index: 50;
+    box-shadow: var(--shadow-sm);
+}
+
+.myplan-page .header a {
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.myplan-page .title-area {
+    margin-bottom: 14px;
+}
+
+.myplan-page .result-h1,
+.myplan-page .title-area h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 2px 0;
+}
+
+.myplan-page .title-area .sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.myplan-page .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+    align-items: flex-start;
+}
+
+.myplan-page .actions form {
+    margin: 0;
+}
+
+.myplan-page .icon-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.myplan-page .icon-btn {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    font-size: 18px;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.myplan-page .main-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+.myplan-page .main-actions form {
+    flex: 0 0 auto;
+}
+
+.myplan-page .download {
+    height: 44px;
+    min-width: 110px;
+    padding: 0 16px;
+    border: 1px solid var(--primary);
+    background: var(--primary);
+    color: #fff;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.myplan-page .icon-btn:active,
+.myplan-page .download:active {
+    transform: scale(0.98);
+}

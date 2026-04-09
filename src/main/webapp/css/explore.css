@@ -531,9 +531,31 @@
     border-color: #999;
     color: #000;
 }
-.ui-button{
+/* 카드 안 자세히보기 버튼 전용 */
+.card .ui-button {
     background-color: #2563eb;
     color: white;
-    font-size: 13px;font-weight: 600;
+    font-size: 13px;
+    font-weight: 600;
 
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: all 0.15s ease;
+}
+
+/* hover */
+.card .ui-button:hover {
+    background-color: #1d4ed8;
+}
+
+/* 클릭 */
+.card .ui-button:active {
+    transform: scale(0.96);
 }

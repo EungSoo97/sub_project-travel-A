@@ -5,66 +5,46 @@
 
 
     <div class="container-result">
-
-        <!-- 헤더 -->
         <div class="header">
-            <div><a href="${pageContext.request.contextPath}/explore">← 목록으로 돌아가기</a></div>
+            <a href="${pageContext.request.contextPath}/explore">← 목록으로 돌아가기</a>
 
             <div class="title-area">
-                <h1>${plan.summary.destination}</h1>
+                <div class="title-row">
 
-                <div class="sub-row">
-                    <p class="sub">${plan.summary.destination} · ${plan.summary.days}일 여행</p>
-
-<<<<<<< HEAD
-=======
+                    <div class="title-text">
+                        <h1>${plan.summary.destination}</h1>
+                        <p class="sub">${plan.summary.destination} · ${plan.summary.days}일 여행</p>
+                    </div>
+                    <button type="button" class="review-link-btn" onclick="openReviewSheet()">
+                        후기전체보기 &gt;
+                    </button>
+                </div>
+            </div>
+            <div class="title-divider"></div>
+            <div class="actions">
+                <button class="ui-button" onclick="toggleHeart(this)">♡</button>
                 <button class="ui-button" onclick="copyUrl()">🔗</button>
-                <%-- 공유 버튼은 url 복사만 --%>
+
                 <form action="${pageContext.request.contextPath}/pdf" method="get">
-                    <button class="download" type="submit">PDF 다운로드</button>
+                    <button class="download" type="submit">PDF<br>다운로드</button>
                 </form>
                 <button class="download">저장하기</button>
                 <button class="download" id="openModalBtn">후기쓰기</button>
-
-                <!-- 모달  -->
-                <div id="Modal" class="modal">
-                    <div class="modal-content">
-                        <span id="closeModalBtn" class="close">&times;</span>
-                        <h2>후기 작성</h2>
-
-                        <form action="user-reaction" method="post">
-                            <input type="hidden" name="planId" value="${plan.planId}">
-                            <textarea class="textarea" id="reviewText" name="content" rows="5" cols="40" placeholder="여기에 후기를 작성해주세요"></textarea>
-                            <br>
-                            <button class="ui-button" id="submitReview" type="submit">작성 완료</button>
-                        </form>
-
-
-
-                    </div>
->>>>>>> 94c28985b44e9ab53870e64ad4b6b0c5a9620e63
-                </div>
             </div>
 
-            <div class="actions">
-
-                <!-- 아이콘 따로 -->
-                <div class="icon-group">
-                    <button class="ui-button">♡</button>
-                    <button class="ui-button">🔗</button>
-                    <a href="#" class="review-link"> ✨후기전체보기✨</a>
-                </div>
-
-                <!-- 버튼 3개 -->
-                <div class="main-buttons">
-                    <form action="${pageContext.request.contextPath}/pdf" method="get">
-                        <button class="download" type="submit">PDF 다운로드</button>
+            <div id="Modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>후기 작성</h2>
+                        <span id="closeModalBtn" class="close">&times;</span>
+                    </div>
+                    <form action="user-reaction" method="post">
+                        <input type="hidden" name="planId" value="${plan.planId}">
+                        <textarea class="textarea" id="reviewText" name="content" rows="5"
+                                  placeholder="여기에 후기를 작성해주세요"></textarea>
+                        <button class="ui-button" id="submitReview" type="submit">작성 완료</button>
                     </form>
-
-                    <button class="download">저장하기</button>
-                    <button class="download" onclick="openPlanSheet()">후기쓰기</button>
                 </div>
-
             </div>
 
         </div>
@@ -72,7 +52,8 @@
         <!-- 여행 정보 -->
         <div class="info-cards">
             <div class="card">
-                <p class="label">📅 여행 기간</p>
+                <!-- CSS에서 flex + gap으로 정렬하려면 이렇게 분리하는 게 더 깔끔해요 -->
+                <p class="label"><span>📅</span> 여행 기간</p>
                 <p class="value">${plan.summary.startDate} ~ ${plan.summary.endDate}</p>
             </div>
 
@@ -216,7 +197,6 @@
 
 
 </div>
-
 <div id="planBackdrop" onclick="closePlanSheet()"></div>
 
 <div id="planSheet" role="dialog" aria-modal="true" aria-labelledby="planSheetTitle">
@@ -226,8 +206,8 @@
 
     <div class="plan-sheethead">
         <div>
-            <p id="planSheetTitle" class="plan-sheettitle">모달 제목</p>
-            <p class="plan-sheetsub" id="planSheetSub">여기에 보조 설명을 입력하세요</p>
+            <p id="planSheetTitle" class="plan-sheettitle">여행 후기</p>
+            <p class="plan-sheetsub" id="planSheetSub">${plan.summary.destination} 여행 후기 모음</p>
         </div>
         <button class="plan-sheetclose" onclick="closePlanSheet()" aria-label="닫기">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -237,8 +217,16 @@
     </div>
 
     <div class="plan-sheet__body" id="planSheetBody">
+        <div class="review-item">
+            <p class="review-writer">김민지</p>
+            <p class="review-text">동선이 깔끔해서 여행하기 편했어요.</p>
+        </div>
+
+        <div class="review-item">
+            <p class="review-writer">이준호</p>
+            <p class="review-text">맛집이랑 야경 코스가 특히 좋았습니다.</p>
+        </div>
     </div>
 </div>
 
 <script src="${pageContext.request.contextPath}/js/detailpage.js"></script>
-<script src="${pageContext.request.contextPath}/js/reiviewModal.js"></script>
