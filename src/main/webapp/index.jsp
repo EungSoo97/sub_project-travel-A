@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Travel-A(AI) | AI 여행 플래너</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/result-page.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/edit-schedule.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/settings.css">
       <link rel="stylesheet" href="${pageContext.request.contextPath}/css/detail-page.css" />
