@@ -39,6 +39,10 @@ WHERE r.plan_id = 1
 ORDER BY r.created_at DESC;
 
 
+CREATE SEQUENCE plan_like_seq
+    START WITH 1
+    INCREMENT BY 1;
+
 CREATE TABLE plan_like (
                            like_id NUMBER PRIMARY KEY,
                            plan_id NUMBER NOT NULL,
@@ -59,3 +63,4 @@ CREATE TABLE plan_like (
                                UNIQUE (plan_id, user_id)
 );
 
+select * from plan_like;
