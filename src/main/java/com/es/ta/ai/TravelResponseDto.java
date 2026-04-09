@@ -44,6 +44,7 @@ public class TravelResponseDto {
      * 아래 필드는 FastAPI {@code TravelSuccessResponse} 와 동일 키로 역직렬화된다.
      * 저장·캘리브레이션(analysis_ready) 시 {@code effectiveQualityScore} / {@code packageMode} /
      * {@code inventoryStatus} 가 비어 있으면 안 된다.
+     * {@code routeQualityTrip} / {@code fullPackageGrade} 는 있을 때만 채워진다.
      */
     private HotelOption primaryAccommodation;
     /** FULL_PACKAGE | GUIDED_PACKAGE | ASSISTED_PLANNING */
@@ -63,6 +64,15 @@ public class TravelResponseDto {
     /** 일정 품질(qualityScore) 대비 상품성 감점 반영 점수 */
     private Integer effectiveQualityScore;
     private Integer sellabilityPenalty;
+    /**
+     * FULL_PACKAGE 일 때만 — 체감 품질 등급(PREMIUM_FULL | STANDARD_FULL | WEAK_FULL).
+     */
+    private String fullPackageGrade;
+    /**
+     * Trip 단위 경로 품질 요약(dayRoute.routeQuality 집계). 없으면 null.
+     * {@code decisionFlags} 에 ROUTE_QUALITY_TRIP_MEASURED / ROUTE_LOW_DIRECTIONS_RATIO 와 대응.
+     */
+    private RouteQualityTripSummary routeQualityTrip;
 
     @Data
     @NoArgsConstructor
@@ -124,6 +134,8 @@ public class TravelResponseDto {
         private String routePreferenceLabelKo;
         private String metricSource;
         private List<RouteLegInsight> legs;
+        /** segmentCount, directionsSegmentCount, matrixSegmentCount, directionsRatio 등 */
+        private Map<String, Object> routeQuality;
     }
 
     @Data
@@ -235,5 +247,23 @@ public class TravelResponseDto {
         private Integer hotelClass;
         private String imageUrl;
         private String bookingUrl;
+    }
+
+    /**
+     * FastAPI {@code RouteQualityTripSummary} — JSON 키 camelCase와 동일.
+     */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class RouteQualityTripSummary {
+        private Double minDirectionsRatio;
+        private Double avgDirectionsRatio;
+        private Integer lowRatioDayCount;
+        private Integer daysMeasured;
+        private Boolean lowDirectionsSignal;
+        /** STRONG | MIXED | WEAK | CRITICAL */
+        private String routeTripGrade;
     }
 }
