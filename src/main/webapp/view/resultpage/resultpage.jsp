@@ -1,242 +1,216 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<html>
-<head>
-    <title>Resultpage</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/result-page.css">
-</head>
-<body>
-<div class="rp-page">
-    <div class="rp-container">
 
-        <!-- header -->
-        <div class="rp-header">
-            <div>
-                <a class="rp-back-link" href="hello-servlet">← 검색으로 돌아가기</a>
+<div class="mp-page">
+    <div class="mp-container">
+
+        <div class="mp-header">
+            <a class="mp-back-link" href="${pageContext.request.contextPath}/">
+                ← 여행 계획으로 돌아가기
+            </a>
+
+            <div class="mp-title-area">
+                <h1 class="mp-title">${result.summary.destination}</h1>
+                <p class="mp-sub">
+                    ${result.summary.startDate} ~ ${result.summary.endDate}
+                    · ${result.summary.days}일 여행
+                </p>
             </div>
 
-            <div class="rp-title-area">
-                <h1 class="rp-main-title">AI 맞춤 여행 일정</h1>
-                <p class="rp-sub">${result.summary.destination} · ${result.summary.days}일 여행</p>
-            </div>
+            <div class="actions">
+                <button type="button" onclick="toggleResultHeart(this)" class="action-btn icon-btn">♡</button>
 
-            <div class="rp-actions">
-                <div class="rp-icon-actions">
-                    <form action="edit-plan">
-                        <button type="submit" class="rp-icon-btn">✏️</button>
-                    </form>
-                    <button type="button" class="rp-icon-btn" onclick="toggleRpHeart(this)">♡</button>
-                </div>
+                <form action="${pageContext.request.contextPath}/edit-plan" method="get">
+                    <c:if test="${not empty savedPlan}">
+                        <input type="hidden" name="id" value="${savedPlan.planId}">
+                    </c:if>
+                    <button type="submit" class="action-btn">✏️ 편집</button>
+                </form>
 
-                <div class="rp-main-actions">
-                    <form action="pdf" method="get">
-                        <button type="submit" class="rp-primary-btn">PDF 다운로드</button>
-                    </form>
+                <form action="${pageContext.request.contextPath}/pdf" method="get">
+                    <button type="submit" class="action-btn">⬇ PDF</button>
+                </form>
 
-                    <form action="${pageContext.request.contextPath}/save-plan" method="post">
-                        <input type="hidden" name="title" value="${result.summary.title}">
-                        <button type="submit" class="rp-primary-btn">저장하기</button>
-                    </form>
-
-                    <button type="button" class="rp-primary-btn">게시하기</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 여행 정보 카드 -->
-        <div class="rp-info-cards">
-            <div class="rp-info-card rp-info-card--full">
-                <p class="rp-info-label"><span>📅</span> 여행 기간</p>
-                <p class="rp-info-value">${result.summary.startDate} ~ ${result.summary.endDate}</p>
-            </div>
-
-            <div class="rp-info-card">
-                <p class="rp-info-label">👥 여행 인원</p>
-                <p class="rp-info-value">${result.summary.travelers}명</p>
-            </div>
-
-            <div class="rp-info-card">
-                <p class="rp-info-label">✨ 여행 스타일</p>
-                <p class="rp-info-value">${result.summary.travelStyle}</p>
+                <c:choose>
+                    <c:when test="${empty savedPlan}">
+                        <form action="${pageContext.request.contextPath}/save-plan" method="post">
+                            <input type="hidden" name="title" value="${result.summary.title}">
+                            <button type="submit" class="action-btn">💾 저장</button>
+                        </form>
+                    </c:when>
+                    <c:otherwise>
+                        <button type="button" class="action-btn" disabled>저장 완료</button>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </div>
 
-        <!-- 지도 영역 -->
-        <div class="rp-map-section">
-            <div class="rp-map-header">
-                <span>🧭 여행 동선 지도</span>
-                <div class="rp-legend">
-                    <span class="rp-dot rp-dot-blue"></span> 관광지
-                    <span class="rp-dot rp-dot-orange"></span> 식당
-                    <span class="rp-dot rp-dot-purple"></span> 숙소
-                </div>
+        <div class="mp-summary-grid">
+            <div class="mp-summary-card mp-summary-card--full">
+                <p class="mp-summary-label">📅 여행 기간</p>
+                <p class="mp-summary-value">
+                    ${result.summary.startDate} ~ ${result.summary.endDate}
+                </p>
             </div>
 
-            <div class="rp-map-area">
-                <div
-                        id="rpTravelMap"
-                        class="rp-travel-map"
-                        data-google-maps-api-key="${googleMapsApiKey}"
-                        data-google-maps-map-id="${googleMapsMapId}">
-                </div>
-                <div id="rpMapFallbackMessage" class="rp-map-fallback-message">
-                    Google Maps API Key와 Map ID를 연결하면 여행 동선을 지도에서 볼 수 있습니다.
-                </div>
+            <div class="mp-summary-card">
+                <p class="mp-summary-label">👥 여행 인원</p>
+                <p class="mp-summary-value">${result.summary.travelers}명</p>
             </div>
 
-            <div class="rp-map-toolbar">
-                <div class="rp-day-filter" id="rpDayFilter">
-                    <c:forEach var="item" items="${result.itinerary}" varStatus="status">
-                        <button
-                                type="button"
-                                class="rp-day-filter-button<c:if test='${status.first}'> active</c:if>"
-                                data-day="${item.day}">
-                            Day ${item.day}
-                        </button>
-                    </c:forEach>
-                </div>
+            <div class="mp-summary-card">
+                <p class="mp-summary-label">🎯 여행 스타일</p>
+                <p class="mp-summary-value">${result.summary.travelStyle}</p>
             </div>
         </div>
 
-        <!-- 일정 리스트 -->
-        <div class="rp-schedule">
-            <c:forEach var="item" items="${result.itinerary}">
-                <div class="rp-schedule-day">
-                    <h3>${item.day}일차 <span>(${item.activities.size()}개 장소)</span></h3>
-                    <p class="rp-route">
-                        <c:forEach var="act" items="${item.activities}" varStatus="status">
-                            ● ${act.name}<c:if test="${!status.last}"> → </c:if>
+        <div class="mp-section">
+            <div class="map-section mp-day-card">
+                <div class="map-header">
+                    <span>🗺 여행 동선 지도</span>
+                    <div class="legend">
+                        <span class="dot blue"></span> 관광지
+                        <span class="dot orange"></span> 식당
+                        <span class="dot purple"></span> 숙소
+                    </div>
+                </div>
+
+                <div class="map-area">
+                    <div id="travelMap" class="travel-map"
+                         data-google-maps-api-key="${googleMapsApiKey}"
+                         data-google-maps-map-id="${googleMapsMapId}">
+                    </div>
+                    <div id="mapFallbackMessage" class="map-fallback-message">
+                        Google Maps API Key와 Map ID를 연결하면 여행 동선을 지도에서 볼 수 있습니다.
+                    </div>
+                </div>
+
+                <div class="map-toolbar">
+                    <div class="day-filter" id="dayFilter">
+                        <c:forEach var="item" items="${result.itinerary}" varStatus="status">
+                            <button type="button"
+                                    class="day-filter-button<c:if test='${status.first}'> active</c:if>"
+                                    data-day="${item.day}">
+                                Day ${item.day}
+                            </button>
                         </c:forEach>
-                    </p>
-                </div>
-            </c:forEach>
-        </div>
-
-        <!-- 상세 일정 -->
-        <div class="rp-detail-container">
-            <div class="rp-detail-header">
-                <h2>상세 일정</h2>
-                <div class="rp-total-cost">
-                    총 예상 비용: ${result.summary.totalEstimatedCost} ${result.summary.currency}
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <c:forEach var="item" items="${result.itinerary}">
-                <div class="rp-day-card">
-                    <div class="rp-day-header">
-                        <div class="rp-day-left">
-                            <div class="rp-day-badge">D${item.day}</div>
-                            <div>
-                                <div class="rp-day-title">${item.day}일차</div>
-                                <div class="rp-day-date">${item.date}</div>
+        <div class="mp-section">
+            <div class="mp-section-head">
+                <h2 class="mp-section-title">여행 일정 요약</h2>
+                <span class="mp-section-badge">
+                    총 ${result.summary.totalEstimatedCost} ${result.summary.currency}
+                </span>
+            </div>
+
+            <div class="mp-schedule-list">
+                <c:forEach var="item" items="${result.itinerary}">
+                    <div class="mp-day-card">
+                        <div class="mp-day-head">
+                            <div class="mp-day-left">
+                                <div class="mp-day-badge">D${item.day}</div>
+                                <div>
+                                    <p class="mp-day-title">${item.day}일차</p>
+                                    <p class="mp-day-date">${item.date}</p>
+                                </div>
+                            </div>
+
+                            <div class="mp-day-right">
+                                <span class="mp-day-cost">
+                                    ${item.estimatedCost} ${item.currency}
+                                </span>
                             </div>
                         </div>
 
-                        <div class="rp-day-right">
-                            <span class="rp-transport">
-                                <c:choose>
-                                    <c:when test="${not empty item.dayRoute && not empty item.dayRoute.routePreferenceLabelKo}">
-                                        <c:out value="${item.dayRoute.routePreferenceLabelKo}" />
-                                    </c:when>
-                                    <c:when test="${not empty item.transportation}">
-                                        <c:out value="${item.transportation}" />
-                                    </c:when>
-                                    <c:otherwise>이동 정보 없음</c:otherwise>
-                                </c:choose>
-                            </span>
+                        <div class="mp-day-body">
+                            <c:forEach var="act" items="${item.activities}" varStatus="status">
+                                <div
+                                        class="mp-item schedule-item"
+                                        data-day="${item.day}"
+                                        data-order="${status.count}"
+                                        data-name="${fn:escapeXml(act.name)}"
+                                        data-category="${fn:escapeXml(empty act.categoryCode ? act.category : act.categoryCode)}"
+                                        data-lat="${act.lat}"
+                                        data-lng="${act.lng}"
+                                        data-time="${fn:escapeXml(act.time)}">
 
-                            <span class="rp-distance">
-                                <c:choose>
-                                    <c:when test="${item.totalDistanceKm != null && item.totalTravelTimeMinutes != null}">
-                                        약 <c:out value="${item.totalDistanceKm}" />km · 당일 이동 약 <c:out value="${item.totalTravelTimeMinutes}" />분
-                                    </c:when>
-                                    <c:otherwise>거리 정보 없음</c:otherwise>
-                                </c:choose>
-                            </span>
-                        </div>
-                    </div>
+                                    <div class="mp-item-icon">📍</div>
 
-                    <div class="rp-time-section">
-                        <c:forEach var="act" items="${item.activities}" varStatus="activityStatus">
-                            <div
-                                    class="rp-item rp-schedule-item"
-                                    data-day="${item.day}"
-                                    data-order="${activityStatus.count}"
-                                    data-name="${fn:escapeXml(act.name)}"
-                                    data-category="${fn:escapeXml(empty act.categoryCode ? act.category : act.categoryCode)}"
-                                    data-lat="${act.lat}"
-                                    data-lng="${act.lng}"
-                                    data-time="${fn:escapeXml(act.time)}">
-
-                                <c:choose>
-                                    <c:when test="${act.type == 'TRANSPORT'}">
-                                        <div class="rp-item-icon rp-item-icon--move">▲</div>
-                                    </c:when>
-                                    <c:when test="${act.type == 'DINING'}">
-                                        <div class="rp-item-icon rp-item-icon--food">🍽</div>
-                                    </c:when>
-                                    <c:when test="${act.type == 'ACCOMMODATION'}">
-                                        <div class="rp-item-icon rp-item-icon--hotel">🏨</div>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <div class="rp-item-icon rp-item-icon--spot">📍</div>
-                                    </c:otherwise>
-                                </c:choose>
-
-                                <div class="rp-item-content">
-                                    <div class="rp-item-top">
-                                        <span class="rp-item-time">${act.time}</span>
-                                        <span class="rp-item-title">${act.name}</span>
+                                    <div class="mp-item-content">
+                                        <div class="mp-item-top">
+                                            <span class="mp-item-time">${act.time}</span>
+                                            <span class="mp-item-title">${act.name}</span>
+                                        </div>
+                                        <p class="mp-item-desc">${act.description}</p>
                                     </div>
-                                    <div class="rp-item-desc">${act.description}</div>
-                                </div>
 
-                                <div class="rp-item-meta">
-                                    <span>${act.durationMinutes}분</span>
+                                    <div class="mp-item-meta">
+                                        <span>${act.durationMinutes}분</span>
+                                        <span>
+                                            <c:choose>
+                                                <c:when test="${act.cost == 0}">무료</c:when>
+                                                <c:otherwise>${act.cost} ${act.currency}</c:otherwise>
+                                            </c:choose>
+                                        </span>
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </div>
+
+                        <c:if test="${not empty item.dayRoute or item.totalDistanceKm != null or item.totalTravelTimeMinutes != null}">
+                            <div class="rp-day-footer">
+                                <span>
                                     <c:choose>
-                                        <c:when test="${act.cost == 0}">
-                                            <span>무료</span>
+                                        <c:when test="${not empty item.dayRoute and not empty item.dayRoute.routePreferenceLabelKo}">
+                                            이동 방식: <c:out value="${item.dayRoute.routePreferenceLabelKo}" />
                                         </c:when>
-                                        <c:otherwise>
-                                            <span>${act.cost} ${act.currency}</span>
-                                        </c:otherwise>
+                                        <c:when test="${not empty item.transportation}">
+                                            이동 방식: <c:out value="${item.transportation}" />
+                                        </c:when>
+                                        <c:otherwise>이동 정보 없음</c:otherwise>
                                     </c:choose>
-                                </div>
+                                </span>
+                                <span>
+                                    <c:choose>
+                                        <c:when test="${item.totalDistanceKm != null && item.totalTravelTimeMinutes != null}">
+                                            총 <c:out value="${item.totalDistanceKm}" />km · 이동 <c:out value="${item.totalTravelTimeMinutes}" />분
+                                        </c:when>
+                                        <c:otherwise>거리 정보 없음</c:otherwise>
+                                    </c:choose>
+                                </span>
                             </div>
-                        </c:forEach>
+                        </c:if>
                     </div>
-
-                    <div class="rp-day-footer">
-                        <span>${item.summary}</span>
-                        <span>예상 비용: ${item.estimatedCost} ${item.currency}</span>
-                    </div>
-                </div>
-            </c:forEach>
+                </c:forEach>
+            </div>
         </div>
 
-        <!-- 추천 -->
-        <div class="rp-recommend-section">
-            <h2>추천 항공/숙박</h2>
+        <div class="mp-section">
+            <h2 class="mp-section-title">추천 항공 / 숙소</h2>
 
-            <div class="rp-recommend-grid">
-                <!-- 항공 -->
-                <div class="rp-recommend-card">
-                    <h3>✈️ 항공권 최저가</h3>
+            <div class="mp-recommend-grid">
+                <div class="mp-recommend-card">
+                    <h3 class="mp-recommend-card-title">✈ 항공권</h3>
                     <c:choose>
                         <c:when test="${empty result.flights}">
-                            <p>항공권 정보를 불러오지 못했습니다.</p>
+                            <p class="mp-empty-text">항공권 추천 정보가 없습니다.</p>
                         </c:when>
                         <c:otherwise>
                             <c:forEach var="flight" items="${result.flights}">
-                                <div class="rp-recommend-item">
-                                    <div class="rp-recommend-left">
-                                        <div class="rp-recommend-title">${flight.airline} ${flight.flightNumber}</div>
-                                        <div class="rp-recommend-desc">${flight.departureAirport} → ${flight.arrivalAirport}</div>
+                                <div class="mp-recommend-item">
+                                    <div>
+                                        <p class="mp-recommend-title">${flight.airline}</p>
+                                        <p class="mp-recommend-desc">
+                                            ${flight.departureAirport} → ${flight.arrivalAirport}
+                                        </p>
                                     </div>
-                                    <div class="rp-recommend-right">
-                                        <div class="rp-recommend-price">${flight.price} ${flight.currency}</div>
-                                        <div class="rp-recommend-sub">왕복 1인</div>
+                                    <div class="mp-recommend-right">
+                                        <p class="mp-recommend-price">${flight.price} ${flight.currency}</p>
                                     </div>
                                 </div>
                             </c:forEach>
@@ -244,21 +218,31 @@
                     </c:choose>
                 </div>
 
-                <!-- 숙박 -->
-                <div class="rp-recommend-card">
-                    <h3>🏨 숙박 추천</h3>
-                    <c:forEach var="hotel" items="${result.hotels}">
-                        <div class="rp-recommend-item">
-                            <div class="rp-recommend-left">
-                                <div class="rp-recommend-title">${hotel.name}</div>
-                                <div class="rp-recommend-desc">⭐ ${hotel.rating} · ${hotel.location}</div>
-                            </div>
-                            <div class="rp-recommend-right">
-                                <div class="rp-recommend-price">${hotel.pricePerNight} ${hotel.currency}</div>
-                                <div class="rp-recommend-sub">1박</div>
-                            </div>
-                        </div>
-                    </c:forEach>
+                <div class="mp-recommend-card">
+                    <h3 class="mp-recommend-card-title">🏨 숙소</h3>
+                    <c:choose>
+                        <c:when test="${empty result.hotels}">
+                            <p class="mp-empty-text">숙소 추천 정보가 없습니다.</p>
+                        </c:when>
+                        <c:otherwise>
+                            <c:forEach var="hotel" items="${result.hotels}">
+                                <div class="mp-recommend-item">
+                                    <div>
+                                        <p class="mp-recommend-title">${hotel.name}</p>
+                                        <p class="mp-recommend-desc">
+                                            ⭐ ${hotel.rating}
+                                            <c:if test="${not empty hotel.location}">
+                                                · ${hotel.location}
+                                            </c:if>
+                                        </p>
+                                    </div>
+                                    <div class="mp-recommend-right">
+                                        <p class="mp-recommend-price">${hotel.pricePerNight} ${hotel.currency}</p>
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </div>
         </div>
@@ -268,23 +252,19 @@
 
 <script>
     (function () {
-        const mapElement = document.getElementById("rpTravelMap");
-        const fallbackElement = document.getElementById("rpMapFallbackMessage");
-        const dayButtons = Array.from(document.querySelectorAll(".rp-day-filter-button"));
-        const scheduleItems = Array.from(document.querySelectorAll(".rp-schedule-item"));
+        const mapElement = document.getElementById("travelMap");
+        const fallbackElement = document.getElementById("mapFallbackMessage");
+        const dayButtons = Array.from(document.querySelectorAll(".day-filter-button"));
+        const scheduleItems = Array.from(document.querySelectorAll(".schedule-item"));
 
-        if (!mapElement) {
-            return;
-        }
+        if (!mapElement) return;
 
         const mapPoints = scheduleItems
             .map(function (item) {
                 const lat = Number(item.dataset.lat);
                 const lng = Number(item.dataset.lng);
 
-                if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-                    return null;
-                }
+                if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
 
                 return {
                     day: Number(item.dataset.day),
@@ -303,8 +283,10 @@
             });
 
         if (!mapPoints.length) {
-            fallbackElement.textContent = "지도에 표시할 좌표 데이터가 아직 없습니다.";
-            fallbackElement.classList.add("is-visible");
+            if (fallbackElement) {
+                fallbackElement.textContent = "지도에 표시할 좌표 데이터가 없습니다.";
+                fallbackElement.classList.add("is-visible");
+            }
             return;
         }
 
@@ -329,8 +311,10 @@
         bindScheduleItems();
 
         if (!apiKey) {
-            fallbackElement.textContent = "Google Maps API Key를 연결하면 여행 동선을 지도에서 볼 수 있습니다.";
-            fallbackElement.classList.add("is-visible");
+            if (fallbackElement) {
+                fallbackElement.textContent = "Google Maps API Key를 연결하면 여행 동선을 지도에서 볼 수 있습니다.";
+                fallbackElement.classList.add("is-visible");
+            }
             return;
         }
 
@@ -338,8 +322,10 @@
             .then(initMap)
             .catch(function (error) {
                 console.error("Google Maps load failed:", error);
-                fallbackElement.textContent = "Google Maps를 불러오지 못했습니다. 브라우저 콘솔 오류를 확인해 주세요.";
-                fallbackElement.classList.add("is-visible");
+                if (fallbackElement) {
+                    fallbackElement.textContent = "Google Maps를 불러오지 못했습니다. 브라우저 콘솔 오류를 확인해 주세요.";
+                    fallbackElement.classList.add("is-visible");
+                }
             });
 
         function bindDayButtons() {
@@ -357,7 +343,6 @@
                 item.addEventListener("click", function () {
                     const lat = Number(item.dataset.lat);
                     const lng = Number(item.dataset.lng);
-
                     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
 
                     const day = Number(item.dataset.day);
@@ -393,13 +378,12 @@
                 fullscreenControl: false
             };
 
-            if (mapId) {
-                mapOptions.mapId = mapId;
-            }
+            if (mapId) mapOptions.mapId = mapId;
 
             state.map = new state.MapClass(mapElement, mapOptions);
             mapElement.classList.add("is-ready");
-            fallbackElement.classList.remove("is-visible");
+            if (fallbackElement) fallbackElement.classList.remove("is-visible");
+
             renderDay(state.activeDay);
         }
 
@@ -423,6 +407,7 @@
 
                 marker.__travelKey = getPointKey(point.day, point.order);
                 state.markers.push(marker);
+
                 path.push({ lat: point.lat, lng: point.lng });
                 bounds.extend({ lat: point.lat, lng: point.lng });
             });
@@ -448,11 +433,8 @@
 
         function clearMap() {
             state.markers.forEach(function (marker) {
-                if (typeof marker.setMap === "function") {
-                    marker.setMap(null);
-                } else {
-                    marker.map = null;
-                }
+                if (typeof marker.setMap === "function") marker.setMap(null);
+                else marker.map = null;
             });
             state.markers = [];
 
@@ -464,37 +446,34 @@
 
         function focusPoint(day, order, panToMarker) {
             const pointKey = getPointKey(day, order);
+
             const point = mapPoints.find(function (item) {
                 return getPointKey(item.day, item.order) === pointKey;
             });
-
             if (!point || !state.map) return;
 
             state.activePointKey = pointKey;
 
             scheduleItems.forEach(function (item) {
-                const isActive = getPointKey(Number(item.dataset.day), Number(item.dataset.order)) === pointKey;
+                const isActive =
+                    getPointKey(Number(item.dataset.day), Number(item.dataset.order)) === pointKey;
                 item.classList.toggle("is-active", isActive);
             });
 
-            const marker = state.markers.find(function (item) {
-                return item.__travelKey === pointKey;
+            const marker = state.markers.find(function (m) {
+                return m.__travelKey === pointKey;
             });
-
             if (!marker) return;
 
             state.infoWindow.setContent(
-                "<div class='rp-map-info-window'>" +
+                "<div class='mp-map-info-window'>" +
                 "<strong>" + escapeHtml(point.name) + "</strong>" +
                 (point.time ? "<div>" + escapeHtml(point.time) + "</div>" : "") +
                 "</div>"
             );
 
             if (state.useAdvancedMarker) {
-                state.infoWindow.open({
-                    anchor: marker,
-                    map: state.map
-                });
+                state.infoWindow.open({ anchor: marker, map: state.map });
             } else {
                 state.infoWindow.open(state.map, marker);
             }
@@ -566,7 +545,6 @@
 
         function normalizeCategory(category) {
             if (!category) return "ATTRACTION";
-
             const upperCategory = category.toUpperCase();
             if (upperCategory === "RESTAURANT") return "DINING";
             return upperCategory;
@@ -590,7 +568,10 @@
                 }
 
                 const script = document.createElement("script");
-                script.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(key) + "&v=weekly&loading=async&libraries=maps,marker";
+                script.src =
+                    "https://maps.googleapis.com/maps/api/js?key=" +
+                    encodeURIComponent(key) +
+                    "&v=weekly&loading=async&libraries=maps,marker";
                 script.async = true;
                 script.defer = true;
                 script.dataset.googleMapsLoader = "true";
@@ -600,6 +581,7 @@
                 script.addEventListener("error", function () {
                     reject(new Error("Google Maps script request failed"));
                 }, { once: true });
+
                 document.head.appendChild(script);
             });
         }
@@ -628,15 +610,13 @@
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
+                .replace(/\"/g, "&quot;")
                 .replace(/'/g, "&#39;");
         }
     })();
 
-    function toggleRpHeart(btn) {
-        btn.innerText = btn.innerText === "♡" ? "❤" : "♡";
+    function toggleResultHeart(btn) {
         btn.classList.toggle("is-liked");
+        btn.textContent = btn.classList.contains("is-liked") ? "♥" : "♡";
     }
 </script>
-</body>
-</html>
