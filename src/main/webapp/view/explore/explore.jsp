@@ -1,6 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+
+
+<%@ page import="com.es.ta.userreaction.UserreactionDAO" %>
+
 <html>
 <head>
     <title>Explore</title>
@@ -76,11 +80,30 @@
 
                         <div class="user">👤 여행자</div>
 
-                        <h3>${plan.summary.title}</h3>
+                        <h3>${plan.summary.destination}</h3>
 
                         <div class="info">
                             <span>📅 ${plan.summary.days}일</span>
                             <span>👥 ${plan.summary.travelers}명</span>
+                            <c:set var="currentPlanId" value="${plan.planId}" />
+                            <%
+                                int likeCount = 0;
+                                try {
+                                    // Debug: Check if currentPlanId is set
+                                    Integer planIdObj = (Integer) pageContext.getAttribute("currentPlanId");
+
+                                    if (planIdObj != null) {
+                                        int planId = planIdObj.intValue();
+
+                                        UserreactionDAO dao = new UserreactionDAO();
+                                        likeCount = dao.countByPlan(planId);
+                                    } else {
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            %>
+                            <span><%= likeCount %>❤ </span>
                         </div>
 
                         <div class="tags">

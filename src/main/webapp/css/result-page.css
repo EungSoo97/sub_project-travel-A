@@ -776,6 +776,43 @@
 .ui-button:hover {
     background-color: var(--primary-dark); /* 진한 파랑 */
 }
+.snackbar-button {
+    padding: 10px 20px;
+    border: none;
+    background-color: var(--primary);
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+/* 스낵바 스타일 → 별도 id로 분리 */
+#snackbar {
+    visibility: visible;
+    min-width: 250px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
+    padding: 14px 20px;
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+#snackbar.show {
+    pointer-events: auto;
+    opacity: 1;
+}
+
+
 
 .menu-button
 {
