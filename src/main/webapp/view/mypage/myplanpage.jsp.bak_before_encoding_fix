@@ -1,67 +1,80 @@
-ï»¿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <div class="mp-page">
     <div class="mp-container">
 
-        <!-- í—¤ë” -->
+        <!-- ?¤ë” -->
         <div class="mp-header">
             <a class="mp-back-link" href="${pageContext.request.contextPath}/mypage">
-                â† ë§ˆì´í˜ì´ì§€ë¡œ ëŒì•„ê°€ê¸°
+                ??ë§ˆì´?˜ì´ì§€ë¡??Œì•„ê°€ê¸?
             </a>
 
             <div class="mp-title-area">
                 <h1 class="mp-title">${result.summary.destination}</h1>
                 <p class="mp-sub">
                     ${result.summary.startDate} ~ ${result.summary.endDate}
-                    Â· ${result.summary.days}ì¼ ì—¬í–‰
+                    Â· ${result.summary.days}???¬í–‰
                 </p>
             </div>
 
-            <div class="actions">
-                <button id="heartBtn" onclick="toggleHeart(this)" class="action-btn icon-btn">â™¡</button>
-                <form action="edit-plan">
-                    <input type="hidden" name="id" value="${savedPlan.planId}">
-                    <button type="submit" class="action-btn edit-btn">âœï¸ í¸ì§‘</button>
-                </form>
-                <form action="pdf" method="get">
-                    <button type="submit" class="action-btn download-btn">â¬‡ PDF</button>
-                </form>
-                <button class="action-btn post-btn">ğŸ“¢ ê²Œì‹œ</button>
+            <div class="mp-actions">
+                <div class="mp-icon-actions">
+                    <button type="button" class="mp-icon-btn" onclick="toggleMpHeart(this)">??/button>
+                    <button type="button" class="mp-icon-btn" onclick="copyMpUrl()">?”—</button>
+                </div>
+
+                <div class="mp-main-actions">
+                    <form action="${pageContext.request.contextPath}/detailPage" method="get">
+                        <input type="hidden" name="planId" value="${savedPlan.planId}">
+                        <button type="submit" class="mp-primary-btn">?ì„¸??ë³´ê¸°</button>
+                    </form>
+
+                    <form action="pdf" method="get">
+                        <input type="hidden" name="planId" value="${savedPlan.planId}">
+                        <button type="submit" class="mp-primary-btn">PDF ?¤ìš´ë¡œë“œ</button>
+                    </form>
+
+                    <form action="${pageContext.request.contextPath}/delete-plan" method="post"
+                          onsubmit="return confirm('???¬í–‰ ê³„íš???? œ? ê¹Œ??');">
+                        <input type="hidden" name="planId" value="${savedPlan.planId}">
+                        <button type="submit" class="mp-danger-btn">?? œ?˜ê¸°</button>
+                    </form>
+                </div>
             </div>
         </div>
 
-        <!-- ìŠ¤ë‚µë°” -->
+        <!-- ?¤ë‚µë°?-->
         <div id="mpSnackbar" class="mp-snackbar"></div>
 
-        <!-- ì—¬í–‰ ì •ë³´ -->
+        <!-- ?¬í–‰ ?•ë³´ -->
         <div class="mp-summary-grid">
             <div class="mp-summary-card mp-summary-card--full">
-                <p class="mp-summary-label">ğŸ“… ì—¬í–‰ ê¸°ê°„</p>
+                <p class="mp-summary-label">?“… ?¬í–‰ ê¸°ê°„</p>
                 <p class="mp-summary-value">
                     ${result.summary.startDate} ~ ${result.summary.endDate}
                 </p>
             </div>
 
             <div class="mp-summary-card">
-                <p class="mp-summary-label">ğŸ‘¥ ì—¬í–‰ ì¸ì›</p>
-                <p class="mp-summary-value">${result.summary.travelers}ëª…</p>
+                <p class="mp-summary-label">?‘¥ ?¬í–‰ ?¸ì›</p>
+                <p class="mp-summary-value">${result.summary.travelers}ëª?/p>
             </div>
 
             <div class="mp-summary-card">
-                <p class="mp-summary-label">ğŸ¯ ì—¬í–‰ ìŠ¤íƒ€ì¼</p>
+                <p class="mp-summary-label">???¬í–‰ ?¤í???/p>
                 <p class="mp-summary-value">${result.summary.travelStyle}</p>
             </div>
         </div>
 
-        <!-- ì§€ë„ (ê¸°ëŠ¥ ìœ ì§€, í´ë˜ìŠ¤ ê·¸ëŒ€ë¡œ) -->
+        <!-- ì§€??(ê¸°ëŠ¥ ? ì??? ?´ë˜??ê·¸ë?ë¡??? -->
         <div class="mp-section"> <div class="map-section mp-day-card"> <div class="map-header">
-            <span>ğŸ—º ì—¬í–‰ ë™ì„  ì§€ë„</span>
+            <span>?§­ ?¬í–‰ ?™ì„  ì§€??/span>
             <div class="legend">
-                <span class="dot blue"></span> ê´€ê´‘ì§€
-                <span class="dot orange"></span> ì‹ë‹¹
-                <span class="dot purple"></span> ìˆ™ì†Œ
+                <span class="dot blue"></span> ê´€ê´‘ì?
+                <span class="dot orange"></span> ?ë‹¹
+                <span class="dot purple"></span> ?™ì†Œ
             </div>
         </div>
 
@@ -71,7 +84,7 @@
                      data-google-maps-map-id="${googleMapsMapId}">
                 </div>
                 <div id="mapFallbackMessage" class="map-fallback-message">
-                    Google Maps API Keyì™€ Map IDë¥¼ ì—°ê²°í•˜ë©´ ì—¬í–‰ ë™ì„ ì„ ì§€ë„ì—ì„œ ë³¼ ìˆ˜ ìˆìŠµë‹ˆë‹¤.
+                    Google Maps API Key?€ Map IDë¥??°ê²°?˜ë©´ ?¬í–‰ ?™ì„ ??ì§€?„ì—??ë³????ˆìŠµ?ˆë‹¤.
                 </div>
             </div>
 
@@ -89,12 +102,12 @@
         </div>
         </div>
 
-        <!-- ì¼ì • -->
+        <!-- ?¼ì • -->
         <div class="mp-section">
             <div class="mp-section-head">
-                <h2 class="mp-section-title">ì—¬í–‰ ì¼ì • ìš”ì•½</h2>
+                <h2 class="mp-section-title">?¬í–‰ ?¼ì • ?”ì•½</h2>
                 <span class="mp-section-badge">
-                    ì´ ${result.summary.totalEstimatedCost} ${result.summary.currency}
+                    ì´?${result.summary.totalEstimatedCost} ${result.summary.currency}
                 </span>
             </div>
 
@@ -106,7 +119,7 @@
                             <div class="mp-day-left">
                                 <div class="mp-day-badge">D${item.day}</div>
                                 <div>
-                                    <p class="mp-day-title">${item.day}ì¼ì°¨</p>
+                                    <p class="mp-day-title">${item.day}?¼ì°¨</p>
                                     <p class="mp-day-date">${item.date}</p>
                                 </div>
                             </div>
@@ -130,7 +143,7 @@
                                         data-lng="${act.lng}"
                                         data-time="${act.time}">
 
-                                    <div class="mp-item-icon">ğŸ“</div>
+                                    <div class="mp-item-icon">?“</div>
 
                                     <div class="mp-item-content">
                                         <div class="mp-item-top">
@@ -141,7 +154,7 @@
                                     </div>
 
                                     <div class="mp-item-meta">
-                                        <span>${act.durationMinutes}ë¶„</span>
+                                        <span>${act.durationMinutes}ë¶?/span>
                                         <span>
                                             <c:choose>
                                                 <c:when test="${act.cost == 0}">ë¬´ë£Œ</c:when>
@@ -160,17 +173,17 @@
 
         <!-- ì¶”ì²œ -->
         <div class="mp-section">
-            <h2 class="mp-section-title">ì¶”ì²œ í•­ê³µ / ìˆ™ì†Œ</h2>
+            <h2 class="mp-section-title">ì¶”ì²œ ??³µ / ?™ì†Œ</h2>
 
             <div class="mp-recommend-grid">
                 <div class="mp-recommend-card">
-                    <h3>âœˆ í•­ê³µê¶Œ</h3>
+                    <h3>?ˆï¸ ??³µê¶?/h3>
                     <c:forEach var="f" items="${result.flights}">
                         <div class="mp-recommend-item">
                             <div>
                                 <div class="mp-recommend-title">${f.airline}</div>
                                 <div class="mp-recommend-desc">
-                                        ${f.departureAirport} â†’ ${f.arrivalAirport}
+                                        ${f.departureAirport} ??${f.arrivalAirport}
                                 </div>
                             </div>
                             <div class="mp-recommend-price">${f.price}</div>
@@ -179,12 +192,12 @@
                 </div>
 
                 <div class="mp-recommend-card">
-                    <h3>ğŸ¨ ìˆ™ì†Œ</h3>
+                    <h3>?¨ ?™ì†Œ</h3>
                     <c:forEach var="h" items="${result.hotels}">
                         <div class="mp-recommend-item">
                             <div>
                                 <div class="mp-recommend-title">${h.name}</div>
-                                <div class="mp-recommend-desc">â­ ${h.rating}</div>
+                                <div class="mp-recommend-desc">â­?${h.rating}</div>
                             </div>
                             <div class="mp-recommend-price">${h.pricePerNight}</div>
                         </div>
@@ -230,7 +243,7 @@
 
         if (!mapPoints.length) {
             if (fallbackElement) {
-                fallbackElement.textContent = "ì§€ë„ì— í‘œì‹œí•  ì¢Œí‘œ ë°ì´í„°ê°€ ì—†ìŠµë‹ˆë‹¤.";
+                fallbackElement.textContent = "Áöµµ¿¡ Ç¥½ÃÇÒ ÁÂÇ¥ µ¥ÀÌÅÍ°¡ ¾ø½À´Ï´Ù.";
                 fallbackElement.classList.add("is-visible");
             }
             return;
@@ -258,7 +271,7 @@
 
         if (!apiKey) {
             if (fallbackElement) {
-                fallbackElement.textContent = "Google Maps API Keyë¥¼ ì—°ê²°í•˜ë©´ ì—¬í–‰ ë™ì„ ì„ ì§€ë„ì—ì„œ ë³¼ ìˆ˜ ìˆìŠµë‹ˆë‹¤.";
+                fallbackElement.textContent = "Google Maps API Key¸¦ ¿¬°áÇÏ¸é ¿©Çà µ¿¼±À» Áöµµ¿¡¼­ º¼ ¼ö ÀÖ½À´Ï´Ù.";
                 fallbackElement.classList.add("is-visible");
             }
             return;
@@ -269,7 +282,7 @@
             .catch(function (error) {
                 console.error("Google Maps load failed:", error);
                 if (fallbackElement) {
-                    fallbackElement.textContent = "Google Mapsë¥¼ ë¶ˆëŸ¬ì˜¤ì§€ ëª»í–ˆìŠµë‹ˆë‹¤. ë¸Œë¼ìš°ì € ì½˜ì†” ì˜¤ë¥˜ë¥¼ í™•ì¸í•´ ì£¼ì„¸ìš”.";
+                    fallbackElement.textContent = "Google Maps¸¦ ºÒ·¯¿ÀÁö ¸øÇß½À´Ï´Ù. ºê¶ó¿ìÀú ÄÜ¼Ö ¿À·ù¸¦ È®ÀÎÇØ ÁÖ¼¼¿ä.";
                     fallbackElement.classList.add("is-visible");
                 }
             });
@@ -563,11 +576,10 @@
 
     function toggleMpHeart(btn){
         btn.classList.toggle("is-liked");
-        btn.textContent = btn.classList.contains("is-liked") ? "â™¥" : "â™¡";
+        btn.textContent = btn.classList.contains("is-liked") ? "?" : "¢½";
     }
 
     function copyMpUrl(){
         navigator.clipboard.writeText(window.location.href);
     }
 </script>
-

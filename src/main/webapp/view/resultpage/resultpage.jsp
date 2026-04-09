@@ -7,90 +7,90 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/result-page.css">
 </head>
 <body>
-<div class="result-list-page">
-    <div class="result-page">
-    <div class="container-result">
+<div class="rp-page">
+    <div class="rp-container">
 
-        <div class="header">
-            <div><a href="hello-servlet">← 검색으로 돌아가기</a></div>
-
-            <div class="title-area">
-                <h1>AI 맞춤 여행 일정</h1>
-                <p class="sub">${result.summary.destination} · ${result.summary.days}일 여행</p>
+        <!-- header -->
+        <div class="rp-header">
+            <div>
+                <a class="rp-back-link" href="hello-servlet">← 검색으로 돌아가기</a>
             </div>
 
+            <div class="rp-title-area">
+                <h1 class="rp-main-title">AI 맞춤 여행 일정</h1>
+                <p class="rp-sub">${result.summary.destination} · ${result.summary.days}일 여행</p>
+            </div>
 
-            <div class="actions">
-                <div class="icon-actions">
+            <div class="rp-actions">
+                <div class="rp-icon-actions">
                     <form action="edit-plan">
-                        <button type="submit" class="icon-btn">✏️</button>
+                        <button type="submit" class="rp-icon-btn">✏️</button>
                     </form>
-                    <button type="button" class="icon-btn" onclick="toggleHeart(this)">♡</button>
+                    <button type="button" class="rp-icon-btn" onclick="toggleRpHeart(this)">♡</button>
                 </div>
 
-                <div class="main-actions">
+                <div class="rp-main-actions">
                     <form action="pdf" method="get">
-                        <button type="submit" class="download">PDF 다운로드</button>
+                        <button type="submit" class="rp-primary-btn">PDF 다운로드</button>
                     </form>
 
                     <form action="${pageContext.request.contextPath}/save-plan" method="post">
                         <input type="hidden" name="title" value="${result.summary.title}">
-                        <button type="submit" class="download">저장하기</button>
+                        <button type="submit" class="rp-primary-btn">저장하기</button>
                     </form>
 
-                    <button type="button" class="download">게시하기</button>
+                    <button type="button" class="rp-primary-btn">게시하기</button>
                 </div>
             </div>
+        </div>
 
-
-            </form>
         <!-- 여행 정보 카드 -->
-            <div class="info-cards">
-                <div class="card">
-                    <!-- CSS에서 flex + gap으로 정렬하려면 이렇게 분리하는 게 더 깔끔해요 -->
-                    <p class="label"><span>📅</span> 여행 기간</p>
-                    <p class="value">${plan.summary.startDate} ~ ${plan.summary.endDate}</p>
-                </div>
-
-                <div class="card">
-                    <p class="label">👥 여행 인원</p>
-                    <p class="value">${plan.summary.travelers}명</p>
-                </div>
-
-                <div class="card">
-                    <p class="label">✨ 여행 스타일</p>
-                    <p class="value">${plan.summary.travelStyle}</p>
-                </div>
+        <div class="rp-info-cards">
+            <div class="rp-info-card rp-info-card--full">
+                <p class="rp-info-label"><span>📅</span> 여행 기간</p>
+                <p class="rp-info-value">${result.summary.startDate} ~ ${result.summary.endDate}</p>
             </div>
+
+            <div class="rp-info-card">
+                <p class="rp-info-label">👥 여행 인원</p>
+                <p class="rp-info-value">${result.summary.travelers}명</p>
+            </div>
+
+            <div class="rp-info-card">
+                <p class="rp-info-label">✨ 여행 스타일</p>
+                <p class="rp-info-value">${result.summary.travelStyle}</p>
+            </div>
+        </div>
 
         <!-- 지도 영역 -->
-        <div class="map-section">
-            <div class="map-header">
+        <div class="rp-map-section">
+            <div class="rp-map-header">
                 <span>🧭 여행 동선 지도</span>
-                <div class="legend">
-                    <span class="dot blue"></span> 관광지
-                    <span class="dot orange"></span> 식당
-                    <span class="dot purple"></span> 숙소
+                <div class="rp-legend">
+                    <span class="rp-dot rp-dot-blue"></span> 관광지
+                    <span class="rp-dot rp-dot-orange"></span> 식당
+                    <span class="rp-dot rp-dot-purple"></span> 숙소
                 </div>
             </div>
 
-            <div class="map-area">
+            <div class="rp-map-area">
                 <div
-                        id="travelMap"
-                        class="travel-map"
+                        id="rpTravelMap"
+                        class="rp-travel-map"
                         data-google-maps-api-key="${googleMapsApiKey}"
                         data-google-maps-map-id="${googleMapsMapId}">
                 </div>
-                <div id="mapFallbackMessage" class="map-fallback-message">
+                <div id="rpMapFallbackMessage" class="rp-map-fallback-message">
                     Google Maps API Key와 Map ID를 연결하면 여행 동선을 지도에서 볼 수 있습니다.
                 </div>
             </div>
-            <div class="map-toolbar">
-                <div class="day-filter" id="dayFilter">
+
+            <div class="rp-map-toolbar">
+                <div class="rp-day-filter" id="rpDayFilter">
                     <c:forEach var="item" items="${result.itinerary}" varStatus="status">
                         <button
                                 type="button"
-                                class="day-filter-button<c:if test='${status.first}'> active</c:if>"
+                                class="rp-day-filter-button<c:if test='${status.first}'> active</c:if>"
                                 data-day="${item.day}">
                             Day ${item.day}
                         </button>
@@ -100,11 +100,11 @@
         </div>
 
         <!-- 일정 리스트 -->
-        <div class="schedule">
+        <div class="rp-schedule">
             <c:forEach var="item" items="${result.itinerary}">
-                <div class="day">
+                <div class="rp-schedule-day">
                     <h3>${item.day}일차 <span>(${item.activities.size()}개 장소)</span></h3>
-                    <p class="route">
+                    <p class="rp-route">
                         <c:forEach var="act" items="${item.activities}" varStatus="status">
                             ● ${act.name}<c:if test="${!status.last}"> → </c:if>
                         </c:forEach>
@@ -113,56 +113,54 @@
             </c:forEach>
         </div>
 
-        <div class="detail-container">
-
-            <!-- 상단 -->
-            <div class="detail-header">
+        <!-- 상세 일정 -->
+        <div class="rp-detail-container">
+            <div class="rp-detail-header">
                 <h2>상세 일정</h2>
-                <div class="total-cost">총 예상 비용: ${result.summary.totalEstimatedCost} ${result.summary.currency}</div>
+                <div class="rp-total-cost">
+                    총 예상 비용: ${result.summary.totalEstimatedCost} ${result.summary.currency}
+                </div>
             </div>
 
-            <!-- 일차별 반복 -->
             <c:forEach var="item" items="${result.itinerary}">
-                <div class="day-card">
-
-                    <!-- day header -->
-                    <div class="day-header">
-                        <div class="day-left">
-                            <div class="day-badge">D${item.day}</div>
+                <div class="rp-day-card">
+                    <div class="rp-day-header">
+                        <div class="rp-day-left">
+                            <div class="rp-day-badge">D${item.day}</div>
                             <div>
-                                <div class="day-title">${item.day}일차</div>
-                                <div class="day-date">${item.date}</div>
+                                <div class="rp-day-title">${item.day}일차</div>
+                                <div class="rp-day-date">${item.date}</div>
                             </div>
                         </div>
 
-                        <div class="day-right">
-    <span class="transport">
-        <c:choose>
-            <c:when test="${not empty item.dayRoute && not empty item.dayRoute.routePreferenceLabelKo}">
-                <c:out value="${item.dayRoute.routePreferenceLabelKo}" />
-            </c:when>
-            <c:when test="${not empty item.transportation}">
-                <c:out value="${item.transportation}" />
-            </c:when>
-            <c:otherwise>이동 정보 없음</c:otherwise>
-        </c:choose>
-    </span>
-                            <span class="distance">
-        <c:choose>
-            <c:when test="${item.totalDistanceKm != null && item.totalTravelTimeMinutes != null}">
-                약 <c:out value="${item.totalDistanceKm}" />km · 당일 이동 약 <c:out value="${item.totalTravelTimeMinutes}" />분
-            </c:when>
-            <c:otherwise>거리 정보 없음</c:otherwise>
-        </c:choose>
-    </span>
+                        <div class="rp-day-right">
+                            <span class="rp-transport">
+                                <c:choose>
+                                    <c:when test="${not empty item.dayRoute && not empty item.dayRoute.routePreferenceLabelKo}">
+                                        <c:out value="${item.dayRoute.routePreferenceLabelKo}" />
+                                    </c:when>
+                                    <c:when test="${not empty item.transportation}">
+                                        <c:out value="${item.transportation}" />
+                                    </c:when>
+                                    <c:otherwise>이동 정보 없음</c:otherwise>
+                                </c:choose>
+                            </span>
+
+                            <span class="rp-distance">
+                                <c:choose>
+                                    <c:when test="${item.totalDistanceKm != null && item.totalTravelTimeMinutes != null}">
+                                        약 <c:out value="${item.totalDistanceKm}" />km · 당일 이동 약 <c:out value="${item.totalTravelTimeMinutes}" />분
+                                    </c:when>
+                                    <c:otherwise>거리 정보 없음</c:otherwise>
+                                </c:choose>
+                            </span>
                         </div>
                     </div>
 
-                    <!-- 활동 목록 -->
-                    <div class="time-section">
+                    <div class="rp-time-section">
                         <c:forEach var="act" items="${item.activities}" varStatus="activityStatus">
                             <div
-                                    class="item schedule-item"
+                                    class="rp-item rp-schedule-item"
                                     data-day="${item.day}"
                                     data-order="${activityStatus.count}"
                                     data-name="${fn:escapeXml(act.name)}"
@@ -170,30 +168,31 @@
                                     data-lat="${act.lat}"
                                     data-lng="${act.lng}"
                                     data-time="${fn:escapeXml(act.time)}">
+
                                 <c:choose>
                                     <c:when test="${act.type == 'TRANSPORT'}">
-                                        <div class="icon move">▲</div>
+                                        <div class="rp-item-icon rp-item-icon--move">▲</div>
                                     </c:when>
                                     <c:when test="${act.type == 'DINING'}">
-                                        <div class="icon food">🍽</div>
+                                        <div class="rp-item-icon rp-item-icon--food">🍽</div>
                                     </c:when>
                                     <c:when test="${act.type == 'ACCOMMODATION'}">
-                                        <div class="icon hotel">🏨</div>
+                                        <div class="rp-item-icon rp-item-icon--hotel">🏨</div>
                                     </c:when>
                                     <c:otherwise>
-                                        <div class="icon spot">📍</div>
+                                        <div class="rp-item-icon rp-item-icon--spot">📍</div>
                                     </c:otherwise>
                                 </c:choose>
 
-                                <div class="content">
-                                    <div class="top">
-                                        <span class="time">${act.time}</span>
-                                        <span class="title">${act.name}</span>
+                                <div class="rp-item-content">
+                                    <div class="rp-item-top">
+                                        <span class="rp-item-time">${act.time}</span>
+                                        <span class="rp-item-title">${act.name}</span>
                                     </div>
-                                    <div class="desc">${act.description}</div>
+                                    <div class="rp-item-desc">${act.description}</div>
                                 </div>
 
-                                <div class="meta">
+                                <div class="rp-item-meta">
                                     <span>${act.durationMinutes}분</span>
                                     <c:choose>
                                         <c:when test="${act.cost == 0}">
@@ -208,25 +207,21 @@
                         </c:forEach>
                     </div>
 
-                    <!-- 하단 요약 -->
-                    <div class="day-footer">
+                    <div class="rp-day-footer">
                         <span>${item.summary}</span>
                         <span>예상 비용: ${item.estimatedCost} ${item.currency}</span>
                     </div>
-
                 </div>
             </c:forEach>
-
         </div>
 
-        <div class="recommend-section">
-
+        <!-- 추천 -->
+        <div class="rp-recommend-section">
             <h2>추천 항공/숙박</h2>
 
-            <div class="recommend-grid">
-
+            <div class="rp-recommend-grid">
                 <!-- 항공 -->
-                <div class="recommend-card">
+                <div class="rp-recommend-card">
                     <h3>✈️ 항공권 최저가</h3>
                     <c:choose>
                         <c:when test="${empty result.flights}">
@@ -234,14 +229,14 @@
                         </c:when>
                         <c:otherwise>
                             <c:forEach var="flight" items="${result.flights}">
-                                <div class="recommend-item">
-                                    <div class="left">
-                                        <div class="title">${flight.airline} ${flight.flightNumber}</div>
-                                        <div class="desc">${flight.departureAirport} → ${flight.arrivalAirport}</div>
+                                <div class="rp-recommend-item">
+                                    <div class="rp-recommend-left">
+                                        <div class="rp-recommend-title">${flight.airline} ${flight.flightNumber}</div>
+                                        <div class="rp-recommend-desc">${flight.departureAirport} → ${flight.arrivalAirport}</div>
                                     </div>
-                                    <div class="right">
-                                        <div class="price">${flight.price} ${flight.currency}</div>
-                                        <div class="sub">왕복 1인</div>
+                                    <div class="rp-recommend-right">
+                                        <div class="rp-recommend-price">${flight.price} ${flight.currency}</div>
+                                        <div class="rp-recommend-sub">왕복 1인</div>
                                     </div>
                                 </div>
                             </c:forEach>
@@ -250,35 +245,33 @@
                 </div>
 
                 <!-- 숙박 -->
-                <div class="recommend-card">
+                <div class="rp-recommend-card">
                     <h3>🏨 숙박 추천</h3>
                     <c:forEach var="hotel" items="${result.hotels}">
-                        <div class="recommend-item">
-                            <div class="left">
-                                <div class="title">${hotel.name}</div>
-                                <div class="desc">⭐ ${hotel.rating} · ${hotel.location}</div>
+                        <div class="rp-recommend-item">
+                            <div class="rp-recommend-left">
+                                <div class="rp-recommend-title">${hotel.name}</div>
+                                <div class="rp-recommend-desc">⭐ ${hotel.rating} · ${hotel.location}</div>
                             </div>
-                            <div class="right">
-                                <div class="price">${hotel.pricePerNight} ${hotel.currency}</div>
-                                <div class="sub">1박</div>
+                            <div class="rp-recommend-right">
+                                <div class="rp-recommend-price">${hotel.pricePerNight} ${hotel.currency}</div>
+                                <div class="rp-recommend-sub">1박</div>
                             </div>
                         </div>
                     </c:forEach>
                 </div>
-
             </div>
-
         </div>
 
     </div>
-
 </div>
+
 <script>
     (function () {
-        const mapElement = document.getElementById("travelMap");
-        const fallbackElement = document.getElementById("mapFallbackMessage");
-        const dayButtons = Array.from(document.querySelectorAll(".day-filter-button"));
-        const scheduleItems = Array.from(document.querySelectorAll(".schedule-item"));
+        const mapElement = document.getElementById("rpTravelMap");
+        const fallbackElement = document.getElementById("rpMapFallbackMessage");
+        const dayButtons = Array.from(document.querySelectorAll(".rp-day-filter-button"));
+        const scheduleItems = Array.from(document.querySelectorAll(".rp-schedule-item"));
 
         if (!mapElement) {
             return;
@@ -305,9 +298,7 @@
             })
             .filter(Boolean)
             .sort(function (a, b) {
-                if (a.day !== b.day) {
-                    return a.day - b.day;
-                }
+                if (a.day !== b.day) return a.day - b.day;
                 return a.order - b.order;
             });
 
@@ -320,6 +311,7 @@
         const apiKey = (mapElement.dataset.googleMapsApiKey || "").trim();
         const mapId = (mapElement.dataset.googleMapsMapId || "").trim();
         const initialDay = dayButtons.length ? Number(dayButtons[0].dataset.day) : mapPoints[0].day;
+
         const state = {
             map: null,
             infoWindow: null,
@@ -366,9 +358,7 @@
                     const lat = Number(item.dataset.lat);
                     const lng = Number(item.dataset.lng);
 
-                    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-                        return;
-                    }
+                    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
 
                     const day = Number(item.dataset.day);
                     const order = Number(item.dataset.order);
@@ -393,6 +383,7 @@
             state.PinElement = markerLibrary.PinElement;
             state.useAdvancedMarker = Boolean(mapId);
             state.infoWindow = new google.maps.InfoWindow();
+
             const mapOptions = {
                 center: { lat: centerPoint.lat, lng: centerPoint.lng },
                 zoom: 12,
@@ -407,16 +398,13 @@
             }
 
             state.map = new state.MapClass(mapElement, mapOptions);
-
             mapElement.classList.add("is-ready");
             fallbackElement.classList.remove("is-visible");
             renderDay(state.activeDay);
         }
 
         function renderDay(day) {
-            if (!state.map) {
-                return;
-            }
+            if (!state.map) return;
 
             clearMap();
 
@@ -424,9 +412,7 @@
                 return point.day === day;
             });
 
-            if (!dayPoints.length) {
-                return;
-            }
+            if (!dayPoints.length) return;
 
             const bounds = new google.maps.LatLngBounds();
             const path = [];
@@ -482,9 +468,7 @@
                 return getPointKey(item.day, item.order) === pointKey;
             });
 
-            if (!point || !state.map) {
-                return;
-            }
+            if (!point || !state.map) return;
 
             state.activePointKey = pointKey;
 
@@ -497,16 +481,15 @@
                 return item.__travelKey === pointKey;
             });
 
-            if (!marker) {
-                return;
-            }
+            if (!marker) return;
 
             state.infoWindow.setContent(
-                "<div class='map-info-window'>" +
+                "<div class='rp-map-info-window'>" +
                 "<strong>" + escapeHtml(point.name) + "</strong>" +
                 (point.time ? "<div>" + escapeHtml(point.time) + "</div>" : "") +
                 "</div>"
             );
+
             if (state.useAdvancedMarker) {
                 state.infoWindow.open({
                     anchor: marker,
@@ -582,14 +565,10 @@
         }
 
         function normalizeCategory(category) {
-            if (!category) {
-                return "ATTRACTION";
-            }
+            if (!category) return "ATTRACTION";
 
             const upperCategory = category.toUpperCase();
-            if (upperCategory === "RESTAURANT") {
-                return "DINING";
-            }
+            if (upperCategory === "RESTAURANT") return "DINING";
             return upperCategory;
         }
 
@@ -649,21 +628,15 @@
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")
-                .replace(/\"/g, "&quot;")
+                .replace(/"/g, "&quot;")
                 .replace(/'/g, "&#39;");
         }
     })();
-</script>
-</body>
-<script>
 
-    function toggleHeart(btn) {
-        if (btn.innerText === "♡") {
-            btn.innerText = "❤";
-        } else {
-            btn.innerText = "♡";
-        }
+    function toggleRpHeart(btn) {
+        btn.innerText = btn.innerText === "♡" ? "❤" : "♡";
+        btn.classList.toggle("is-liked");
     }
 </script>
-
+</body>
 </html>
