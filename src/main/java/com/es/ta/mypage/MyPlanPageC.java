@@ -3,6 +3,7 @@ package com.es.ta.mypage;
 import com.es.ta.account.AccountDTO;
 import com.es.ta.resultpage.TravelJsonParser;
 import com.es.ta.resultpage.TravelResultVDTO;
+import com.es.ta.userreaction.UserreactionDAO;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -41,7 +42,8 @@ public class MyPlanPageC extends HttpServlet {
             return;
         }
 
-        // ── 항상 DB에서 최신 JSON 파싱 (세션 캐시 사용 안 함) ──
+        boolean liked = new UserreactionDAO().existsStar(savedPlan.getPlanId(), loginUser.getUser_id());
+
         TravelResultVDTO result = TravelJsonParser.parse(savedPlan.getResponseJson());
         if (result == null) {
             request.setAttribute("errorMsg", "여행 계획을 불러오지 못했습니다.");
@@ -52,11 +54,11 @@ public class MyPlanPageC extends HttpServlet {
 
         attachGoogleMapsConfig(request);
 
-        // 세션도 최신으로 갱신
         session.setAttribute("latestTravelResult", result);
 
         request.setAttribute("savedPlan", savedPlan);
         request.setAttribute("result", result);
+        request.setAttribute("liked", liked);
         request.setAttribute("content", "view/mypage/myplanpage.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
@@ -84,6 +86,7 @@ public class MyPlanPageC extends HttpServlet {
             }
             props.load(in);
         } catch (IOException e) {
+            e.printStackTrace();
         }
 
         return props;

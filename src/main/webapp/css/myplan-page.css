@@ -742,9 +742,30 @@
     transform: scale(0.96);
 }
 
-/* 하트 활성화 (좋아요) */
 .action-btn.is-liked {
-    color: #ef4444;
-    border-color: #fca5a5;
-    background: #fef2f2;
+    color: #eab308;           /* 별 색 (노랑) */
+    border-color: #fde68a;    /* 연한 노랑 테두리 */
+    background: #fefce8;      /* 부드러운 노랑 배경 */
+}#starBtn {
+     transition: all 0.15s ease;
+ }
+
+#starBtn:hover {
+    transform: scale(1.08);
+}
+
+#starBtn:active {
+    transform: scale(0.95);
+}
+
+#starBtn.is-liked {
+    color: #eab308;
+    border-color: #fde68a;
+    background: #fefce8;
+}
+#starBtn.is-liked,
+.action-btn.is-liked {
+    color: #eab308;
+    border-color: #fde68a;
+    background: #fefce8;
 }

@@ -69,6 +69,7 @@ public class TravelPlanDAO {
             }
         }
     }
+
     public static ArrayList<TravelPlanDTO> getPlansByUserId(int userId) {
         ArrayList<TravelPlanDTO> plans = new ArrayList<>();
 
@@ -179,5 +180,28 @@ public class TravelPlanDAO {
 
         return plan;
     }
+    public static final TravelPlanDAO DAO = new TravelPlanDAO();
 
+    private TravelPlanDAO() {
+    }
+
+    public boolean existsPlan(int planId) {
+        String sql = "SELECT 1 FROM travel_plan WHERE plan_id = ?";
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = DBManager_new.connect();
+            pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, planId);
+            rs = pstmt.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            DBManager_new.close(con, pstmt, rs);
+        }
+    }
 }
