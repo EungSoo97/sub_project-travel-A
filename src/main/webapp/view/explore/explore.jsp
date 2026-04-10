@@ -84,7 +84,9 @@
 
                         <div class="info">
                             <span>📅 ${plan.summary.days}일</span>
+
                             <span>👥 ${plan.summary.travelers}명</span>
+<%--                            <c:set var="currentPlanId" value="${plan.planId}" scope="page"/>--%>
                             <c:set var="currentPlanId" value="${plan.planId}" />
                             <%
                                 int likeCount = 0;
@@ -96,7 +98,7 @@
                                         int planId = planIdObj.intValue();
 
                                         UserreactionDAO dao = new UserreactionDAO();
-                                        likeCount = dao.countByPlan(planId);
+                                        likeCount = dao.countLikeByPlan(planId);
                                     } else {
                                     }
                                 } catch (Exception e) {
