@@ -165,7 +165,8 @@
                                             data-category="${fn:escapeXml(empty act.categoryCode ? act.category : act.categoryCode)}"
                                             data-lat="${act.lat}"
                                             data-lng="${act.lng}"
-                                            data-time="${fn:escapeXml(act.time)}">
+                                            data-time="${fn:escapeXml(act.time)}"
+                                            data-is-new="${(empty act.lat || empty act.lng) ? 'true' : 'false'}">
 
                                             <c:choose>
                                                 <c:when test="${act.category eq 'transport'}">
@@ -272,8 +273,11 @@
                 const mapElement = document.getElementById("travelMap");
                 const fallbackElement = document.getElementById("mapFallbackMessage");
                 const dayButtons = Array.from(document.querySelectorAll(".day-filter-button"));
-                const scheduleItems = Array.from(document.querySelectorAll(".schedule-item"));
-
+                const scheduleItems = Array.from(document.querySelectorAll(".schedule-item"))
+                    // ── 새로 추가된 활동 제외 ──
+                    .filter(function(item) {
+                        return item.dataset.isNew !== "true";
+                    });
                 if (!mapElement) {
                     return;
                 }

@@ -269,8 +269,11 @@
         const mapElement = document.getElementById("travelMap");
         const fallbackElement = document.getElementById("mapFallbackMessage");
         const dayButtons = Array.from(document.querySelectorAll(".day-filter-button"));
-        const scheduleItems = Array.from(document.querySelectorAll(".schedule-item"));
-
+        const scheduleItems = Array.from(document.querySelectorAll(".schedule-item"))
+            // ── 새로 추가된 활동 제외 ──
+            .filter(function(item) {
+                return item.dataset.isNew !== "true";
+            });
         if (!mapElement) {
             return;
         }

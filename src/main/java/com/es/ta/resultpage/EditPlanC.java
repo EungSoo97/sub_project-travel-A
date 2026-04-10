@@ -116,6 +116,24 @@ public class EditPlanC extends HttpServlet {
                                     origin.setTime(a.getTime());
                                     origin.setName(a.getName());
                                     origin.setDescription(a.getDescription());
+                                    origin.setType(a.getType());
+                                    origin.setDurationMinutes(a.getDurationMinutes());
+                                    origin.setCost(a.getCost());
+                                    origin.setCurrency(a.getCurrency());
+                                    // durationMinutes: 0이면 기존 값 유지, 0이 아니면 새 값으로 업데이트
+                                    if (a.getDurationMinutes() > 0) {
+                                        origin.setDurationMinutes(a.getDurationMinutes());
+                                    }
+                                    // cost: 0이면 기존 값 유지, 0이 아니면 새 값으로 업데이트
+                                    if (a.getCost() >= 0) {
+                                        origin.setCost(a.getCost());
+                                    }
+                                    if (a.getCurrency() != null && !a.getCurrency().isEmpty()) {
+                                        origin.setCurrency(a.getCurrency());
+                                    }
+                                    if (a.getLocation() != null && !a.getLocation().isEmpty()) {
+                                        origin.setLocation(a.getLocation());
+                                    }
                                     return origin;
                                 })
                                 .collect(java.util.stream.Collectors.toList());

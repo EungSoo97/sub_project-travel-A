@@ -221,6 +221,10 @@ document.getElementById('addActivityBtn').addEventListener('click', () => {
     const time = document.getElementById('newTime').value;
     const title = document.getElementById('newTitle').value;
     const desc = document.getElementById('newDesc').value;
+    const type = document.getElementById('newType').value || 'SPOT';
+    const durationMinutes = parseInt(document.getElementById('newDuration').value) || 0;
+    const cost = parseInt(document.getElementById('newCost').value) || 0;
+    const currency = document.getElementById('newCurrency').value || 'KRW';
 
     if (!time || !title) {
         alert('시간과 제목은 필수!');
@@ -231,21 +235,62 @@ document.getElementById('addActivityBtn').addEventListener('click', () => {
     const listId = modal.dataset.targetListId;
     const list = document.getElementById(listId);
 
+
+    // 타입에 따른 아이콘 결정
+    const iconMap = {
+        'transport': '🚆',
+        'dining': '🍽',
+        'accommodation': '🏨',
+        'spot': '📍'
+    };
+    const icon = iconMap[type] || '📍';
+
+    // 타입에 따른 CSS 클래스 결정
+    const classMap = {
+        'transport': 'activity-item--move',
+        'dining': 'activity-item--food',
+        'accommodation': 'activity-item--hotel',
+        'spot': 'activity-item--spot'
+    };
+    const itemClass = classMap[type] || 'activity-item--spot';
+
+    // 메타 태그 HTML (비용 태그는 항상 표시)
+    let metaTagsHTML = '';
+    if (durationMinutes > 0) {
+        metaTagsHTML += `<span class="meta-tag meta-tag--time">⏱ ${durationMinutes}분</span>`;
+    }
+    if (cost === 0) {
+        metaTagsHTML += `<span class="meta-tag meta-tag--cost">$ 무료</span>`;
+    } else {
+        metaTagsHTML += `<span class="meta-tag meta-tag--cost">$ ${cost} ${currency}</span>`;
+    }
+
     // 새 아이템 생성
     const item = document.createElement('div');
-    item.className = 'activity-item activity-item--spot';
+    item.className = `activity-item ${itemClass}`;
+    item.draggable = true;
+    item.dataset.type = type;
+    item.dataset.isNew = "true"; // ── 새로 추가된 활동 표시 ──
     item.innerHTML = `
         <div class="activity-item__drag">⋮⋮</div>
-        <div class="activity-item__icon">✏️</div>
+        <div class="activity-item__icon">${icon}</div>
         <div class="activity-item__body">
             <div class="activity-item__top">
                 <span class="activity-item__time">${time}</span>
                 <span class="activity-item__title">${title}</span>
             </div>
             <div class="activity-item__desc">${desc}</div>
+            <div class="activity-item__meta">
+                ${metaTagsHTML}
+            </div>
         </div>
-        <button class="activity-item__delete">🗑</button>
+        <button class="activity-item__delete" type="button" title="삭제">🗑</button>
     `;
+
+    // 데이터 속성 저장
+    item.dataset.durationMinutes = durationMinutes;
+    item.dataset.cost = cost;
+    item.dataset.currency = currency;
 
     list.appendChild(item);
 
@@ -253,6 +298,10 @@ document.getElementById('addActivityBtn').addEventListener('click', () => {
     document.getElementById('newTime').value = '';
     document.getElementById('newTitle').value = '';
     document.getElementById('newDesc').value = '';
+    document.getElementById('newDuration').value = '';
+    document.getElementById('newCost').value = '';
+    document.getElementById('newCurrency').value = 'KRW';
+    document.getElementById('newType').value = 'spot';
 
     modal.classList.remove('show');
 });
