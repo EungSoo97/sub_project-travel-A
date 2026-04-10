@@ -19,7 +19,7 @@
             </div>
 
             <div class="actions">
-                <button type="button" onclick="toggleResultHeart(this)" class="action-btn icon-btn">♡</button>
+                <button type="button" onclick="toggleResultHeart(this)" class="action-btn icon-btn">☆</button>
 
                 <form action="${pageContext.request.contextPath}/edit-plan" method="get">
                     <c:if test="${not empty savedPlan}">
