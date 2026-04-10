@@ -20,15 +20,14 @@
             </div>
 
             <div class="actions">
-                <form action="edit-plan" >
-                    <button>✏️</button>
+                <button id="heartBtn" onclick="toggleHeart(this)" class="action-btn icon-btn">♡</button>
+                <form action="edit-plan">
+                    <button type="submit" class="action-btn edit-btn">✏️ 편집</button>
                 </form>
-                <button onclick="toggleHeart(this)">♡</button>
-                <%-- 공유 버튼은 url 복사만 --%>
                 <form action="pdf" method="get">
-                    <button type="submit"   class="download">PDF 다운로드</button>
+                    <button type="submit" class="action-btn download-btn">⬇ PDF</button>
                 </form>
-                <button  class="download">게시하기</button>
+                <button class="action-btn post-btn">📢 게시</button>
             </div>
         </div>
 
@@ -36,21 +35,22 @@
             <input type="hidden" name="title" value="${result.summary.title}">
             <button type="submit">저장하기</button>
         </form>
-        <!-- 여행 정보 카드 -->
-        <div class="info-cards">
-            <div class="card">
-                <p class="label">📅 여행 기간</p>
-                <p class="value">${result.summary.startDate} ~ ${result.summary.endDate}</p>
+
+        <!-- 여행 정보 -->
+        <div class="mp-summary-grid">
+            <div class="mp-summary-card mp-summary-card--full">
+                <p class="mp-summary-label">📅 여행 기간</p>
+                <p class="mp-summary-value">${result.summary.startDate} ~ ${result.summary.endDate}</p>
             </div>
 
-            <div class="card">
-                <p class="label">👥 여행 인원</p>
-                <p class="value">${result.summary.travelers}명</p>
+            <div class="mp-summary-card">
+                <p class="mp-summary-label">👥 여행 인원</p>
+                <p class="mp-summary-value">${result.summary.travelers}명</p>
             </div>
 
-            <div class="card">
-                <p class="label">✨ 여행 스타일</p>
-                <p class="value">${result.summary.travelStyle}</p>
+            <div class="mp-summary-card">
+                <p class="mp-summary-label">🎯 여행 스타일</p>
+                <p class="mp-summary-value">${result.summary.travelStyle}</p>
             </div>
         </div>
 
@@ -265,6 +265,68 @@
 
 </div>
 <script>
+    async function toggleStar(btn) {
+        if (!btn) return;
+
+        const planId = btn.dataset.planId;
+        if (!planId) {
+            showMpSnackbar("플랜 정보가 없습니다.");
+            return;
+        }
+
+        if (btn.dataset.loading === "true") return;
+        btn.dataset.loading = "true";
+        btn.disabled = true;
+
+        try {
+            const response = await fetch("${pageContext.request.contextPath}/plan-like/toggle", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                },
+                body: "planId=" + encodeURIComponent(planId)
+            });
+
+            const data = await response.json();
+
+            if (response.status === 401) {
+                showMpSnackbar("로그인이 필요합니다.");
+                window.location.href = "${pageContext.request.contextPath}/login";
+                return;
+            }
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "즐겨찾기 처리에 실패했습니다.");
+            }
+
+            const liked = !!data.liked;
+
+            btn.classList.toggle("is-liked", liked);
+            btn.textContent = liked ? "★" : "☆";
+
+            showMpSnackbar(liked ? "즐겨찾기에 저장했어요." : "즐겨찾기를 해제했어요.");
+        } catch (e) {
+            console.error("toggleStar error:", e);
+            showMpSnackbar(e.message || "오류가 발생했습니다.");
+        } finally {
+            btn.dataset.loading = "false";
+            btn.disabled = false;
+        }
+    }
+
+    function showMpSnackbar(message) {
+        const snackbar = document.getElementById("mpSnackbar");
+        if (!snackbar) return;
+
+        snackbar.textContent = message;
+        snackbar.classList.add("show");
+
+        clearTimeout(snackbar._timer);
+        snackbar._timer = setTimeout(function () {
+            snackbar.classList.remove("show");
+        }, 2000);
+    }
+
     (function () {
         const mapElement = document.getElementById("travelMap");
         const fallbackElement = document.getElementById("mapFallbackMessage");
@@ -463,7 +525,6 @@
                 }
             });
             state.markers = [];
-
             if (state.polyline) {
                 state.polyline.setMap(null);
                 state.polyline = null;
@@ -481,7 +542,6 @@
             }
 
             state.activePointKey = pointKey;
-
             scheduleItems.forEach(function (item) {
                 const isActive = getPointKey(Number(item.dataset.day), Number(item.dataset.order)) === pointKey;
                 item.classList.toggle("is-active", isActive);
@@ -490,7 +550,6 @@
             const marker = state.markers.find(function (item) {
                 return item.__travelKey === pointKey;
             });
-
             if (!marker) {
                 return;
             }
@@ -502,14 +561,10 @@
                 "</div>"
             );
             if (state.useAdvancedMarker) {
-                state.infoWindow.open({
-                    anchor: marker,
-                    map: state.map
-                });
+                state.infoWindow.open({ anchor: marker, map: state.map });
             } else {
                 state.infoWindow.open(state.map, marker);
             }
-
             if (panToMarker) {
                 state.map.panTo({ lat: point.lat, lng: point.lng });
             }
@@ -538,14 +593,12 @@
 
         function createMarker(point, color) {
             let marker;
-
             if (state.useAdvancedMarker) {
                 const pin = new state.PinElement({
                     background: color,
                     borderColor: color,
                     glyphColor: "#FFFFFF"
                 });
-
                 marker = new state.AdvancedMarkerElement({
                     map: state.map,
                     position: { lat: point.lat, lng: point.lng },
@@ -567,23 +620,16 @@
                     }
                 });
             }
-
             marker.addListener("click", function () {
                 focusPoint(point.day, point.order, true);
             });
-
             return marker;
         }
 
         function normalizeCategory(category) {
-            if (!category) {
-                return "ATTRACTION";
-            }
-
+            if (!category) return "ATTRACTION";
             const upperCategory = category.toUpperCase();
-            if (upperCategory === "RESTAURANT") {
-                return "DINING";
-            }
+            if (upperCategory === "RESTAURANT") return "DINING";
             return upperCategory;
         }
 
@@ -595,7 +641,6 @@
             if (window.google && window.google.maps && typeof window.google.maps.importLibrary === "function") {
                 return Promise.resolve();
             }
-
             return new Promise(function (resolve, reject) {
                 const existingScript = document.querySelector("script[data-google-maps-loader='true']");
                 if (existingScript) {
@@ -603,37 +648,29 @@
                     existingScript.addEventListener("error", reject, { once: true });
                     return;
                 }
-
                 const script = document.createElement("script");
                 script.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(key) + "&v=weekly&loading=async&libraries=maps,marker";
                 script.async = true;
                 script.defer = true;
                 script.dataset.googleMapsLoader = "true";
-                script.addEventListener("load", function () {
-                    waitForGoogleMaps(resolve, reject);
-                }, { once: true });
-                script.addEventListener("error", function () {
-                    reject(new Error("Google Maps script request failed"));
-                }, { once: true });
+                script.addEventListener("load", function () { waitForGoogleMaps(resolve, reject); }, { once: true });
+                script.addEventListener("error", function () { reject(new Error("Google Maps script request failed")); }, { once: true });
                 document.head.appendChild(script);
             });
         }
 
         function waitForGoogleMaps(resolve, reject) {
             let attempts = 0;
-
             (function checkGoogleMapsReady() {
                 if (window.google && window.google.maps && typeof window.google.maps.importLibrary === "function") {
                     resolve();
                     return;
                 }
-
                 attempts += 1;
                 if (attempts > 50) {
                     reject(new Error("Google Maps API loaded but google.maps.importLibrary is unavailable"));
                     return;
                 }
-
                 window.setTimeout(checkGoogleMapsReady, 100);
             })();
         }
@@ -650,7 +687,6 @@
 </script>
 </body>
 <script>
-
     function toggleHeart(btn) {
         if (btn.innerText === "♡") {
             btn.innerText = "❤";
@@ -659,5 +695,4 @@
         }
     }
 </script>
-
 </html>

@@ -25,8 +25,19 @@
                         <p class="sub">${result.summary.destination} · ${result.summary.days}일 여행</p>
                     </div>
 
+                    <!-- 스낵바 -->
+                    <div id="mpSnackbar" class="mp-snackbar"></div>
+
                     <div class="actions">
-                        <button id="heartBtn" onclick="toggleHeart(this)" class="action-btn icon-btn">♡</button>
+                        <form action="${pageContext.request.contextPath}/star" method="post" style="display:inline;">
+                            <input type="hidden" name="planId" value="${savedPlan.planId}">
+                            <button
+                                    id="starBtn"
+                                    type="submit"
+                                    class="action-btn icon-btn ${liked ? 'is-liked' : ''}">
+                                ${liked ? '★' : '☆'}
+                            </button>
+                        </form>
                         <form action="edit-plan">
                             <input type="hidden" name="id" value="${savedPlan.planId}">
                             <button type="submit" class="action-btn edit-btn">✏️ 편집</button>
@@ -43,21 +54,23 @@
                     <button type="submit">저장하기</button>
                 </form>
 
-                <!-- 여행 정보 카드 -->
-                <div class="info-cards">
-                    <div class="card">
-                        <p class="label">📅 여행 기간</p>
-                        <p class="value">${result.summary.startDate} ~ ${result.summary.endDate}</p>
+                <!-- 여행 정보 -->
+                <div class="mp-summary-grid">
+                    <div class="mp-summary-card mp-summary-card--full">
+                        <p class="mp-summary-label">📅 여행 기간</p>
+                        <p class="mp-summary-value">
+                            ${result.summary.startDate} ~ ${result.summary.endDate}
+                        </p>
                     </div>
 
-                    <div class="card">
-                        <p class="label">👥 여행 인원</p>
-                        <p class="value">${result.summary.travelers}명</p>
+                    <div class="mp-summary-card">
+                        <p class="mp-summary-label">👥 여행 인원</p>
+                        <p class="mp-summary-value">${result.summary.travelers}명</p>
                     </div>
 
-                    <div class="card">
-                        <p class="label">✨ 여행 스타일</p>
-                        <p class="value">${result.summary.travelStyle}</p>
+                    <div class="mp-summary-card">
+                        <p class="mp-summary-label">🎯 여행 스타일</p>
+                        <p class="mp-summary-value">${result.summary.travelStyle}</p>
                     </div>
                 </div>
 
@@ -65,7 +78,7 @@
                     <!-- 지도 영역 -->
                     <div class="map-section">
                         <div class="map-header">
-                            <span>🧭 여행 동선 지도</span>
+                            <span>🗺 여행 동선 지도</span>
                             <div class="legend">
                                 <span class="dot blue"></span> 관광지
                                 <span class="dot orange"></span> 식당
@@ -219,7 +232,7 @@
 
                     <div class="recommend-grid">
                         <div class="recommend-card">
-                            <h3>✈️ 저가 항공권 최저가</h3>
+                            <h3>✈ 저가 항공권 최저가</h3>
                             <c:choose>
                                 <c:when test="${empty result.flights}">
                                     <p>항공권 정보를 불러오지 못했습니다.</p>
@@ -269,6 +282,68 @@
         </div>
 
         <script>
+            async function toggleStar(btn) {
+                if (!btn) return;
+
+                const planId = btn.dataset.planId;
+                if (!planId) {
+                    showMpSnackbar("플랜 정보가 없습니다.");
+                    return;
+                }
+
+                if (btn.dataset.loading === "true") return;
+                btn.dataset.loading = "true";
+                btn.disabled = true;
+
+                try {
+                    const response = await fetch("${pageContext.request.contextPath}/plan-like/toggle", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                        },
+                        body: "planId=" + encodeURIComponent(planId)
+                    });
+
+                    const data = await response.json();
+
+                    if (response.status === 401) {
+                        showMpSnackbar("로그인이 필요합니다.");
+                        window.location.href = "${pageContext.request.contextPath}/login";
+                        return;
+                    }
+
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || "즐겨찾기 처리에 실패했습니다.");
+                    }
+
+                    const liked = !!data.liked;
+
+                    btn.classList.toggle("is-liked", liked);
+                    btn.textContent = liked ? "★" : "☆";
+
+                    showMpSnackbar(liked ? "즐겨찾기에 저장했어요." : "즐겨찾기를 해제했어요.");
+                } catch (e) {
+                    console.error("toggleStar error:", e);
+                    showMpSnackbar(e.message || "오류가 발생했습니다.");
+                } finally {
+                    btn.dataset.loading = "false";
+                    btn.disabled = false;
+                }
+            }
+
+            function showMpSnackbar(message) {
+                const snackbar = document.getElementById("mpSnackbar");
+                if (!snackbar) return;
+
+                snackbar.textContent = message;
+                snackbar.classList.add("show");
+
+                clearTimeout(snackbar._timer);
+                snackbar._timer = setTimeout(function () {
+                    snackbar.classList.remove("show");
+                }, 2000);
+            }
+
             (function () {
                 const mapElement = document.getElementById("travelMap");
                 const fallbackElement = document.getElementById("mapFallbackMessage");

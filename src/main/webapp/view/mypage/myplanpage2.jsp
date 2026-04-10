@@ -1,135 +1,71 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ page import="com.es.ta.account.AccountDTO" %>
-<%
-    AccountDTO user = (AccountDTO) request.getSession().getAttribute("user");
-    boolean isLoggedIn = (user != null);
-    pageContext.setAttribute("isLoggedIn", isLoggedIn);
-%>
-
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css" />
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/result-page.css" />
 
 <c:choose>
-    <c:when test="${empty plan}">
+    <c:when test="${empty result}">
         <section class="detail-container">
             <div class="day-card" style="padding:24px;">
                 <h2>여행 계획을 불러오지 못했습니다.</h2>
-                <p>잠시 후 다시 시도해주세요.</p>
+                <p>${errorMsg}</p>
                 <button type="button" onclick="location.href='${pageContext.request.contextPath}/mypage'">마이페이지로 돌아가기</button>
             </div>
         </section>
     </c:when>
     <c:otherwise>
-        <div class="result-page mp-page detail-page-shell">
-            <div class="container-result mp-container detail-page-container">
+        <div class="result-page">
+            <div class="container-result">
+                <div class="header">
+                    <div>
+                        <a href="${pageContext.request.contextPath}/mypage">←마이페이지로 돌아가기</a>
+                    </div>
 
-                <div class="mp-header">
-                    <a class="mp-back-link" href="${pageContext.request.contextPath}/explore">
-                        ← 목록으로 돌아가기
-                    </a>
-
-                    <div class="mp-title-area detail-title-area">
-                        <div class="detail-title-row">
-                            <div class="detail-title-text">
-                                <h1 class="mp-title">
-                                    ${empty plan.summary.title ? plan.summary.destination : plan.summary.title}
-                                </h1>
-                                <p class="mp-sub">
-                                    ${plan.summary.startDate} ~ ${plan.summary.endDate}
-                                    · 총 ${plan.summary.days}일 여행
-                                </p>
-                            </div>
-
-                            <button type="button" class="dp-review-link-btn" onclick="openReviewSheet()">
-                                후기 전체보기 >
-                            </button>
-                        </div>
-
-                        <div class="detail-title-divider"></div>
+                    <div class="title-area">
+                        <h1 class="result-h1">${result.summary.title}</h1>
+                        <p class="sub">${result.summary.destination} · ${result.summary.days}일 여행</p>
                     </div>
 
                     <div class="actions">
-                        <c:choose>
-                            <c:when test="${isLoggedIn}">
-                                <button
-                                    type="button"
-                                    class="action-btn icon-btn ${liked ? 'is-liked' : ''}"
-                                    onclick="toggleHeart(this, ${plan.planId})">
-                                    ${liked ? '♥' : '♡'}
-                                </button>
-                            </c:when>
-                            <c:otherwise>
-                                <button
-                                    type="button"
-                                    class="action-btn icon-btn"
-                                    onclick="showLoginAlert()">
-                                    ♡
-                                </button>
-                            </c:otherwise>
-                        </c:choose>
-
-                        <button type="button" class="action-btn icon-btn" onclick="copyUrl()">⤴</button>
-
-                        <form action="${pageContext.request.contextPath}/pdf" method="get">
-                            <button type="submit" class="action-btn download-btn">PDF</button>
+                        <button id="heartBtn" onclick="toggleHeart(this)" class="action-btn icon-btn">♡</button>
+                        <form action="edit-plan">
+                            <input type="hidden" name="id" value="${savedPlan.planId}">
+                            <button type="submit" class="action-btn edit-btn">✏️ 편집</button>
                         </form>
-
-                        <c:choose>
-                            <c:when test="${isLoggedIn}">
-                                <form action="${pageContext.request.contextPath}/save-plan" method="post">
-                                    <input type="hidden" name="title" value="${empty plan.summary.title ? plan.summary.destination : plan.summary.title}">
-                                    <button type="submit" class="action-btn edit-btn">저장</button>
-                                </form>
-                            </c:when>
-                            <c:otherwise>
-                                <button type="button" class="action-btn edit-btn" onclick="showLoginAlert()">저장</button>
-                            </c:otherwise>
-                        </c:choose>
-
-                        <button type="button" class="action-btn post-btn" id="dpOpenModalBtn">후기</button>
-                    </div>
-                </div>
-
-                <div id="dpSnackbar" class="dp-snackbar"></div>
-
-                <div id="dpReviewModal" class="dp-modal">
-                    <div class="dp-modal-content">
-                        <div class="dp-modal-header">
-                            <h2>후기 작성</h2>
-                            <button type="button" class="dp-modal-close" id="dpCloseModalBtn">&times;</button>
-                        </div>
-
-                        <form action="${pageContext.request.contextPath}/review" method="post">
-                            <input type="hidden" name="planId" value="${plan.planId}">
-                            <textarea class="dp-textarea" name="content" rows="5" placeholder="여행 후기를 작성해주세요"></textarea>
-                            <button class="dp-submit-btn" type="submit">작성 완료</button>
+                        <form action="pdf" method="get">
+                            <button type="submit" class="action-btn download-btn">⬇ PDF</button>
                         </form>
+                        <button class="action-btn post-btn">📢 게시</button>
                     </div>
                 </div>
 
-                <div class="mp-summary-grid">
-                    <div class="mp-summary-card mp-summary-card--full">
-                        <p class="mp-summary-label"><span class="mp-label-icon">📅</span>여행 기간</p>
-                        <p class="mp-summary-value">${plan.summary.startDate} ~ ${plan.summary.endDate}</p>
+                <form action="${pageContext.request.contextPath}/save-plan" method="post">
+                    <input type="hidden" name="title" value="${result.summary.title}">
+                    <button type="submit">저장하기</button>
+                </form>
+
+                <!-- 여행 정보 카드 -->
+                <div class="info-cards">
+                    <div class="card">
+                        <p class="label">📅 여행 기간</p>
+                        <p class="value">${result.summary.startDate} ~ ${result.summary.endDate}</p>
                     </div>
 
-                    <div class="mp-summary-card">
-                        <p class="mp-summary-label"><span class="mp-label-icon">👥</span>여행 인원</p>
-                        <p class="mp-summary-value">${plan.summary.travelers}명</p>
+                    <div class="card">
+                        <p class="label">👥 여행 인원</p>
+                        <p class="value">${result.summary.travelers}명</p>
                     </div>
 
-                    <div class="mp-summary-card">
-                        <p class="mp-summary-label"><span class="mp-label-icon">✨</span>여행 스타일</p>
-                        <p class="mp-summary-value">${plan.summary.travelStyle}</p>
+                    <div class="card">
+                        <p class="label">✨ 여행 스타일</p>
+                        <p class="value">${result.summary.travelStyle}</p>
                     </div>
                 </div>
 
-                <div class="map-section">
+
+                    <!-- 지도 영역 -->
+                    <div class="map-section">
                         <div class="map-header">
-                            <span class="map-title"><span class="mp-inline-icon">🗺</span>여행 동선 지도</span>
+                            <span>🧭 여행 동선 지도</span>
                             <div class="legend">
                                 <span class="dot blue"></span> 관광지
                                 <span class="dot orange"></span> 식당
@@ -139,37 +75,37 @@
 
                         <div class="map-area">
                             <div
-                                id="travelMap"
-                                class="travel-map"
-                                data-google-maps-api-key="${googleMapsApiKey}"
-                                data-google-maps-map-id="${googleMapsMapId}">
+                                    id="travelMap"
+                                    class="travel-map"
+                                    data-google-maps-api-key="${googleMapsApiKey}"
+                                    data-google-maps-map-id="${googleMapsMapId}">
                             </div>
                             <div id="mapFallbackMessage" class="map-fallback-message">
-                                Google Maps API Key와 Map ID를 연결하면 여행 동선을 지도에서 확인할 수 있습니다.
+                                Google Maps API Key와 Map ID를 연결하면 여행 동선을 지도에서 볼 수 있습니다.
                             </div>
                         </div>
-
                         <div class="map-toolbar">
                             <div class="day-filter" id="dayFilter">
-                                <c:forEach var="item" items="${plan.itinerary}" varStatus="status">
+                                <c:forEach var="item" items="${result.itinerary}" varStatus="status">
                                     <button
-                                        type="button"
-                                        class="day-filter-button<c:if test='${status.first}'> active</c:if>"
-                                        data-day="${item.day}">
+                                            type="button"
+                                            class="day-filter-button<c:if test='${status.first}'> active</c:if>"
+                                            data-day="${item.day}">
                                         Day ${item.day}
                                     </button>
                                 </c:forEach>
                             </div>
                         </div>
-                </div>
+                    </div>
 
+                <!-- 일정 리스트 -->
                 <div class="schedule">
-                    <c:forEach var="item" items="${plan.itinerary}">
+                    <c:forEach var="item" items="${result.itinerary}">
                         <div class="day">
-                            <h3>${item.day}일차 <span>(${fn:length(item.activities)}개 장소)</span></h3>
+                            <h3>${item.day}일차 <span>(${item.activities.size()}개 장소)</span></h3>
                             <p class="route">
                                 <c:forEach var="act" items="${item.activities}" varStatus="status">
-                                    ${act.name}<c:if test="${!status.last}"> → </c:if>
+                                    ● ${act.name}<c:if test="${!status.last}"> → </c:if>
                                 </c:forEach>
                             </p>
                         </div>
@@ -178,12 +114,14 @@
 
                 <div class="detail-container">
 
+                    <!-- 상단 -->
                     <div class="detail-header">
                         <h2>상세 일정</h2>
-                        <div class="total-cost">총 예상 비용: ${plan.summary.totalEstimatedCost} ${plan.summary.currency}</div>
+                        <div class="total-cost">총 예상 비용: ${result.summary.totalEstimatedCost} ${result.summary.currency}</div>
                     </div>
 
-                    <c:forEach var="item" items="${plan.itinerary}" varStatus="dayStatus">
+
+                    <c:forEach var="item" items="${result.itinerary}" varStatus="dayStatus">
                         <div class="day-card">
                             <div class="day-header">
                                 <div class="day-left">
@@ -197,7 +135,7 @@
                                 <div class="day-right">
                                     <span class="transport">
                                         <c:choose>
-                                            <c:when test="${not empty item.dayRoute and not empty item.dayRoute.routePreferenceLabelKo}">
+                                            <c:when test="${not empty item.dayRoute && not empty item.dayRoute.routePreferenceLabelKo}">
                                                 <c:out value="${item.dayRoute.routePreferenceLabelKo}" />
                                             </c:when>
                                             <c:when test="${not empty item.transportation}">
@@ -208,8 +146,8 @@
                                     </span>
                                     <span class="distance">
                                         <c:choose>
-                                            <c:when test="${item.totalDistanceKm != null and item.totalTravelTimeMinutes != null}">
-                                                총 <c:out value="${item.totalDistanceKm}" />km · 이동 <c:out value="${item.totalTravelTimeMinutes}" />분
+                                            <c:when test="${item.totalDistanceKm != null && item.totalTravelTimeMinutes != null}">
+                                                약 <c:out value="${item.totalDistanceKm}" />km · 당일 이동 약 <c:out value="${item.totalTravelTimeMinutes}" />분
                                             </c:when>
                                             <c:otherwise>거리 정보 없음</c:otherwise>
                                         </c:choose>
@@ -220,30 +158,30 @@
                             <div class="time-section">
                                 <c:forEach var="act" items="${item.activities}" varStatus="activityStatus">
                                     <div
-                                        class="item schedule-item"
-                                        data-day="${item.day}"
-                                        data-order="${activityStatus.count}"
-                                        data-name="${fn:escapeXml(act.name)}"
-                                        data-category="${fn:escapeXml(empty act.categoryCode ? act.category : act.categoryCode)}"
-                                        data-lat="${act.lat}"
-                                        data-lng="${act.lng}"
-                                        data-time="${fn:escapeXml(act.time)}"
-                                        data-is-new="${(empty act.lat || empty act.lng) ? 'true' : 'false'}">
+                                            class="item schedule-item"
+                                            data-day="${item.day}"
+                                            data-order="${activityStatus.count}"
+                                            data-name="${fn:escapeXml(act.name)}"
+                                            data-category="${fn:escapeXml(empty act.categoryCode ? act.category : act.categoryCode)}"
+                                            data-lat="${act.lat}"
+                                            data-lng="${act.lng}"
+                                            data-time="${fn:escapeXml(act.time)}"
+                                            data-is-new="${(empty act.lat || empty act.lng) ? 'true' : 'false'}">
 
-                                        <c:choose>
-                                            <c:when test="${act.category eq 'transport'}">
-                                                <div class="icon move">🚗</div>
-                                            </c:when>
-                                            <c:when test="${act.category eq 'food' or act.category eq 'dining'}">
-                                                <div class="icon food">🍽</div>
-                                            </c:when>
-                                            <c:when test="${act.category eq 'hotel' or act.category eq 'accommodation'}">
-                                                <div class="icon hotel">🏨</div>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <div class="icon spot">📍</div>
-                                            </c:otherwise>
-                                        </c:choose>
+                                            <c:choose>
+                                                <c:when test="${act.category eq 'transport'}">
+                                                    <div class="icon move">▲</div>
+                                                </c:when>
+                                                <c:when test="${act.category eq 'food' || act.category eq 'dining'}">
+                                                    <div class="icon food">🍽</div>
+                                                </c:when>
+                                                <c:when test="${act.category eq 'hotel' || act.category eq 'accommodation'}">
+                                                    <div class="icon hotel">🏨</div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <div class="icon spot">📍</div>
+                                                </c:otherwise>
+                                            </c:choose>
 
                                         <div class="content">
                                             <div class="top">
@@ -260,7 +198,7 @@
                                                     <span>무료</span>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <span>${act.cost} ${empty act.currency ? plan.summary.currency : act.currency}</span>
+                                                    <span>${act.cost} ${act.currency}</span>
                                                 </c:otherwise>
                                             </c:choose>
                                         </div>
@@ -269,32 +207,33 @@
                             </div>
 
                             <div class="day-footer">
-                                <span>${empty item.summary ? '하루 일정 요약' : item.summary}</span>
-                                <span>예상 비용: ${item.estimatedCost} ${empty item.currency ? plan.summary.currency : item.currency}</span>
+                                <span>${item.summary}</span>
+                                <span>예상 비용: ${item.estimatedCost} ${item.currency}</span>
                             </div>
                         </div>
                     </c:forEach>
                 </div>
 
                 <div class="recommend-section">
-                    <h2>추천 항공/숙소</h2>
+                    <h2>추천 항공/호텔</h2>
 
                     <div class="recommend-grid">
                         <div class="recommend-card">
-                            <h3>추천 항공권</h3>
+                            <h3>✈️ 저가 항공권 최저가</h3>
                             <c:choose>
-                                <c:when test="${empty plan.flights}">
-                                    <p class="mp-empty-text">항공권 추천 정보가 없습니다.</p>
+                                <c:when test="${empty result.flights}">
+                                    <p>항공권 정보를 불러오지 못했습니다.</p>
                                 </c:when>
                                 <c:otherwise>
-                                    <c:forEach var="flight" items="${plan.flights}">
+                                    <c:forEach var="flight" items="${result.flights}">
                                         <div class="recommend-item">
                                             <div class="left">
-                                                <div class="title">${flight.airline}</div>
+                                                <div class="title">${flight.airline} ${flight.flightNumber}</div>
                                                 <div class="desc">${flight.departureAirport} → ${flight.arrivalAirport}</div>
                                             </div>
                                             <div class="right">
-                                                <div class="price">${flight.price} ${empty flight.currency ? plan.summary.currency : flight.currency}</div>
+                                                <div class="price">${flight.price} ${flight.currency}</div>
+                                                <div class="sub">항공 1인</div>
                                             </div>
                                         </div>
                                     </c:forEach>
@@ -303,25 +242,21 @@
                         </div>
 
                         <div class="recommend-card">
-                            <h3>추천 숙소</h3>
+                            <h3>🏨 숙박 추천</h3>
                             <c:choose>
-                                <c:when test="${empty plan.hotels}">
-                                    <p class="mp-empty-text">숙소 추천 정보가 없습니다.</p>
+                                <c:when test="${empty result.hotels}">
+                                    <p>숙박 정보를 불러오지 못했습니다.</p>
                                 </c:when>
                                 <c:otherwise>
-                                    <c:forEach var="hotel" items="${plan.hotels}">
+                                    <c:forEach var="hotel" items="${result.hotels}">
                                         <div class="recommend-item">
                                             <div class="left">
                                                 <div class="title">${hotel.name}</div>
-                                                <div class="desc">
-                                                    평점 ${hotel.rating}
-                                                    <c:if test="${not empty hotel.location}">
-                                                        · ${hotel.location}
-                                                    </c:if>
-                                                </div>
+                                                <div class="desc">⭐ ${hotel.rating} · ${hotel.location}</div>
                                             </div>
                                             <div class="right">
-                                                <div class="price">${hotel.pricePerNight} ${empty hotel.currency ? plan.summary.currency : hotel.currency}</div>
+                                                <div class="price">${hotel.pricePerNight} ${hotel.currency}</div>
+                                                <div class="sub">1박</div>
                                             </div>
                                         </div>
                                     </c:forEach>
@@ -333,61 +268,28 @@
             </div>
         </div>
 
-        <div id="dpPlanBackdrop" class="dp-sheet-backdrop" onclick="closePlanSheet()"></div>
-
-        <div id="dpPlanSheet" class="dp-sheet" role="dialog" aria-modal="true" aria-labelledby="dpPlanSheetTitle">
-            <div class="dp-sheet-handle-wrap">
-                <div class="dp-sheet-handle"></div>
-            </div>
-
-            <div class="dp-sheet-head">
-                <div>
-                    <p id="dpPlanSheetTitle" class="dp-sheet-title">여행 후기</p>
-                    <p class="dp-sheet-sub">${plan.summary.destination} 여행 후기 모음</p>
-                </div>
-
-                <button class="dp-sheet-close" onclick="closePlanSheet()" aria-label="닫기">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                </button>
-            </div>
-
-            <div class="dp-sheet-body">
-                <c:choose>
-                    <c:when test="${empty reviews}">
-                        <p class="mp-empty-text">아직 작성된 후기가 없습니다.</p>
-                    </c:when>
-                    <c:otherwise>
-                        <c:forEach var="review" items="${reviews}">
-                            <div class="dp-review-item">
-                                <p class="dp-review-writer">${review.userName}</p>
-                                <p class="dp-review-text">${review.content}</p>
-                                <p class="dp-review-date">
-                                    <fmt:formatDate value="${review.createdAt}" pattern="yyyy-MM-dd" />
-                                </p>
-                            </div>
-                        </c:forEach>
-                    </c:otherwise>
-                </c:choose>
-            </div>
-        </div>
-
         <script>
             (function () {
                 const mapElement = document.getElementById("travelMap");
                 const fallbackElement = document.getElementById("mapFallbackMessage");
                 const dayButtons = Array.from(document.querySelectorAll(".day-filter-button"));
-                const scheduleItems = Array.from(document.querySelectorAll(".schedule-item"));
-
-                if (!mapElement) return;
+                const scheduleItems = Array.from(document.querySelectorAll(".schedule-item"))
+                    // ── 새로 추가된 활동 제외 ──
+                    .filter(function(item) {
+                        return item.dataset.isNew !== "true";
+                    });
+                if (!mapElement) {
+                    return;
+                }
 
                 const mapPoints = scheduleItems
                     .map(function (item) {
                         const lat = Number(item.dataset.lat);
                         const lng = Number(item.dataset.lng);
 
-                        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+                        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+                            return null;
+                        }
 
                         return {
                             day: Number(item.dataset.day),
@@ -401,22 +303,21 @@
                     })
                     .filter(Boolean)
                     .sort(function (a, b) {
-                        if (a.day !== b.day) return a.day - b.day;
+                        if (a.day !== b.day) {
+                            return a.day - b.day;
+                        }
                         return a.order - b.order;
                     });
 
                 if (!mapPoints.length) {
-                    if (fallbackElement) {
-                        fallbackElement.textContent = "지도에 표시할 좌표 데이터가 아직 없습니다.";
-                        fallbackElement.classList.add("is-visible");
-                    }
+                    fallbackElement.textContent = "지도에 표시할 좌표 데이터가 아직 없습니다.";
+                    fallbackElement.classList.add("is-visible");
                     return;
                 }
 
                 const apiKey = (mapElement.dataset.googleMapsApiKey || "").trim();
                 const mapId = (mapElement.dataset.googleMapsMapId || "").trim();
                 const initialDay = dayButtons.length ? Number(dayButtons[0].dataset.day) : mapPoints[0].day;
-
                 const state = {
                     map: null,
                     infoWindow: null,
@@ -434,10 +335,8 @@
                 bindScheduleItems();
 
                 if (!apiKey) {
-                    if (fallbackElement) {
-                        fallbackElement.textContent = "Google Maps API Key를 연결하면 여행 동선을 지도에서 확인할 수 있습니다.";
-                        fallbackElement.classList.add("is-visible");
-                    }
+                    fallbackElement.textContent = "Google Maps API Key를 연결하면 여행 동선을 지도에서 볼 수 있습니다.";
+                    fallbackElement.classList.add("is-visible");
                     return;
                 }
 
@@ -445,10 +344,8 @@
                     .then(initMap)
                     .catch(function (error) {
                         console.error("Google Maps load failed:", error);
-                        if (fallbackElement) {
-                            fallbackElement.textContent = "Google Maps를 불러오지 못했습니다. 브라우저 콘솔 오류를 확인해주세요.";
-                            fallbackElement.classList.add("is-visible");
-                        }
+                        fallbackElement.textContent = "Google Maps를 불러오지 못했습니다. 브라우저 콘솔 오류를 확인해 주세요.";
+                        fallbackElement.classList.add("is-visible");
                     });
 
                 function bindDayButtons() {
@@ -464,10 +361,9 @@
                 function bindScheduleItems() {
                     scheduleItems.forEach(function (item) {
                         item.addEventListener("click", function () {
-                            activateScheduleItem(item);
-
                             const lat = Number(item.dataset.lat);
                             const lng = Number(item.dataset.lng);
+
                             if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
                                 return;
                             }
@@ -485,12 +381,6 @@
                     });
                 }
 
-                function activateScheduleItem(activeItem) {
-                    scheduleItems.forEach(function (item) {
-                        item.classList.toggle("is-active", item === activeItem);
-                    });
-                }
-
                 async function initMap() {
                     const mapsLibrary = await google.maps.importLibrary("maps");
                     const markerLibrary = await google.maps.importLibrary("marker");
@@ -501,7 +391,6 @@
                     state.PinElement = markerLibrary.PinElement;
                     state.useAdvancedMarker = Boolean(mapId);
                     state.infoWindow = new google.maps.InfoWindow();
-
                     const mapOptions = {
                         center: { lat: centerPoint.lat, lng: centerPoint.lng },
                         zoom: 12,
@@ -511,17 +400,21 @@
                         fullscreenControl: false
                     };
 
-                    if (mapId) mapOptions.mapId = mapId;
+                    if (mapId) {
+                        mapOptions.mapId = mapId;
+                    }
 
                     state.map = new state.MapClass(mapElement, mapOptions);
-                    mapElement.classList.add("is-ready");
-                    if (fallbackElement) fallbackElement.classList.remove("is-visible");
 
+                    mapElement.classList.add("is-ready");
+                    fallbackElement.classList.remove("is-visible");
                     renderDay(state.activeDay);
                 }
 
                 function renderDay(day) {
-                    if (!state.map) return;
+                    if (!state.map) {
+                        return;
+                    }
 
                     clearMap();
 
@@ -529,7 +422,9 @@
                         return point.day === day;
                     });
 
-                    if (!dayPoints.length) return;
+                    if (!dayPoints.length) {
+                        return;
+                    }
 
                     const bounds = new google.maps.LatLngBounds();
                     const path = [];
@@ -565,8 +460,11 @@
 
                 function clearMap() {
                     state.markers.forEach(function (marker) {
-                        if (typeof marker.setMap === "function") marker.setMap(null);
-                        else marker.map = null;
+                        if (typeof marker.setMap === "function") {
+                            marker.setMap(null);
+                        } else {
+                            marker.map = null;
+                        }
                     });
                     state.markers = [];
 
@@ -582,7 +480,9 @@
                         return getPointKey(item.day, item.order) === pointKey;
                     });
 
-                    if (!point || !state.map) return;
+                    if (!point || !state.map) {
+                        return;
+                    }
 
                     state.activePointKey = pointKey;
 
@@ -595,7 +495,9 @@
                         return item.__travelKey === pointKey;
                     });
 
-                    if (!marker) return;
+                    if (!marker) {
+                        return;
+                    }
 
                     state.infoWindow.setContent(
                         "<div class='map-info-window'>" +
@@ -603,9 +505,11 @@
                         (point.time ? "<div>" + escapeHtml(point.time) + "</div>" : "") +
                         "</div>"
                     );
-
                     if (state.useAdvancedMarker) {
-                        state.infoWindow.open({ anchor: marker, map: state.map });
+                        state.infoWindow.open({
+                            anchor: marker,
+                            map: state.map
+                        });
                     } else {
                         state.infoWindow.open(state.map, marker);
                     }
@@ -676,9 +580,14 @@
                 }
 
                 function normalizeCategory(category) {
-                    if (!category) return "ATTRACTION";
+                    if (!category) {
+                        return "ATTRACTION";
+                    }
+
                     const upperCategory = category.toUpperCase();
-                    if (upperCategory === "RESTAURANT") return "DINING";
+                    if (upperCategory === "RESTAURANT") {
+                        return "DINING";
+                    }
                     return upperCategory;
                 }
 
@@ -742,90 +651,6 @@
                         .replace(/'/g, "&#39;");
                 }
             })();
-
-            const dpContextPath = "${pageContext.request.contextPath}";
-            const dpReviewModal = document.getElementById("dpReviewModal");
-            const dpOpenModalBtn = document.getElementById("dpOpenModalBtn");
-            const dpCloseModalBtn = document.getElementById("dpCloseModalBtn");
-            const dpSnackbar = document.getElementById("dpSnackbar");
-
-            if (dpOpenModalBtn && dpReviewModal) {
-                dpOpenModalBtn.addEventListener("click", function () {
-                    dpReviewModal.classList.add("is-open");
-                    document.body.style.overflow = "hidden";
-                });
-            }
-
-            if (dpCloseModalBtn && dpReviewModal) {
-                dpCloseModalBtn.addEventListener("click", function () {
-                    dpReviewModal.classList.remove("is-open");
-                    document.body.style.overflow = "";
-                });
-            }
-
-            window.addEventListener("click", function (e) {
-                if (e.target === dpReviewModal) {
-                    dpReviewModal.classList.remove("is-open");
-                    document.body.style.overflow = "";
-                }
-            });
-
-            function openReviewSheet() {
-                document.getElementById("dpPlanBackdrop").classList.add("show");
-                document.getElementById("dpPlanSheet").classList.add("show");
-                document.body.style.overflow = "hidden";
-            }
-
-            function closePlanSheet() {
-                document.getElementById("dpPlanBackdrop").classList.remove("show");
-                document.getElementById("dpPlanSheet").classList.remove("show");
-                document.body.style.overflow = "";
-            }
-
-            function copyUrl() {
-                navigator.clipboard.writeText(window.location.href).then(function () {
-                    showDpSnackbar("링크가 복사되었습니다.");
-                }).catch(function () {
-                    showDpSnackbar("링크 복사에 실패했습니다.");
-                });
-            }
-
-            function toggleHeart(btn, planId) {
-                fetch(dpContextPath + "/like", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ planId: planId })
-                })
-                    .then(function (res) {
-                        return res.json();
-                    })
-                    .then(function (data) {
-                        btn.innerText = data.liked ? "♥" : "♡";
-                        btn.classList.toggle("is-liked", data.liked);
-                        showDpSnackbar(data.liked ? "좋아요가 반영되었습니다." : "좋아요를 취소했습니다.");
-                    })
-                    .catch(function (err) {
-                        console.error(err);
-                        showDpSnackbar("좋아요 처리 중 오류가 발생했습니다.");
-                    });
-            }
-
-            function showLoginAlert() {
-                alert("로그인 후 이용 가능합니다.");
-            }
-
-            function showDpSnackbar(message) {
-                if (!dpSnackbar) return;
-                dpSnackbar.textContent = message;
-                dpSnackbar.classList.add("show");
-
-                clearTimeout(dpSnackbar._timer);
-                dpSnackbar._timer = setTimeout(function () {
-                    dpSnackbar.classList.remove("show");
-                }, 1800);
-            }
         </script>
     </c:otherwise>
 </c:choose>
