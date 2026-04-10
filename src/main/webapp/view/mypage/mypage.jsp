@@ -276,9 +276,9 @@
                         <span class="review-dest-tag" style="background: ${status.index % 2 == 0 ? '#E6F1FB' : '#E8F8EE'}; color: ${status.index % 2 == 0 ? '#185FA5' : '#12803B'};">
                             📍 ${review.city}
                         </span>
-                            <span class="review-meta-date">
-                            ${review.createdAt} · ${review.duration}일
-                        </span>
+                            <span class="review-meta-date relative-date" data-date="${review.createdAt}">
+                            <fmt:formatDate value="${review.createdAt}" pattern="yyyy.MM.dd"/> · ${review.createdAt}
+                            </span>
                         </div>
 
                         <div class="review-title">${review.city}</div>
@@ -293,8 +293,9 @@
                         </div>
 
                         <div class="review-card-footer">
-                            <span class="review-foot-stat">❤️ 좋아요 <strong>0</strong></span>
-                            <span class="review-foot-stat">💬 댓글 <strong>0</strong></span>
+
+                            <button class="review-tag" onclick= "location.href ='detail-page?id=${review.reviewId}'">일정 상세보기</button>
+
                         </div>
                     </div>
                 </div>
@@ -412,35 +413,45 @@
             });
         }
     });
-
     document.addEventListener('DOMContentLoaded', function() {
         const dateElements = document.querySelectorAll('.relative-date');
 
         dateElements.forEach(el => {
-            const dateStr = el.getAttribute('data-date');
+            const dateStr = el.getAttribute('data-date'); // "2026-04-10"
             if(!dateStr) return;
 
             const postDate = new Date(dateStr);
             const nowDate = new Date();
-            const diffMS = nowDate - postDate; // 밀리초 차이
 
-            const diffDays = Math.floor(diffMS / (1000 * 60 * 60 * 24));
+            // 1. 차이 계산
+            const diffMS = nowDate - postDate;
             const diffHours = Math.floor(diffMS / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffMS / (1000 * 60 * 60 * 24));
 
-            let display = "";
+            // 2. 표시할 시간 텍스트 결정
+            let timeText = "";
             if (diffDays === 0) {
-                display = diffHours <= 0 ? "방금 전" : diffHours + "시간 전";
+                timeText = diffHours <= 0 ? "방금 전" : diffHours + "시간 전";
             } else if (diffDays < 7) {
-                display = diffDays + "일 전";
+                timeText = diffDays + "일 전";
             } else {
-                // 7일 이상 지나면 원래 날짜 표시 (yyyy.MM)
+                // 7일 이상이면 yyyy.MM 형식
                 const year = postDate.getFullYear();
                 const month = ('0' + (postDate.getMonth() + 1)).slice(-2);
-                display = year + "." + month;
+                timeText = year + "." + month;
             }
-            el.innerText = display;
+
+            // 3. 기존의 "2026-04-10" 부분(원본 날짜)만 추출
+            // JSP에서 처음 그려진 텍스트가 "2026-04-10 · 3일" 형태라면 [0]번 인덱스가 날짜입니다.
+            const originalText = el.innerText;
+            const rawDatePart = originalText.includes('·') ? originalText.split('·')[0].trim() : dateStr;
+
+            // 4. 최종 결과 조립: [시간차] · [원본날짜]
+            // 예: 9시간 전 · 2026-04-10
+            el.innerText = timeText + " · " + rawDatePart;
         });
     });
+
 </script>
 </body>
 </html>
