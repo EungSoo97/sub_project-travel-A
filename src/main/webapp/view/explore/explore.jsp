@@ -86,17 +86,18 @@
                             <span>📅 ${plan.summary.days}일</span>
                             <span>👥 ${plan.summary.travelers}명</span>
                             <c:set var="currentPlanId" value="${plan.planId}" />
+                            <c:set var="currentPlanId" value="${plan.planId}" scope="page"/>
                             <%
                                 int likeCount = 0;
                                 try {
                                     // Debug: Check if currentPlanId is set
-                                    Integer planIdObj = (Integer) pageContext.getAttribute("currentPlanId");
+                                    Object planIdObj = pageContext.getAttribute("currentPlanId");
 
                                     if (planIdObj != null) {
-                                        int planId = planIdObj.intValue();
+                                        int planId = Integer.parseInt(String.valueOf(planIdObj));
 
                                         UserreactionDAO dao = new UserreactionDAO();
-                                        likeCount = dao.countByPlan(planId);
+                                        likeCount = dao.countLikeByPlan(planId);
                                     } else {
                                     }
                                 } catch (Exception e) {

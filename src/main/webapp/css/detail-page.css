@@ -164,32 +164,31 @@
 .dp-modal {
     display: none;
     position: fixed;
-    z-index: 1000;
     inset: 0;
-    background-color: rgba(17, 24, 39, 0.48);
-    align-items: flex-end;
-    justify-content: center;
+    background: rgba(17, 24, 39, 0.45);
+    z-index: 9999;
 }
-
 .dp-modal.is-open {
-    display: flex;
+    display: block;
 }
 
 .dp-modal-content {
-    background-color: #fff;
-    padding: 24px 20px 32px;
-    border-radius: 20px 20px 0 0;
+    position: fixed;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%) translateY(100%);
     width: 100%;
     max-width: 400px;
-    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.15);
-    animation: dpSlideUp 0.28s cubic-bezier(0.1, 0.8, 0.2, 1);
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.18);
+    padding: 20px 16px 24px;
+    transition: transform 0.3s cubic-bezier(0.1, 0.8, 0.2, 1);
 }
 
-@keyframes dpSlideUp {
-    from { transform: translateY(60px); opacity: 0; }
-    to   { transform: translateY(0); opacity: 1; }
+.dp-modal.is-open .dp-modal-content {
+    transform: translateX(-50%) translateY(0);
 }
-
 .dp-modal-header {
     display: flex;
     justify-content: space-between;
@@ -202,67 +201,41 @@
     font-size: 17px;
     font-weight: 800;
     color: var(--text-primary);
-    letter-spacing: -0.03em;
 }
 
 .dp-modal-close {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 18px;
-    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    font-size: 24px;
     line-height: 1;
-}
-
-.dp-modal-close:hover {
-    background: #f3f4f6;
+    cursor: pointer;
+    color: var(--text-secondary);
 }
 
 .dp-textarea {
     width: 100%;
-    padding: 14px;
+    min-height: 120px;
+    border: 1px solid #dbe2ea;
     border-radius: 12px;
-    border: 1.5px solid var(--border);
-    resize: none;
-    min-height: 110px;
-    margin-bottom: 12px;
-    box-sizing: border-box;
-    background: var(--surface);
+    padding: 12px 14px;
     font-size: 14px;
-    font-family: inherit;
-    color: var(--text-primary);
-    letter-spacing: -0.01em;
-    outline: none;
-    transition: border-color 0.15s;
-}
-
-.dp-textarea:focus {
-    border-color: var(--primary);
-    background: #fff;
+    resize: vertical;
+    box-sizing: border-box;
+    margin-bottom: 14px;
 }
 
 .dp-submit-btn {
     width: 100%;
-    height: 48px;
-    background: var(--primary);
-    color: #fff;
+    height: 46px;
     border: none;
-    border-radius: 12px;
+    border-radius: 14px;
+    background: #2563eb;
+    color: #fff;
     font-size: 15px;
     font-weight: 700;
     cursor: pointer;
-    letter-spacing: -0.01em;
-    transition: background 0.15s;
-}
-
-.dp-submit-btn:hover {
-    background: var(--primary-dark);
 }
 
 /* =========================
@@ -719,4 +692,74 @@
 .dp-snackbar.show {
     visibility: visible;
     opacity: 1;
+}
+
+/* ❤️ 좋아요 */
+.action-btn.is-heart {
+    color: #ef4444;
+    border-color: #fca5a5;
+    background: #fef2f2;
+}
+
+.dp-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.dp-modal.is-open {
+    display: flex;
+}
+
+.dp-modal-content {
+    width: 100%;
+    max-width: 400px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+}
+
+.dp-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.dp-modal-close {
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.dp-textarea {
+    width: 100%;
+    min-height: 120px;
+    border: 1px solid #dbe2ea;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 14px;
+    resize: vertical;
+    box-sizing: border-box;
+    margin-bottom: 14px;
+}
+
+.dp-submit-btn {
+    width: 100%;
+    height: 46px;
+    border: none;
+    border-radius: 14px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
 }
