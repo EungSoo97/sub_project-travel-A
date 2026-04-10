@@ -39,6 +39,7 @@
                 <p class="email">travel.lover@email.com</p>
                 <div class="badges">
                     <span class="badge" onclick="openTitleModal()">🏅 여행 플랜 마스터</span>
+<%--                    <h2>데이터 확인: ${reviewList}</h2>--%>
                     <span class="badge">📍 18개 도시 방문</span>
                 </div>
             </div>
@@ -118,7 +119,7 @@
 </nav>
 
 <section class="mypage-content">
-
+<%----%>
     <div id="content-saved" class="tab-content active">
         <c:choose>
             <c:when test="${not empty savedTrips}">
@@ -243,111 +244,66 @@
             </c:otherwise>
         </c:choose>
     </div>
-    <%--내가쓴 리뷰 돔--%>
-    <div id="content-reviews" class="tab-content">
-        <c:choose>
-            <c:when test="${not empty reviewList}">
 
-                <div class="review-timeline">
-                    <c:set var="currentYear" value="0" />
+<%--    <div id="content-reviews" class="tab-content">--%>
 
-                    <c:forEach var="review" items="${reviewList}" varStatus="status">
 
-                        <%-- 연도 구분선: 연도가 바뀔 때마다 출력 --%>
-                        <c:if test="${review.year != currentYear}">
-                            <div class="review-year-divider">${review.year}</div>
-                            <c:set var="currentYear" value="${review.year}" />
-                        </c:if>
-
-                        <div class="review-tl-wrap">
-
-                                <%-- 타임라인 축 (점 + 선) --%>
-                            <div class="review-tl-axis">
-                                <div class="review-tl-dot"></div>
-                                <c:if test="${not status.last}">
-                                    <div class="review-tl-line"></div>
-                                </c:if>
-                            </div>
-
-                                <%-- 후기 카드 --%>
-                            <div class="review-card">
-
-                                    <%-- 카드 헤더: 도시/국가 태그 + 날짜·기간 --%>
-                                <div class="review-card-head">
-                                    <span class="review-dest-tag">
-                                        ${review.city} &middot; ${review.country}
-                                    </span>
-                                    <span class="review-meta-date">
-                                        <fmt:formatDate value="${review.travelDate}" pattern="yyyy.MM"/> &middot; ${review.duration}일
-                                    </span>
-                                </div>
-
-                                    <%-- 제목 --%>
-                                <div class="review-title">${review.title}</div>
-
-                                    <%-- 본문 --%>
-                                <div class="review-body">${review.content}</div>
-
-                                    <%-- 사진 썸네일 (최대 3장 + 나머지 +N) --%>
-                                <c:if test="${not empty review.photos}">
-                                    <div class="review-photos">
-                                        <c:forEach var="photo" items="${review.photos}" varStatus="ps">
-                                            <c:if test="${ps.index < 3}">
-                                                <img class="review-photo-thumb"
-                                                     src="${photo.thumbUrl}"
-                                                     alt="여행 사진 ${ps.index + 1}" />
-                                            </c:if>
-                                        </c:forEach>
-                                        <c:if test="${fn:length(review.photos) > 3}">
-                                            <div class="review-photo-more">
-                                                +${fn:length(review.photos) - 3}
-                                            </div>
-                                        </c:if>
-                                    </div>
-                                </c:if>
-
-                                    <%-- 해시태그 --%>
-                                <c:if test="${not empty review.tags}">
-                                    <div class="review-tags">
-                                        <c:forEach var="tag" items="${review.tags}">
-                                            <span class="review-tag"># ${tag}</span>
-                                        </c:forEach>
-                                    </div>
-                                </c:if>
-
-                                    <%-- 별점 + 좋아요/댓글 수 --%>
-                                <div class="review-card-footer">
-                                    <span class="review-stars">
-                                        <c:forEach begin="1" end="5" var="i">
-                                            <c:choose>
-                                                <c:when test="${i <= review.rating}">&#9733;</c:when>
-                                                <c:otherwise>&#9734;</c:otherwise>
-                                            </c:choose>
-                                        </c:forEach>
-                                    </span>
-                                    <span class="review-foot-stat">
-                                        좋아요 <strong>${review.likeCount}</strong>
-                                    </span>
-                                    <span class="review-foot-stat">
-                                        댓글 <strong>${review.commentCount}</strong>
-                                    </span>
-                                </div>
-
-                            </div><%-- /review-card --%>
-                        </div><%-- /review-tl-wrap --%>
-
-                    </c:forEach>
-                </div><%-- /review-timeline --%>
-
-            </c:when>
-            <c:otherwise>
-                <div class="empty-state">
-                    <p>📝 아직 작성한 후기가 없어요!</p>
-                </div>
-            </c:otherwise>
-        </c:choose>
-    </div>
+<%--리뷰탭--%>
     <%-- ===================== /후기 탭 ===================== --%>
+    <div id="content-reviews" class="tab-content active">
+        <div class="review-timeline">
+            <c:set var="currentYear" value="0" />
+
+            <c:forEach var="review" items="${reviewList}" varStatus="status">
+
+                <%-- 1. 연도 구분 (에러 방지를 위해 단순 비교로 변경) --%>
+                <c:set var="thisYear" value="${fn:substring(review.createdAt, 0, 4)}" />
+                <c:if test="${thisYear != currentYear}">
+                    <div class="review-year-divider">${thisYear}</div>
+                    <c:set var="currentYear" value="${thisYear}" />
+                </c:if>
+
+                <div class="review-tl-wrap">
+                    <div class="review-tl-axis">
+                        <div class="review-tl-dot" style="background: ${status.index % 2 == 0 ? '#378ADD' : '#1BBA53'};"></div>
+                        <c:if test="${not status.last}">
+                            <div class="review-tl-line"></div>
+                        </c:if>
+                    </div>
+
+                    <div class="review-card">
+                        <div class="review-card-head">
+                        <span class="review-dest-tag" style="background: ${status.index % 2 == 0 ? '#E6F1FB' : '#E8F8EE'}; color: ${status.index % 2 == 0 ? '#185FA5' : '#12803B'};">
+                            📍 ${review.city}
+                        </span>
+                            <span class="review-meta-date">
+                            ${review.createdAt} · ${review.duration}일
+                        </span>
+                        </div>
+
+                        <div class="review-title">${review.city}</div>
+
+                        <div class="review-body">
+                                ${review.content}
+                        </div>
+
+                        <div class="review-tags">
+                            <span class="review-tag">#여행기록</span>
+                            <span class="review-tag">#기록</span>
+                        </div>
+
+                        <div class="review-card-footer">
+                            <span class="review-foot-stat">❤️ 좋아요 <strong>0</strong></span>
+                            <span class="review-foot-stat">💬 댓글 <strong>0</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </c:forEach>
+        </div>
+    </div>
+
+    <%-- ===================== /후기 탭 ===================== --%>
+    <%-- 통계 --%>
     <div id="content-stats" class="tab-content">
         <div class="stat-grid">
             <div class="stat-card">
@@ -396,57 +352,94 @@
     </div>
 
 </section>
-
-<script>
-    const tabBtns = document.querySelectorAll('.tab');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            tabBtns.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            const targetId = btn.getAttribute('data-target');
-            document.getElementById(targetId).classList.add('active');
-        });
-    });
-    const monthlyData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-</script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-    new Chart(document.getElementById('barChart'), {
-        type: 'bar',
-        data: {
-            labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-            datasets: [{
-                data: monthlyData,
-                backgroundColor: '#378ADD',
-                borderRadius: 6,
-                borderSkipped: false
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {legend: {display: false}},
-            scales: {
-                x: {grid: {display: false}},
-                y: {beginAtZero: true, ticks: {stepSize: 1}, grid: {color: 'rgba(0,0,0,0.05)'}}
-            }
-        }
-    });
-
+    /* 1. 모달 함수를 가장 먼저, 그리고 '바깥'에 선언합니다. */
     function openTitleModal() {
-        document.getElementById('titleModal').classList.add('show');
+        console.log("모달 열기 실행"); // 확인용
+        const modal = document.getElementById('titleModal');
+        if (modal) {
+            modal.classList.add('show');
+        } else {
+            console.error("titleModal 요소를 찾을 수 없습니다.");
+        }
     }
 
     function closeTitleModal() {
-        document.getElementById('titleModal').classList.remove('show');
+        const modal = document.getElementById('titleModal');
+        if (modal) modal.classList.remove('show');
     }
 
-    document.getElementById('titleModal').addEventListener('click', function(e) {
-        if (e.target === this) closeTitleModal();
+    /* 2. 탭 전환과 차트는 페이지 로드 후에 실행되도록 합니다. */
+    document.addEventListener('DOMContentLoaded', function () {
+        // 탭 기능
+        const tabBtns = document.querySelectorAll('.tabs .tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-target');
+
+                // 전부 끄기
+                tabBtns.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                // 누른 것만 켜기
+                btn.classList.add('active');
+                const target = document.getElementById(targetId);
+                if(target) target.classList.add('active');
+            });
+        });
+
+        // 차트 데이터 및 생성
+        const monthlyData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        const ctx = document.getElementById('barChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                    datasets: [{
+                        data: monthlyData,
+                        backgroundColor: '#378ADD',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateElements = document.querySelectorAll('.relative-date');
+
+        dateElements.forEach(el => {
+            const dateStr = el.getAttribute('data-date');
+            if(!dateStr) return;
+
+            const postDate = new Date(dateStr);
+            const nowDate = new Date();
+            const diffMS = nowDate - postDate; // 밀리초 차이
+
+            const diffDays = Math.floor(diffMS / (1000 * 60 * 60 * 24));
+            const diffHours = Math.floor(diffMS / (1000 * 60 * 60));
+
+            let display = "";
+            if (diffDays === 0) {
+                display = diffHours <= 0 ? "방금 전" : diffHours + "시간 전";
+            } else if (diffDays < 7) {
+                display = diffDays + "일 전";
+            } else {
+                // 7일 이상 지나면 원래 날짜 표시 (yyyy.MM)
+                const year = postDate.getFullYear();
+                const month = ('0' + (postDate.getMonth() + 1)).slice(-2);
+                display = year + "." + month;
+            }
+            el.innerText = display;
+        });
     });
 </script>
 </body>
