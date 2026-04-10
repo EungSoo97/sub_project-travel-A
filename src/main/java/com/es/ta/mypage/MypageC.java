@@ -5,6 +5,7 @@ import com.es.ta.account.AccountDTO;
 import com.es.ta.mypage.TravelPlanDAO;
 import com.es.ta.mypage.TravelPlanDTO;
 import com.es.ta.userreaction.UserreactionDAO;
+import com.es.ta.userreaction.UserreactionDTO;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -41,6 +42,13 @@ public class MypageC extends HttpServlet {
         // 좋아요한 플랜
         List<TravelPlanDTO> likedPlans = userreactionDAO.getLikedPlans(userId);
         System.out.println("좋아요한 플랜 개수 = " + likedPlans.size());  // ✅ 추가
+
+        //  내가 쓴 후기
+
+        ArrayList<UserreactionDTO> reviewList = UserreactionDAO.getReviewsByUserId(userId);
+        request.setAttribute(reviewList,reviewList);
+
+
 
         request.setAttribute("likedPlans", likedPlans);
         request.setAttribute("content", "view/mypage/mypage.jsp");

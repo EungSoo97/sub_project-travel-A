@@ -70,21 +70,21 @@ System.out.println("=== Debug Parameters ===");
             System.out.println("planId parameter: " + planIdStr);
             System.out.println("content parameter: '" + content + "'");
             System.out.println("content length: " + (content != null ? content.length() : "null"));
-            
+
             // 내용이 비어있으면 처리하지 않음
             if (content == null || content.trim().isEmpty()) {
                 System.out.println("Content is empty - skipping insert");
                 return;
             }
-            
+
             AccountDTO user = (AccountDTO) request.getSession().getAttribute("user");
             System.out.println("user from session: " + user);
-            
+
             if (user == null) {
                 System.out.println("User is null - not logged in!");
                 return;
             }
-            
+
             int planId = Integer.parseInt(planIdStr);
             int userId = user.getUser_id();
             System.out.println("parsed planId: " + planId);
@@ -117,6 +117,7 @@ System.out.println("executeUpdate result: " + result);
 
 
     }
+
 
 
     public boolean exists(int planId, int userId) {
@@ -288,6 +289,30 @@ System.out.println("executeUpdate result: " + result);
     }
 
 
+    public static ArrayList<UserreactionDTO> getReviewsByUserId(int userId) {
+
+        Connection con =null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String sql = "SELECT r.review_id, r.plan_id, r.user_id, r.content, r.created_at, u.u_name \" +\n" +
+                "            \"FROM review r \" +\n" +
+                "            \"JOIN user_info u ON r.user_id = u.u_user_id \" +\n" +
+                "            \"WHERE r.user_id = ? \"
+                "            \"ORDER BY r.created_at DESC\"";
+
+try {
+con = DBManager_new.connect();
+ps = con.prepareStatement(sql);
+
+rs =ps.executeQuery();
+
+
+} catch (Exception e) {
+    e.printStackTrace();
+}finally {
+    DBManager_new.close(con,ps,rs);
+}
+    }
 
 
 

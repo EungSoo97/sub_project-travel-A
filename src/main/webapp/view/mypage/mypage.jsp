@@ -38,7 +38,7 @@
                 </div>
                 <p class="email">travel.lover@email.com</p>
                 <div class="badges">
-                    <span class="badge" onclick="openTitleModal()">🏅 여행 마스터</span>
+                    <span class="badge" onclick="openTitleModal()">🏅 여행 플랜 마스터</span>
                     <span class="badge">📍 18개 도시 방문</span>
                 </div>
             </div>
@@ -76,30 +76,30 @@
                 <li class="title-item">
                     <span class="title-icon">🌱</span>
                     <div class="title-info">
-                        <span class="title-name">여행 새싹</span>
-                        <span class="title-condition">여행 1~3회</span>
+                        <span class="title-name">여행 플랜 새싹</span>
+                        <span class="title-condition">좋아요 1개 누적</span>
                     </div>
                 </li>
                 <li class="title-item">
                     <span class="title-icon">🧭</span>
                     <div class="title-info">
-                        <span class="title-name">여행 탐험가</span>
-                        <span class="title-condition">여행 4~10회</span>
+                        <span class="title-name">여행 플랜 탐험가</span>
+                        <span class="title-condition">좋아요 30개 누적</span>
                     </div>
                 </li>
                 <li class="title-item active-title">
                     <span class="title-icon">🏅</span>
                     <div class="title-info">
-                        <span class="title-name">여행 마스터</span>
-                        <span class="title-condition">여행 11~20회</span>
+                        <span class="title-name">여행 플랜 마스터</span>
+                        <span class="title-condition">좋아요 100개 누적</span>
                     </div>
                     <span class="current-badge">현재</span>
                 </li>
                 <li class="title-item">
                     <span class="title-icon">🏆</span>
                     <div class="title-info">
-                        <span class="title-name">여행 전설</span>
-                        <span class="title-condition">여행 21회 이상</span>
+                        <span class="title-name">여행 플랜 전설</span>
+                        <span class="title-condition">좋아요 500개 누적</span>
                     </div>
                 </li>
             </ul>
@@ -243,13 +243,111 @@
             </c:otherwise>
         </c:choose>
     </div>
-
+    <%--내가쓴 리뷰 돔--%>
     <div id="content-reviews" class="tab-content">
-        <div class="empty-state">
-            <p>📝 아직 작성한 후기가 없어요!</p>
-        </div>
-    </div>
+        <c:choose>
+            <c:when test="${not empty reviewList}">
 
+                <div class="review-timeline">
+                    <c:set var="currentYear" value="0" />
+
+                    <c:forEach var="review" items="${reviewList}" varStatus="status">
+
+                        <%-- 연도 구분선: 연도가 바뀔 때마다 출력 --%>
+                        <c:if test="${review.year != currentYear}">
+                            <div class="review-year-divider">${review.year}</div>
+                            <c:set var="currentYear" value="${review.year}" />
+                        </c:if>
+
+                        <div class="review-tl-wrap">
+
+                                <%-- 타임라인 축 (점 + 선) --%>
+                            <div class="review-tl-axis">
+                                <div class="review-tl-dot"></div>
+                                <c:if test="${not status.last}">
+                                    <div class="review-tl-line"></div>
+                                </c:if>
+                            </div>
+
+                                <%-- 후기 카드 --%>
+                            <div class="review-card">
+
+                                    <%-- 카드 헤더: 도시/국가 태그 + 날짜·기간 --%>
+                                <div class="review-card-head">
+                                    <span class="review-dest-tag">
+                                        ${review.city} &middot; ${review.country}
+                                    </span>
+                                    <span class="review-meta-date">
+                                        <fmt:formatDate value="${review.travelDate}" pattern="yyyy.MM"/> &middot; ${review.duration}일
+                                    </span>
+                                </div>
+
+                                    <%-- 제목 --%>
+                                <div class="review-title">${review.title}</div>
+
+                                    <%-- 본문 --%>
+                                <div class="review-body">${review.content}</div>
+
+                                    <%-- 사진 썸네일 (최대 3장 + 나머지 +N) --%>
+                                <c:if test="${not empty review.photos}">
+                                    <div class="review-photos">
+                                        <c:forEach var="photo" items="${review.photos}" varStatus="ps">
+                                            <c:if test="${ps.index < 3}">
+                                                <img class="review-photo-thumb"
+                                                     src="${photo.thumbUrl}"
+                                                     alt="여행 사진 ${ps.index + 1}" />
+                                            </c:if>
+                                        </c:forEach>
+                                        <c:if test="${fn:length(review.photos) > 3}">
+                                            <div class="review-photo-more">
+                                                +${fn:length(review.photos) - 3}
+                                            </div>
+                                        </c:if>
+                                    </div>
+                                </c:if>
+
+                                    <%-- 해시태그 --%>
+                                <c:if test="${not empty review.tags}">
+                                    <div class="review-tags">
+                                        <c:forEach var="tag" items="${review.tags}">
+                                            <span class="review-tag"># ${tag}</span>
+                                        </c:forEach>
+                                    </div>
+                                </c:if>
+
+                                    <%-- 별점 + 좋아요/댓글 수 --%>
+                                <div class="review-card-footer">
+                                    <span class="review-stars">
+                                        <c:forEach begin="1" end="5" var="i">
+                                            <c:choose>
+                                                <c:when test="${i <= review.rating}">&#9733;</c:when>
+                                                <c:otherwise>&#9734;</c:otherwise>
+                                            </c:choose>
+                                        </c:forEach>
+                                    </span>
+                                    <span class="review-foot-stat">
+                                        좋아요 <strong>${review.likeCount}</strong>
+                                    </span>
+                                    <span class="review-foot-stat">
+                                        댓글 <strong>${review.commentCount}</strong>
+                                    </span>
+                                </div>
+
+                            </div><%-- /review-card --%>
+                        </div><%-- /review-tl-wrap --%>
+
+                    </c:forEach>
+                </div><%-- /review-timeline --%>
+
+            </c:when>
+            <c:otherwise>
+                <div class="empty-state">
+                    <p>📝 아직 작성한 후기가 없어요!</p>
+                </div>
+            </c:otherwise>
+        </c:choose>
+    </div>
+    <%-- ===================== /후기 탭 ===================== --%>
     <div id="content-stats" class="tab-content">
         <div class="stat-grid">
             <div class="stat-card">
