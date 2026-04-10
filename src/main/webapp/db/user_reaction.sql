@@ -19,7 +19,8 @@ CREATE TABLE review (
 CREATE SEQUENCE review_seq
     START WITH 1
     INCREMENT BY 1;
-
+select *
+from review;
 
 INSERT INTO review (
     review_id, plan_id, user_id, content
@@ -86,3 +87,29 @@ SELECT tp.plan_id, tp.title, tp.destination
 FROM travel_plan tp
          JOIN plan_like pl ON tp.plan_id = pl.plan_id
 WHERE pl.user_id = 1;  -- 본인 userId로 변경
+
+CREATE SEQUENCE plan_star_seq
+    START WITH 1
+    INCREMENT BY 1;
+
+CREATE TABLE plan_star (
+                           star_id NUMBER PRIMARY KEY,
+                           plan_id NUMBER NOT NULL,
+                           user_id NUMBER NOT NULL,
+                           created_at DATE DEFAULT SYSDATE,
+
+                           CONSTRAINT fk_star_plan
+                               FOREIGN KEY (plan_id)
+                                   REFERENCES travel_plan(plan_id)
+                                       ON DELETE CASCADE,
+
+                           CONSTRAINT fk_star_user
+                               FOREIGN KEY (user_id)
+                                   REFERENCES user_info(u_user_id)
+                                       ON DELETE CASCADE,
+
+                           CONSTRAINT uk_plan_star
+                               UNIQUE (plan_id, user_id)
+);
+
+select *from plan_star

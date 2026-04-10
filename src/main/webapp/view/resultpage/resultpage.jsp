@@ -19,7 +19,15 @@
             </div>
 
             <div class="actions">
-                <button type="button" onclick="toggleResultHeart(this)" class="action-btn icon-btn">☆</button>
+                <form action="${pageContext.request.contextPath}/star" method="post" style="display:inline;">
+                    <input type="hidden" name="planId" value="${savedPlan.planId}">
+                    <button
+                            id="starBtn"
+                            type="submit"
+                            class="action-btn icon-btn ${liked ? 'is-liked' : ''}">
+                        ${liked ? '★' : '☆'}
+                    </button>
+                </form>
 
                 <form action="${pageContext.request.contextPath}/edit-plan" method="get">
                     <c:if test="${not empty savedPlan}">
