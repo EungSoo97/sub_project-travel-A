@@ -28,6 +28,7 @@ public class ReviewC extends HttpServlet {
         }
         
         UserreactionDAO.userreview(request);
-        response.sendRedirect(request.getContextPath() + "/explore?reviewSuccess=true");
+        String planId = request.getParameter("planId");
+        response.sendRedirect(request.getContextPath() + "/detail-page?id=" + planId + "&reviewSuccess=true");
     }
 }
