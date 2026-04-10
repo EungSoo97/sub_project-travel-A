@@ -64,3 +64,25 @@ CREATE TABLE plan_like (
 );
 
 select * from plan_like;
+
+
+SELECT tp.plan_id,
+       tp.destination,
+       tp.title,
+       tp.start_date,
+       tp.end_date,
+       tp.days,
+       tp.travelers,
+       tp.travel_style,
+       tp.total_estimated_cost,
+       tp.currency,
+       pl.created_at AS liked_at
+FROM travel_plan tp
+         JOIN plan_like pl ON tp.plan_id = pl.plan_id
+WHERE pl.user_id = 1
+ORDER BY pl.created_at DESC;
+
+SELECT tp.plan_id, tp.title, tp.destination
+FROM travel_plan tp
+         JOIN plan_like pl ON tp.plan_id = pl.plan_id
+WHERE pl.user_id = 1;  -- 본인 userId로 변경

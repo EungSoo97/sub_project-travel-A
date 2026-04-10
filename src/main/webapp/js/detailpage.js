@@ -71,3 +71,14 @@ window.onclick = function (event) {
 };
 
 // Form will submit normally without JavaScript interference
+function openReviewSheet() {
+  document.getElementById("planBackdrop").classList.add("show");
+  document.getElementById("planSheet").classList.add("show");
+  document.body.style.overflow = "hidden";
+}
+
+function closeReviewSheet() {
+  document.getElementById("planBackdrop").classList.remove("show");
+  document.getElementById("planSheet").classList.remove("show");
+  document.body.style.overflow = "";
+}
