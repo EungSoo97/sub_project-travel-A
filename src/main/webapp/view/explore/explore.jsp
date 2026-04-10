@@ -84,7 +84,9 @@
 
                         <div class="info">
                             <span>📅 ${plan.summary.days}일</span>
+
                             <span>👥 ${plan.summary.travelers}명</span>
+<%--                            <c:set var="currentPlanId" value="${plan.planId}" scope="page"/>--%>
                             <c:set var="currentPlanId" value="${plan.planId}" />
                             <c:set var="currentPlanId" value="${plan.planId}" scope="page"/>
                             <%

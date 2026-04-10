@@ -38,7 +38,8 @@
                 </div>
                 <p class="email">travel.lover@email.com</p>
                 <div class="badges">
-                    <span class="badge" onclick="openTitleModal()">🏅 여행 마스터</span>
+                    <span class="badge" onclick="openTitleModal()">🏅 여행 플랜 마스터</span>
+<%--                    <h2>데이터 확인: ${reviewList}</h2>--%>
                     <span class="badge">📍 18개 도시 방문</span>
                 </div>
             </div>
@@ -76,30 +77,30 @@
                 <li class="title-item">
                     <span class="title-icon">🌱</span>
                     <div class="title-info">
-                        <span class="title-name">여행 새싹</span>
-                        <span class="title-condition">여행 1~3회</span>
+                        <span class="title-name">여행 플랜 새싹</span>
+                        <span class="title-condition">좋아요 1개 누적</span>
                     </div>
                 </li>
                 <li class="title-item">
                     <span class="title-icon">🧭</span>
                     <div class="title-info">
-                        <span class="title-name">여행 탐험가</span>
-                        <span class="title-condition">여행 4~10회</span>
+                        <span class="title-name">여행 플랜 탐험가</span>
+                        <span class="title-condition">좋아요 30개 누적</span>
                     </div>
                 </li>
                 <li class="title-item active-title">
                     <span class="title-icon">🏅</span>
                     <div class="title-info">
-                        <span class="title-name">여행 마스터</span>
-                        <span class="title-condition">여행 11~20회</span>
+                        <span class="title-name">여행 플랜 마스터</span>
+                        <span class="title-condition">좋아요 100개 누적</span>
                     </div>
                     <span class="current-badge">현재</span>
                 </li>
                 <li class="title-item">
                     <span class="title-icon">🏆</span>
                     <div class="title-info">
-                        <span class="title-name">여행 전설</span>
-                        <span class="title-condition">여행 21회 이상</span>
+                        <span class="title-name">여행 플랜 전설</span>
+                        <span class="title-condition">좋아요 500개 누적</span>
                     </div>
                 </li>
             </ul>
@@ -118,7 +119,7 @@
 </nav>
 
 <section class="mypage-content">
-
+<%----%>
     <div id="content-saved" class="tab-content active">
         <c:choose>
             <c:when test="${not empty savedTrips}">
@@ -244,12 +245,66 @@
         </c:choose>
     </div>
 
-    <div id="content-reviews" class="tab-content">
-        <div class="empty-state">
-            <p>📝 아직 작성한 후기가 없어요!</p>
+<%--    <div id="content-reviews" class="tab-content">--%>
+
+
+<%--리뷰탭--%>
+    <%-- ===================== /후기 탭 ===================== --%>
+    <div id="content-reviews" class="tab-content active">
+        <div class="review-timeline">
+            <c:set var="currentYear" value="0" />
+
+            <c:forEach var="review" items="${reviewList}" varStatus="status">
+
+                <%-- 1. 연도 구분 (에러 방지를 위해 단순 비교로 변경) --%>
+                <c:set var="thisYear" value="${fn:substring(review.createdAt, 0, 4)}" />
+                <c:if test="${thisYear != currentYear}">
+                    <div class="review-year-divider">${thisYear}</div>
+                    <c:set var="currentYear" value="${thisYear}" />
+                </c:if>
+
+                <div class="review-tl-wrap">
+                    <div class="review-tl-axis">
+                        <div class="review-tl-dot" style="background: ${status.index % 2 == 0 ? '#378ADD' : '#1BBA53'};"></div>
+                        <c:if test="${not status.last}">
+                            <div class="review-tl-line"></div>
+                        </c:if>
+                    </div>
+
+                    <div class="review-card">
+                        <div class="review-card-head">
+                        <span class="review-dest-tag" style="background: ${status.index % 2 == 0 ? '#E6F1FB' : '#E8F8EE'}; color: ${status.index % 2 == 0 ? '#185FA5' : '#12803B'};">
+                            📍 ${review.city}
+                        </span>
+                            <span class="review-meta-date relative-date" data-date="${review.createdAt}">
+                            <fmt:formatDate value="${review.createdAt}" pattern="yyyy.MM.dd"/> · ${review.createdAt}
+                            </span>
+                        </div>
+
+                        <div class="review-title">${review.city}</div>
+
+                        <div class="review-body">
+                                ${review.content}
+                        </div>
+
+                        <div class="review-tags">
+                            <span class="review-tag">#여행기록</span>
+                            <span class="review-tag">#기록</span>
+                        </div>
+
+                        <div class="review-card-footer">
+
+                            <button class="review-tag" onclick= "location.href ='detail-page?id=${review.reviewId}'">일정 상세보기</button>
+
+                        </div>
+                    </div>
+                </div>
+            </c:forEach>
         </div>
     </div>
 
+    <%-- ===================== /후기 탭 ===================== --%>
+    <%-- 통계 --%>
     <div id="content-stats" class="tab-content">
         <div class="stat-grid">
             <div class="stat-card">
@@ -298,58 +353,105 @@
     </div>
 
 </section>
-
-<script>
-    const tabBtns = document.querySelectorAll('.tab');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            tabBtns.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            const targetId = btn.getAttribute('data-target');
-            document.getElementById(targetId).classList.add('active');
-        });
-    });
-    const monthlyData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-</script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-    new Chart(document.getElementById('barChart'), {
-        type: 'bar',
-        data: {
-            labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-            datasets: [{
-                data: monthlyData,
-                backgroundColor: '#378ADD',
-                borderRadius: 6,
-                borderSkipped: false
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {legend: {display: false}},
-            scales: {
-                x: {grid: {display: false}},
-                y: {beginAtZero: true, ticks: {stepSize: 1}, grid: {color: 'rgba(0,0,0,0.05)'}}
-            }
-        }
-    });
-
+    /* 1. 모달 함수를 가장 먼저, 그리고 '바깥'에 선언합니다. */
     function openTitleModal() {
-        document.getElementById('titleModal').classList.add('show');
+        console.log("모달 열기 실행"); // 확인용
+        const modal = document.getElementById('titleModal');
+        if (modal) {
+            modal.classList.add('show');
+        } else {
+            console.error("titleModal 요소를 찾을 수 없습니다.");
+        }
     }
 
     function closeTitleModal() {
-        document.getElementById('titleModal').classList.remove('show');
+        const modal = document.getElementById('titleModal');
+        if (modal) modal.classList.remove('show');
     }
 
-    document.getElementById('titleModal').addEventListener('click', function(e) {
-        if (e.target === this) closeTitleModal();
+    /* 2. 탭 전환과 차트는 페이지 로드 후에 실행되도록 합니다. */
+    document.addEventListener('DOMContentLoaded', function () {
+        // 탭 기능
+        const tabBtns = document.querySelectorAll('.tabs .tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-target');
+
+                // 전부 끄기
+                tabBtns.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                // 누른 것만 켜기
+                btn.classList.add('active');
+                const target = document.getElementById(targetId);
+                if(target) target.classList.add('active');
+            });
+        });
+
+        // 차트 데이터 및 생성
+        const monthlyData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        const ctx = document.getElementById('barChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                    datasets: [{
+                        data: monthlyData,
+                        backgroundColor: '#378ADD',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
     });
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateElements = document.querySelectorAll('.relative-date');
+
+        dateElements.forEach(el => {
+            const dateStr = el.getAttribute('data-date'); // "2026-04-10"
+            if(!dateStr) return;
+
+            const postDate = new Date(dateStr);
+            const nowDate = new Date();
+
+            // 1. 차이 계산
+            const diffMS = nowDate - postDate;
+            const diffHours = Math.floor(diffMS / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffMS / (1000 * 60 * 60 * 24));
+
+            // 2. 표시할 시간 텍스트 결정
+            let timeText = "";
+            if (diffDays === 0) {
+                timeText = diffHours <= 0 ? "방금 전" : diffHours + "시간 전";
+            } else if (diffDays < 7) {
+                timeText = diffDays + "일 전";
+            } else {
+                // 7일 이상이면 yyyy.MM 형식
+                const year = postDate.getFullYear();
+                const month = ('0' + (postDate.getMonth() + 1)).slice(-2);
+                timeText = year + "." + month;
+            }
+
+            // 3. 기존의 "2026-04-10" 부분(원본 날짜)만 추출
+            // JSP에서 처음 그려진 텍스트가 "2026-04-10 · 3일" 형태라면 [0]번 인덱스가 날짜입니다.
+            const originalText = el.innerText;
+            const rawDatePart = originalText.includes('·') ? originalText.split('·')[0].trim() : dateStr;
+
+            // 4. 최종 결과 조립: [시간차] · [원본날짜]
+            // 예: 9시간 전 · 2026-04-10
+            el.innerText = timeText + " · " + rawDatePart;
+        });
+    });
+
 </script>
 </body>
 </html>
