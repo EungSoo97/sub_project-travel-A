@@ -20,7 +20,15 @@
             </div>
 
             <div class="actions">
-                <button id="heartBtn" onclick="toggleHeart(this)" class="action-btn icon-btn">☆</button>
+                <form action="${pageContext.request.contextPath}/star" method="post" style="display:inline;">
+                    <input type="hidden" name="planId" value="${savedPlan.planId}">
+                    <button
+                            id="starBtn"
+                            type="submit"
+                            class="action-btn icon-btn ${liked ? 'is-liked' : ''}">
+                        ${liked ? '★' : '☆'}
+                    </button>
+                </form>
                 <form action="edit-plan">
                     <input type="hidden" name="id" value="${savedPlan.planId}">
                     <button type="submit" class="action-btn edit-btn">✏️ 편집</button>
@@ -195,6 +203,69 @@
 
     </div>
 </div>
+<script>
+    async function toggleStar(btn) {
+        if (!btn) return;
+
+        const planId = btn.dataset.planId;
+        if (!planId) {
+            showMpSnackbar("플랜 정보가 없습니다.");
+            return;
+        }
+
+        if (btn.dataset.loading === "true") return;
+        btn.dataset.loading = "true";
+        btn.disabled = true;
+
+        try {
+            const response = await fetch("${pageContext.request.contextPath}/plan-like/toggle", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                },
+                body: "planId=" + encodeURIComponent(planId)
+            });
+
+            const data = await response.json();
+
+            if (response.status === 401) {
+                showMpSnackbar("로그인이 필요합니다.");
+                window.location.href = "${pageContext.request.contextPath}/login";
+                return;
+            }
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "즐겨찾기 처리에 실패했습니다.");
+            }
+
+            const liked = !!data.liked;
+
+            btn.classList.toggle("is-liked", liked);
+            btn.textContent = liked ? "★" : "☆";
+
+            showMpSnackbar(liked ? "즐겨찾기에 저장했어요." : "즐겨찾기를 해제했어요.");
+        } catch (e) {
+            console.error("toggleStar error:", e);
+            showMpSnackbar(e.message || "오류가 발생했습니다.");
+        } finally {
+            btn.dataset.loading = "false";
+            btn.disabled = false;
+        }
+    }
+
+    function showMpSnackbar(message) {
+        const snackbar = document.getElementById("mpSnackbar");
+        if (!snackbar) return;
+
+        snackbar.textContent = message;
+        snackbar.classList.add("show");
+
+        clearTimeout(snackbar._timer);
+        snackbar._timer = setTimeout(function () {
+            snackbar.classList.remove("show");
+        }, 2000);
+    }
+</script>
 
 <script>
     (function () {

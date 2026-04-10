@@ -94,3 +94,28 @@ ALTER SESSION SET TIME_ZONE = 'Asia/Seoul';
 
 --  3. DB 전체 타임존 변경 (주의 필요 )
 -- ALTER DATABASE SET TIME_ZONE = 'Asia/Seoul';
+CREATE SEQUENCE plan_star_seq
+    START WITH 1
+    INCREMENT BY 1;
+
+CREATE TABLE plan_star (
+                           star_id NUMBER PRIMARY KEY,
+                           plan_id NUMBER NOT NULL,
+                           user_id NUMBER NOT NULL,
+                           created_at DATE DEFAULT SYSDATE,
+
+                           CONSTRAINT fk_star_plan
+                               FOREIGN KEY (plan_id)
+                                   REFERENCES travel_plan(plan_id)
+                                       ON DELETE CASCADE,
+
+                           CONSTRAINT fk_star_user
+                               FOREIGN KEY (user_id)
+                                   REFERENCES user_info(u_user_id)
+                                       ON DELETE CASCADE,
+
+                           CONSTRAINT uk_plan_star
+                               UNIQUE (plan_id, user_id)
+);
+
+select *from plan_star
