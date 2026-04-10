@@ -68,12 +68,18 @@ public class UserreactionDAO {
 
             String planIdStr = request.getParameter("planId");
             String content = request.getParameter("content");
+            System.out.println("planId parameter: " + planIdStr);
+            System.out.println("content parameter: '" + content + "'");
+            System.out.println("content length: " + (content != null ? content.length() : "null"));
 
+            // 내용이 비어있으면 처리하지 않음
             if (content == null || content.trim().isEmpty()) {
                 return;
             }
 
             AccountDTO user = (AccountDTO) request.getSession().getAttribute("user");
+            System.out.println("user from session: " + user);
+
             if (user == null) {
                 return;
             }
@@ -240,6 +246,49 @@ public class UserreactionDAO {
     /* =========================
        star (plan_star)
        ========================= */
+
+    public static ArrayList<UserreactionDTO> getReviewsByUserId(int userId) {
+        ArrayList<UserreactionDTO> reviews = new ArrayList<>();
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        // travel_plan(t) 테이블에서 destination, days, title을 가져옵니다.
+        String sql = "SELECT r.review_id, r.plan_id, r.user_id, r.content, r.created_at, u.u_name, " +
+                "t.destination, t.days, t.title as plan_title " +
+                "FROM review r " +
+                "JOIN user_info u ON r.user_id = u.u_user_id " +
+                "LEFT JOIN travel_plan t ON r.plan_id = t.plan_id " + // LEFT JOIN으로 변경
+                "WHERE r.user_id = ? " +
+                "ORDER BY r.created_at DESC";
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, userId);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                UserreactionDTO dto = new UserreactionDTO(
+                        rs.getInt("review_id"),
+                        rs.getInt("plan_id"),
+                        rs.getInt("user_id"),
+                        rs.getString("content"),
+                        rs.getDate("created_at"),
+                        rs.getString("u_name")
+
+                );
+                System.out.println("리뷰 발견: " + dto.getContent());
+                // 가져온 추가 정보들 세팅
+                dto.setCity(rs.getString("destination"));
+                dto.setDuration(rs.getInt("days"));
+                dto.setPlanTitle(rs.getString("plan_title"));
+
+                reviews.add(dto);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        finally { DBManager_new.close(con, ps, rs); }
+        return reviews;
+    }
 
     public boolean existsStar(int planId, int userId) {
         Connection con = null;
