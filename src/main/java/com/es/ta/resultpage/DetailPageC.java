@@ -1,18 +1,20 @@
 package com.es.ta.resultpage;
 
+import com.es.ta.account.AccountDTO;
+import com.es.ta.userreaction.UserreactionDAO;
+import com.es.ta.userreaction.UserreactionDTO;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Properties;
-import com.es.ta.userreaction.UserreactionDAO;
-import com.es.ta.userreaction.UserreactionDTO;
-
 import java.util.ArrayList;
+import java.util.Properties;
 
 @WebServlet(name = "DetailPageC", value = "/detail-page")
 public class DetailPageC extends HttpServlet {
@@ -40,8 +42,21 @@ public class DetailPageC extends HttpServlet {
             } else {
                 ArrayList<UserreactionDTO> reviews = UserreactionDAO.getReviewsByPlanId(id);
 
+                // ✅ 좋아요 상태 조회 추가
+                HttpSession session = request.getSession(false);
+                boolean liked = false;
+
+                if (session != null) {
+                    AccountDTO loginUser = (AccountDTO) session.getAttribute("user");
+                    if (loginUser != null) {
+                        UserreactionDAO urDAO = new UserreactionDAO();
+                        liked = urDAO.existsLike(id, loginUser.getUser_id());
+                    }
+                }
+
                 request.setAttribute("plan", result);
                 request.setAttribute("reviews", reviews);
+                request.setAttribute("liked", liked);   // ✅ JSP로 전달
 
                 request.getSession().setAttribute("plan", result);
                 request.getSession().setAttribute("latestTravelResult", result);

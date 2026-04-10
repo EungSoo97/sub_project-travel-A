@@ -18,7 +18,7 @@
                     · ${result.summary.days}일 여행
                 </p>
             </div>
-
+            <div class="detail-title-divider"></div>
             <div class="actions">
                 <form action="${pageContext.request.contextPath}/star" method="post" style="display:inline;">
                     <input type="hidden" name="planId" value="${savedPlan.planId}">

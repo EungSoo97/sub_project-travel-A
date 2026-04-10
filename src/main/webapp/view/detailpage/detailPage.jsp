@@ -9,16 +9,16 @@
     pageContext.setAttribute("isLoggedIn", isLoggedIn);
 %>
 
-<div class="mp-page">
-    <div class="mp-container">
+<div class="mp-page detail-page-shell">
+    <div class="mp-container detail-page-container">
 
         <div class="mp-header">
             <a class="mp-back-link" href="${pageContext.request.contextPath}/explore">
                 ← 목록으로 돌아가기
             </a>
 
-            <div class="mp-title-area">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+            <div class="mp-title-area detail-title-area">
+                <div class="detail-title-row">
                     <div>
                         <h1 class="mp-title">${plan.summary.destination}</h1>
                         <p class="mp-sub">
@@ -28,12 +28,13 @@
                     </div>
 
                     <button type="button" class="dp-review-link-btn" onclick="openReviewSheet()">
-                        후기 전체보기 &gt;
+                        후기 전체보기 >
                     </button>
                 </div>
-            </div>
 
-            <div class="actions">
+                <div class="detail-title-divider"></div>
+            </div>
+            <div class="actions detail-actions">
                 <c:choose>
                     <c:when test="${isLoggedIn}">
                         <button

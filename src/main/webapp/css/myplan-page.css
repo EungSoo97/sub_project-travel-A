@@ -769,3 +769,33 @@
     border-color: #fde68a;
     background: #fefce8;
 }
+.action-btn.is-liked {
+    color: #eab308;
+}
+
+.action-btn.is-liked:hover {
+    background: #fefce8;
+}
+.mp-title {
+    margin: 0 0 10px;
+}
+
+.mp-sub {
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.detail-title-divider {
+    height: 1px;
+    background: #eef2f7;
+    margin-top: 6px;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px 18px;
+    flex-wrap: wrap;
+}
