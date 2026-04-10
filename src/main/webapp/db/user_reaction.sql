@@ -19,7 +19,8 @@ CREATE TABLE review (
 CREATE SEQUENCE review_seq
     START WITH 1
     INCREMENT BY 1;
-
+select *
+from review;
 
 INSERT INTO review (
     review_id, plan_id, user_id, content

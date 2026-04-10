@@ -36,10 +36,20 @@
             <div class="actions">
                 <c:choose>
                     <c:when test="${isLoggedIn}">
-                        <button type="button" class="action-btn icon-btn" onclick="toggleHeart(this, ${plan.planId})">♡</button>
+                        <button
+                                type="button"
+                                class="action-btn icon-btn ${liked ? 'is-heart' : ''}"
+                                onclick="toggleHeart(this, ${plan.planId})">
+                                ${liked ? '♥' : '♡'}
+                        </button>
                     </c:when>
                     <c:otherwise>
-                        <button type="button" class="action-btn icon-btn" onclick="showLoginAlert()">♡</button>
+                        <button
+                                type="button"
+                                class="action-btn icon-btn"
+                                onclick="showLoginAlert()">
+                            ♡
+                        </button>
                     </c:otherwise>
                 </c:choose>
 
@@ -699,13 +709,29 @@
     function copyUrl() {
         navigator.clipboard.writeText(window.location.href).then(function () {
             showDpSnackbar("링크가 복사되었습니다.");
+        }).catch(function () {
+            showDpSnackbar("링크 복사에 실패했습니다.");
         });
     }
 
-    function toggleHeart(button, planId) {
-        button.classList.toggle("is-liked");
-        button.textContent = button.classList.contains("is-liked") ? "♥" : "♡";
-        showDpSnackbar("좋아요가 반영되었습니다.");
+    function toggleHeart(btn, postId) {
+        fetch(`/like`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ planId: postId })
+        })
+            .then(res => res.json())
+            .then(data => {
+                btn.innerText = data.liked ? "♥" : "♡";
+                btn.classList.toggle("is-heart", data.liked);
+                showDpSnackbar(data.liked ? "좋아요가 반영되었습니다." : "좋아요를 취소했습니다.");
+            })
+            .catch(err => {
+                console.error(err);
+                showDpSnackbar("좋아요 처리 중 오류가 발생했습니다.");
+            });
     }
 
     function showLoginAlert() {
