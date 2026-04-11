@@ -390,7 +390,8 @@
                     <c:when test="${receivedLikes >= 100}">${(receivedLikes - 100) * 100 / 400}</c:when>
                     <c:when test="${receivedLikes >= 30}">${(receivedLikes - 30) * 100 / 70}</c:when>
                     <c:otherwise>${receivedLikes * 100 / 30}</c:otherwise>
-                </c:choose>%;"></div>
+                </c:choose>%;">
+                </div>
             </div>
 
             <%-- 구간 레이블 --%>
@@ -423,42 +424,44 @@
 <%--        <div class="stats-two-col">--%>
 
             <%-- 여행 트렌드 --%>
-            <div class="section stats-trend-section">
-                <div class="section-title">📈 여행 트렌드</div>
-                <div class="trend-list">
-                    <%-- 하드코딩 예시 / 나중에 c:forEach로 교체 --%>
-                    <div class="trend-item">
-                        <div class="trend-top">
-                            <span class="trend-rank">🗼</span>
-                            <span class="trend-name">도쿄</span>
-                            <span class="trend-count">8회</span>
+        <div class="section stats-trend-section">
+            <div class="section-title">📈 여행 트렌드</div>
+            <div class="trend-list">
+                <c:choose>
+                    <%-- 1. 데이터가 있을 때 --%>
+                    <c:when test="${not empty trendList}">
+                        <c:forEach var="trend" items="${trendList}" varStatus="status">
+                            <div class="trend-item">
+                                <div class="trend-top">
+                            <span class="trend-rank">
+                                <c:choose>
+                                    <c:when test="${status.first}">🥇</c:when>
+                                    <c:when test="${status.index == 1}">🥈</c:when>
+                                    <c:when test="${status.index == 2}">🥉</c:when>
+                                    <c:otherwise>📍</c:otherwise>
+                                </c:choose>
+                            </span>
+                                    <span class="trend-name">${trend.destination}</span>
+                                    <span class="trend-count">${trend.planId}회</span>
+                                </div>
+                                <div class="trend-bar-wrap">
+                                        <%-- 중요: style 속성 오타 수정 및 1.0 곱하기로 정밀도 확보 --%>
+                                    <div class="trend-bar" style="width: ${maxCount > 0 ? (trend.planId * 1.0 / maxCount * 100) : 0}%;"></div>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </c:when>
+
+                    <%-- 2. 데이터가 없을 때 (DB 연결 전이나 여행 기록이 없을 때) --%>
+                    <c:otherwise>
+                        <div class="empty-state" style="padding: 30px; text-align: center; color: #aaa;">
+                            <p style="font-size: 24px; margin-bottom: 10px;">📊</p>
+                            <p>아직 여행 기록이 없어서<br>통계를 불러올 수 없어요!</p>
                         </div>
-                        <div class="trend-bar-wrap">
-                            <div class="trend-bar" style="width: 100%;"></div>
-                        </div>
-                    </div>
-                    <div class="trend-item">
-                        <div class="trend-top">
-                            <span class="trend-rank">⛩️</span>
-                            <span class="trend-name">오사카</span>
-                            <span class="trend-count">3회</span>
-                        </div>
-                        <div class="trend-bar-wrap">
-                            <div class="trend-bar" style="width: 37%;"></div>
-                        </div>
-                    </div>
-                    <div class="trend-item">
-                        <div class="trend-top">
-                            <span class="trend-rank">🏯</span>
-                            <span class="trend-name">후쿠오카</span>
-                            <span class="trend-count">1회</span>
-                        </div>
-                        <div class="trend-bar-wrap">
-                            <div class="trend-bar" style="width: 12%;"></div>
-                        </div>
-                    </div>
-                </div>
+                    </c:otherwise>
+                </c:choose>
             </div>
+        </div>
 
             <%-- 선호 여행 스타일 --%>
             <div class="section stats-style-section">
@@ -559,7 +562,13 @@
         });
 
         // 차트 데이터 및 생성
-        const monthlyData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        const monthlyData = [
+            ${monthlyData[0]}, ${monthlyData[1]}, ${monthlyData[2]},
+            ${monthlyData[3]}, ${monthlyData[4]}, ${monthlyData[5]},
+            ${monthlyData[6]}, ${monthlyData[7]}, ${monthlyData[8]},
+            ${monthlyData[9]}, ${monthlyData[10]}, ${monthlyData[11]}
+
+            ];
         const ctx = document.getElementById('barChart');
         if (ctx) {
             new Chart(ctx, {
@@ -574,7 +583,27 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        legend: { display: false }  // undefined 제거
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                callback: function(val, index) {
+                                    // 홀수 인덱스(1월,3월,5월...)만 표시 = 2개월 단위
+                                    return index % 2 === 0 ? this.getLabelForValue(val) : '';
+                                }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        }
+                    }
                 }
             });
         }

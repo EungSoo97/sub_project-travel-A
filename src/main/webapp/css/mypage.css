@@ -309,7 +309,7 @@
     border: 0.5px solid #e0e0e0;
     border-radius: 12px;
     padding: 1rem 1.25rem;
-    margin-bottom: 1rem;
+    margin-bottom: 13px !important;
 }
 
 .section-title {

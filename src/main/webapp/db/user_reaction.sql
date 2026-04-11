@@ -150,3 +150,11 @@ FROM travel_plan
 WHERE plan_id IN (
     SELECT plan_id FROM plan_like WHERE user_id = 1
 );
+
+SELECT TO_CHAR(start_date, 'MM') AS month, COUNT(*) AS cnt
+FROM travel_plan
+WHERE user_id = ?
+  AND TO_CHAR(start_date, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY')
+  AND start_date IS NOT NULL
+GROUP BY TO_CHAR(start_date, 'MM')
+ORDER BY month
