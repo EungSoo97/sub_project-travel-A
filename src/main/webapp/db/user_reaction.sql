@@ -88,6 +88,13 @@ FROM travel_plan tp
          JOIN plan_like pl ON tp.plan_id = pl.plan_id
 WHERE pl.user_id = 1;  -- 본인 userId로 변경
 
+
+SELECT DBTIMEZONE, SESSIONTIMEZONE FROM DUAL;
+--  세션 기준으로 서울 시간 적용 (안전)
+ALTER SESSION SET TIME_ZONE = 'Asia/Seoul';
+
+--  3. DB 전체 타임존 변경 (주의 필요 )
+-- ALTER DATABASE SET TIME_ZONE = 'Asia/Seoul';
 CREATE SEQUENCE plan_star_seq
     START WITH 1
     INCREMENT BY 1;
