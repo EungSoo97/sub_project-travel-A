@@ -54,20 +54,26 @@
             </div>
         </div>
         <div class="stats-grid">
-            <div class="stat-box">
+            <%-- 1. 총 여행 플랜 -> content-saved --%>
+            <div class="stat-box" onclick="triggerTab('content-saved')" style="cursor: pointer;">
                 <span class="stat-num">${fn:length(savedTrips)}</span>
                 <span class="stat-label">총 여행 플랜</span>
             </div>
-            <div class="stat-box">
 
+            <%-- 2. 좋아요한 플랜 -> content-liked (여기가 'content-saved'였음) --%>
+            <div class="stat-box" onclick="triggerTab('content-liked')" style="cursor: pointer;">
                 <span class="stat-num">${fn:length(likedPlans)}</span>
                 <span class="stat-label">좋아요한 플랜</span>
             </div>
+
+            <%-- 3. 받은 좋아요 (탭 없음) --%>
             <div class="stat-box">
                 <span class="stat-num">${receivedLikes}</span>
                 <span class="stat-label">받은 좋아요</span>
             </div>
-            <div class="stat-box">
+
+            <%-- 4. 작성한 후기 -> content-reviews (여기도 'content-saved'였음) --%>
+            <div class="stat-box" onclick="triggerTab('content-reviews')" style="cursor: pointer;">
                 <span class="stat-num">${fn:length(reviewList)}</span>
                 <span class="stat-label">작성한 후기</span>
             </div>
@@ -647,6 +653,38 @@
         });
     });
 
+    window.triggerTab = function(targetId) {
+// 모든 버튼과 콘텐츠 가져오기
+        const tabBtns = document.querySelectorAll('.tabs .tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // 1. 기존 active 클래스 전부 싹 지우기
+        tabBtns.forEach(btn => btn.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+
+        // 2. targetId에 맞는 버튼 찾아 활성화
+        const targetBtn = document.querySelector(`.tab[data-target="${targetId}"]`);
+        if (targetBtn) {
+            targetBtn.classList.add('active');
+        }
+
+        // 3. targetId에 맞는 콘텐츠 찾아 활성화
+        const targetContent = document.getElementById(targetId);
+        if (targetContent) {
+            targetContent.classList.add('active');
+        }
+
+        // 4. 클릭 후 탭 위치로 자동 스크롤 (화면이 클 때 편리함)
+        const tabsElement = document.querySelector('.tabs');
+        if(tabsElement) {
+            tabsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
+
+    /* 2. 기존의 DOMContentLoaded 로직은 그대로 유지 */
+    document.addEventListener('DOMContentLoaded', function () {
+        // ... 기존 탭 클릭 이벤트 및 차트 로직 ...
+    });
 </script>
 </body>
 </html>
