@@ -27,9 +27,9 @@
                         </p>
                     </div>
 
-                    <button type="button" class="dp-review-link-btn" onclick="openReviewSheet()">
-                        후기 전체보기 >
-                    </button>
+                    <%-- 후기 전체보기 버튼 --%>
+
+                    <button type="button" class="dp-review-link-btn"  onclick="openReviewList()">후기 전체보기 ></button>
                 </div>
 
                 <div class="detail-title-divider"></div>
@@ -72,7 +72,8 @@
                     </c:otherwise>
                 </c:choose>
 
-                <button type="button" class="action-btn" id="dpOpenModalBtn">✍ 후기</button>
+                <%-- 후기 작성 버튼 --%>
+                <button onclick="openReviewWrite()">✍ 후기</button>
             </div>
         </div>
 
@@ -265,28 +266,25 @@
         </div>
     </div>
 </div>
+<!-- ✅ 공통 백드롭 -->
+<%-- 백드롭 & 닫기 버튼 --%>
+<div id="dpPlanBackdrop" class="dp-sheet-backdrop" onclick="closeReviewSheet()"></div>
 
-<div id="dpPlanBackdrop" class="dp-sheet-backdrop" onclick="closePlanSheet()"></div>
 
-<div id="dpPlanSheet" class="dp-sheet" role="dialog" aria-modal="true" aria-labelledby="dpPlanSheetTitle">
-    <div class="dp-sheet-handle-wrap">
-        <div class="dp-sheet-handle"></div>
-    </div>
+<!-- ✅ 통합 바텀시트 -->
+<div id="dpPlanSheet" class="dp-sheet">
 
+    <!-- 헤더 -->
     <div class="dp-sheet-head">
         <div>
             <p id="dpPlanSheetTitle" class="dp-sheet-title">여행 후기</p>
-            <p class="dp-sheet-sub">${plan.summary.destination} 여행 후기 모음</p>
+            <p id="dpPlanSheetSub" class="dp-sheet-sub"></p>
         </div>
-
-        <button class="dp-sheet-close" onclick="closePlanSheet()" aria-label="닫기">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-        </button>
+        <button class="dp-sheet-close" onclick="closeReviewSheet()">✕</button>
     </div>
 
-    <div class="dp-sheet-body">
+    <!-- ✅ 후기 리스트 -->
+    <div id="reviewListSection" class="dp-sheet-body">
         <c:choose>
             <c:when test="${empty reviews}">
                 <p class="mp-empty-text">아직 작성된 후기가 없습니다.</p>
@@ -294,9 +292,9 @@
             <c:otherwise>
                 <c:forEach var="review" items="${reviews}">
                     <div class="dp-review-item">
-                        <p class="dp-review-writer">${review.userName}</p>
-                        <p class="dp-review-text">${review.content}</p>
-                        <p class="dp-review-date">
+                        <p>${review.userName}</p>
+                        <p>${review.content}</p>
+                        <p>
                             <fmt:formatDate value="${review.createdAt}" pattern="yyyy-MM-dd" />
                         </p>
                     </div>
@@ -304,8 +302,18 @@
             </c:otherwise>
         </c:choose>
     </div>
-</div>
 
+    <!-- ✅ 후기 작성 -->
+    <div id="reviewWriteSection" class="dp-sheet-body" style="display:none;">
+        <form action="${pageContext.request.contextPath}/review" method="post">
+            <input type="hidden" name="planId" value="${plan.planId}">
+            <textarea class="dp-textarea" name="content" rows="5"
+                      placeholder="여행 후기를 작성해주세요"></textarea>
+            <button class="dp-submit-btn" type="submit">작성 완료</button>
+        </form>
+    </div>
+
+</div>
 <script>
     (function () {
         const mapElement = document.getElementById("travelMap");
@@ -695,17 +703,6 @@
         }
     });
 
-    function openReviewSheet() {
-        document.getElementById("dpPlanBackdrop").classList.add("show");
-        document.getElementById("dpPlanSheet").classList.add("show");
-        document.body.style.overflow = "hidden";
-    }
-
-    function closePlanSheet() {
-        document.getElementById("dpPlanBackdrop").classList.remove("show");
-        document.getElementById("dpPlanSheet").classList.remove("show");
-        document.body.style.overflow = "";
-    }
 
     function copyUrl() {
         navigator.clipboard.writeText(window.location.href).then(function () {
@@ -747,5 +744,30 @@
         setTimeout(function () {
             dpSnackbar.classList.remove("show");
         }, 1800);
+    }
+    function openReviewList() {
+        document.getElementById("dpPlanBackdrop").classList.add("show");
+        document.getElementById("dpPlanSheet").classList.add("show");
+        document.getElementById("reviewListSection").style.display = "block";
+        document.getElementById("reviewWriteSection").style.display = "none";
+        document.getElementById("dpPlanSheetTitle").innerText = "여행 후기";
+        document.getElementById("dpPlanSheetSub").innerText = "후기 전체보기";
+        document.body.style.overflow = "hidden";
+    }
+
+    function openReviewWrite() {
+        document.getElementById("dpPlanBackdrop").classList.add("show");
+        document.getElementById("dpPlanSheet").classList.add("show");
+        document.getElementById("reviewListSection").style.display = "none";
+        document.getElementById("reviewWriteSection").style.display = "block";
+        document.getElementById("dpPlanSheetTitle").innerText = "후기 작성";
+        document.getElementById("dpPlanSheetSub").innerText = "";
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeReviewSheet() {
+        document.getElementById("dpPlanBackdrop").classList.remove("show");
+        document.getElementById("dpPlanSheet").classList.remove("show");
+        document.body.style.overflow = "";
     }
 </script>

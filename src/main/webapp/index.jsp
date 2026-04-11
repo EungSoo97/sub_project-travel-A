@@ -82,7 +82,7 @@
           <form action="result-page-?id=213">
               <button >backdoor</button></form>
       </footer>
-        <form action="result-page-?id=213" method="post">
+        <form action="detail-page-?id=213" method="post">
             <button>back door</button></form>
 
     </div>

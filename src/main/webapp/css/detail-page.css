@@ -1174,3 +1174,5 @@
     border-color: #fde68a;
     background: #fefce8;
 }
+.dp-sheet-backdrop.open { /* show → open */ }
+.dp-sheet.open { /* show → open */ }
