@@ -100,6 +100,33 @@ public class UserreactionDAO {
         }
     }
 
+    public  static int getlike(int userId) {
+
+        Connection con = null;
+        PreparedStatement ps= null;
+        ResultSet rs =null;
+        String sql = "SELECT COUNT(*) AS total_likes\n" +
+                "FROM plan_like pl\n" +
+                "    JOIN travel_plan tp ON pl.plan_id = tp.plan_id\n" +
+                "WHERE tp.user_id =? ";
+
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, userId);
+            rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            DBManager_new.close(con,ps,rs);
+        }
+        return 0;
+
+
+    }
+
     /* =========================
        like (plan_like)
        ========================= */

@@ -655,3 +655,178 @@
     color: #333;
     font-weight: 600;
 }
+
+/* ==========================================================================
+   통계 탭 - 여행 트렌드 / 선호 스타일 추가 스타일
+   ========================================================================== */
+
+/* 트렌드 + 스타일 2열 레이아웃 */
+.stats-two-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+/* 두 섹션 높이 맞추기 */
+.stats-trend-section,
+.stats-style-section {
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── 여행 트렌드 ── */
+.trend-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+}
+
+.trend-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.trend-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.trend-rank {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+
+.trend-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111;
+    flex: 1;
+}
+
+.trend-count {
+    font-size: 11px;
+    color: #aaa;
+    flex-shrink: 0;
+}
+
+.trend-bar-wrap {
+    height: 5px;
+    background: #f0f0f0;
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.trend-bar {
+    height: 5px;
+    border-radius: 99px;
+    background: #378ADD;
+    transition: width 0.6s ease;
+}
+
+.trend-item:nth-child(2) .trend-bar { background: #378ADD; }
+.trend-item:nth-child(3) .trend-bar { background: #378ADD; }
+
+/* ── 선호 여행 스타일 ── */
+.style-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+}
+
+.style-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.style-icon-wrap {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.style-icon-food    { background: #FAEEDA; color: #854F0B; }
+.style-icon-culture { background: #E6F1FB; color: #185FA5; }
+.style-icon-active  { background: #E1F5EE; color: #0F6E56; }
+.style-icon-shop    { background: #FBEAF0; color: #993556; }
+
+.style-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.style-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #111;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.style-bar-wrap {
+    height: 4px;
+    background: #f0f0f0;
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.style-bar {
+    height: 4px;
+    border-radius: 99px;
+    transition: width 0.6s ease;
+}
+
+.style-bar-food    { background: #EF9F27; }
+.style-bar-culture { background: #378ADD; }
+.style-bar-active  { background: #1D9E75; }
+.style-bar-shop    { background: #D4537E; }
+
+.style-pct {
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
+    flex-shrink: 0;
+    min-width: 28px;
+    text-align: right;
+}
+
+/* 모바일 대응 - 너무 좁으면 1열로 */
+@media (max-width: 320px) {
+    .stats-two-col {
+        grid-template-columns: 1fr;
+    }
+}
+.level-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #E6F1FB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}

@@ -47,11 +47,12 @@ public class MypageC extends HttpServlet {
 
         //  내가 쓴 후기
 
-
-
         ArrayList<UserreactionDTO> reviews = UserreactionDAO.getReviewsByUserId(userId);
         request.setAttribute("reviewList", reviews);
 
+        // 내가 받은 좋아요 수
+        int receivedLikes = UserreactionDAO.getlike(userId);
+        request.setAttribute("receivedLikes", UserreactionDAO.getlike(userId));
 
 
 

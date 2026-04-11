@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -38,28 +39,37 @@
                 </div>
                 <p class="email">travel.lover@email.com</p>
                 <div class="badges">
-                    <span class="badge" onclick="openTitleModal()">🏅 여행 플랜 마스터</span>
-<%--                    <h2>데이터 확인: ${reviewList}</h2>--%>
+                <%--<span class="badge" onclick="openTitleModal()">🏅 여행 플랜 마스터</span>--%>
+                    <span class="badge" onclick="openTitleModal()">
+                    <c:choose>
+                    <c:when test="${receivedLikes >= 500}">🏆 여행 플랜 전설</c:when>
+                    <c:when test="${receivedLikes >= 100}">🏅 여행 플랜 마스터</c:when>
+                    <c:when test="${receivedLikes >= 30}">🧭 여행 플랜 탐험가</c:when>
+                    <c:otherwise>🌱 여행 플랜 새싹</c:otherwise>
+                    </c:choose>
+                </span>
+                <%-- <h2>데이터 확인: ${reviewList}</h2>--%>
                     <span class="badge">📍 18개 도시 방문</span>
                 </div>
             </div>
         </div>
         <div class="stats-grid">
             <div class="stat-box">
-                <span class="stat-num">12</span>
-                <span class="stat-label">총 여행</span>
+                <span class="stat-num">${fn:length(savedTrips)}</span>
+                <span class="stat-label">총 여행 플랜</span>
             </div>
             <div class="stat-box">
-                <span class="stat-num">43</span>
-                <span class="stat-label">여행 일수</span>
+
+                <span class="stat-num">${fn:length(likedPlans)}</span>
+                <span class="stat-label">좋아요한 플랜</span>
             </div>
             <div class="stat-box">
-                <span class="stat-num">5</span>
+                <span class="stat-num">${receivedLikes}</span>
                 <span class="stat-label">받은 좋아요</span>
             </div>
             <div class="stat-box">
-                <span class="stat-num">18</span>
-                <span class="stat-label">방문 도시</span>
+                <span class="stat-num">${fn:length(reviewList)}</span>
+                <span class="stat-label">작성한 후기</span>
             </div>
         </div>
     </div>
@@ -74,35 +84,51 @@
         </div>
         <div class="modal-body">
             <ul class="title-list">
-                <li class="title-item">
+
+                <li class="title-item ${receivedLikes >= 0 && receivedLikes < 30 ? 'active-title' : ''}">
                     <span class="title-icon">🌱</span>
                     <div class="title-info">
                         <span class="title-name">여행 플랜 새싹</span>
-                        <span class="title-condition">좋아요 1개 누적</span>
+                        <span class="title-condition">좋아요 0개 누적</span>
                     </div>
+                    <c:if test="${receivedLikes >= 0 && receivedLikes < 30}">
+                        <span class="current-badge">현재</span>
+                    </c:if>
                 </li>
-                <li class="title-item">
+
+                <li class="title-item ${receivedLikes >= 30 && receivedLikes < 100 ? 'active-title' : ''}">
                     <span class="title-icon">🧭</span>
                     <div class="title-info">
                         <span class="title-name">여행 플랜 탐험가</span>
                         <span class="title-condition">좋아요 30개 누적</span>
                     </div>
+                    <c:if test="${receivedLikes >= 30 && receivedLikes < 100}">
+                        <span class="current-badge">현재</span>
+                    </c:if>
                 </li>
-                <li class="title-item active-title">
+
+                <li class="title-item ${receivedLikes >= 100 && receivedLikes < 500 ? 'active-title' : ''}">
                     <span class="title-icon">🏅</span>
                     <div class="title-info">
                         <span class="title-name">여행 플랜 마스터</span>
                         <span class="title-condition">좋아요 100개 누적</span>
                     </div>
-                    <span class="current-badge">현재</span>
+                    <c:if test="${receivedLikes >= 100 && receivedLikes < 500}">
+                        <span class="current-badge">현재</span>
+                    </c:if>
                 </li>
-                <li class="title-item">
+
+                <li class="title-item ${receivedLikes >= 500 ? 'active-title' : ''}">
                     <span class="title-icon">🏆</span>
                     <div class="title-info">
                         <span class="title-name">여행 플랜 전설</span>
                         <span class="title-condition">좋아요 500개 누적</span>
                     </div>
+                    <c:if test="${receivedLikes >= 500}">
+                        <span class="current-badge">현재</span>
+                    </c:if>
                 </li>
+
             </ul>
         </div>
         <div class="modal-footer">
@@ -119,7 +145,7 @@
 </nav>
 
 <section class="mypage-content">
-<%----%>
+<%-- 저장된 여행--%>
     <div id="content-saved" class="tab-content active">
         <c:choose>
             <c:when test="${not empty savedTrips}">
@@ -251,6 +277,8 @@
 <%--리뷰탭--%>
     <%-- ===================== /후기 탭 ===================== --%>
     <div id="content-reviews" class="tab-content active">
+        <c:choose>
+            <c:when test="${not empty reviewList}">
         <div class="review-timeline">
             <c:set var="currentYear" value="0" />
 
@@ -299,60 +327,198 @@
                         </div>
                     </div>
                 </div>
+
             </c:forEach>
         </div>
+            </c:when>
+            <c:otherwise>
+                <div class="empty-state">
+                    <p>📝 아직 작성한 후기가 없어요!</p>
+                </div>
+            </c:otherwise>
+        </c:choose>
     </div>
 
     <%-- ===================== /후기 탭 ===================== --%>
     <%-- 통계 --%>
+    <%-- ===================== 통계 탭 ===================== --%>
     <div id="content-stats" class="tab-content">
-        <div class="stat-grid">
-            <div class="stat-card">
-                <div class="num">${stats.totalTrips}</div>
-                <div class="lbl">총 여행</div>
-            </div>
-            <div class="stat-card">
-                <div class="num">${stats.totalDays}</div>
-                <div class="lbl">여행 일수</div>
-            </div>
-            <div class="stat-card">
-                <div class="num">${stats.totalCountries}</div>
-                <div class="lbl">좋아요 받은 수</div>
-            </div>
-            <div class="stat-card">
-                <div class="num">${stats.totalCities}</div>
-                <div class="lbl">방문 도시</div>
-            </div>
-        </div>
-        <div class="section">
+
+
+            <div class="section">
             <div class="section-title">현재 칭호</div>
             <div class="level-row">
-                <div class="badge">${stats.title}</div>
+
+                <%-- 칭호 아이콘 뱃지 --%>
+                <div class="level-badge">
+                    <c:choose>
+                        <c:when test="${receivedLikes >= 500}">&#x1F3C6;</c:when>
+                        <c:when test="${receivedLikes >= 100}">&#x1F3C5;</c:when>
+                        <c:when test="${receivedLikes >= 30}">&#x1F9ED;</c:when>
+                        <c:otherwise>&#x1F331;</c:otherwise>
+                    </c:choose>
+                </div>
+
                 <div class="level-info">
-                    <div class="level-name">${stats.title}</div>
-                    <div class="level-sub">다음 칭호까지 ${stats.tripsToNextLevel}번 더 여행하면 돼요!</div>
+                    <%-- 칭호 이름 --%>
+                    <div class="level-name">
+                        <c:choose>
+                            <c:when test="${receivedLikes >= 500}">여행 플랜 전설</c:when>
+                            <c:when test="${receivedLikes >= 100}">여행 플랜 마스터</c:when>
+                            <c:when test="${receivedLikes >= 30}">여행 플랜 탐험가</c:when>
+                            <c:otherwise>여행 플랜 새싹</c:otherwise>
+                        </c:choose>
+                    </div>
+
+                    <%-- 다음 칭호까지 남은 좋아요 수 --%>
+                    <div class="level-sub">
+                        <c:choose>
+                            <c:when test="${receivedLikes >= 500}">최고 칭호를 달성했어요!</c:when>
+                            <c:when test="${receivedLikes >= 100}">다음 칭호까지 좋아요 ${500 - receivedLikes}개 남았어요!</c:when>
+                            <c:when test="${receivedLikes >= 30}">다음 칭호까지 좋아요 ${100 - receivedLikes}개 남았어요!</c:when>
+                            <c:otherwise>다음 칭호까지 좋아요 ${30 - receivedLikes}개 남았어요!</c:otherwise>
+                        </c:choose>
+                    </div>
                 </div>
             </div>
+
+            <%-- 진행 바 --%>
             <div class="bar-track">
-                <div class="bar-fill" style="width: ${stats.levelPercent}%;"></div>
+                <div class="bar-fill" style="width:
+                <c:choose>
+                <c:when test="${receivedLikes >= 500}">100</c:when>
+                    <c:when test="${receivedLikes >= 100}">${(receivedLikes - 100) * 100 / 400}</c:when>
+                    <c:when test="${receivedLikes >= 30}">${(receivedLikes - 30) * 100 / 70}</c:when>
+                    <c:otherwise>${receivedLikes * 100 / 30}</c:otherwise>
+                </c:choose>%;"></div>
             </div>
+
+            <%-- 구간 레이블 --%>
             <div class="bar-label">
-                <span>${stats.currentLevelName} (${stats.currentLevelMin}회)</span>
-                <span>${stats.nextLevelName} (${stats.nextLevelMin}회) →</span>
+                <c:choose>
+                    <c:when test="${receivedLikes >= 500}">
+                        <span>전설 (500)</span><span>MAX</span>
+                    </c:when>
+                    <c:when test="${receivedLikes >= 100}">
+                        <span>마스터 (100)</span><span>전설 (500) →</span>
+                    </c:when>
+                    <c:when test="${receivedLikes >= 30}">
+                        <span>탐험가 (30)</span><span>마스터 (100) →</span>
+                    </c:when>
+                    <c:otherwise>
+                        <span>새싹 (0)</span><span>탐험가 (30) →</span>
+                    </c:otherwise>
+                </c:choose>
             </div>
-        </div>
+            </div><%-- /칭호 section 닫기 --%>
+        <%-- 월별 차트 --%>
         <div class="section">
             <div class="section-title">월별 여행 횟수</div>
             <div style="position: relative; width: 100%; height: 200px;">
                 <canvas id="barChart" role="img" aria-label="월별 여행 횟수 바차트"></canvas>
             </div>
-            <button>가장 많이 간 여행지</button>
-            <button>총 예산 비용</button>
-            <button>내 여행 스타일</button>
         </div>
+
+        <%-- 여행 트렌드 + 선호 스타일 2열 --%>
+<%--        <div class="stats-two-col">--%>
+
+            <%-- 여행 트렌드 --%>
+            <div class="section stats-trend-section">
+                <div class="section-title">📈 여행 트렌드</div>
+                <div class="trend-list">
+                    <%-- 하드코딩 예시 / 나중에 c:forEach로 교체 --%>
+                    <div class="trend-item">
+                        <div class="trend-top">
+                            <span class="trend-rank">🗼</span>
+                            <span class="trend-name">도쿄</span>
+                            <span class="trend-count">8회</span>
+                        </div>
+                        <div class="trend-bar-wrap">
+                            <div class="trend-bar" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div class="trend-item">
+                        <div class="trend-top">
+                            <span class="trend-rank">⛩️</span>
+                            <span class="trend-name">오사카</span>
+                            <span class="trend-count">3회</span>
+                        </div>
+                        <div class="trend-bar-wrap">
+                            <div class="trend-bar" style="width: 37%;"></div>
+                        </div>
+                    </div>
+                    <div class="trend-item">
+                        <div class="trend-top">
+                            <span class="trend-rank">🏯</span>
+                            <span class="trend-name">후쿠오카</span>
+                            <span class="trend-count">1회</span>
+                        </div>
+                        <div class="trend-bar-wrap">
+                            <div class="trend-bar" style="width: 12%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <%-- 선호 여행 스타일 --%>
+            <div class="section stats-style-section">
+                <div class="section-title">선호 스타일</div>
+                <div class="style-list">
+                    <div class="style-item">
+                        <div class="style-icon-wrap style-icon-food">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+                        </div>
+                        <div class="style-info">
+                            <span class="style-name">식도락</span>
+                            <div class="style-bar-wrap">
+                                <div class="style-bar style-bar-food" style="width: 45%;"></div>
+                            </div>
+                        </div>
+                        <span class="style-pct">45%</span>
+                    </div>
+                    <div class="style-item">
+                        <div class="style-icon-wrap style-icon-culture">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        </div>
+                        <div class="style-info">
+                            <span class="style-name">문화</span>
+                            <div class="style-bar-wrap">
+                                <div class="style-bar style-bar-culture" style="width: 30%;"></div>
+                            </div>
+                        </div>
+                        <span class="style-pct">30%</span>
+                    </div>
+                    <div class="style-item">
+                        <div class="style-icon-wrap style-icon-active">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        </div>
+                        <div class="style-info">
+                            <span class="style-name">액티브</span>
+                            <div class="style-bar-wrap">
+                                <div class="style-bar style-bar-active" style="width: 15%;"></div>
+                            </div>
+                        </div>
+                        <span class="style-pct">15%</span>
+                    </div>
+                    <div class="style-item">
+                        <div class="style-icon-wrap style-icon-shop">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        </div>
+                        <div class="style-info">
+                            <span class="style-name">쇼핑</span>
+                            <div class="style-bar-wrap">
+                                <div class="style-bar style-bar-shop" style="width: 10%;"></div>
+                            </div>
+                        </div>
+                        <span class="style-pct">10%</span>
+                    </div>
+                </div>
+            </div>
+
     </div>
 
-</section>
+    </div>
+    <%-- ===================== /통계 탭 ===================== --%>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
     /* 1. 모달 함수를 가장 먼저, 그리고 '바깥'에 선언합니다. */
