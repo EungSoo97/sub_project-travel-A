@@ -49,7 +49,7 @@
                     </c:choose>
                 </span>
                 <%-- <h2>데이터 확인: ${reviewList}</h2>--%>
-                    <span class="badge">📍 18개 도시 방문</span>
+                    <span class="badge">📍 ${fn:length(savedTrips)}개 도시 방문</span>
                 </div>
             </div>
         </div>
@@ -352,7 +352,7 @@
 
 
             <div class="section">
-            <div class="section-title">현재 칭호</div>
+            <div class="section-title">현재 칭호 (${receivedLikes})</div>
             <div class="level-row">
 
                 <%-- 칭호 아이콘 뱃지 --%>
