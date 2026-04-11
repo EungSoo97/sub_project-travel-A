@@ -67,7 +67,7 @@
             </div>
 
             <%-- 3. 받은 좋아요 (탭 없음) --%>
-            <div class="stat-box">
+                <div class="stat-box" onclick="triggerTab('content-stats')" style="cursor: pointer;">
                 <span class="stat-num">${receivedLikes}</span>
                 <span class="stat-label">받은 좋아요</span>
             </div>
