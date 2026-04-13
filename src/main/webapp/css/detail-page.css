@@ -42,12 +42,6 @@
     padding: 18px 20px 0;
 }
 
-.dp-title-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-}
 
 .dp-title-text {
     flex: 1;
@@ -402,19 +396,16 @@
     border-bottom: none;
 }
 
-.dp-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border-light);
-    position: relative;
-}
 
 .dp-item:last-child {
     border-bottom: none;
 }
-
+.dp-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
 .dp-item-icon {
     width: 32px;
     height: 32px;
@@ -693,7 +684,42 @@
     visibility: visible;
     opacity: 1;
 }
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 
+    font-size: 14px;
+    padding: 6px 10px;
+
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.action-btn:hover {
+    background: #f8fafc;
+    border-color: #e5e7eb;
+    transform: translateY(-1px);  /* 살짝 뜸 */
+}
+.action-btn:active {
+    transform: scale(0.95);   /* 눌림 */
+}
+.action-btn.is-heart {
+    color: #ef4444;
+}
+
+.action-btn.is-heart.pop {
+    animation: heartPop 0.25s ease;
+}
+
+@keyframes heartPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
 /* ❤️ 좋아요 */
 .action-btn.is-heart {
     color: #ef4444;
@@ -763,3 +789,390 @@
     font-weight: 700;
     cursor: pointer;
 }
+.mp-title {
+    margin: 0 0 10px;
+}
+
+.mp-sub {
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.detail-title-divider {
+    height: 1px;
+    background: #eef2f7;
+    margin-top: 6px;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px 18px;
+    flex-wrap: wrap;
+}
+.dp-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;   /* ⭐ 핵심 */
+    gap: 12px;
+}
+
+.dp-title-text h1 {
+    white-space: normal;   /* ⭐ 바꿔 */
+}
+
+.dp-review-link-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+.dp-title-text h1 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* =========================================================
+   DETAIL PAGE OVERRIDE FIX
+   detail-page.css 맨 아래에 붙여넣기
+   ========================================================= */
+
+/* 1) 상세 페이지 헤더 구조 고정 */
+.mp-page .mp-header {
+    background: var(--surface);
+    padding: 0 0 18px;
+    border-bottom: 1px solid var(--border);
+}
+
+.mp-page .mp-title-area {
+    padding: 18px 20px 0;
+    margin-bottom: 0;
+}
+
+/* 제목 + 후기전체보기 한 줄 */
+.mp-page .mp-title-area > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+/* 왼쪽 제목 영역 */
+.mp-page .mp-title-area > div > div:first-child {
+    flex: 1;
+    min-width: 0;
+}
+
+/* 제목 */
+.mp-page .mp-title {
+    margin: 0 0 10px;
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1.2;
+    color: var(--text-primary);
+    letter-spacing: -0.04em;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+/* 날짜/부제 */
+.mp-page .mp-sub {
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+}
+
+/* 후기 전체보기 버튼은 절대 줄바꿈 안 되게 */
+.mp-page .dp-review-link-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+    align-self: flex-start;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 0 0;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+}
+
+/* 제목 아래 구분선 */
+.mp-page .detail-title-divider {
+    height: 1px;
+    background: #eef2f7;
+    margin-top: 6px;
+}
+
+/* 2) 버튼 라인 고정 */
+.mp-page .actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: nowrap;   /* 한 줄 유지 */
+    padding: 14px 20px 0;
+    overflow-x: auto;    /* 혹시 좁으면 가로 스크롤 */
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.mp-page .actions::-webkit-scrollbar {
+    display: none;
+}
+
+.mp-page .actions form {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+/* 버튼 공통 */
+.mp-page .action-btn {
+    height: 40px;
+    padding: 0 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex: 0 0 auto;
+    transition: all 0.15s ease;
+}
+
+.mp-page .action-btn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.mp-page .action-btn:active {
+    transform: scale(0.96);
+}
+
+/* 아이콘 버튼 */
+.mp-page .icon-btn {
+    min-width: 44px;
+    width: 44px;
+    padding: 0;
+    font-size: 18px;
+}
+
+/* 좋아요 */
+.mp-page .action-btn.is-heart {
+    color: #ef4444;
+    border-color: #fca5a5;
+    background: #fef2f2;
+}
+
+.mp-page .action-btn.is-heart.pop {
+    animation: heartPop 0.25s ease;
+}
+
+@keyframes heartPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+/* 즐겨찾기 */
+.mp-page .action-btn.is-liked,
+.mp-page #starBtn.is-liked {
+    color: #eab308;
+    border-color: #fde68a;
+    background: #fefce8;
+}
+
+/* 3) 후기 작성 모달은 바텀시트 느낌 유지 */
+.mp-page .dp-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 24, 39, 0.45);
+    z-index: 9999;
+}
+
+.mp-page .dp-modal.is-open {
+    display: block;
+}
+
+.mp-page .dp-modal-content {
+    position: fixed;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%) translateY(100%);
+    width: 100%;
+    max-width: 400px;
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.18);
+    padding: 20px 16px 24px;
+    transition: transform 0.3s cubic-bezier(0.1, 0.8, 0.2, 1);
+}
+
+.mp-page .dp-modal.is-open .dp-modal-content {
+    transform: translateX(-50%) translateY(0);
+}
+
+.mp-page .dp-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.mp-page .dp-modal-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+/* =========================
+   detail page only layout
+   400 x 832 기준
+   ========================= */
+
+.detail-page-shell {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.detail-page-container {
+    max-width: 400px;
+    min-height: 832px;
+    margin: 0 auto;
+    background: var(--bg);
+}
+
+/* 제목 영역 */
+.detail-page-shell .detail-title-area {
+    padding: 18px 20px 0;
+}
+
+.detail-page-shell .detail-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.detail-page-shell .detail-title-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.detail-page-shell .mp-title {
+    margin: 0 0 10px;
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1.2;
+    letter-spacing: -0.04em;
+    white-space: normal;
+    word-break: keep-all;
+}
+
+.detail-page-shell .mp-sub {
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.detail-page-shell .dp-review-link-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+    align-self: flex-start;
+    padding-top: 6px;
+    font-size: 12px;
+}
+
+.detail-page-shell .detail-title-divider {
+    height: 1px;
+    background: #eef2f7;
+    margin-top: 6px;
+}
+
+/* 버튼 라인 */
+.detail-page-shell .detail-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: nowrap;
+    padding: 14px 20px 18px;
+}
+
+.detail-page-shell .detail-actions form {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+.detail-page-shell .detail-actions .action-btn {
+    height: 40px;
+    padding: 0 10px;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    white-space: nowrap;
+    flex: 0 0 auto;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.detail-page-shell .detail-actions .action-btn:hover {
+    background: #f8fafc;
+    border-color: #e5e7eb;
+}
+
+.detail-page-shell .detail-actions .action-btn:active {
+    transform: scale(0.96);
+}
+
+.detail-page-shell .detail-actions .icon-btn {
+    width: 40px;
+    min-width: 40px;
+    padding: 0;
+    font-size: 18px;
+}
+
+/* 좋아요 */
+.detail-page-shell .detail-actions .action-btn.is-heart {
+    color: #ef4444;
+    border-color: #fca5a5;
+    background: #fef2f2;
+}
+
+/* 즐겨찾기 */
+.detail-page-shell .detail-actions .action-btn.is-liked,
+.detail-page-shell .detail-actions #starBtn.is-liked {
+    color: #eab308;
+    border-color: #fde68a;
+    background: #fefce8;
+}
+.dp-sheet-backdrop.open { /* show → open */ }
+.dp-sheet.open { /* show → open */ }

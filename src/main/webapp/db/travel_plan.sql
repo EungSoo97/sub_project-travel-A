@@ -306,3 +306,4 @@ FROM travel_plan tp
     FROM plan_like
     GROUP BY plan_id
 ) pl ON tp.plan_id = pl.plan_id
+

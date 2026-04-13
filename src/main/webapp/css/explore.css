@@ -559,3 +559,96 @@
 .card .ui-button:active {
     transform: scale(0.96);
 }
+
+
+/* input + 버튼 한 줄 */
+.search-input-wrap {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 999px;
+    padding: 4px 6px; /* 🔥 줄이기 */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* input */
+.search-input-wrap input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 12px 16px; /* 🔥 위아래 균형 */
+    font-size: 14px;
+}
+
+/* 버튼 */
+.search-btn {
+    border: none;
+    background: #2563eb;
+    color: white;
+    width: 36px;  /* 🔥 살짝 줄임 */
+    height: 36px;
+    border-radius: 50%;
+    display: flex;              /* 🔥 아이콘 가운데 정렬 */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.search-form input {
+    height: 46px;
+    padding: 0 16px;
+    border-radius: 14px;
+    border: 1px solid #ddd;
+}
+
+.search-form input:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(79,70,229,0.2);
+}
+.search-box {
+    position: relative;
+
+}
+
+.search-wrap input {
+    width: 100%;
+    height: 46px;
+    padding: 0 16px;
+    border: 1px solid #ddd;
+    border-radius: 14px;
+    box-sizing: border-box;
+    font-size: 14px;
+    outline: none;
+}
+
+.search-wrap input:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.12);
+}
+
+.autocomplete-list {
+    position: absolute;
+    top: 52px;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.autocomplete-item {
+    padding: 12px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f2f2f2;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover {
+    background: #f7f7ff;
+}

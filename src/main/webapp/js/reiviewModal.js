@@ -38,3 +38,50 @@ window.addEventListener('popstate', function () {
         closePlanSheet();
     }
 });
+// ✅ openPlanSheet — "show" 클래스로 통일 (CSS 기준)
+function openPlanSheet() {
+    const backdrop = document.getElementById('dpPlanBackdrop');
+    const sheet = document.getElementById('dpPlanSheet');
+
+    backdrop.classList.add('show');
+    sheet.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+// ✅ closePlanSheet
+function closePlanSheet() {
+    const backdrop = document.getElementById('dpPlanBackdrop');
+    const sheet = document.getElementById('dpPlanSheet');
+
+    sheet.classList.remove('show');
+    backdrop.classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+// ✅ 후기 전체보기
+function openReviewList() {
+    document.getElementById("dpPlanBackdrop").classList.add("show");
+    document.getElementById("dpPlanSheet").classList.add("show");
+    document.getElementById("reviewListSection").style.display = "block";
+    document.getElementById("reviewWriteSection").style.display = "none";
+    document.getElementById("dpPlanSheetTitle").innerText = "여행 후기";
+    document.getElementById("dpPlanSheetSub").innerText = "후기 전체보기";
+    document.body.style.overflow = "hidden";
+}
+
+// ✅ 후기 작성
+function openReviewWrite() {
+    document.getElementById("dpPlanBackdrop").classList.add("show");
+    document.getElementById("dpPlanSheet").classList.add("show");
+    document.getElementById("reviewListSection").style.display = "none";
+    document.getElementById("reviewWriteSection").style.display = "block";
+    document.getElementById("dpPlanSheetTitle").innerText = "후기 작성";
+    document.getElementById("dpPlanSheetSub").innerText = "";
+    document.body.style.overflow = "hidden";
+}
+window.addEventListener('popstate', function () {
+    const sheet = document.getElementById('dpPlanSheet');
+    if (sheet && sheet.classList.contains('show')) {
+        closePlanSheet();
+    }
+});
