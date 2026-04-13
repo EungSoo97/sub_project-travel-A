@@ -64,10 +64,10 @@ public class MypageC extends HttpServlet {
         int maxCount = trendList.isEmpty() ? 0 : trendList.get(0).getPlanId();
         request.setAttribute("maxCount", maxCount);
 
-//        // 여행 선호 스타일
-//        List<StyleStatDTO> styleStats = UserreactionDAO.getStyleStats(userId);
-//        request.setAttribute("styleStats",styleStats);
-
+        // 여행 선호 스타일
+        List<StyleStatDTO> styleStats = UserreactionDAO.getStyleStats(userId);
+        request.setAttribute("styleStats",styleStats);
+        System.out.println(styleStats.size());
         // 어디로?
         request.setAttribute("content", "view/mypage/mypage.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);

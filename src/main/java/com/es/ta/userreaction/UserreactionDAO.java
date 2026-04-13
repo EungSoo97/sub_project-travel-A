@@ -101,11 +101,11 @@ public class UserreactionDAO {
         }
     }
 
-    public  static int getlike(int userId) {
+    public static int getlike(int userId) {
 
         Connection con = null;
-        PreparedStatement ps= null;
-        ResultSet rs =null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         String sql = "SELECT COUNT(*) AS total_likes\n" +
                 "FROM plan_like pl\n" +
                 "    JOIN travel_plan tp ON pl.plan_id = tp.plan_id\n" +
@@ -120,8 +120,8 @@ public class UserreactionDAO {
 
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            DBManager_new.close(con,ps,rs);
+        } finally {
+            DBManager_new.close(con, ps, rs);
         }
         return 0;
 
@@ -132,7 +132,7 @@ public class UserreactionDAO {
         int[] monthly = new int[12];
         Connection con = null;
         PreparedStatement ps = null;
-        ResultSet rs =null;
+        ResultSet rs = null;
         String sql = "SELECT TO_CHAR(start_date, 'MM') AS month, COUNT(*) AS cnt " +
                 "FROM travel_plan " +
                 "WHERE user_id = ? " +
@@ -146,52 +146,58 @@ public class UserreactionDAO {
             ps.setInt(1, userId);
             rs = ps.executeQuery();
 
-            while (rs.next()){
+            while (rs.next()) {
                 int month = Integer.parseInt(rs.getString("month"));
                 monthly[month - 1] = rs.getInt("cnt");
             }
         } catch (Exception e) {
             e.printStackTrace();
 
-        }finally {
-            DBManager_new.close(con,ps,rs);
+        } finally {
+            DBManager_new.close(con, ps, rs);
         }
         return monthly;
     }
-//
-//    public static List<StyleStatDTO> getStyleStats(int userId) {
-//        List<StyleStatDTO> list = new ArrayList<>();
-//        Connection con = null;
-//        PreparedStatement ps = null;
-//        ResultSet rs = null;
-//        String sql = "SELECT travel_style, COUNT(*) AS cnt " +
-//                "FROM travel_plan WHERE user_id = ? " +
-//                "AND travel_style IS NOT NULL " +
-//                "GROUP BY travel_style ORDER BY cnt DESC";
-//
-//        List<String[]> rows = new ArrayList<>();
-//        int total = 0;
-//
-//        try {
-//ps.setInt(1, userId);
-//while (rs.next()){
-//    rows.add(new String[]{rs.getString("travel_style"),String.valueOf(rs.getInt("cnt"))});
-//    total += rs.getInt("cnt");
-//}
-//
-//            for (String[] row : rows) {
-//                int cnt = Integer.parseInt(row[1]);
-//                int pct = total > 0 ? (cnt * 100 / total) : 0;
-//                list.add(new StyleStatDTO(row[0], cnt, pct));
-//} catch (Exception e) {
-//    e.printStackTrace();
-//}finally {
-//    DBManager_new.close(con,ps,rs);
-//}
-//
-//            return list;
-//    }
 
+    public static List<StyleStatDTO> getStyleStats(int userId) {
+        List<StyleStatDTO> list = new ArrayList<>();
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        String sql = "SELECT travel_style, COUNT(*) AS cnt " +
+                "FROM travel_plan WHERE user_id = ? " +
+                "AND travel_style IS NOT NULL " +
+                "GROUP BY travel_style ORDER BY cnt DESC";
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, userId);
+            rs = ps.executeQuery();
+
+            List<String[]> rows = new ArrayList<>();
+            int total = 0;
+
+            while (rs.next()) {
+                int cnt = rs.getInt("cnt");
+                rows.add(new String[]{rs.getString("travel_style"), String.valueOf(cnt)});
+                total += cnt;
+            }
+
+            for (String[] row : rows) {
+                int cnt = Integer.parseInt(row[1]);
+                int pct = total > 0 ? (cnt * 100 / total) : 0;
+                list.add(new StyleStatDTO(row[0], cnt, pct));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager_new.close(con, ps, rs);
+        }
+
+        return list;
+    }
     /* =========================
        like (plan_like)
        ========================= */
@@ -377,8 +383,11 @@ public class UserreactionDAO {
 
                 reviews.add(dto);
             }
-        } catch (Exception e) { e.printStackTrace(); }
-        finally { DBManager_new.close(con, ps, rs); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager_new.close(con, ps, rs);
+        }
         return reviews;
     }
 
