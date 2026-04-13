@@ -285,3 +285,24 @@ ALTER TABLE travel_plan
     MODIFY user_id NULL;
 
 
+SELECT tp. *, COUNT(pl.plan_id) AS like_cnt
+FROM travel_plan tp
+         LEFT JOIN plan_like pl ON tp.plan_id = pl.plan_id
+GROUP BY tp.plan_id, tp.user_id, tp.destination, tp.title,
+         tp.start_date, tp.end_date, tp.days, tp.travelers,
+         tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview;
+
+SELECT tp.*,
+       (SELECT COUNT(*)
+        FROM plan_like pl
+        WHERE pl.plan_id = tp.plan_id) AS like_cnt
+FROM travel_plan tp
+ORDER BY tp.plan_id DESC;
+
+SELECT tp.*, NVL(pl.like_cnt, 0) AS like_cnt
+FROM travel_plan tp
+         LEFT JOIN (
+    SELECT plan_id, COUNT(*) AS like_cnt
+    FROM plan_like
+    GROUP BY plan_id
+) pl ON tp.plan_id = pl.plan_id

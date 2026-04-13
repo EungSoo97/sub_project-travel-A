@@ -100,6 +100,64 @@ public class UserreactionDAO {
         }
     }
 
+    public  static int getlike(int userId) {
+
+        Connection con = null;
+        PreparedStatement ps= null;
+        ResultSet rs =null;
+        String sql = "SELECT COUNT(*) AS total_likes\n" +
+                "FROM plan_like pl\n" +
+                "    JOIN travel_plan tp ON pl.plan_id = tp.plan_id\n" +
+                "WHERE tp.user_id =? ";
+
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, userId);
+            rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            DBManager_new.close(con,ps,rs);
+        }
+        return 0;
+
+
+    }
+
+    public static int[] getMonthlyPlanCount(int userId) {
+        int[] monthly = new int[12];
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs =null;
+        String sql = "SELECT TO_CHAR(start_date, 'MM') AS month, COUNT(*) AS cnt " +
+                "FROM travel_plan " +
+                "WHERE user_id = ? " +
+                "AND TO_CHAR(start_date, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY') " +
+                "AND start_date IS NOT NULL " +
+                "GROUP BY TO_CHAR(start_date, 'MM') " +
+                "ORDER BY month";
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, userId);
+            rs = ps.executeQuery();
+
+            while (rs.next()){
+                int month = Integer.parseInt(rs.getString("month"));
+                monthly[month - 1] = rs.getInt("cnt");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }finally {
+            DBManager_new.close(con,ps,rs);
+        }
+        return monthly;
+    }
+
     /* =========================
        like (plan_like)
        ========================= */
