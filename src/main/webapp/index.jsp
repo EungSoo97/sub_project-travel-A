@@ -80,10 +80,12 @@
           <p>© 2026 Travel-A(AI). 여행의 모든 순간을 스마트하게.</p>
         </div>
           <form action="result-page-?id=213">
-              <button >backdoor</button></form>
+              <button >backdoor</button>
+          </form>
       </footer>
         <form action="result-page-?id=213" method="post">
-            <button>back door</button></form>
+            <button>back door</button>
+        </form>
 
     </div>
     <script src="${pageContext.request.contextPath}/js/main.js"></script>

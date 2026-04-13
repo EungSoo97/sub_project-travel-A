@@ -21,7 +21,7 @@ public class UserreactionDTO {
     private String city;      // rs.getString("destination") 값을 담을 변수
     private int duration;     // rs.getInt("days") 값을 담을 변수
     private String planTitle; // rs.getString("plan_title") 값을 담을 변수
-
+    private int likeCnt;
 
     // Like fields
     private int likeId;
