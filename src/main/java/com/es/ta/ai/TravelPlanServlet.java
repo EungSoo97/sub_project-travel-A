@@ -48,6 +48,10 @@ public class TravelPlanServlet extends HttpServlet {
             // 1. 요청 DTO 생성 (styles/themes는 폼 파라미터 — 하드코딩 금지)
             TravelRequestDto requestDto = TravelRequestDto.builder()
                     .destination(req.getParameter("destination"))
+                    .departureAirportCode(req.getParameter("departureAirportCode"))
+                    .departureAirportName(req.getParameter("departureAirportName"))
+                    .departureAirportAddress(req.getParameter("departureAirportAddress"))
+                    .departureAirportRoutes(req.getParameter("departureAirportRoutes"))
                     .startDate(req.getParameter("startDate"))
                     .endDate(req.getParameter("endDate"))
                     .travelers(parseInt(req.getParameter("travelers"), 1))
@@ -62,6 +66,7 @@ public class TravelPlanServlet extends HttpServlet {
             System.out.println("[" + traceId + "] requestDto created: destination=" + requestDto.getDestination()
                     + ", startDate=" + requestDto.getStartDate()
                     + ", endDate=" + requestDto.getEndDate()
+                    + ", departureAirport=" + requestDto.getDepartureAirportCode()
                     + ", travelers=" + requestDto.getTravelers()
                     + ", styles=" + requestDto.getStyles()
                     + ", themes=" + requestDto.getThemes());

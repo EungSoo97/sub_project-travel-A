@@ -106,6 +106,11 @@ public class EditPlanC extends HttpServlet {
                     .filter(it -> it.getDay() == dayEdit.getDay())
                     .findFirst()
                     .ifPresent(itinerary -> {
+                        itinerary.setEstimatedCost(dayEdit.getEstimatedCost());
+                        if (dayEdit.getCurrency() != null && !dayEdit.getCurrency().isEmpty()) {
+                            itinerary.setCurrency(dayEdit.getCurrency());
+                        }
+
                         List<TravelResultVDTO.Activity> updated = dayEdit.getActivities().stream()
                                 .map(a -> {
                                     // 기존 activity에서 일치하는 항목 찾아 시간/순서만 덮어쓰기
@@ -116,7 +121,10 @@ public class EditPlanC extends HttpServlet {
                                     origin.setTime(a.getTime());
                                     origin.setName(a.getName());
                                     origin.setDescription(a.getDescription());
-                                    origin.setType(a.getType());
+                                    String categoryCode = normalizeActivityCategoryCode(a.getCategoryCode(), a.getCategory(), a.getType());
+                                    origin.setType(categoryCode);
+                                    origin.setCategoryCode(categoryCode);
+                                    origin.setCategory(normalizeActivityCategory(a.getCategory(), categoryCode));
                                     origin.setDurationMinutes(a.getDurationMinutes());
                                     origin.setCost(a.getCost());
                                     origin.setCurrency(a.getCurrency());
@@ -139,6 +147,15 @@ public class EditPlanC extends HttpServlet {
                                 .collect(java.util.stream.Collectors.toList());
                         itinerary.setActivities(updated);
                     });
+        }
+
+        int totalEstimatedCost = result.getItinerary().stream()
+                .map(TravelResultVDTO.Itinerary::getEstimatedCost)
+                .filter(java.util.Objects::nonNull)
+                .mapToInt(Integer::intValue)
+                .sum();
+        if (result.getSummary() != null) {
+            result.getSummary().setTotalEstimatedCost(totalEstimatedCost);
         }
 
         // ── 수정된 result → JSON 직렬화 ──
@@ -169,5 +186,43 @@ public class EditPlanC extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("{\"success\":false,\"message\":\"DB 저장 실패\"}");
         }
+    }
+
+    private String normalizeActivityCategoryCode(String categoryCode, String category, String type) {
+        String value = firstNotBlank(categoryCode, category, type);
+        if (value == null) {
+            return "ATTRACTION";
+        }
+
+        String normalized = value.trim().toUpperCase();
+        if ("TRANSPORT".equals(normalized) || "MOVE".equals(normalized)) {
+            return "TRANSPORT";
+        }
+        if ("DINING".equals(normalized) || "FOOD".equals(normalized) || "RESTAURANT".equals(normalized)) {
+            return "DINING";
+        }
+        if ("ACCOMMODATION".equals(normalized) || "HOTEL".equals(normalized)) {
+            return "ACCOMMODATION";
+        }
+        return "ATTRACTION";
+    }
+
+    private String normalizeActivityCategory(String category, String categoryCode) {
+        if (category != null && !category.trim().isEmpty()) {
+            return category.trim();
+        }
+        return categoryCode;
+    }
+
+    private String firstNotBlank(String... values) {
+        if (values == null) {
+            return null;
+        }
+        for (String value : values) {
+            if (value != null && !value.trim().isEmpty()) {
+                return value;
+            }
+        }
+        return null;
     }
 }
