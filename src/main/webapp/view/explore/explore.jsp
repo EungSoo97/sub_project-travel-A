@@ -67,7 +67,7 @@
 
                     <div class="card-img">
                         <!-- 이미지 없으면 기본 이미지 -->
-                        <img src="${empty plan.hotels[0].name ? '/img/default.jpg' : '/img/default.jpg'}">
+                        <img src="${empty plan.hotels[0].name ? '/img/defaultplan/default.jpg' : '/img/defaultplan/default.jpg'}">
                         <span class="price">₩${plan.summary.totalEstimatedCost}</span>
                     </div>
 
@@ -101,6 +101,7 @@
                         </div>
                         <div class="tags">
                             <span>#${plan.summary.travelStyle}</span>
+<%--                            <span>#${plan.summary.requestStyles}</span>--%>
                             <span>#${plan.summary.destination}</span>
                         </div>
                         <div>
