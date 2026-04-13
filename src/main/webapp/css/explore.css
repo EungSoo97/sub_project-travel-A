@@ -652,3 +652,52 @@
 .autocomplete-item:hover {
     background: #f7f7ff;
 }
+.autocomplete-item.is-active {
+    background: #eef2ff;
+}
+
+.search-highlight {
+    font-weight: 700;
+    color: #4f46e5;
+}
+
+
+
+
+
+.search-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.search-tag:hover {
+    background: #eef2ff;
+    color: #4338ca;
+    border-color: #c7d2fe;
+    transform: translateY(-1px);
+}
+
+.search-tag:active {
+    transform: scale(0.97);
+}
+.search-tag-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    margin: 12px auto 18px;
+    width: 92%;   /* 🔥 카드들이랑 폭 맞춤 */
+}

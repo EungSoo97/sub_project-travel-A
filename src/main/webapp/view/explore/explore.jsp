@@ -18,7 +18,6 @@
         후기 작성이 완료되었습니다!
     </div>
 </c:if>
-
 <div class="explore-header">
     <h1>여행 플랜 탐색</h1>
     <p>다른 여행자들의 멋진 여행 계획을 둘러보고 영감을 받아보세요</p>
@@ -35,8 +34,11 @@
     <div id="autocompleteList" class="autocomplete-list"></div>
 </div>
 
-        <div id="exAutocompleteList" class="ex-search-suggest"></div>
-    </form>
+
+<div class="search-tag-box">
+    <c:forEach var="tag" items="${tagList}">
+        <span class="search-tag" data-keyword="${tag}">#${tag}</span>
+    </c:forEach>
 </div>
 <!-- 필터 -->
 
@@ -153,41 +155,31 @@
 <script>
     const input = document.getElementById("searchInput");
     const list = document.getElementById("autocompleteList");
+
     let currentSuggestions = [];
-    let lastRequestedKeyword = "";
+    let activeIndex = -1;
+    let latestRequestKeyword = "";
 
     input.addEventListener("input", function () {
         const value = this.value.trim();
 
         list.innerHTML = "";
         currentSuggestions = [];
+        activeIndex = -1;
 
         if (!value) return;
 
-        lastRequestedKeyword = value;
+        latestRequestKeyword = value;
 
         fetch("${pageContext.request.contextPath}/search-autocomplete?q=" + encodeURIComponent(value))
             .then(res => res.json())
             .then(data => {
-                // 🔥 지금 input 값과 요청 당시 값이 다르면 버림
-                if (input.value.trim() !== lastRequestedKeyword) {
+                if (input.value.trim() !== latestRequestKeyword) {
                     return;
                 }
 
                 currentSuggestions = data;
-                list.innerHTML = "";
-
-                data.forEach(item => {
-                    const div = document.createElement("div");
-                    div.className = "autocomplete-item";
-                    div.textContent = item.text;
-
-                    div.onclick = function () {
-                        moveToDetail(item);
-                    };
-
-                    list.appendChild(div);
-                });
+                renderSuggestions(data, value);
             })
             .catch(err => {
                 console.error("자동완성 오류:", err);
@@ -195,24 +187,114 @@
     });
 
     input.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
+        if (!currentSuggestions.length) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+            }
+            return;
+        }
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            activeIndex = (activeIndex + 1) % currentSuggestions.length;
+            updateActiveItem();
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            activeIndex = (activeIndex - 1 + currentSuggestions.length) % currentSuggestions.length;
+            updateActiveItem();
+        } else if (e.key === "Enter") {
             e.preventDefault();
 
-            if (currentSuggestions.length > 0) {
+            if (activeIndex >= 0 && activeIndex < currentSuggestions.length) {
+                moveToDetail(currentSuggestions[activeIndex]);
+            } else {
                 moveToDetail(currentSuggestions[0]);
             }
+        } else if (e.key === "Escape") {
+            list.innerHTML = "";
+            activeIndex = -1;
         }
     });
 
+    function renderSuggestions(data, keyword) {
+        list.innerHTML = "";
+
+        data.forEach((item, index) => {
+            const div = document.createElement("div");
+            div.className = "autocomplete-item";
+            div.dataset.index = index;
+            div.innerHTML = highlightKeyword(item.text, keyword);
+
+            div.addEventListener("mouseenter", function () {
+                activeIndex = index;
+                updateActiveItem();
+            });
+
+            div.addEventListener("mousedown", function (e) {
+                e.preventDefault();
+                moveToDetail(item);
+            });
+
+            list.appendChild(div);
+        });
+    }
+
+    function updateActiveItem() {
+        const items = list.querySelectorAll(".autocomplete-item");
+
+        items.forEach(item => item.classList.remove("is-active"));
+
+        if (activeIndex >= 0 && items[activeIndex]) {
+            items[activeIndex].classList.add("is-active");
+            items[activeIndex].scrollIntoView({ block: "nearest" });
+        }
+    }
+
     function moveToDetail(item) {
         list.innerHTML = "";
+        activeIndex = -1;
         location.href = "${pageContext.request.contextPath}/detail-page?id=" + item.id;
+    }
+
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
+    function escapeRegExp(str) {
+        return String(str).replace(/[.*+?\^$\{\}()|[\]\\]/g, "\\$&");
+    }
+
+    function highlightKeyword(text, keyword) {
+        const safeText = escapeHtml(text);
+        const trimmedKeyword = keyword.trim();
+
+        if (!trimmedKeyword) return safeText;
+
+        const pattern = new RegExp("(" + escapeRegExp(trimmedKeyword) + ")", "gi");
+        return safeText.replace(pattern, '<span class="search-highlight">$1</span>');
     }
 
     document.addEventListener("click", function (e) {
         if (!e.target.closest(".search-box")) {
             list.innerHTML = "";
+            activeIndex = -1;
         }
+    });
+
+    // ✅ 태그 클릭 시 검색창에 넣고 자동완성 실행
+    document.addEventListener("click", function (e) {
+        const tag = e.target.closest(".search-tag");
+        if (!tag) return;
+
+        const keyword = tag.dataset.keyword || tag.textContent.replace("#", "").trim();
+        input.value = keyword;
+        input.dispatchEvent(new Event("input"));
+        input.focus();
     });
 </script>
 

@@ -319,4 +319,23 @@ ORDER BY cnt DESC;
 SELECT plan_id, destination, title, travel_style, request_styles, request_themes, created_at
 FROM travel_plan
 ORDER BY created_at DESC;
-커스,
+
+/*커스텀태그 조회문*/
+SELECT travel_strategy_json
+FROM travel_plan
+WHERE ROWNUM <= 3;
+SELECT plan_id, response_json
+FROM travel_plan
+WHERE ROWNUM <= 3;
+
+SELECT plan_id
+FROM travel_plan
+WHERE response_json LIKE '%customTags%';
+SELECT plan_id, request_styles, request_themes
+FROM travel_plan
+ORDER BY created_at DESC;
+
+SELECT response_json
+FROM travel_plan
+WHERE plan_id = 322;
+

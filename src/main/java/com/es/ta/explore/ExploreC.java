@@ -14,13 +14,18 @@ import java.util.List;
 @WebServlet(name = "ExploreC", value = "/explore")
 public class ExploreC extends HttpServlet {
 
+
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
-//        dto.setLikeCnt(rs.getInt("like_cnt"));
+
         List<TravelResultVDTO> planList = ResultpageDAO.getPlanList();
         request.setAttribute("planList", planList);
+
+        List<String> tagList = ExploreDAO.getPopularTags();
+        System.out.println("tagList = " + tagList);
+        request.setAttribute("tagList", tagList);
 
         request.setAttribute("content", "view/explore/explore.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
-}
+    }
