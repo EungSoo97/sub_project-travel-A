@@ -24,7 +24,7 @@ public class TravelResultVDTO {
     private List<Itinerary> itinerary;
     private List<Flight> flights;
     private List<Hotel> hotels;
-
+    private int likeCnt;
 
     @Data
     @NoArgsConstructor
@@ -162,6 +162,7 @@ public class TravelResultVDTO {
         private String travelModesLabelKo;
         private String stepsSummary;
         private List<String> lineNames;
+
     }
 
 

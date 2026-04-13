@@ -43,19 +43,30 @@ public class MypageC extends HttpServlet {
 
         // 좋아요한 플랜
         List<TravelPlanDTO> likedPlans = userreactionDAO.getLikedPlans(userId);
-        System.out.println("좋아요한 플랜 개수 = " + likedPlans.size());  // ✅ 추가
-
+        System.out.println("좋아요한 플랜 개수 = " + likedPlans.size());
+        request.setAttribute("likedPlans", likedPlans);
         //  내가 쓴 후기
-
-
 
         ArrayList<UserreactionDTO> reviews = UserreactionDAO.getReviewsByUserId(userId);
         request.setAttribute("reviewList", reviews);
 
+        // 내가 받은 좋아요 수
+        int receivedLikes = UserreactionDAO.getlike(userId);
+        request.setAttribute("receivedLikes", UserreactionDAO.getlike(userId));
+
+        // 플랜 월별 조회
+        int[] monthlyData = UserreactionDAO.getMonthlyPlanCount(userId);
+        request.setAttribute("monthlyData",monthlyData);
+
+        // 여행 트랜드 (지역 랭킹 순위 매기는 메서드)
+        ArrayList<TravelPlanDTO> trendList = TravelPlanDAO.getTrendList(userId);
+        request.setAttribute("trendList",trendList);
+        int maxCount = trendList.isEmpty() ? 0 : trendList.get(0).getPlanId();
+        request.setAttribute("maxCount", maxCount);
 
 
 
-        request.setAttribute("likedPlans", likedPlans);
+        // 어디로?
         request.setAttribute("content", "view/mypage/mypage.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
 

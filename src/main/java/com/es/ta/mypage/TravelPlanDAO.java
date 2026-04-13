@@ -185,6 +185,7 @@ public class TravelPlanDAO {
     private TravelPlanDAO() {
     }
 
+
     public boolean existsPlan(int planId) {
         String sql = "SELECT 1 FROM travel_plan WHERE plan_id = ?";
         Connection con = null;
@@ -204,4 +205,38 @@ public class TravelPlanDAO {
             DBManager_new.close(con, pstmt, rs);
         }
     }
+
+    public static ArrayList<TravelPlanDTO> getTrendList(int userId) {
+        ArrayList<TravelPlanDTO> trendList = new ArrayList<>();
+        Connection con =null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String sql ="SELECT destination, COUNT(*) as cnt " +
+                "FROM travel_plan " +
+                "WHERE user_id = ? " +
+                "GROUP BY destination " +
+                "ORDER BY cnt DESC";
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, userId);
+            rs = ps.executeQuery();
+
+            while (rs.next()){
+                TravelPlanDTO plan = new TravelPlanDTO();
+                plan.setDestination(rs.getString("destination"));
+                plan.setPlanId(rs.getInt("cnt"));
+                trendList.add(plan);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            DBManager_new.close(con, ps, rs);
+        }
+        return trendList;
+    }
+
+
+
+
 }

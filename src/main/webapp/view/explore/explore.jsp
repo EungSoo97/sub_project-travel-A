@@ -44,8 +44,6 @@
 
 <div class="filter-box card-box">
     <h3>🔎 필터</h3>
-
-
     <div class="filter-items">
         <div class="filter-item active">🌍 전체</div>
         <div class="filter-item">🍽 미식</div>
@@ -54,14 +52,11 @@
         <div class="filter-item">🏛 문화</div>
         <div class="filter-item">🛍 쇼핑</div>
     </div>
-
-
 </div>
 
 <!-- 인기 플랜 -->
 
 <div class="popular-box card-box">
-
 
     <div class="card-header">
         <h2>인기 여행 플랜</h2>
@@ -89,56 +84,64 @@
                     </div>
 
                     <div class="card-body">
-
                         <div class="user">👤 여행자</div>
-
                         <h3>${plan.summary.destination}</h3>
-
                         <div class="info">
                             <span>📅 ${plan.summary.days}일</span>
-
                             <span>👥 ${plan.summary.travelers}명</span>
+<%--                            체크 필요--%>
 <%--                            <c:set var="currentPlanId" value="${plan.planId}" scope="page"/>--%>
-                            <c:set var="currentPlanId" value="${plan.planId}" />
-                            <c:set var="currentPlanId" value="${plan.planId}" scope="page"/>
-                            <%
-                                int likeCount = 0;
-                                try {
-                                    // Debug: Check if currentPlanId is set
-                                    Object planIdObj = pageContext.getAttribute("currentPlanId");
-
-                                    if (planIdObj != null) {
-                                        int planId = Integer.parseInt(String.valueOf(planIdObj));
-
-                                        UserreactionDAO dao = new UserreactionDAO();
-                                        likeCount = dao.countLikeByPlan(planId);
-                                    } else {
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            %>
-                            <span><%= likeCount %>❤ </span>
+<%--                            <c:set var="currentPlanId" value="${plan.planId}" />--%>
+<%--                            <c:set var="currentPlanId" value="${plan.planId}" scope="page"/>--%>
+<%--                            <%--%>
+<%--                                int likeCount = 0;--%>
+<%--                                try {--%>
+<%--                                    // Debug: Check if currentPlanId is set--%>
+<%--                                    Object planIdObj = pageContext.getAttribute("currentPlanId");--%>
+<%--                                    if (planIdObj != null) {--%>
+<%--                                        int planId = Integer.parseInt(String.valueOf(planIdObj));--%>
+<%--                                        UserreactionDAO dao = new UserreactionDAO();--%>
+<%--                                        likeCount = dao.countLikeByPlan(planId);--%>
+<%--                                    } else {--%>
+<%--                                    }--%>
+<%--                                } catch (Exception e) {--%>
+<%--                                    e.printStackTrace();--%>
+<%--                                }--%>
+<%--                            %>--%>
+<%--                            <span><%= likeCount %>❤ </span>--%>
+                            <span>${plan.likeCnt}❤</span>
                         </div>
-
                         <div class="tags">
                             <span>#${plan.summary.travelStyle}</span>
                             <span>#${plan.summary.destination}</span>
                         </div>
-
                         <div>
                             <button class="ui-button" type="submit">자세히 보기</button>
                         </div>
-
                     </div>
-
                 </div>
             </form>
 
         </c:forEach>
-
     </div>
 
+<%--     페이징  아직  하는중 ,,,,--%>
+    <div class="pagination">
+        <c:if test="${page > 1}">
+            <a href="?page=${page-1}">이전</a>
+        </c:if>
+        <c:forEach var="i" begin="1" end="${totalPage}">
+            <a href="?page=${i}"
+               style="${i == page ? 'font-weight:bold;' : ''}">
+                    ${i}
+            </a>
+        </c:forEach>
+
+        <c:if test="${page < totalPage}">
+            <a href="?page=${page+1}">다음</a>
+        </c:if>
+
+    </div>
 
 </div>
 <script>
