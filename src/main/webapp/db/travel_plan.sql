@@ -305,4 +305,12 @@ FROM travel_plan tp
     SELECT plan_id, COUNT(*) AS like_cnt
     FROM plan_like
     GROUP BY plan_id
-) pl ON tp.plan_id = pl.plan_id
+) pl ON tp.plan_id = pl.plan_id;
+
+SELECT travel_style, COUNT(*) AS cnt
+FROM travel_plan
+WHERE user_id = ?
+  AND travel_style IS NOT NULL
+GROUP BY travel_style
+ORDER BY cnt DESC;
+

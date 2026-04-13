@@ -2,6 +2,7 @@ package com.es.ta.userreaction;
 
 import com.es.ta.account.AccountDTO;
 import com.es.ta.main.DBManager_new;
+import com.es.ta.mypage.StyleStatDTO;
 import com.es.ta.mypage.TravelPlanDTO;
 
 import javax.servlet.http.HttpServletRequest;
@@ -157,6 +158,39 @@ public class UserreactionDAO {
         }
         return monthly;
     }
+//
+//    public static List<StyleStatDTO> getStyleStats(int userId) {
+//        List<StyleStatDTO> list = new ArrayList<>();
+//        Connection con = null;
+//        PreparedStatement ps = null;
+//        ResultSet rs = null;
+//        String sql = "SELECT travel_style, COUNT(*) AS cnt " +
+//                "FROM travel_plan WHERE user_id = ? " +
+//                "AND travel_style IS NOT NULL " +
+//                "GROUP BY travel_style ORDER BY cnt DESC";
+//
+//        List<String[]> rows = new ArrayList<>();
+//        int total = 0;
+//
+//        try {
+//ps.setInt(1, userId);
+//while (rs.next()){
+//    rows.add(new String[]{rs.getString("travel_style"),String.valueOf(rs.getInt("cnt"))});
+//    total += rs.getInt("cnt");
+//}
+//
+//            for (String[] row : rows) {
+//                int cnt = Integer.parseInt(row[1]);
+//                int pct = total > 0 ? (cnt * 100 / total) : 0;
+//                list.add(new StyleStatDTO(row[0], cnt, pct));
+//} catch (Exception e) {
+//    e.printStackTrace();
+//}finally {
+//    DBManager_new.close(con,ps,rs);
+//}
+//
+//            return list;
+//    }
 
     /* =========================
        like (plan_like)
