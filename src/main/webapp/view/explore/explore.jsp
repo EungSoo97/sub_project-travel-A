@@ -142,12 +142,11 @@
     </div>
 
 </div>
-
 <script>
     const input = document.getElementById("searchInput");
     const list = document.getElementById("autocompleteList");
-
     let currentSuggestions = [];
+    let lastRequestedKeyword = "";
 
     input.addEventListener("input", function () {
         const value = this.value.trim();
@@ -157,11 +156,18 @@
 
         if (!value) return;
 
+        lastRequestedKeyword = value;
+
         fetch("${pageContext.request.contextPath}/search-autocomplete?q=" + encodeURIComponent(value))
             .then(res => res.json())
             .then(data => {
+                // 🔥 지금 input 값과 요청 당시 값이 다르면 버림
+                if (input.value.trim() !== lastRequestedKeyword) {
+                    return;
+                }
 
                 currentSuggestions = data;
+                list.innerHTML = "";
 
                 data.forEach(item => {
                     const div = document.createElement("div");
@@ -174,10 +180,12 @@
 
                     list.appendChild(div);
                 });
+            })
+            .catch(err => {
+                console.error("자동완성 오류:", err);
             });
     });
 
-    // 🔥 엔터 → 첫번째 선택
     input.addEventListener("keydown", function (e) {
         if (e.key === "Enter") {
             e.preventDefault();
@@ -189,10 +197,10 @@
     });
 
     function moveToDetail(item) {
+        list.innerHTML = "";
         location.href = "${pageContext.request.contextPath}/detail-page?id=" + item.id;
     }
 
-    // 바깥 클릭 → 닫기
     document.addEventListener("click", function (e) {
         if (!e.target.closest(".search-box")) {
             list.innerHTML = "";

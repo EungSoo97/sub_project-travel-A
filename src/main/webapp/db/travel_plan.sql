@@ -307,3 +307,8 @@ FROM travel_plan tp
     GROUP BY plan_id
 ) pl ON tp.plan_id = pl.plan_id
 
+/*탐색페이지 검색용*/
+SELECT plan_id, destination, title, travel_style, request_styles, request_themes, created_at
+FROM travel_plan
+ORDER BY created_at DESC;
+커스,

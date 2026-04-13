@@ -18,10 +18,15 @@ public class ExploreDAO {
                         "FROM travel_plan " +
                         "WHERE destination LIKE ? " +
                         "   OR title LIKE ? " +
-                        "   OR travel_style LIKE ? " +
                         "   OR request_styles LIKE ? " +
                         "   OR request_themes LIKE ? " +
-                        "ORDER BY created_at DESC " +
+                        "ORDER BY " +
+                        "   CASE " +
+                        "       WHEN destination LIKE ? THEN 1 " +
+                        "       WHEN title LIKE ? THEN 2 " +
+                        "       ELSE 3 " +
+                        "   END, " +
+                        "   created_at DESC " +
                         "FETCH FIRST 5 ROWS ONLY";
 
         Connection con = null;
@@ -33,11 +38,14 @@ public class ExploreDAO {
             pstmt = con.prepareStatement(sql);
 
             String q = "%" + keyword + "%";
+            String startsQ = keyword + "%";
+
             pstmt.setString(1, q);
             pstmt.setString(2, q);
             pstmt.setString(3, q);
             pstmt.setString(4, q);
-            pstmt.setString(5, q);
+            pstmt.setString(5, startsQ);
+            pstmt.setString(6, startsQ);
 
             rs = pstmt.executeQuery();
 
