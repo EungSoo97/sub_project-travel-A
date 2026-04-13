@@ -29,9 +29,9 @@ public class UserreactionDAO {
         PreparedStatement ps = null;
         ResultSet rs = null;
 
-        String sql = "SELECT r.review_id, r.plan_id, r.user_id, r.content, r.created_at, u.u_name " +
+        String sql = "SELECT r.review_id, r.plan_id, r.user_id, r.content, r.created_at, NVL(u.u_name, '알 수 없음') AS u_name " +
                 "FROM review r " +
-                "JOIN user_info u ON r.user_id = u.u_user_id " +
+                "LEFT JOIN user_info u ON r.user_id = u.u_user_id " +
                 "WHERE r.plan_id = ? " +
                 "ORDER BY r.created_at DESC";
 
@@ -105,7 +105,30 @@ public class UserreactionDAO {
         }
     }
 
-    public static int getlike(int userId) {
+    public static boolean deleteReviewByOwner(int reviewId, int planId, int userId) {
+        Connection con = null;
+        PreparedStatement ps = null;
+
+        String sql = "DELETE FROM review WHERE review_id = ? AND plan_id = ? AND user_id = ?";
+
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, reviewId);
+            ps.setInt(2, planId);
+            ps.setInt(3, userId);
+
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager_new.close(con, ps, null);
+        }
+
+        return false;
+    }
+
+    public  static int getlike(int userId) {
 
         Connection con = null;
         PreparedStatement ps = null;

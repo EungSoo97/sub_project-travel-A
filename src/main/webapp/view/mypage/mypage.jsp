@@ -328,7 +328,7 @@
 
                         <div class="review-card-footer">
 
-                            <button class="review-tag" onclick= "location.href ='detail-page?id=${review.reviewId}'">일정 상세보기</button>
+                            <button class="review-tag" onclick= "location.href ='detail-page?id=${review.planId}'">일정 상세보기</button>
 
                         </div>
                     </div>
