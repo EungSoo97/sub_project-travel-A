@@ -22,6 +22,7 @@ public class AccountC extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("utf-8");
 
+
         AccountDAO.newuser(request);
         request.setAttribute("content", "view/main/home.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
