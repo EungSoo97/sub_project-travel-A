@@ -28,9 +28,14 @@
             <div class="container-result mp-container detail-page-container">
 
                 <div class="mp-header">
-                    <a class="mp-back-link" href="${pageContext.request.contextPath}/explore">
-                        ← 목록으로 돌아가기
-                    </a>
+                    <div class="mp-header-topbar">
+                        <a class="mp-back-link" href="${pageContext.request.contextPath}/explore">
+                            ← 목록으로 돌아가기
+                        </a>
+                        <button type="button" class="header-collapse-toggle" aria-expanded="true" aria-label="상단 정보 접기">
+                            <span class="header-collapse-symbol">−</span>
+                        </button>
+                    </div>
 
                     <div class="mp-title-area detail-title-area">
                         <div class="detail-title-row">
@@ -415,6 +420,21 @@
         </div>
 
         <script>
+            (function initHeaderCollapse() {
+                const toggleBtn = document.querySelector(".header-collapse-toggle");
+                const page = toggleBtn ? toggleBtn.closest(".container-result") : null;
+                const symbol = toggleBtn ? toggleBtn.querySelector(".header-collapse-symbol") : null;
+
+                if (!toggleBtn || !page || !symbol) return;
+
+                toggleBtn.addEventListener("click", function () {
+                    const isCollapsed = page.classList.toggle("is-header-collapsed");
+                    toggleBtn.setAttribute("aria-expanded", String(!isCollapsed));
+                    toggleBtn.setAttribute("aria-label", isCollapsed ? "상단 정보 펼치기" : "상단 정보 접기");
+                    symbol.textContent = isCollapsed ? "+" : "−";
+                });
+            })();
+
             (function () {
                 const mapSection = document.querySelector(".map-section");
                 const mapHeader = mapSection ? mapSection.querySelector(".map-header") : null;
@@ -972,7 +992,7 @@
             }
 
             function showLoginAlert() {
-                alert("로그인 후 이용 가능합니다.");
+                showDpSnackbar("로그인 후 이용 가능합니다.");
             }
 
             function goLoginWithReturn() {

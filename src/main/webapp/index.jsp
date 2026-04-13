@@ -61,13 +61,14 @@
                       <a href="${pageContext.request.contextPath}/mypage">마이페이지</a>
                   </c:when>
                   <c:otherwise>
-                          <a href="login" onclick="loginAlert()">마이페이지</a>
+                          <a href="login" onclick="loginAlert(event)">마이페이지</a>
                   </c:otherwise>
               </c:choose>
           </nav>
         </div>
       </header>
       <div class="drawer-overlay" id="drawerOverlay"></div>
+      <div id="globalSnackbar" class="global-snackbar"></div>
 
       <div class="content">
         <jsp:include page="${content}"></jsp:include>
@@ -81,8 +82,25 @@
     </div>
     <script src="${pageContext.request.contextPath}/js/main.js"></script>
     <script>
-        function loginAlert () {
-            alert("로그인이 필요한 기능 입니다.");
+        function loginAlert (event) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            const snackbar = document.getElementById("globalSnackbar");
+            if (!snackbar) {
+                window.location.href = "${pageContext.request.contextPath}/login";
+                return;
+            }
+
+            snackbar.textContent = "로그인이 필요한 기능입니다.";
+            snackbar.classList.add("show");
+
+            clearTimeout(snackbar._timer);
+            snackbar._timer = setTimeout(function () {
+                snackbar.classList.remove("show");
+                window.location.href = "${pageContext.request.contextPath}/login";
+            }, 900);
         }
     </script>
     <script>
