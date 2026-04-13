@@ -1,5 +1,6 @@
 package com.es.ta.ai;
 
+import com.es.ta.account.AccountDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.servlet.ServletException;
@@ -84,8 +85,12 @@ public class TravelPlanServlet extends HttpServlet {
             // 5. DB 저장
             if (result != null) {
                 try {
-                    System.out.println("[" + traceId + "] calling TravelDao.insertTravelPlan()");
-                    travelDao.insertTravelPlan(requestDto, result, responseJson);
+                    // 세션에서 사용자 정보 조회
+                    AccountDTO user = (AccountDTO) req.getSession().getAttribute("user");
+                    Integer userId = (user != null) ? user.getUser_id() : null;
+                    
+                    System.out.println("[" + traceId + "] calling TravelDao.insertTravelPlan() with userId=" + userId);
+                    travelDao.insertTravelPlan(requestDto, result, responseJson, userId);
                     System.out.println("[" + traceId + "] insertTravelPlan completed");
                 } catch (Exception dbError) {
                     dbError.printStackTrace();
@@ -213,4 +218,6 @@ public class TravelPlanServlet extends HttpServlet {
 
         return props;
     }
+
+
 }
