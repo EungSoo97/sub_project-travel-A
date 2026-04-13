@@ -32,6 +32,14 @@
         <div class="modal-content">
             <h2>활동 추가</h2>
 
+            <label>카테고리</label>
+            <select id="newType">
+                <option value="spot">여행지</option>
+                <option value="dining">식사</option>
+                <option value="transport">이동</option>
+                <option value="accommodation">숙박</option>
+            </select>
+
             <label>시간</label>
             <input type="time" id="newTime">
 
@@ -40,6 +48,15 @@
 
             <label>설명</label>
             <input type="text" id="newDesc" placeholder="간단 설명">
+
+            <label>소요 시간 (분)</label>
+            <input type="number" id="newDuration" placeholder="0" min="0">
+
+            <label>비용</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="number" id="newCost" placeholder="0" min="0" style="flex: 1;">
+                <input type="text" id="newCurrency" value="KRW" style="width: 100px;">
+            </div>
 
             <div class="modal-actions">
                 <button id="closeModalBtn" type="button">취소</button>
@@ -91,7 +108,11 @@
                          draggable="true"
                          data-day="${item.day}"
                          data-order="${actStatus.count}"
-                         data-type="${act.type}">
+                         data-type="${act.type}"
+                         data-duration-minutes="${act.durationMinutes}"
+                         data-cost="${act.cost}"
+                         data-currency="${act.currency}"
+                         data-location="${act.location}">
 
                         <div class="activity-item__drag">⋮⋮</div>
 
@@ -113,11 +134,18 @@
                                         📍 ${fn:escapeXml(act.location)}
                                     </span>
                                 </c:if>
-                                <c:if test="${act.durationMinutes > 0}">
-                                    <span class="meta-tag meta-tag--time">
-                                        ⏱ ${act.durationMinutes}분
-                                    </span>
-                                </c:if>
+                                <c:choose>
+                                    <c:when test="${act.durationMinutes > 0}">
+                                        <span class="meta-tag meta-tag--time">
+                                            ⏱ ${act.durationMinutes}분
+                                        </span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="meta-tag meta-tag--time">
+                                            ⏱ 미정
+                                        </span>
+                                    </c:otherwise>
+                                </c:choose>
                                 <c:choose>
                                     <c:when test="${act.cost == 0}">
                                         <span class="meta-tag meta-tag--cost">$ 무료</span>
@@ -178,11 +206,15 @@
             var activities = [];
             block.querySelectorAll('.activity-item').forEach(function(item, idx) {
                 activities.push({
-                    order:       idx + 1,
-                    time:        (item.querySelector('.activity-item__time')  || {}).textContent.trim(),
-                    name:        (item.querySelector('.activity-item__title') || {}).textContent.trim(),
-                    description: (item.querySelector('.activity-item__desc')  || {}).textContent.trim(),
-                    type:        item.dataset.type || 'SPOT'
+                    order:           idx + 1,
+                    time:            (item.querySelector('.activity-item__time')  || {}).textContent.trim(),
+                    name:            (item.querySelector('.activity-item__title') || {}).textContent.trim(),
+                    description:     (item.querySelector('.activity-item__desc')  || {}).textContent.trim(),
+                    type:            item.dataset.type || 'SPOT',
+                    durationMinutes: parseInt(item.dataset.durationMinutes) || 0,
+                    cost:            parseInt(item.dataset.cost) || 0,
+                    currency:        item.dataset.currency || 'KRW',
+                    location:        item.dataset.location || ''
                 });
             });
 
