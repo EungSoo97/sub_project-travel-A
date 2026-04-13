@@ -77,7 +77,7 @@
 
                     <div class="card-img">
                         <!-- 이미지 없으면 기본 이미지 -->
-                        <img src="${empty plan.hotels[0].name ? '/img/default.jpg' : '/img/default.jpg'}">
+                        <img src="${empty plan.hotels[0].name ? '/img/defaultplan/default.jpg' : '/img/defaultplan/default.jpg'}">
                         <span class="price">₩${plan.summary.totalEstimatedCost}</span>
                     </div>
 
@@ -110,7 +110,15 @@
                             <span>${plan.likeCnt}❤</span>
                         </div>
                         <div class="tags">
-                            <span>#${plan.summary.travelStyle}</span>
+                            <c:forEach var="style" items="${plan.summary.requestStyles}">
+                                <span>#${style}</span>
+                            </c:forEach>
+                            <c:forEach var="theme" items="${plan.summary.requestThemes}">
+                                <span>#${theme}</span>
+                            </c:forEach>
+                            <c:forEach var="tag" items="${plan.summary.customTags}">
+                                <span>#${tag}</span>
+                            </c:forEach>
                             <span>#${plan.summary.destination}</span>
                         </div>
                         <div>
