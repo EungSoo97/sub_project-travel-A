@@ -7,6 +7,7 @@
     AccountDTO user = (AccountDTO) request.getSession().getAttribute("user");
     boolean isLoggedIn = (user != null);
     pageContext.setAttribute("isLoggedIn", isLoggedIn);
+    pageContext.setAttribute("currentUserId", isLoggedIn ? user.getUser_id() : 0);
 %>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css" />
@@ -43,9 +44,10 @@
                                 </p>
                             </div>
 
-                            <button type="button" class="dp-review-link-btn" onclick="openReviewSheet()">
-                                후기 전체보기 >
+                            <button type="button" class="dp-review-link-btn" id="dpOpenModalBtn">
+                                후기 <span class="dp-review-link-count">${fn:length(reviews)}</span>
                             </button>
+
                         </div>
 
                         <div class="detail-title-divider"></div>
@@ -71,7 +73,7 @@
                             </c:otherwise>
                         </c:choose>
 
-                        <button type="button" class="action-btn icon-btn" onclick="copyUrl()">⤴</button>
+                        <button type="button" class="action-btn icon-btn" onclick="copyUrl()">🔗</button>
 
                         <form action="${pageContext.request.contextPath}/pdf" method="get">
                             <button type="submit" class="action-btn download-btn">PDF</button>
@@ -89,7 +91,6 @@
                             </c:otherwise>
                         </c:choose>
 
-                        <button type="button" class="action-btn post-btn" id="dpOpenModalBtn">후기</button>
                     </div>
                 </div>
 
@@ -352,6 +353,35 @@
             </div>
 
             <div class="dp-sheet-body">
+                <div class="dp-review-compose">
+                    <div class="dp-review-compose-head">
+                        <span class="dp-review-compose-avatar">+</span>
+                        <div>
+                            <p class="dp-review-compose-title">후기 남기기</p>
+                            <p class="dp-review-compose-sub">이 여행을 다녀온 느낌을 남겨주세요.</p>
+                        </div>
+                    </div>
+
+                    <c:choose>
+                        <c:when test="${isLoggedIn}">
+                            <form class="dp-review-compose-form" action="${pageContext.request.contextPath}/review" method="post">
+                                <input type="hidden" name="planId" value="${plan.planId}">
+                                <textarea class="dp-review-compose-textarea" name="content" rows="2" placeholder="후기를 작성해주세요."></textarea>
+                                <div class="dp-review-compose-actions">
+                                    <span>삭제 전까지 계속 보관됩니다.</span>
+                                    <button class="dp-review-compose-submit" type="submit">등록</button>
+                                </div>
+                            </form>
+                        </c:when>
+                        <c:otherwise>
+                            <div class="dp-review-compose-login">
+                                <span>로그인 후 후기를 남길 수 있습니다.</span>
+                                <button type="button" onclick="goLoginWithReturn()">로그인 안내</button>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+
                 <c:choose>
                     <c:when test="${empty reviews}">
                         <p class="mp-empty-text">아직 작성된 후기가 없습니다.</p>
@@ -359,11 +389,23 @@
                     <c:otherwise>
                         <c:forEach var="review" items="${reviews}">
                             <div class="dp-review-item">
-                                <p class="dp-review-writer">${review.userName}</p>
-                                <p class="dp-review-text">${review.content}</p>
-                                <p class="dp-review-date">
-                                    <fmt:formatDate value="${review.createdAt}" pattern="yyyy-MM-dd" />
-                                </p>
+                                <div class="dp-review-top">
+                                    <p class="dp-review-writer">
+                                        <c:out value="${review.userName}" />
+                                        <span class="dp-review-date">
+                                            <fmt:formatDate value="${review.createdAt}" pattern="yyyy-MM-dd" />
+                                        </span>
+                                    </p>
+                                    <c:if test="${isLoggedIn and currentUserId == review.userId}">
+                                        <form action="${pageContext.request.contextPath}/review" method="post" onsubmit="return confirm('후기를 삭제할까요?');">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="planId" value="${plan.planId}">
+                                            <input type="hidden" name="reviewId" value="${review.reviewId}">
+                                            <button type="submit" class="dp-review-delete-btn">삭제</button>
+                                        </form>
+                                    </c:if>
+                                </div>
+                                <p class="dp-review-text"><c:out value="${review.content}" /></p>
                             </div>
                         </c:forEach>
                     </c:otherwise>
@@ -854,10 +896,9 @@
             const dpCloseModalBtn = document.getElementById("dpCloseModalBtn");
             const dpSnackbar = document.getElementById("dpSnackbar");
 
-            if (dpOpenModalBtn && dpReviewModal) {
+            if (dpOpenModalBtn) {
                 dpOpenModalBtn.addEventListener("click", function () {
-                    dpReviewModal.classList.add("is-open");
-                    document.body.style.overflow = "hidden";
+                    openReviewSheet();
                 });
             }
 
@@ -885,6 +926,13 @@
                 document.getElementById("dpPlanBackdrop").classList.remove("show");
                 document.getElementById("dpPlanSheet").classList.remove("show");
                 document.body.style.overflow = "";
+            }
+
+            if (new URLSearchParams(window.location.search).has("reviewSuccess")) {
+                openReviewSheet();
+                if (window.matchMedia("(max-width: 768px)").matches) {
+                    showDpSnackbar("후기가 등록되었습니다.");
+                }
             }
 
             function copyUrl() {
@@ -919,6 +967,18 @@
 
             function showLoginAlert() {
                 alert("로그인 후 이용 가능합니다.");
+            }
+
+            function goLoginWithReturn() {
+                const returnTarget = new URL(window.location.href);
+                returnTarget.searchParams.delete("reviewSuccess");
+                returnTarget.searchParams.delete("reviewDeleted");
+
+                let returnUrl = returnTarget.pathname + returnTarget.search;
+                if (dpContextPath && returnUrl.indexOf(dpContextPath + "/") === 0) {
+                    returnUrl = returnUrl.substring(dpContextPath.length);
+                }
+                window.location.href = dpContextPath + "/login?returnUrl=" + encodeURIComponent(returnUrl);
             }
 
             function showDpSnackbar(message) {
