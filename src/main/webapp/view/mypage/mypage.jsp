@@ -441,10 +441,10 @@
                                 <div class="trend-top">
                             <span class="trend-rank">
                                 <c:choose>
-                                    <c:when test="${status.first}">🥇</c:when>
-                                    <c:when test="${status.index == 1}">🥈</c:when>
-                                    <c:when test="${status.index == 2}">🥉</c:when>
-                                    <c:otherwise>📍</c:otherwise>
+                                    <c:when test="${status.first}">&#x1F947;</c:when>
+                                    <c:when test="${status.index == 1}">&#x1F948;</c:when>
+                                    <c:when test="${status.index == 2}">&#x1F949;</c:when>
+                                    <c:otherwise>&#x1F4CD;</c:otherwise>
                                 </c:choose>
                             </span>
                                     <span class="trend-name">${trend.destination}</span>

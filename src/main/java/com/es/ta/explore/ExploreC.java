@@ -16,9 +16,10 @@ public class ExploreC extends HttpServlet {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
-
+//        dto.setLikeCnt(rs.getInt("like_cnt"));
         List<TravelResultVDTO> planList = ResultpageDAO.getPlanList();
         request.setAttribute("planList", planList);
+
         request.setAttribute("content", "view/explore/explore.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
