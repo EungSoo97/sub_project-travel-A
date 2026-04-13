@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +42,23 @@ public class TravelResultVDTO {
         private int totalEstimatedCost;
         private String currency;
         private String overview;
+        private List<String> requestStyles;
+        private List<String> requestThemes;
+        private List<String> customTags;
+        private Map<String, Object> travelStrategy;
+
+        // ✅ customTags getter 추가
+        public List<String> getCustomTags() {
+            if (travelStrategy == null) return new ArrayList<>();
+            Object tags = travelStrategy.get("customTags");
+            if (tags instanceof List) {
+                return (List<String>) tags;
+            }
+            return new ArrayList<>();
+        }
     }
+
+
 
     @Data
     @NoArgsConstructor

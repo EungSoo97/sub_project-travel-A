@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -37,6 +38,7 @@ public class TravelPlanDTO {
     private Date createdAt;
     private Date updatedAt;
 
+   
     // =========================
     // 💡 상태 계산 로직
     // =========================
