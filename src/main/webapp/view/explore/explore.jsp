@@ -25,19 +25,17 @@
 </div>
 
 <div class="search-box">
-    <form action="${pageContext.request.contextPath}/explore" method="get">
+    <div class="search-wrap">
         <input type="text"
-               name="q"
-               value="${param.q}"
-               placeholder="여행지, 키워드, 작성자 검색..." />
-        <button type="submit" class="search-btn">검색</button>
-    </form>
+               id="searchInput"
+               placeholder="여행지, 키워드 검색..."
+               autocomplete="off" />
+    </div>
+
+    <div id="autocompleteList" class="autocomplete-list"></div>
 </div>
 
-<div class="search-box">
-    <form action="${pageContext.request.contextPath}/explore" method="get" class="search-form">
-        <input type="text" name="q" placeholder="여행지, 키워드, 작성자 검색..." />
-        <button type="submit" class="search-btn">검색</button>
+        <div id="exAutocompleteList" class="ex-search-suggest"></div>
     </form>
 </div>
 <!-- 필터 -->
@@ -144,63 +142,64 @@
     </div>
 
 </div>
+
 <script>
-    function searchPlan() {
-        const keyword = document.getElementById("searchInput").value.trim().toLowerCase();
+    const input = document.getElementById("searchInput");
+    const list = document.getElementById("autocompleteList");
 
-        if (!keyword) {
-            alert("검색어를 입력해주세요.");
-            return;
-        }
+    let currentSuggestions = [];
 
-        // ✅ 임시 하드코딩 데이터
-        const plans = [
-            {
-                id: 1,
-                destination: "도쿄",
-                writer: "예진",
-                keywords: ["도쿄", "쇼핑", "도심", "야경", "예진"]
-            },
-            {
-                id: 2,
-                destination: "오사카",
-                writer: "민준",
-                keywords: ["오사카", "미식", "맛집", "민준"]
-            },
-            {
-                id: 3,
-                destination: "교토",
-                writer: "서연",
-                keywords: ["교토", "힐링", "문화", "사찰", "서연"]
-            },
-            {
-                id: 4,
-                destination: "후쿠오카",
-                writer: "지훈",
-                keywords: ["후쿠오카", "온천", "힐링", "지훈"]
+    input.addEventListener("input", function () {
+        const value = this.value.trim();
+
+        list.innerHTML = "";
+        currentSuggestions = [];
+
+        if (!value) return;
+
+        fetch("${pageContext.request.contextPath}/search-autocomplete?q=" + encodeURIComponent(value))
+            .then(res => res.json())
+            .then(data => {
+
+                currentSuggestions = data;
+
+                data.forEach(item => {
+                    const div = document.createElement("div");
+                    div.className = "autocomplete-item";
+                    div.textContent = item.text;
+
+                    div.onclick = function () {
+                        moveToDetail(item);
+                    };
+
+                    list.appendChild(div);
+                });
+            });
+    });
+
+    // 🔥 엔터 → 첫번째 선택
+    input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+
+            if (currentSuggestions.length > 0) {
+                moveToDetail(currentSuggestions[0]);
             }
-        ];
-
-        const matchedPlan = plans.find(plan =>
-            plan.destination.toLowerCase().includes(keyword) ||
-            plan.writer.toLowerCase().includes(keyword) ||
-            plan.keywords.some(k => k.toLowerCase().includes(keyword))
-        );
-
-        if (matchedPlan) {
-            location.href = "${pageContext.request.contextPath}/detail-page?id=" + matchedPlan.id;
-        } else {
-            alert("검색 결과가 없습니다.");
         }
+    });
+
+    function moveToDetail(item) {
+        location.href = "${pageContext.request.contextPath}/detail-page?id=" + item.id;
     }
 
-    // 엔터로도 검색 가능
-    document.getElementById("searchInput").addEventListener("keypress", function (e) {
-        if (e.key === "Enter") {
-            searchPlan();
+    // 바깥 클릭 → 닫기
+    document.addEventListener("click", function (e) {
+        if (!e.target.closest(".search-box")) {
+            list.innerHTML = "";
         }
     });
 </script>
+
 </body>
 
 </html>
