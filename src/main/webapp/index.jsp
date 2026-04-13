@@ -83,9 +83,14 @@
               <button >backdoor</button>
           </form>
       </footer>
+<<<<<<< HEAD
+        <form action="detail-page-?id=213" method="post">
+            <button>back door</button></form>
+=======
         <form action="result-page-?id=213" method="post">
             <button>back door</button>
         </form>
+>>>>>>> 16c7e66944e12226d41fe741b79b77ff6912b333
 
     </div>
     <script src="${pageContext.request.contextPath}/js/main.js"></script>

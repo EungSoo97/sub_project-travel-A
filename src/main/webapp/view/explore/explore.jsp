@@ -25,9 +25,19 @@
 </div>
 
 <div class="search-box">
-    <input type="text" placeholder="여행지, 키워드, 작성자 검색..." />
+    <div class="search-wrap">
+        <input type="text"
+               id="searchInput"
+               placeholder="여행지, 키워드 검색..."
+               autocomplete="off" />
+    </div>
+
+    <div id="autocompleteList" class="autocomplete-list"></div>
 </div>
 
+        <div id="exAutocompleteList" class="ex-search-suggest"></div>
+    </form>
+</div>
 <!-- 필터 -->
 
 <div class="filter-box card-box">
@@ -141,5 +151,63 @@
 
 </div>
 
+<script>
+    const input = document.getElementById("searchInput");
+    const list = document.getElementById("autocompleteList");
+
+    let currentSuggestions = [];
+
+    input.addEventListener("input", function () {
+        const value = this.value.trim();
+
+        list.innerHTML = "";
+        currentSuggestions = [];
+
+        if (!value) return;
+
+        fetch("${pageContext.request.contextPath}/search-autocomplete?q=" + encodeURIComponent(value))
+            .then(res => res.json())
+            .then(data => {
+
+                currentSuggestions = data;
+
+                data.forEach(item => {
+                    const div = document.createElement("div");
+                    div.className = "autocomplete-item";
+                    div.textContent = item.text;
+
+                    div.onclick = function () {
+                        moveToDetail(item);
+                    };
+
+                    list.appendChild(div);
+                });
+            });
+    });
+
+    // 🔥 엔터 → 첫번째 선택
+    input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+
+            if (currentSuggestions.length > 0) {
+                moveToDetail(currentSuggestions[0]);
+            }
+        }
+    });
+
+    function moveToDetail(item) {
+        location.href = "${pageContext.request.contextPath}/detail-page?id=" + item.id;
+    }
+
+    // 바깥 클릭 → 닫기
+    document.addEventListener("click", function (e) {
+        if (!e.target.closest(".search-box")) {
+            list.innerHTML = "";
+        }
+    });
+</script>
+
 </body>
+
 </html>
