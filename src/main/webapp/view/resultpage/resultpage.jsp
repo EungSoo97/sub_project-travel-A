@@ -153,6 +153,7 @@
                     <!-- 활동 목록 -->
                     <div class="time-section">
                         <c:forEach var="act" items="${item.activities}" varStatus="activityStatus">
+                            <c:set var="activityCategory" value="${fn:toUpperCase(not empty act.categoryCode ? act.categoryCode : (not empty act.category ? act.category : act.type))}" />
                             <div
                                     class="item schedule-item"
                                     data-day="${item.day}"
@@ -161,15 +162,16 @@
                                     data-category="${fn:escapeXml(empty act.categoryCode ? act.category : act.categoryCode)}"
                                     data-lat="${act.lat}"
                                     data-lng="${act.lng}"
-                                    data-time="${fn:escapeXml(act.time)}">
+                                    data-time="${fn:escapeXml(act.time)}"
+                                    data-is-new="${(empty act.lat || empty act.lng) ? 'true' : 'false'}">
                                 <c:choose>
-                                    <c:when test="${act.type == 'TRANSPORT'}">
+                                    <c:when test="${activityCategory == 'TRANSPORT' or activityCategory == 'MOVE'}">
                                         <div class="icon move">▲</div>
                                     </c:when>
-                                    <c:when test="${act.type == 'DINING'}">
+                                    <c:when test="${activityCategory == 'DINING' or activityCategory == 'FOOD' or activityCategory == 'RESTAURANT'}">
                                         <div class="icon food">🍽</div>
                                     </c:when>
-                                    <c:when test="${act.type == 'ACCOMMODATION'}">
+                                    <c:when test="${activityCategory == 'ACCOMMODATION' or activityCategory == 'HOTEL'}">
                                         <div class="icon hotel">🏨</div>
                                     </c:when>
                                     <c:otherwise>
@@ -742,6 +744,8 @@
             if (!category) return "ATTRACTION";
             const upperCategory = category.toUpperCase();
             if (upperCategory === "RESTAURANT") return "DINING";
+            if (upperCategory === "MOVE") return "TRANSPORT";
+            if (upperCategory === "HOTEL") return "ACCOMMODATION";
             return upperCategory;
         }
 

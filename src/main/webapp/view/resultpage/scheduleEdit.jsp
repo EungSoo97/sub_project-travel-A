@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<div class="container">
+<div class="container schedule-edit-page">
 
     <!-- ── 헤더 ── -->
     <div class="edit-header">
@@ -28,7 +28,7 @@
     </div>
 
     <!-- ── 활동 추가 모달 (전역 1개) ── -->
-    <div class="modal" id="activityModal">
+    <div class="modal" id="activityModal" aria-hidden="true">
         <div class="modal-content">
             <h2>활동 추가</h2>
 
@@ -68,7 +68,9 @@
     <!-- ── Day 블록 반복 ── -->
     <c:forEach var="item" items="${result.itinerary}" varStatus="dayStatus">
 
-        <div class="day-block">
+        <div class="day-block"
+             data-estimated-cost="${item.estimatedCost}"
+             data-currency="${item.currency}">
 
             <!-- Day 헤더 -->
             <div class="day-block__header">
@@ -85,16 +87,17 @@
                 <c:forEach var="act" items="${item.activities}" varStatus="actStatus">
 
                     <%-- type별 CSS 클래스 분기 --%>
+                    <c:set var="activityCategory" value="${fn:toUpperCase(not empty act.categoryCode ? act.categoryCode : (not empty act.category ? act.category : act.type))}"/>
                     <c:choose>
-                        <c:when test="${act.type == 'TRANSPORT'}">
+                        <c:when test="${activityCategory == 'TRANSPORT'}">
                             <c:set var="itemClass" value="activity-item--move"/>
                             <c:set var="iconEmoji" value="🚆"/>
                         </c:when>
-                        <c:when test="${act.type == 'DINING'}">
+                        <c:when test="${activityCategory == 'DINING' or activityCategory == 'FOOD' or activityCategory == 'RESTAURANT'}">
                             <c:set var="itemClass" value="activity-item--food"/>
                             <c:set var="iconEmoji" value="🍽"/>
                         </c:when>
-                        <c:when test="${act.type == 'ACCOMMODATION'}">
+                        <c:when test="${activityCategory == 'ACCOMMODATION' or activityCategory == 'HOTEL'}">
                             <c:set var="itemClass" value="activity-item--hotel"/>
                             <c:set var="iconEmoji" value="🏨"/>
                         </c:when>
@@ -108,7 +111,9 @@
                          draggable="true"
                          data-day="${item.day}"
                          data-order="${actStatus.count}"
-                         data-type="${act.type}"
+                         data-type="${empty activityCategory ? act.type : activityCategory}"
+                         data-category="${act.category}"
+                         data-category-code="${act.categoryCode}"
                          data-duration-minutes="${act.durationMinutes}"
                          data-cost="${act.cost}"
                          data-currency="${act.currency}"
@@ -148,11 +153,11 @@
                                 </c:choose>
                                 <c:choose>
                                     <c:when test="${act.cost == 0}">
-                                        <span class="meta-tag meta-tag--cost">$ 무료</span>
+                                        <span class="meta-tag meta-tag--cost">무료</span>
                                     </c:when>
                                     <c:otherwise>
                                         <span class="meta-tag meta-tag--cost">
-                                            $ ${act.cost} ${act.currency}
+                                            ${act.cost} ${act.currency}
                                         </span>
                                     </c:otherwise>
                                 </c:choose>
@@ -169,8 +174,10 @@
 
             <!-- Day 요약 푸터 -->
             <div class="day-block__footer">
-                <span>${fn:escapeXml(item.summary)}</span>
-                <span>예상 비용: ${item.estimatedCost} ${item.currency}</span>
+                <span class="day-block__summary">${fn:escapeXml(item.summary)}</span>
+                <span class="day-block__cost"
+                      data-cost="${item.estimatedCost}"
+                      data-currency="${item.currency}">예상 비용: ${item.estimatedCost} ${item.currency}</span>
             </div>
 
         </div>
@@ -211,6 +218,8 @@
                     name:            (item.querySelector('.activity-item__title') || {}).textContent.trim(),
                     description:     (item.querySelector('.activity-item__desc')  || {}).textContent.trim(),
                     type:            item.dataset.type || 'SPOT',
+                    category:        item.dataset.category || item.dataset.type || 'SPOT',
+                    categoryCode:    item.dataset.categoryCode || item.dataset.type || 'SPOT',
                     durationMinutes: parseInt(item.dataset.durationMinutes) || 0,
                     cost:            parseInt(item.dataset.cost) || 0,
                     currency:        item.dataset.currency || 'KRW',
@@ -218,7 +227,16 @@
                 });
             });
 
-            days.push({ day: Number(dayNum), activities: activities });
+            var costEl = block.querySelector('.day-block__cost');
+            var estimatedCost = parseInt((costEl && costEl.dataset.cost) || block.dataset.estimatedCost) || 0;
+            var currency = (costEl && costEl.dataset.currency) || block.dataset.currency || 'KRW';
+
+            days.push({
+                day: Number(dayNum),
+                estimatedCost: estimatedCost,
+                currency: currency,
+                activities: activities
+            });
         });
 
         console.log('전송 데이터:', JSON.stringify({ planId: PLAN_ID, days: days }));

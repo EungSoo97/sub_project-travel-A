@@ -13,6 +13,10 @@ import java.util.List;
 @Builder
 public class TravelRequestDto {
     private String destination;
+    private String departureAirportCode;
+    private String departureAirportName;
+    private String departureAirportAddress;
+    private String departureAirportRoutes;
     private String startDate;
     private String endDate;
     private int travelers;

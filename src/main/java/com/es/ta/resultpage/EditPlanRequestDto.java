@@ -15,6 +15,8 @@ public class EditPlanRequestDto {
     @NoArgsConstructor
     public static class DayEdit {
         private int day;
+        private int estimatedCost;
+        private String currency;
         private List<ActivityEdit> activities;
     }
 
@@ -26,6 +28,8 @@ public class EditPlanRequestDto {
         private String name;
         private String description;
         private String type;
+        private String category;
+        private String categoryCode;
         private int durationMinutes;
         private int cost;
         private String currency;

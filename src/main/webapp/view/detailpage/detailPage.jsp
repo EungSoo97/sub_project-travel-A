@@ -221,6 +221,7 @@
 
                             <div class="time-section">
                                 <c:forEach var="act" items="${item.activities}" varStatus="activityStatus">
+                                    <c:set var="activityCategory" value="${fn:toUpperCase(not empty act.categoryCode ? act.categoryCode : (not empty act.category ? act.category : act.type))}" />
                                     <div
                                         class="item schedule-item"
                                         data-day="${item.day}"
@@ -233,13 +234,13 @@
                                         data-is-new="${(empty act.lat || empty act.lng) ? 'true' : 'false'}">
 
                                         <c:choose>
-                                            <c:when test="${act.category eq 'transport'}">
+                                            <c:when test="${activityCategory == 'TRANSPORT' or activityCategory == 'MOVE'}">
                                                 <div class="icon move">🚗</div>
                                             </c:when>
-                                            <c:when test="${act.category eq 'food' or act.category eq 'dining'}">
+                                            <c:when test="${activityCategory == 'DINING' or activityCategory == 'FOOD' or activityCategory == 'RESTAURANT'}">
                                                 <div class="icon food">🍽</div>
                                             </c:when>
-                                            <c:when test="${act.category eq 'hotel' or act.category eq 'accommodation'}">
+                                            <c:when test="${activityCategory == 'ACCOMMODATION' or activityCategory == 'HOTEL'}">
                                                 <div class="icon hotel">🏨</div>
                                             </c:when>
                                             <c:otherwise>
@@ -421,7 +422,10 @@
                 const mapElement = document.getElementById("travelMap");
                 const fallbackElement = document.getElementById("mapFallbackMessage");
                 const dayButtons = Array.from(document.querySelectorAll(".day-filter-button"));
-                const scheduleItems = Array.from(document.querySelectorAll(".schedule-item"));
+                const scheduleItems = Array.from(document.querySelectorAll(".schedule-item"))
+                    .filter(function(item) {
+                        return item.dataset.isNew !== "true";
+                    });
                 initializeMapSectionToggle();
 
                 if (!mapElement) return;
@@ -826,6 +830,8 @@
                     if (!category) return "ATTRACTION";
                     const upperCategory = category.toUpperCase();
                     if (upperCategory === "RESTAURANT") return "DINING";
+                    if (upperCategory === "MOVE") return "TRANSPORT";
+                    if (upperCategory === "HOTEL") return "ACCOMMODATION";
                     return upperCategory;
                 }
 
