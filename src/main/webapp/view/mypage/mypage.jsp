@@ -526,24 +526,33 @@
 <%--                --%>
 <%--            </div>--%>
                 <div class="style-list">
-                    <c:forEach var="stat" items="${styleStats}">
-                        <div class="style-item">
-                            <div class="style-icon-wrap style-icon-food">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+                    <c:choose>
+                        <c:when test="${empty styleStats}">
+                            <div class="empty-state">
+                                <p>아직 분석된 여행 스타일이 없습니다.</p>
                             </div>
-                            <div class="style-info">
-                                <span class="style-name">${stat.styleName}</span>
-                                <div class="style-bar-wrap">
-                                    <div class="style-bar style-bar-food" style="width: ${stat.percentage}%;"></div>
+                        </c:when>
+                        <c:otherwise>
+                            <c:forEach var="stat" items="${styleStats}" varStatus="status" begin="0" end="4">
+                                <div class="style-item">
+                                    <div class="style-icon-wrap style-color-${(status.index % 5) + 1}">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M3 11l19-9-9 19-2-8-8-2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="style-info">
+                                        <span class="style-name">${stat.styleName}</span>
+                                        <div class="style-bar-wrap">
+                                            <div class="style-bar style-bg-${(status.index % 5) + 1}"
+                                                 style="width: ${stat.percentage}%;"></div>
+                                        </div>
+                                    </div>
+                                    <span class="style-pct">${stat.percentage}%</span>
                                 </div>
-                            </div>
-                            <span class="style-pct">${stat.percentage}%</span>
-                        </div>
-                    </c:forEach>
+                            </c:forEach>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
-
-
-
     </div>
 
     </div>
@@ -552,7 +561,7 @@
 <script>
     /* 1. 모달 함수를 가장 먼저, 그리고 '바깥'에 선언합니다. */
     function openTitleModal() {
-        console.log("모달 열기 실행"); // 확인용
+        console.log("모달 열기 실행"); // 확인x용
         const modal = document.getElementById('titleModal');
         if (modal) {
             modal.classList.add('show');

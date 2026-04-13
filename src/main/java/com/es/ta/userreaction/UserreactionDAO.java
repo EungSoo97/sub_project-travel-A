@@ -1,16 +1,20 @@
 package com.es.ta.userreaction;
 
 import com.es.ta.account.AccountDTO;
+import com.es.ta.ai.TravelResponseDto;
 import com.es.ta.main.DBManager_new;
 import com.es.ta.mypage.StyleStatDTO;
 import com.es.ta.mypage.TravelPlanDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserreactionDAO {
 
@@ -160,34 +164,35 @@ public class UserreactionDAO {
     }
 
     public static List<StyleStatDTO> getStyleStats(int userId) {
-        List<StyleStatDTO> list = new ArrayList<>();
+        Map<String, Integer> countMap = new HashMap<>();
+        ObjectMapper mapper = new ObjectMapper();
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-
-        String sql = "SELECT travel_style, COUNT(*) AS cnt " +
-                "FROM travel_plan WHERE user_id = ? " +
-                "AND travel_style IS NOT NULL " +
-                "GROUP BY travel_style ORDER BY cnt DESC";
+        String sql = "SELECT RESPONSE_JSON FROM travel_plan WHERE user_id = ?";
         try {
             con = DBManager_new.connect();
             ps = con.prepareStatement(sql);
             ps.setInt(1, userId);
             rs = ps.executeQuery();
 
-            List<String[]> rows = new ArrayList<>();
-            int total = 0;
+            while (rs.next()){
+                String jsonStr = rs.getString("RESPONSE_JSON");
+                if (jsonStr == null ) continue;
+                TravelResponseDto response = mapper.readValue(jsonStr, TravelResponseDto.class);
+                TravelResponseDto.Summary summary =response.getSummary();
 
-            while (rs.next()) {
-                int cnt = rs.getInt("cnt");
-                rows.add(new String[]{rs.getString("travel_style"), String.valueOf(cnt)});
-                total += cnt;
-            }
-
-            for (String[] row : rows) {
-                int cnt = Integer.parseInt(row[1]);
-                int pct = total > 0 ? (cnt * 100 / total) : 0;
-                list.add(new StyleStatDTO(row[0], cnt, pct));
+                if(summary != null){
+                    processList(summary.getRequestStyles(),countMap);
+                    processList(summary.getRequestThemes(),countMap);
+                    Map<String, Object> strategy = summary.getTravelStrategy();
+                    if (strategy != null && strategy.containsKey("customTags")){
+                        Object tagsObj = strategy.get("customTags");
+                        if (tagsObj instanceof List) {
+                            processList((List<String>)tagsObj,countMap);
+                        }
+                    }
+                }
             }
 
         } catch (Exception e) {
@@ -196,6 +201,35 @@ public class UserreactionDAO {
             DBManager_new.close(con, ps, rs);
         }
 
+        return convertMapToDtoList(countMap);
+    }
+
+
+
+    private static void processList(List<String> items, Map<String, Integer> map) {
+        if (items != null) {
+            for (String item : items) {
+                map.put(item, map.getOrDefault(item, 0) + 1);
+            }
+        }
+    }
+    private static List<StyleStatDTO> convertMapToDtoList(Map<String, Integer> countMap) {
+        List<StyleStatDTO> list = new ArrayList<>();
+        int total = 0;
+        for (int count : countMap.values()) {
+            total += count;
+        }
+        for (Map.Entry<String, Integer> entry : countMap.entrySet()) {
+            String name = entry.getKey();   // 예: "액티브"
+            int cnt = entry.getValue();     // 예: 5
+
+            // 백분율 계산 (0으로 나누기 방지)
+            int pct = (total > 0) ? (cnt * 100 / total) : 0;
+
+            // 우리가 만든 DTO에 담아서 리스트에 추가
+            list.add(new StyleStatDTO(name, cnt, pct));
+        }
+        list.sort((a, b) -> b.getCount() - a.getCount());
         return list;
     }
     /* =========================

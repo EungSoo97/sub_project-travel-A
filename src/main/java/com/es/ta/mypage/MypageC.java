@@ -70,6 +70,7 @@ public class MypageC extends HttpServlet {
         List<StyleStatDTO> styleStats = UserreactionDAO.getStyleStats(userId);
         request.setAttribute("styleStats",styleStats);
         System.out.println(styleStats.size());
+
         // 어디로?
         request.setAttribute("content", "view/mypage/mypage.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
