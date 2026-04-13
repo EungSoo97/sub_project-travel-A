@@ -29,7 +29,9 @@ public class MypageC extends HttpServlet {
         AccountDTO loginUser = (AccountDTO) session.getAttribute("user");
 
         if (loginUser == null) {
-            response.sendRedirect("login.jsp");
+            request.setAttribute("content", "view/login/login.jsp");
+            request.getRequestDispatcher("index.jsp").forward(request, response);
+
             return;
         }
 

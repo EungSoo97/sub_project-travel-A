@@ -313,4 +313,5 @@ WHERE user_id = ?
   AND travel_style IS NOT NULL
 GROUP BY travel_style
 ORDER BY cnt DESC;
+) pl ON tp.plan_id = pl.plan_id
 

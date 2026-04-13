@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/edit-schedule.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/settings.css">
-      <link rel="stylesheet" href="${pageContext.request.contextPath}/css/detail-page.css" />
       <link rel="stylesheet" href="${pageContext.request.contextPath}/css/result-page.css" />
 
     <!-- 푸터 하단 고정 -->
@@ -79,14 +78,7 @@
         <div class="container site-footer__inner">
           <p>© 2026 Travel-A(AI). 여행의 모든 순간을 스마트하게.</p>
         </div>
-          <form action="result-page-?id=213">
-              <button >backdoor</button>
-          </form>
       </footer>
-        <form action="result-page-?id=213" method="post">
-            <button>back door</button>
-        </form>
-
     </div>
     <script src="${pageContext.request.contextPath}/js/main.js"></script>
     <script>

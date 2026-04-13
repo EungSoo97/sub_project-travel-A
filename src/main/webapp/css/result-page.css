@@ -177,6 +177,29 @@
     font-weight: 600;
 }
 
+.map-header[role="button"] {
+    cursor: pointer;
+    user-select: none;
+}
+
+.map-header[role="button"]:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+}
+
+.map-title-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.map-toggle-indicator {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-left: auto;
+    margin-right: 12px;
+}
+
 .legend {
     display: flex;
     align-items: center;
@@ -235,6 +258,30 @@
     padding: 12px 14px 14px;
     border-top: 1px solid var(--border);
     background: var(--surface);
+}
+
+.map-area,
+.map-toolbar {
+    max-height: 640px;
+    opacity: 1;
+    overflow: hidden;
+    transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease, border-width 0.25s ease;
+}
+
+.map-section.is-collapsed .map-area,
+.map-section.is-collapsed .map-toolbar {
+    max-height: 0;
+    opacity: 0;
+}
+
+.map-section.is-collapsed .map-toolbar {
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top-width: 0;
+}
+
+.map-section.is-collapsed .legend {
+    display: none;
 }
 
 .day-filter {
@@ -891,55 +938,96 @@
 
 .actions {
     display: flex;
-    align-items: center;
-    gap: 6px;
+    align-items: stretch;
+    gap: 7px;
+    flex-wrap: nowrap;
     flex-shrink: 0;
 }
 
-.action-btn {
+.actions form {
+    display: contents !important;
+}
+
+.actions .action-btn,
+.actions > .action-btn {
+    flex: 1 1 0;
+    width: 100%;
+    min-width: 0;
+    height: 50px;
+    padding: 0 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 7px 12px;
-    border-radius: 8px;
+    justify-content: center;
+    box-sizing: border-box;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-primary);
     font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    border: 1px solid #e5e7eb;
-    background: #fff;
-    color: #374151;
-    transition: all 0.15s;
+    font-weight: 700;
+    line-height: 1.3;
+    text-align: center;
+    word-break: keep-all;
+    letter-spacing: -0.02em;
     white-space: nowrap;
+    transition: all 0.15s ease;
     -webkit-tap-highlight-color: transparent;
 }
-.action-btn:active { transform: scale(0.96); }
 
-.icon-btn {
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    justify-content: center;
+.actions .action-btn:hover,
+.actions > .action-btn:hover {
+    background: #f8fafc;
+    border-color: #d1d5db;
+}
+
+.actions .action-btn:active,
+.actions > .action-btn:active {
+    transform: scale(0.97);
+}
+
+.actions .icon-btn,
+.actions > .icon-btn {
+    flex: 0 0 48px;
+    width: 48px;
+    height: 50px;
+    padding: 0 6px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
     font-size: 18px;
-    border-radius: 50%;
 }
 
-.edit-btn {
-    background: #2563eb;
-    border-color: #2563eb;
-    color: #fff;
-}
-.edit-btn:hover { background: #1d4ed8; }
-
-.download-btn {
-    background: #f0fdf4;
-    border-color: #bbf7d0;
-    color: #15803d;
+.actions .icon-btn:hover,
+.actions > .icon-btn:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
 }
 
-.post-btn {
-    background: #fefce8;
+.actions .edit-btn,
+.actions .download-btn,
+.actions .post-btn,
+.actions > .edit-btn,
+.actions > .download-btn,
+.actions > .post-btn {
+    background: var(--surface);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+.actions .action-btn.is-heart,
+.actions .icon-btn.is-heart {
+    color: #ef4444;
+    border-color: #fca5a5;
+    background: #fef2f2;
+}
+
+.actions .action-btn.is-liked,
+.actions .icon-btn.is-liked,
+#starBtn.is-liked {
+    color: #eab308;
     border-color: #fde68a;
-    color: #b45309;
+    background: #fefce8;
 }
 
 .mp-container {
@@ -993,12 +1081,14 @@
 }
 
 .detail-page-shell {
-    max-width: 400px;
+    width: 100%;
+    max-width: none;
     margin: 0 auto;
 }
 
 .detail-page-container {
-    max-width: 400px;
+    width: 100%;
+    max-width: none;
     min-height: 100vh;
     margin: 0 auto;
     background: var(--bg);
@@ -1008,6 +1098,10 @@
     background: var(--surface);
     padding: 0 0 18px;
     border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 60px;
+    z-index: 50;
+    box-shadow: var(--shadow-sm);
 }
 
 .detail-title-area {
