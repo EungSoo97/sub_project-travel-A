@@ -183,7 +183,7 @@
 
                                             <c:choose>
                                                 <c:when test="${act.category eq 'transport'}">
-                                                    <div class="icon move">▲</div>
+                                                    <div class="icon move">🚗</div>
                                                 </c:when>
                                                 <c:when test="${act.category eq 'food' || act.category eq 'dining'}">
                                                     <div class="icon food">🍽</div>

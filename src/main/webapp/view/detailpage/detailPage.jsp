@@ -169,7 +169,7 @@
                             <h3>${item.day}일차 <span>(${fn:length(item.activities)}개 장소)</span></h3>
                             <p class="route">
                                 <c:forEach var="act" items="${item.activities}" varStatus="status">
-                                    ${act.name}<c:if test="${!status.last}"> → </c:if>
+                                    ● ${act.name}<c:if test="${!status.last}"> → </c:if>
                                 </c:forEach>
                             </p>
                         </div>
@@ -209,7 +209,7 @@
                                     <span class="distance">
                                         <c:choose>
                                             <c:when test="${item.totalDistanceKm != null and item.totalTravelTimeMinutes != null}">
-                                                총 <c:out value="${item.totalDistanceKm}" />km · 이동 <c:out value="${item.totalTravelTimeMinutes}" />분
+                                                총 <c:out value="${item.totalDistanceKm}" />km · 당일 이동 약 <c:out value="${item.totalTravelTimeMinutes}" />분
                                             </c:when>
                                             <c:otherwise>거리 정보 없음</c:otherwise>
                                         </c:choose>
@@ -277,24 +277,25 @@
                 </div>
 
                 <div class="recommend-section">
-                    <h2>추천 항공/숙소</h2>
+                    <h2>추천 항공/호텔</h2>
 
                     <div class="recommend-grid">
                         <div class="recommend-card">
-                            <h3>추천 항공권</h3>
+                            <h3>✈ 저가 항공권 최저가</h3>
                             <c:choose>
                                 <c:when test="${empty plan.flights}">
-                                    <p class="mp-empty-text">항공권 추천 정보가 없습니다.</p>
+                                    <p>항공권 정보를 불러오지 못했습니다.</p>
                                 </c:when>
                                 <c:otherwise>
                                     <c:forEach var="flight" items="${plan.flights}">
                                         <div class="recommend-item">
                                             <div class="left">
-                                                <div class="title">${flight.airline}</div>
+                                                <div class="title">${flight.airline} ${flight.flightNumber}</div>
                                                 <div class="desc">${flight.departureAirport} → ${flight.arrivalAirport}</div>
                                             </div>
                                             <div class="right">
                                                 <div class="price">${flight.price} ${empty flight.currency ? plan.summary.currency : flight.currency}</div>
+                                                <div class="sub">항공 1인</div>
                                             </div>
                                         </div>
                                     </c:forEach>
@@ -303,25 +304,21 @@
                         </div>
 
                         <div class="recommend-card">
-                            <h3>추천 숙소</h3>
+                            <h3>🏨 숙박 추천</h3>
                             <c:choose>
                                 <c:when test="${empty plan.hotels}">
-                                    <p class="mp-empty-text">숙소 추천 정보가 없습니다.</p>
+                                    <p>숙박 정보를 불러오지 못했습니다.</p>
                                 </c:when>
                                 <c:otherwise>
                                     <c:forEach var="hotel" items="${plan.hotels}">
                                         <div class="recommend-item">
                                             <div class="left">
                                                 <div class="title">${hotel.name}</div>
-                                                <div class="desc">
-                                                    평점 ${hotel.rating}
-                                                    <c:if test="${not empty hotel.location}">
-                                                        · ${hotel.location}
-                                                    </c:if>
-                                                </div>
+                                                <div class="desc">⭐ ${hotel.rating} · ${hotel.location}</div>
                                             </div>
                                             <div class="right">
-                                                <div class="price">${hotel.pricePerNight} ${empty hotel.currency ? plan.summary.currency : hotel.currency}</div>
+                                                <div class="price">${hotel.pricePerNight} ${hotel.currency}</div>
+                                                <div class="sub">1박</div>
                                             </div>
                                         </div>
                                     </c:forEach>
