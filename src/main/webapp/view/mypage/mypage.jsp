@@ -431,7 +431,7 @@
 
             <%-- 여행 트렌드 --%>
         <div class="section stats-trend-section">
-            <div class="section-title">📈 여행 트렌드</div>
+            <div class="section-title">📈 내 여행 트랜드</div>
             <div class="trend-list">
                 <c:choose>
                     <%-- 1. 데이터가 있을 때 --%>
