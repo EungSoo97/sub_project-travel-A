@@ -31,14 +31,16 @@ function toggleHeart(btn, postId) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ planId: postId })  // ✅ 여기만 수정
+        body: JSON.stringify({ planId: postId })
     })
         .then(res => res.json())
         .then(data => {
             if (data.liked) {
                 btn.innerText = "❤";
+                btn.classList.add("is-heart");   // ⭐ 추가
             } else {
                 btn.innerText = "♡";
+                btn.classList.remove("is-heart"); // ⭐ 추가
             }
         })
         .catch(err => {
@@ -71,3 +73,14 @@ window.onclick = function (event) {
 };
 
 // Form will submit normally without JavaScript interference
+function openReviewSheet() {
+  document.getElementById("planBackdrop").classList.add("show");
+  document.getElementById("planSheet").classList.add("show");
+  document.body.style.overflow = "hidden";
+}
+
+function closeReviewSheet() {
+  document.getElementById("planBackdrop").classList.remove("show");
+  document.getElementById("planSheet").classList.remove("show");
+  document.body.style.overflow = "";
+}

@@ -276,3 +276,557 @@
     line-height: 1.4;
     word-break: keep-all;
 }
+/* 통계 탭 - 숫자 카드 */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background: #f5f5f5;
+    border-radius: 8px;
+    padding: 14px 10px;
+    text-align: center;
+}
+
+.stat-card .num {
+    font-size: 22px;
+    font-weight: 500;
+    color: #1a1a1a;
+}
+
+.stat-card .lbl {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+}
+
+/* 칭호 레벨바 */
+.section {
+    background: #fff;
+    border: 0.5px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 13px !important;
+}
+
+.section-title {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 12px;
+}
+
+.level-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.level-info .level-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: #1a1a1a;
+}
+
+.level-info .level-sub {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+}
+
+.bar-track {
+    background: #f0f0f0;
+    border-radius: 999px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 8px;
+    border-radius: 999px;
+    background: #378ADD;
+}
+
+.bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 4px;
+}
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-box {
+    background: #fff;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    padding: 1.25rem;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.modal-header h3 {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #888;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.btn-confirm {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #378ADD;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* 칭호 리스트 */
+.title-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.title-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #f9f9f9;
+}
+
+.title-item.active-title {
+    background: #E6F1FB;
+    border: 1px solid #378ADD;
+}
+
+.title-icon {
+    font-size: 22px;
+}
+
+.title-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.title-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a1a1a;
+}
+
+.title-condition {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+}
+
+.current-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+    background: #378ADD;
+    color: #fff;
+    border-radius: 999px;
+}
+
+/* ==========================================================================
+   후기 탭 - 타임라인
+   ========================================================================== */
+
+/* 전체 타임라인 감싸는 컨테이너 */
+.review-timeline {
+    padding-top: 4px;
+}
+
+/* 연도 구분선 */
+.review-year-divider {
+    font-size: 12px;
+    font-weight: 600;
+    color: #aaa;
+    margin: 0 0 14px 24px;
+    letter-spacing: 0.04em;
+}
+
+/* 점 + 선 + 카드를 가로로 묶는 행 */
+.review-tl-wrap {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+/* 타임라인 축 (점 위에 선 아래) */
+.review-tl-axis {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 5px;
+    flex-shrink: 0;
+    width: 12px;
+}
+
+/* 타임라인 점 */
+.review-tl-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #378ADD;
+    flex-shrink: 0;
+}
+
+/* 타임라인 세로선 */
+.review-tl-line {
+    width: 1.5px;
+    background: #e8e8e8;
+    flex: 1;
+    margin: 4px 0;
+    min-height: 20px;
+}
+
+/* 후기 카드 */
+.review-card {
+    flex: 1;
+    background: #fff;
+    border: 0.5px solid #e8e8e8;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+}
+
+/* 카드 상단: 도시 태그 + 날짜 */
+.review-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+/* 도시·국가 태그 */
+.review-dest-tag {
+    font-size: 12px;
+    font-weight: 600;
+    color: #185FA5;
+    background: #E6F1FB;
+    padding: 3px 10px;
+    border-radius: 20px;
+}
+
+/* 날짜·기간 텍스트 */
+.review-meta-date {
+    font-size: 11px;
+    color: #aaa;
+    white-space: nowrap;
+}
+
+/* 후기 제목 */
+.review-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 5px;
+    line-height: 1.4;
+    word-break: keep-all;
+}
+
+/* 후기 본문 */
+.review-body {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.65;
+    margin-bottom: 10px;
+    word-break: keep-all;
+}
+
+/* 사진 썸네일 행 */
+.review-photos {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+/* 사진 썸네일 개별 이미지 */
+.review-photo-thumb {
+    width: 62px;
+    height: 62px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 0.5px solid #e8e8e8;
+    flex-shrink: 0;
+}
+
+/* 사진 더보기 박스 (+N) */
+.review-photo-more {
+    width: 62px;
+    height: 62px;
+    border-radius: 8px;
+    background: #f5f5f5;
+    border: 0.5px solid #e8e8e8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #888;
+    flex-shrink: 0;
+}
+
+/* 해시태그 행 */
+.review-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+/* 해시태그 개별 아이템 */
+.review-tag {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: #f5f5f5;
+    color: #666;
+    border: 0.5px solid #e8e8e8;
+}
+
+/* 카드 하단: 별점 + 좋아요/댓글 */
+.review-card-footer {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-top: 0.5px solid #f0f0f0;
+    padding-top: 10px;
+}
+
+/* 별점 */
+.review-stars {
+    color: #EF9F27;
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+
+/* 좋아요·댓글 수 */
+.review-foot-stat {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.review-foot-stat strong {
+    color: #333;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   통계 탭 - 여행 트렌드 / 선호 스타일 추가 스타일
+   ========================================================================== */
+
+/* 트렌드 + 스타일 2열 레이아웃 */
+.stats-two-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+/* 두 섹션 높이 맞추기 */
+.stats-trend-section,
+.stats-style-section {
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── 여행 트렌드 ── */
+.trend-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+}
+
+.trend-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.trend-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.trend-rank {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+
+.trend-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111;
+    flex: 1;
+}
+
+.trend-count {
+    font-size: 11px;
+    color: #aaa;
+    flex-shrink: 0;
+}
+
+.trend-bar-wrap {
+    height: 5px;
+    background: #f0f0f0;
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.trend-bar {
+    height: 5px;
+    border-radius: 99px;
+    background: #378ADD;
+    transition: width 0.6s ease;
+}
+
+.trend-item:nth-child(2) .trend-bar { background: #378ADD; }
+.trend-item:nth-child(3) .trend-bar { background: #378ADD; }
+
+/* ── 선호 여행 스타일 ── */
+.style-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+}
+
+.style-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.style-icon-wrap {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.style-icon-food    { background: #FAEEDA; color: #854F0B; }
+.style-icon-culture { background: #E6F1FB; color: #185FA5; }
+.style-icon-active  { background: #E1F5EE; color: #0F6E56; }
+.style-icon-shop    { background: #FBEAF0; color: #993556; }
+
+.style-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.style-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #111;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.style-bar-wrap {
+    height: 4px;
+    background: #f0f0f0;
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.style-bar {
+    height: 4px;
+    border-radius: 99px;
+    transition: width 0.6s ease;
+}
+
+.style-bar-food    { background: #EF9F27; }
+.style-bar-culture { background: #378ADD; }
+.style-bar-active  { background: #1D9E75; }
+.style-bar-shop    { background: #D4537E; }
+
+.style-pct {
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
+    flex-shrink: 0;
+    min-width: 28px;
+    text-align: right;
+}
+
+/* 모바일 대응 - 너무 좁으면 1열로 */
+@media (max-width: 320px) {
+    .stats-two-col {
+        grid-template-columns: 1fr;
+    }
+}
+.level-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #E6F1FB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}

@@ -54,7 +54,16 @@ public class ResultpageDAO {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String sql = "SELECT plan_id, response_json FROM travel_plan";
+//        String sql = "SELECT plan_id, response_json FROM travel_plan";
+        String sql = "SELECT tp.plan_id, tp.response_json, NVL(pl.like_cnt, 0) AS like_cnt\n" +
+                "FROM travel_plan tp\n" +
+                "LEFT JOIN (\n" +
+                "    SELECT plan_id, COUNT(*) AS like_cnt\n" +
+                "    FROM plan_like\n" +
+                "    GROUP BY plan_id\n" +
+                ") pl ON tp.plan_id = pl.plan_id\n" +
+                "ORDER BY tp.plan_id DESC";
+
         List<TravelResultVDTO> list = new ArrayList<>();
 
         try {
@@ -69,6 +78,8 @@ public class ResultpageDAO {
                 String jsonString = rs.getString("response_json");
                 TravelResultVDTO dto = mapper.readValue(jsonString, TravelResultVDTO.class);
                 dto.setPlanId(rs.getInt("plan_id"));
+                dto.setLikeCnt(rs.getInt("like_cnt"));
+
                 list.add(dto);
             }
         } catch (Exception e) {

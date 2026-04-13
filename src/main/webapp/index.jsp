@@ -7,9 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Travel-A(AI) | AI 여행 플래너</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/result-page.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/edit-schedule.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/settings.css">
+      <link rel="stylesheet" href="${pageContext.request.contextPath}/css/detail-page.css" />
+      <link rel="stylesheet" href="${pageContext.request.contextPath}/css/myplan-page.css" />
 
     <!-- 푸터 하단 고정 -->
     <style>
@@ -78,11 +79,13 @@
         <div class="container site-footer__inner">
           <p>© 2026 Travel-A(AI). 여행의 모든 순간을 스마트하게.</p>
         </div>
-          <form action="result-page">
-              <button >backdoor</button></form>
+          <form action="result-page-?id=213">
+              <button >backdoor</button>
+          </form>
       </footer>
-        <form action="result-page" method="post">
-            <button>back door</button></form>
+        <form action="result-page-?id=213" method="post">
+            <button>back door</button>
+        </form>
 
     </div>
     <script src="${pageContext.request.contextPath}/js/main.js"></script>
