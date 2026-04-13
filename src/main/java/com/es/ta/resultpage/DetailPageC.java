@@ -1,5 +1,8 @@
 package com.es.ta.resultpage;
 
+import com.es.ta.account.AccountDTO;
+import com.es.ta.userreaction.UserreactionDAO;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -35,6 +38,12 @@ public class DetailPageC extends HttpServlet {
                 request.setAttribute("errorMsg", "해당 여행 정보를 찾을 수 없습니다.");
             } else {
                 request.setAttribute("plan", result);
+                request.setAttribute("reviews", UserreactionDAO.getReviewsByPlanId(id));
+
+                AccountDTO user = (AccountDTO) request.getSession().getAttribute("user");
+                boolean liked = user != null && new UserreactionDAO().existsLike(id, user.getUser_id());
+                request.setAttribute("liked", liked);
+
                 request.getSession().setAttribute("plan", result);
             }
             

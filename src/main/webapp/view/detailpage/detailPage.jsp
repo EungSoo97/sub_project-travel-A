@@ -7,6 +7,7 @@
     AccountDTO user = (AccountDTO) request.getSession().getAttribute("user");
     boolean isLoggedIn = (user != null);
     pageContext.setAttribute("isLoggedIn", isLoggedIn);
+    pageContext.setAttribute("currentUserId", isLoggedIn ? user.getUser_id() : 0);
 %>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css" />
@@ -43,9 +44,10 @@
                                 </p>
                             </div>
 
-                            <button type="button" class="dp-review-link-btn" onclick="openReviewSheet()">
-                                후기 전체보기 >
+                            <button type="button" class="dp-review-link-btn" id="dpOpenModalBtn">
+                                후기 <span class="dp-review-link-count">${fn:length(reviews)}</span>
                             </button>
+
                         </div>
 
                         <div class="detail-title-divider"></div>
@@ -56,7 +58,7 @@
                             <c:when test="${isLoggedIn}">
                                 <button
                                     type="button"
-                                    class="action-btn icon-btn ${liked ? 'is-liked' : ''}"
+                                    class="action-btn icon-btn ${liked ? 'is-heart' : ''}"
                                     onclick="toggleHeart(this, ${plan.planId})">
                                     ${liked ? '♥' : '♡'}
                                 </button>
@@ -71,7 +73,7 @@
                             </c:otherwise>
                         </c:choose>
 
-                        <button type="button" class="action-btn icon-btn" onclick="copyUrl()">⤴</button>
+                        <button type="button" class="action-btn icon-btn" onclick="copyUrl()">🔗</button>
 
                         <form action="${pageContext.request.contextPath}/pdf" method="get">
                             <button type="submit" class="action-btn download-btn">PDF</button>
@@ -89,7 +91,6 @@
                             </c:otherwise>
                         </c:choose>
 
-                        <button type="button" class="action-btn post-btn" id="dpOpenModalBtn">후기</button>
                     </div>
                 </div>
 
@@ -128,8 +129,9 @@
                 </div>
 
                 <div class="map-section">
-                        <div class="map-header">
+                        <div class="map-header" role="button" tabindex="0" aria-expanded="true">
                             <span class="map-title"><span class="mp-inline-icon">🗺</span>여행 동선 지도</span>
+                            <span class="map-toggle-indicator map-toggle-label">지도 접기</span>
                             <div class="legend">
                                 <span class="dot blue"></span> 관광지
                                 <span class="dot orange"></span> 식당
@@ -351,6 +353,35 @@
             </div>
 
             <div class="dp-sheet-body">
+                <div class="dp-review-compose">
+                    <div class="dp-review-compose-head">
+                        <span class="dp-review-compose-avatar">+</span>
+                        <div>
+                            <p class="dp-review-compose-title">후기 남기기</p>
+                            <p class="dp-review-compose-sub">이 여행을 다녀온 느낌을 남겨주세요.</p>
+                        </div>
+                    </div>
+
+                    <c:choose>
+                        <c:when test="${isLoggedIn}">
+                            <form class="dp-review-compose-form" action="${pageContext.request.contextPath}/review" method="post">
+                                <input type="hidden" name="planId" value="${plan.planId}">
+                                <textarea class="dp-review-compose-textarea" name="content" rows="2" placeholder="후기를 작성해주세요."></textarea>
+                                <div class="dp-review-compose-actions">
+                                    <span>삭제 전까지 계속 보관됩니다.</span>
+                                    <button class="dp-review-compose-submit" type="submit">등록</button>
+                                </div>
+                            </form>
+                        </c:when>
+                        <c:otherwise>
+                            <div class="dp-review-compose-login">
+                                <span>로그인 후 후기를 남길 수 있습니다.</span>
+                                <button type="button" onclick="goLoginWithReturn()">로그인 안내</button>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+
                 <c:choose>
                     <c:when test="${empty reviews}">
                         <p class="mp-empty-text">아직 작성된 후기가 없습니다.</p>
@@ -358,11 +389,23 @@
                     <c:otherwise>
                         <c:forEach var="review" items="${reviews}">
                             <div class="dp-review-item">
-                                <p class="dp-review-writer">${review.userName}</p>
-                                <p class="dp-review-text">${review.content}</p>
-                                <p class="dp-review-date">
-                                    <fmt:formatDate value="${review.createdAt}" pattern="yyyy-MM-dd" />
-                                </p>
+                                <div class="dp-review-top">
+                                    <p class="dp-review-writer">
+                                        <c:out value="${review.userName}" />
+                                        <span class="dp-review-date">
+                                            <fmt:formatDate value="${review.createdAt}" pattern="yyyy-MM-dd" />
+                                        </span>
+                                    </p>
+                                    <c:if test="${isLoggedIn and currentUserId == review.userId}">
+                                        <form action="${pageContext.request.contextPath}/review" method="post" onsubmit="return confirm('후기를 삭제할까요?');">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="planId" value="${plan.planId}">
+                                            <input type="hidden" name="reviewId" value="${review.reviewId}">
+                                            <button type="submit" class="dp-review-delete-btn">삭제</button>
+                                        </form>
+                                    </c:if>
+                                </div>
+                                <p class="dp-review-text"><c:out value="${review.content}" /></p>
                             </div>
                         </c:forEach>
                     </c:otherwise>
@@ -372,10 +415,14 @@
 
         <script>
             (function () {
+                const mapSection = document.querySelector(".map-section");
+                const mapHeader = mapSection ? mapSection.querySelector(".map-header") : null;
+                const mapToggleLabel = mapHeader ? mapHeader.querySelector(".map-toggle-label") : null;
                 const mapElement = document.getElementById("travelMap");
                 const fallbackElement = document.getElementById("mapFallbackMessage");
                 const dayButtons = Array.from(document.querySelectorAll(".day-filter-button"));
                 const scheduleItems = Array.from(document.querySelectorAll(".schedule-item"));
+                initializeMapSectionToggle();
 
                 if (!mapElement) return;
 
@@ -477,9 +524,97 @@
                                 renderDay(day);
                             }
 
-                            focusPoint(day, order, true);
+                            focusSchedulePoint(day, order);
                         });
                     });
+                }
+
+                function initializeMapSectionToggle() {
+                    if (!mapSection || !mapHeader) return;
+
+                    function toggleMapSection(forceExpanded) {
+                        const shouldExpand = typeof forceExpanded === "boolean"
+                            ? forceExpanded
+                            : mapSection.classList.contains("is-collapsed");
+
+                        mapSection.classList.toggle("is-collapsed", !shouldExpand);
+                        mapHeader.setAttribute("aria-expanded", String(shouldExpand));
+
+                        if (mapToggleLabel) {
+                            mapToggleLabel.textContent = shouldExpand ? "지도 접기" : "지도 펼치기";
+                        }
+
+                        if (shouldExpand) {
+                            refreshMapLayout();
+                        }
+                    }
+
+                    mapHeader.addEventListener("click", function () {
+                        toggleMapSection();
+                    });
+                    mapHeader.addEventListener("keydown", function (event) {
+                        if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            toggleMapSection();
+                        }
+                    });
+                }
+
+                function expandMapSection() {
+                    if (!mapSection || !mapHeader || !mapSection.classList.contains("is-collapsed")) {
+                        return false;
+                    }
+
+                    mapSection.classList.remove("is-collapsed");
+                    mapHeader.setAttribute("aria-expanded", "true");
+
+                    if (mapToggleLabel) {
+                        mapToggleLabel.textContent = "지도 접기";
+                    }
+
+                    refreshMapLayout();
+                    return true;
+                }
+
+                function focusSchedulePoint(day, order) {
+                    const wasExpanded = expandMapSection();
+                    scrollToMapSection(wasExpanded ? 260 : 0);
+
+                    if (wasExpanded) {
+                        window.setTimeout(function () {
+                            focusPoint(day, order, true);
+                        }, 260);
+                        return;
+                    }
+
+                    focusPoint(day, order, true);
+                }
+
+                function scrollToMapSection(delay) {
+                    if (!mapSection) {
+                        return;
+                    }
+
+                    window.setTimeout(function () {
+                        const target = mapHeader || mapSection;
+                        const headerOffset = getVisibleHeaderOffset();
+                        const targetTop = target.getBoundingClientRect().top + window.pageYOffset - headerOffset - 12;
+                        window.scrollTo({ top: Math.max(targetTop, 0), behavior: "smooth" });
+                    }, delay);
+                }
+
+                function getVisibleHeaderOffset() {
+                    const headers = Array.from(document.querySelectorAll(".header, .mp-header, header"));
+                    return headers.reduce(function (offset, header) {
+                        const style = window.getComputedStyle(header);
+                        const rect = header.getBoundingClientRect();
+
+                        if ((style.position === "fixed" || style.position === "sticky") && rect.bottom > 0) {
+                            return Math.max(offset, rect.bottom);
+                        }
+
+                        return offset;
+                    }, 0);
                 }
 
                 function activateScheduleItem(activeItem) {
@@ -610,6 +745,21 @@
                     if (panToMarker) {
                         state.map.panTo({ lat: point.lat, lng: point.lng });
                     }
+                }
+
+                function refreshMapLayout() {
+                    if (!state.map) return;
+
+                    const center = typeof state.map.getCenter === "function" ? state.map.getCenter() : null;
+
+                    window.setTimeout(function () {
+                        if (window.google && google.maps && google.maps.event && typeof google.maps.event.trigger === "function") {
+                            google.maps.event.trigger(state.map, "resize");
+                        }
+                        if (center && typeof state.map.setCenter === "function") {
+                            state.map.setCenter(center);
+                        }
+                    }, 220);
                 }
 
                 function setActiveDay(day) {
@@ -746,10 +896,9 @@
             const dpCloseModalBtn = document.getElementById("dpCloseModalBtn");
             const dpSnackbar = document.getElementById("dpSnackbar");
 
-            if (dpOpenModalBtn && dpReviewModal) {
+            if (dpOpenModalBtn) {
                 dpOpenModalBtn.addEventListener("click", function () {
-                    dpReviewModal.classList.add("is-open");
-                    document.body.style.overflow = "hidden";
+                    openReviewSheet();
                 });
             }
 
@@ -779,6 +928,13 @@
                 document.body.style.overflow = "";
             }
 
+            if (new URLSearchParams(window.location.search).has("reviewSuccess")) {
+                openReviewSheet();
+                if (window.matchMedia("(max-width: 768px)").matches) {
+                    showDpSnackbar("후기가 등록되었습니다.");
+                }
+            }
+
             function copyUrl() {
                 navigator.clipboard.writeText(window.location.href).then(function () {
                     showDpSnackbar("링크가 복사되었습니다.");
@@ -800,7 +956,7 @@
                     })
                     .then(function (data) {
                         btn.innerText = data.liked ? "♥" : "♡";
-                        btn.classList.toggle("is-liked", data.liked);
+                        btn.classList.toggle("is-heart", data.liked);
                         showDpSnackbar(data.liked ? "좋아요가 반영되었습니다." : "좋아요를 취소했습니다.");
                     })
                     .catch(function (err) {
@@ -811,6 +967,18 @@
 
             function showLoginAlert() {
                 alert("로그인 후 이용 가능합니다.");
+            }
+
+            function goLoginWithReturn() {
+                const returnTarget = new URL(window.location.href);
+                returnTarget.searchParams.delete("reviewSuccess");
+                returnTarget.searchParams.delete("reviewDeleted");
+
+                let returnUrl = returnTarget.pathname + returnTarget.search;
+                if (dpContextPath && returnUrl.indexOf(dpContextPath + "/") === 0) {
+                    returnUrl = returnUrl.substring(dpContextPath.length);
+                }
+                window.location.href = dpContextPath + "/login?returnUrl=" + encodeURIComponent(returnUrl);
             }
 
             function showDpSnackbar(message) {
