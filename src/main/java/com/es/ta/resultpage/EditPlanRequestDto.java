@@ -26,5 +26,10 @@ public class EditPlanRequestDto {
         private String name;
         private String description;
         private String type;
+        private int durationMinutes;
+        private int cost;
+        private String currency;
+        private String location;
+
     }
 }
