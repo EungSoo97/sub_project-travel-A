@@ -1389,6 +1389,33 @@ input {
   font-size: 0.88rem;
 }
 
+.global-snackbar {
+  visibility: hidden;
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  z-index: 10001;
+  min-width: 220px;
+  max-width: calc(100% - 40px);
+  padding: 13px 18px;
+  border-radius: 8px;
+  background: rgba(31, 41, 55, 0.96);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(12px);
+  transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s ease;
+}
+
+.global-snackbar.show {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* ── 햄버거 메뉴 버튼 ── */
 .mobile-menu-btn {
   display: flex;
