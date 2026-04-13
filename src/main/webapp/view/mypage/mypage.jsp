@@ -472,58 +472,87 @@
             <%-- 선호 여행 스타일 --%>
             <div class="section stats-style-section">
                 <div class="section-title">선호 스타일</div>
-                <div class="style-list">
-                    <div class="style-item">
-                        <div class="style-icon-wrap style-icon-food">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
-                        </div>
-                        <div class="style-info">
-                            <span class="style-name">식도락</span>
-                            <div class="style-bar-wrap">
-                                <div class="style-bar style-bar-food" style="width: 45%;"></div>
-                            </div>
-                        </div>
-                        <span class="style-pct">45%</span>
-                    </div>
-                    <div class="style-item">
-                        <div class="style-icon-wrap style-icon-culture">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                        </div>
-                        <div class="style-info">
-                            <span class="style-name">문화</span>
-                            <div class="style-bar-wrap">
-                                <div class="style-bar style-bar-culture" style="width: 30%;"></div>
-                            </div>
-                        </div>
-                        <span class="style-pct">30%</span>
-                    </div>
-                    <div class="style-item">
-                        <div class="style-icon-wrap style-icon-active">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        </div>
-                        <div class="style-info">
-                            <span class="style-name">액티브</span>
-                            <div class="style-bar-wrap">
-                                <div class="style-bar style-bar-active" style="width: 15%;"></div>
-                            </div>
-                        </div>
-                        <span class="style-pct">15%</span>
-                    </div>
-                    <div class="style-item">
-                        <div class="style-icon-wrap style-icon-shop">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                        </div>
-                        <div class="style-info">
-                            <span class="style-name">쇼핑</span>
-                            <div class="style-bar-wrap">
-                                <div class="style-bar style-bar-shop" style="width: 10%;"></div>
-                            </div>
-                        </div>
-                        <span class="style-pct">10%</span>
-                    </div>
-                </div>
-            </div>
+<%--                <div class="style-list">--%>
+<%--                    <div class="style-item">--%>
+<%--                        <div class="style-icon-wrap style-icon-food">--%>
+<%--                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>--%>
+<%--                        </div>--%>
+<%--                        <div class="style-info">--%>
+<%--                            <span class="style-name">식도락</span>--%>
+<%--                            <div class="style-bar-wrap">--%>
+<%--                                <div class="style-bar style-bar-food" style="width: 45%;"></div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                        <span class="style-pct">45%</span>--%>
+<%--                    </div>--%>
+<%--                    <div class="style-item">--%>
+<%--                        <div class="style-icon-wrap style-icon-culture">--%>
+<%--                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>--%>
+<%--                        </div>--%>
+<%--                        <div class="style-info">--%>
+<%--                            <span class="style-name">문화</span>--%>
+<%--                            <div class="style-bar-wrap">--%>
+<%--                                <div class="style-bar style-bar-culture" style="width: 30%;"></div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                        <span class="style-pct">30%</span>--%>
+<%--                    </div>--%>
+<%--                    <div class="style-item">--%>
+<%--                        <div class="style-icon-wrap style-icon-active">--%>
+<%--                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>--%>
+<%--                        </div>--%>
+<%--                        <div class="style-info">--%>
+<%--                            <span class="style-name">액티브</span>--%>
+<%--                            <div class="style-bar-wrap">--%>
+<%--                                <div class="style-bar style-bar-active" style="width: 15%;"></div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                        <span class="style-pct">15%</span>--%>
+<%--                    </div>--%>
+<%--                    <div class="style-item">--%>
+<%--                        <div class="style-icon-wrap style-icon-shop">--%>
+<%--                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>--%>
+<%--                        </div>--%>
+<%--                        <div class="style-info">--%>
+<%--                            <span class="style-name">쇼핑</span>--%>
+<%--                            <div class="style-bar-wrap">--%>
+<%--                                <div class="style-bar style-bar-shop" style="width: 10%;"></div>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                        <span class="style-pct">10%</span>--%>
+<%--                    </div>--%>
+<%--                </div>--%>
 
+<%--                --%>
+<%--            </div>--%>
+                <div class="style-list">
+                    <c:choose>
+                        <c:when test="${empty styleStats}">
+                            <div class="empty-state">
+                                <p>아직 분석된 여행 스타일이 없습니다.</p>
+                            </div>
+                        </c:when>
+                        <c:otherwise>
+                            <c:forEach var="stat" items="${styleStats}" varStatus="status" begin="0" end="4">
+                                <div class="style-item">
+                                    <div class="style-icon-wrap style-color-${(status.index % 5) + 1}">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M3 11l19-9-9 19-2-8-8-2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="style-info">
+                                        <span class="style-name">${stat.styleName}</span>
+                                        <div class="style-bar-wrap">
+                                            <div class="style-bar style-bg-${(status.index % 5) + 1}"
+                                                 style="width: ${stat.percentage}%;"></div>
+                                        </div>
+                                    </div>
+                                    <span class="style-pct">${stat.percentage}%</span>
+                                </div>
+                            </c:forEach>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
     </div>
 
     </div>
@@ -532,7 +561,7 @@
 <script>
     /* 1. 모달 함수를 가장 먼저, 그리고 '바깥'에 선언합니다. */
     function openTitleModal() {
-        console.log("모달 열기 실행"); // 확인용
+        console.log("모달 열기 실행"); // 확인x용
         const modal = document.getElementById('titleModal');
         if (modal) {
             modal.classList.add('show');

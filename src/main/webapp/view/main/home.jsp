@@ -24,6 +24,22 @@
 
                 <div class="form-grid">
                     <div class="form-field form-field--wide">
+                        <label for="departureAirportCode">출발 공항</label>
+                        <button type="button" class="airport-trigger" id="airportTrigger">
+                            <span class="airport-trigger__icon">✈</span>
+                            <span class="airport-trigger__main">
+                                <span class="airport-trigger__label">국내 출발 공항</span>
+                                <span class="airport-trigger__value" id="airportTriggerValue">공항을 선택해 주세요</span>
+                            </span>
+                            <span class="airport-trigger__code" id="airportTriggerCode"></span>
+                        </button>
+                        <input type="hidden" id="departureAirportCode" name="departureAirportCode">
+                        <input type="hidden" id="departureAirportName" name="departureAirportName">
+                        <input type="hidden" id="departureAirportAddress" name="departureAirportAddress">
+                        <input type="hidden" id="departureAirportRoutes" name="departureAirportRoutes">
+                    </div>
+
+                    <div class="form-field form-field--wide">
                         <label for="destination">여행지</label>
                         <input id="destination" name="destination" type="text" placeholder="예: 일본, 시코쿠, 규슈" required>
                     </div>
@@ -372,6 +388,22 @@
     <button class="sheet-cancel" id="sheetCancel">취소</button>
 </div>
 
+
+<div class="sheet-backdrop" id="airportBackdrop"></div>
+<div class="bottom-sheet airport-sheet" id="airportSheet" role="dialog" aria-modal="true" aria-labelledby="airportSheetTitle">
+    <div class="sheet-handle-wrap"><div class="sheet-handle"></div></div>
+    <div class="sheet-head">
+        <span class="sheet-head-title" id="airportSheetTitle">출발 공항 선택</span>
+        <button type="button" class="sheet-close-btn" id="airportSheetClose" aria-label="닫기">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+    </div>
+    <p class="airport-sheet__desc">공항을 누르면 주소와 일본 주요 노선을 확인하고 선택할 수 있어요.</p>
+    <div class="airport-list" id="airportList"></div>
+    <div class="airport-sheet__footer">
+        <button type="button" class="airport-apply-btn" id="airportApplyBtn" disabled>선택 완료</button>
+    </div>
+</div>
 
 <div class="sheet-backdrop" id="dateBackdrop"></div>
 <div class="bottom-sheet" id="dateSheet">

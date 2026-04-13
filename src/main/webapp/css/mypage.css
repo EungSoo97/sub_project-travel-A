@@ -830,3 +830,25 @@
     font-size: 24px;
     flex-shrink: 0;
 }
+
+/* JSP의 ${(status.index % 5) + 1}에 대응하는 색상들 */
+
+/* 아이콘 배경색 (style-color-1 ~ 5) */
+.style-color-1 { background: #FAEEDA; color: #854F0B; } /* 노랑/음식 */
+.style-color-2 { background: #E6F1FB; color: #185FA5; } /* 파랑/문화 */
+.style-color-3 { background: #E1F5EE; color: #0F6E56; } /* 초록/액티브 */
+.style-color-4 { background: #FBEAF0; color: #993556; } /* 분홍/쇼핑 */
+.style-color-5 { background: #F0F0F0; color: #555555; } /* 회색/기타 */
+
+/* 막대 바 색상 (style-bg-1 ~ 5) */
+.style-bg-1 { background: #EF9F27; }
+.style-bg-2 { background: #378ADD; }
+.style-bg-3 { background: #1D9E75; }
+.style-bg-4 { background: #D4537E; }
+.style-bg-5 { background: #AAAAAA; }
+
+/* 공통: 아이콘 내부 SVG 크기 조정 */
+.style-icon-wrap svg {
+    width: 16px;
+    height: 16px;
+}
