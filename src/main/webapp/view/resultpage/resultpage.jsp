@@ -56,8 +56,9 @@
 
         <!-- 지도 영역 -->
         <div class="map-section">
-            <div class="map-header">
+            <div class="map-header" role="button" tabindex="0" aria-expanded="true">
                 <span>🧭 여행 동선 지도</span>
+                <span class="map-toggle-indicator map-toggle-label">지도 접기</span>
                 <div class="legend">
                     <span class="dot blue"></span> 관광지
                     <span class="dot orange"></span> 식당
@@ -328,6 +329,9 @@
     }
 
     (function () {
+        const mapSection = document.querySelector(".map-section");
+        const mapHeader = mapSection ? mapSection.querySelector(".map-header") : null;
+        const mapToggleLabel = mapHeader ? mapHeader.querySelector(".map-toggle-label") : null;
         const mapElement = document.getElementById("travelMap");
         const fallbackElement = document.getElementById("mapFallbackMessage");
         const dayButtons = Array.from(document.querySelectorAll(".day-filter-button"));
@@ -336,6 +340,7 @@
             .filter(function(item) {
                 return item.dataset.isNew !== "true";
             });
+        initializeMapSectionToggle();
         if (!mapElement) {
             return;
         }
@@ -434,9 +439,99 @@
                         renderDay(day);
                     }
 
-                    focusPoint(day, order, true);
+                    focusSchedulePoint(day, order);
                 });
             });
+        }
+
+        function initializeMapSectionToggle() {
+            if (!mapSection || !mapHeader) {
+                return;
+            }
+
+            function toggleMapSection(forceExpanded) {
+                const shouldExpand = typeof forceExpanded === "boolean"
+                    ? forceExpanded
+                    : mapSection.classList.contains("is-collapsed");
+
+                mapSection.classList.toggle("is-collapsed", !shouldExpand);
+                mapHeader.setAttribute("aria-expanded", String(shouldExpand));
+
+                if (mapToggleLabel) {
+                    mapToggleLabel.textContent = shouldExpand ? "지도 접기" : "지도 펼치기";
+                }
+
+                if (shouldExpand) {
+                    refreshMapLayout();
+                }
+            }
+
+            mapHeader.addEventListener("click", function () {
+                toggleMapSection();
+            });
+            mapHeader.addEventListener("keydown", function (event) {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    toggleMapSection();
+                }
+            });
+        }
+
+        function expandMapSection() {
+            if (!mapSection || !mapHeader || !mapSection.classList.contains("is-collapsed")) {
+                return false;
+            }
+
+            mapSection.classList.remove("is-collapsed");
+            mapHeader.setAttribute("aria-expanded", "true");
+
+            if (mapToggleLabel) {
+                mapToggleLabel.textContent = "지도 접기";
+            }
+
+            refreshMapLayout();
+            return true;
+        }
+
+        function focusSchedulePoint(day, order) {
+            const wasExpanded = expandMapSection();
+            scrollToMapSection(wasExpanded ? 260 : 0);
+
+            if (wasExpanded) {
+                window.setTimeout(function () {
+                    focusPoint(day, order, true);
+                }, 260);
+                return;
+            }
+
+            focusPoint(day, order, true);
+        }
+
+        function scrollToMapSection(delay) {
+            if (!mapSection) {
+                return;
+            }
+
+            window.setTimeout(function () {
+                const target = mapHeader || mapSection;
+                const headerOffset = getVisibleHeaderOffset();
+                const targetTop = target.getBoundingClientRect().top + window.pageYOffset - headerOffset - 12;
+                window.scrollTo({ top: Math.max(targetTop, 0), behavior: "smooth" });
+            }, delay);
+        }
+
+        function getVisibleHeaderOffset() {
+            const headers = Array.from(document.querySelectorAll(".header, .mp-header, header"));
+            return headers.reduce(function (offset, header) {
+                const style = window.getComputedStyle(header);
+                const rect = header.getBoundingClientRect();
+
+                if ((style.position === "fixed" || style.position === "sticky") && rect.bottom > 0) {
+                    return Math.max(offset, rect.bottom);
+                }
+
+                return offset;
+            }, 0);
         }
 
         async function initMap() {
@@ -568,6 +663,23 @@
             if (panToMarker) {
                 state.map.panTo({ lat: point.lat, lng: point.lng });
             }
+        }
+
+        function refreshMapLayout() {
+            if (!state.map) {
+                return;
+            }
+
+            const center = typeof state.map.getCenter === "function" ? state.map.getCenter() : null;
+
+            window.setTimeout(function () {
+                if (window.google && google.maps && google.maps.event && typeof google.maps.event.trigger === "function") {
+                    google.maps.event.trigger(state.map, "resize");
+                }
+                if (center && typeof state.map.setCenter === "function") {
+                    state.map.setCenter(center);
+                }
+            }, 220);
         }
 
         function setActiveDay(day) {
