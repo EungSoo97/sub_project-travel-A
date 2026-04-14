@@ -239,7 +239,7 @@
                         이미지 업로드
                     </button>
 
-                    <p class="upload-box__text">클릭하거나 파일을 드래그하여 업로드하세요</p>
+                    <p class="upload-box__text" id="uploadText">클릭하거나 파일을 드래그하여 업로드하세요</p>
 
                     <div class="upload-preview" id="uploadPreview"></div>
 
@@ -472,76 +472,48 @@
 </div>
 <script src="/js/cardModal.js"></script>
 <script>
-    
-    const uploadBox = document.getElementById("uploadBox");
     const imageFile = document.getElementById("imageFile");
     const uploadTrigger = document.getElementById("uploadTrigger");
     const uploadPreview = document.getElementById("uploadPreview");
     const analyzeBtn = document.getElementById("analyzeBtn");
 
-    // 업로드 버튼 클릭 -> 파일 선택창 열기
+    let selectedFile = null;
+
     uploadTrigger.addEventListener("click", function () {
         imageFile.click();
     });
 
-    // 파일 선택 시 미리보기 표시
     imageFile.addEventListener("change", function () {
         const file = this.files[0];
         if (!file) return;
 
-        showPreview(file);
-    });
-
-    // 드래그 앤 드롭
-    uploadBox.addEventListener("dragover", function (e) {
-        e.preventDefault();
-        uploadBox.classList.add("is-dragover");
-    });
-
-    uploadBox.addEventListener("dragleave", function () {
-        uploadBox.classList.remove("is-dragover");
-    });
-
-    uploadBox.addEventListener("drop", function (e) {
-        e.preventDefault();
-        uploadBox.classList.remove("is-dragover");
-
-        const file = e.dataTransfer.files[0];
-        if (!file || !file.type.startsWith("image/")) return;
-
-        imageFile.files = e.dataTransfer.files;
-        showPreview(file);
-    });
-
-    function showPreview(file) {
-        const reader = new FileReader();
-
-        reader.onload = function (e) {
-            uploadPreview.innerHTML = `
-                <div class="upload-preview__card">
-                    <img src="${e.target.result}" alt="업로드 이미지 미리보기" class="upload-preview__image">
-                    <p class="upload-preview__name">${file.name}</p>
-                </div>
-            `;
-
-            analyzeBtn.style.display = "inline-block";
-        };
-
-        reader.readAsDataURL(file);
-    }
-
-    // 나중에 AI 분석 연결
-    analyzeBtn.addEventListener("click", function () {
-        const file = imageFile.files[0];
-        if (!file) {
-            alert("먼저 이미지를 업로드해주세요.");
+        if (!file.type.startsWith("image/")) {
+            alert("이미지 파일만 업로드 가능합니다.");
+            this.value = "";
             return;
         }
 
-        // 지금은 테스트용 페이지 이동 or alert
-        // 나중에 fetch("/image-analyze")로 바꾸면 됨
-        alert("다음 단계: 서버로 이미지 전송 후 여행지 추천 결과 표시");
+        selectedFile = file;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            uploadPreview.innerHTML =
+                '<div class="upload-preview__card">' +
+                '<img src="' + e.target.result + '" alt="업로드 이미지 미리보기" class="upload-preview__image">' +
+                '<p class="upload-preview__name">' + file.name + '</p>' +
+                '</div>';
+
+            uploadText.style.display = "none";
+            analyzeBtn.style.display = "inline-block";
+        };
+
+        reader.onerror = function () {
+            alert("이미지 미리보기를 불러오지 못했습니다.");
+        };
+
+        reader.readAsDataURL(file);
     });
+    const uploadText = document.getElementById("uploadText");
 </script>
 </body>
 </html>

@@ -2054,3 +2054,32 @@ input {
     transform: translateY(0);
   }
 }
+
+.upload-preview {
+  margin-top: 16px;
+  min-height: 50px;
+}
+
+.upload-preview__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-preview__image {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 14px;
+  margin: 0 auto;
+}
+
+.upload-preview__name {
+  margin: 0;
+  font-size: 13px;
+  color: #555;
+  word-break: break-all;
+}

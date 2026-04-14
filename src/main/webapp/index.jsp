@@ -83,6 +83,7 @@
     <c:if test="${content ne 'view/explore/explore.jsp'}">
         <script src="${pageContext.request.contextPath}/js/main.js"></script>
     </c:if>
+    <!-- 로그인 안내 -->
     <script>
         function loginAlert (event) {
             if (event) {
@@ -106,88 +107,37 @@
         }
     </script>
     <script>
-    (() => {
-        const menuTriggerEl = document.querySelector(".menu-trigger");
-        const navEl = document.querySelector(".site-nav");
-        const loginBtnsEl = document.getElementById("headerLoginBtns");
+        (() => {
+            const menuTriggerEl = document.querySelector(".menu-trigger");
+            const navEl = document.querySelector(".site-nav");
+            const loginBtnsEl = document.getElementById("headerLoginBtns");
 
-        if (!menuTriggerEl || !navEl) {
-            return;
-        }
-
-        menuTriggerEl.addEventListener("click", function (e) {
-            e.preventDefault();
-            const isActive = this.classList.toggle("is-active");
-            loginBtnsEl && loginBtnsEl.classList.toggle("is-visible", isActive);
-
-            if (isActive) {
-                navEl.style.display = "flex";
-                requestAnimationFrame(() => navEl.classList.add("is-open"));
-            } else {
-                navEl.classList.remove("is-open");
-                navEl.addEventListener(
-                    "transitionend",
-                    () => {
-                        if (!navEl.classList.contains("is-open")) {
-                            navEl.style.display = "none";
-                        }
-                    },
-                    { once: true },
-                );
+            if (!menuTriggerEl || !navEl) {
+                return;
             }
-        });
-    })();
-    fetch("aiimage-upload", {
-        method: "POST",
-        body: formData
-    })
-    </script>
-    <script>
-        const imageFile = document.getElementById("imageFile");
-        const uploadTrigger = document.getElementById("uploadTrigger");
-        const uploadPreview = document.getElementById("uploadPreview");
-        const analyzeBtn = document.getElementById("analyzeBtn");
 
-        uploadTrigger.addEventListener("click", function () {
-            imageFile.click();
-        });
+            menuTriggerEl.addEventListener("click", function (e) {
+                e.preventDefault();
+                const isActive = this.classList.toggle("is-active");
+                loginBtnsEl && loginBtnsEl.classList.toggle("is-visible", isActive);
 
-        imageFile.addEventListener("change", async function () {
-            const file = this.files[0];
-            if (!file) return;
-
-            const formData = new FormData();
-            formData.append("imageFile", file);
-
-            try {
-                const res = await fetch("aiimage-upload", {
-                    method: "POST",
-                    body: formData
-                });
-
-                const data = await res.json();
-
-                if (!data.success) {
-                    alert(data.message || "업로드 실패");
-                    return;
+                if (isActive) {
+                    navEl.style.display = "flex";
+                    requestAnimationFrame(() => navEl.classList.add("is-open"));
+                } else {
+                    navEl.classList.remove("is-open");
+                    navEl.addEventListener(
+                        "transitionend",
+                        () => {
+                            if (!navEl.classList.contains("is-open")) {
+                                navEl.style.display = "none";
+                            }
+                        },
+                        { once: true },
+                    );
                 }
-
-                uploadPreview.innerHTML = `
-                <div class="upload-preview__card">
-                    <img src="${data.imageUrl}" alt="업로드 이미지" class="upload-preview__image">
-                    <p class="upload-preview__name">${data.fileName}</p>
-                </div>
-            `;
-
-                if (analyzeBtn) {
-                    analyzeBtn.style.display = "inline-block";
-                }
-
-            } catch (e) {
-                console.error(e);
-                alert("업로드 중 오류가 발생했습니다.");
-            }
-        });
+            });
+        })();
     </script>
   </body>
 
