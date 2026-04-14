@@ -478,7 +478,14 @@
     font-size: 12px;
     font-weight: bold;
 }
-.card-body { padding: 15px; }
+.card-body { padding: 15px;  position: relative;}
+.card-date {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 11px;
+    color: #aaa;
+}
 .user { font-size: 12px; margin-bottom: 5px; color: #666; }
 .card-body h3 { margin: 0 0 8px; font-size: 16px; }
 .info {
@@ -487,6 +494,7 @@
     display: flex;
     gap: 8px;
     margin-bottom: 10px;
+    flex-wrap: wrap;
 }
 .tags span {
     background: #eee;
