@@ -2,8 +2,16 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 
-
 <%@ page import="com.es.ta.userreaction.UserreactionDAO" %>
+
+<%-- 디버깅: planList 데이터 확인 --%>
+<%--<%--%>
+<%--System.out.println("[DEBUG] planList size: " + request.getAttribute("planList"));--%>
+<%--if (request.getAttribute("planList") != null) {--%>
+<%--    java.util.List<?> list = (java.util.List<?>) request.getAttribute("planList");--%>
+<%--    System.out.println("[DEBUG] planList actual size: " + list.size());--%>
+<%--}--%>
+<%--%>--%>
 
 <html>
 <head>
@@ -14,7 +22,8 @@
 <body class="explore-body">
 
 <c:if test="${param.reviewSuccess == 'true'}">
-    <div class="success-message" style="background-color: #d4edda; color: #155724; padding: 10px; margin: 10px 0; border-radius: 5px; text-align: center;">
+    <div class="success-message"
+         style="background-color: #d4edda; color: #155724; padding: 10px; margin: 10px 0; border-radius: 5px; text-align: center;">
         후기 작성이 완료되었습니다!
     </div>
 </c:if>
@@ -29,14 +38,14 @@
         <input type="text"
                id="searchInput"
                placeholder="여행지, 키워드 검색..."
-               autocomplete="off" />
+               autocomplete="off"/>
     </div>
 
     <div id="autocompleteList" class="autocomplete-list"></div>
 </div>
 
-        <div id="exAutocompleteList" class="ex-search-suggest"></div>
-    </form>
+<div id="exAutocompleteList" class="ex-search-suggest"></div>
+</form>
 </div>
 <!-- 필터 -->
 
@@ -58,9 +67,10 @@
 
     <div class="card-header">
         <h2>인기 여행 플랜</h2>
-        <select>
-            <option>인기순</option>
-            <option>최신순</option>
+        <select id="sortOrder" onchange="changeSort(this.value)">
+            <option value="popular" ${param.sort == 'popular' ? 'selected' : ''}> 인기순</option>
+            <option value="latest" ${param.sort == 'latest' ? 'selected' : ''}>최신순</option>
+
         </select>
     </div>
 
@@ -82,31 +92,32 @@
                     </div>
 
                     <div class="card-body">
+                        <span class="card-date">🗓 ${plan.createdAt}</span>
                         <div class="user">👤 여행자</div>
                         <h3>${plan.summary.destination}</h3>
                         <div class="info">
                             <span>📅 ${plan.summary.days}일</span>
                             <span>👥 ${plan.summary.travelers}명</span>
-<%--                            체크 필요--%>
-<%--                            <c:set var="currentPlanId" value="${plan.planId}" scope="page"/>--%>
-<%--                            <c:set var="currentPlanId" value="${plan.planId}" />--%>
-<%--                            <c:set var="currentPlanId" value="${plan.planId}" scope="page"/>--%>
-<%--                            <%--%>
-<%--                                int likeCount = 0;--%>
-<%--                                try {--%>
-<%--                                    // Debug: Check if currentPlanId is set--%>
-<%--                                    Object planIdObj = pageContext.getAttribute("currentPlanId");--%>
-<%--                                    if (planIdObj != null) {--%>
-<%--                                        int planId = Integer.parseInt(String.valueOf(planIdObj));--%>
-<%--                                        UserreactionDAO dao = new UserreactionDAO();--%>
-<%--                                        likeCount = dao.countLikeByPlan(planId);--%>
-<%--                                    } else {--%>
-<%--                                    }--%>
-<%--                                } catch (Exception e) {--%>
-<%--                                    e.printStackTrace();--%>
-<%--                                }--%>
-<%--                            %>--%>
-<%--                            <span><%= likeCount %>❤ </span>--%>
+                                <%--                            체크 필요--%>
+                                <%--                            <c:set var="currentPlanId" value="${plan.planId}" scope="page"/>--%>
+                                <%--                            <c:set var="currentPlanId" value="${plan.planId}" />--%>
+                                <%--                            <c:set var="currentPlanId" value="${plan.planId}" scope="page"/>--%>
+                                <%--                            <%--%>
+                                <%--                                int likeCount = 0;--%>
+                                <%--                                try {--%>
+                                <%--                                    // Debug: Check if currentPlanId is set--%>
+                                <%--                                    Object planIdObj = pageContext.getAttribute("currentPlanId");--%>
+                                <%--                                    if (planIdObj != null) {--%>
+                                <%--                                        int planId = Integer.parseInt(String.valueOf(planIdObj));--%>
+                                <%--                                        UserreactionDAO dao = new UserreactionDAO();--%>
+                                <%--                                        likeCount = dao.countLikeByPlan(planId);--%>
+                                <%--                                    } else {--%>
+                                <%--                                    }--%>
+                                <%--                                } catch (Exception e) {--%>
+                                <%--                                    e.printStackTrace();--%>
+                                <%--                                }--%>
+                                <%--                            %>--%>
+                                <%--                            <span><%= likeCount %>❤ </span>--%>
                             <span>${plan.likeCnt}❤</span>
                         </div>
                         <div class="tags">
@@ -131,22 +142,20 @@
         </c:forEach>
     </div>
 
-<%--     페이징  아직  하는중 ,,,,--%>
+    <%--     페이징  아직  하는중 ,,,,--%>
     <div class="pagination">
         <c:if test="${page > 1}">
-            <a href="?page=${page-1}">이전</a>
+            <a href="?page=${page-1}&sort=${sort}">이전</a>
         </c:if>
         <c:forEach var="i" begin="1" end="${totalPage}">
-            <a href="?page=${i}"
+            <a href="?page=${i}&sort=${sort}"
                style="${i == page ? 'font-weight:bold;' : ''}">
                     ${i}
             </a>
         </c:forEach>
-
         <c:if test="${page < totalPage}">
-            <a href="?page=${page+1}">다음</a>
+            <a href="?page=${page+1}&sort=${sort}">다음</a>
         </c:if>
-
     </div>
 
 </div>
@@ -206,6 +215,10 @@
             list.innerHTML = "";
         }
     });
+
+    function changeSort(val) {
+        location.href = "${pageContext.request.contextPath}/explore?sort=" + val;
+    }
 </script>
 
 </body>
