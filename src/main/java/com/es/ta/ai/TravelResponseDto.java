@@ -15,6 +15,9 @@ import java.util.Map;
  *   <li>{@code summary.costBreakdown} — 항공/숙소/액티비티 등 비용 구간.</li>
  * </ul>
  * 알 수 없는 필드는 {@link JsonIgnoreProperties#ignoreUnknown()} 로 무시해 하위 호환을 유지합니다.
+ *
+ * <p>숙소 신호: {@code primaryAccommodationTier}는 {@link PrimaryAccommodationTier} 문자열과 동일.
+ * {@code accommodationDecisionReason}은 {@link AccommodationDecisionReasonCodes} 참고.
  */
 @Data
 @NoArgsConstructor
@@ -33,7 +36,7 @@ public class TravelResponseDto {
     private Boolean retryable;
     private Boolean partial;
     private List<String> processingLog;
-//    private String createdAt;
+
     /** 품질 점수(있을 때만). */
     private Integer qualityScore;
     /** 검증·품질 메타(있을 때만). */
@@ -47,6 +50,18 @@ public class TravelResponseDto {
      * {@code routeQualityTrip} / {@code fullPackageGrade} 는 있을 때만 채워진다.
      */
     private HotelOption primaryAccommodation;
+    /** {@link PrimaryAccommodationTier} API 문자열 — 없으면 null. */
+    private String primaryAccommodationTier;
+    /** 대표 숙소 {@code sourceType} 에코. */
+    private String primaryAccommodationSource;
+    /** 동선용 숙소 앵커 존재 — {@code completeness.hasAccommodationAnchor}와 동일. */
+    private Boolean hasAccommodationAnchor;
+    /** 표시 가능한 구체 숙소 메타 존재. */
+    private Boolean hasDisplayableHotel;
+    /** 검증 id 판매 상품급 숙소 존재 — {@code completeness.hasVerifiedHotelProduct}와 동일. */
+    private Boolean hasSellableHotel;
+    /** 운영용 판정 요약 토큰 — {@link AccommodationDecisionReasonCodes}. */
+    private String accommodationDecisionReason;
     /** FULL_PACKAGE | GUIDED_PACKAGE | ASSISTED_PLANNING */
     private String packageMode;
     /** COMPLETE | REFERENCE_ONLY | PARTIAL | MISSING_* 등 */
@@ -73,6 +88,11 @@ public class TravelResponseDto {
      * {@code decisionFlags} 에 ROUTE_QUALITY_TRIP_MEASURED / ROUTE_LOW_DIRECTIONS_RATIO 와 대응.
      */
     private RouteQualityTripSummary routeQualityTrip;
+
+    /** {@link PrimaryAccommodationTier#fromApiValue(String)} 로 파싱. */
+    public PrimaryAccommodationTier getPrimaryAccommodationTierEnum() {
+        return PrimaryAccommodationTier.fromApiValue(primaryAccommodationTier);
+    }
 
     @Data
     @NoArgsConstructor
@@ -247,6 +267,8 @@ public class TravelResponseDto {
         private Integer hotelClass;
         private String imageUrl;
         private String bookingUrl;
+        /** {@link PrimaryAccommodationTier} 와 정렬 — 대표 숙소에만 필수는 아님. */
+        private String inventoryTier;
     }
 
     /**
