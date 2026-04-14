@@ -28,6 +28,8 @@ public class TravelResultVDTO {
     private List<Hotel> hotels;
     private int likeCnt;
 
+    private String createdAt;
+
     @Data
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
