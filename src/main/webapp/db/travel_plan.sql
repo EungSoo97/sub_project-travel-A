@@ -36,11 +36,15 @@ CREATE TABLE travel_plan (
                              message             VARCHAR2(500),
                              partial             NUMBER(1)      DEFAULT 0,
                              quality_score       NUMBER,
+                             posted              NUMBER(1)      DEFAULT 0 NOT NULL,
+                             post_date           DATE,
 
                              response_json     CLOB           NOT NULL,
 
                              created_at        DATE           DEFAULT SYSDATE,
-                             updated_at        DATE           DEFAULT SYSDATE
+                             updated_at        DATE           DEFAULT SYSDATE,
+
+                             CONSTRAINT chk_travel_plan_posted CHECK (posted IN (0, 1))
 );
 
 
@@ -55,7 +59,68 @@ select * from travel_plan;
 -- ALTER TABLE travel_plan ADD (cost_breakdown_json CLOB);
 -- ALTER TABLE travel_plan ADD (partial NUMBER(1) DEFAULT 0);
 -- ALTER TABLE travel_plan ADD (quality_score NUMBER);
+--ALTER TABLE travel_plan ADD (posted NUMBER(1) DEFAULT 0 NOT NULL);
+--ALTER TABLE travel_plan ADD CONSTRAINT chk_travel_plan_posted CHECK (posted IN (0, 1));
+--ALTER TABLE travel_plan ADD (post_date DATE);
 -- ALTER TABLE travel_plan MODIFY (travel_style VARCHAR2(200));
+
+-- Migration for an existing travel_plan table. Run this once if ORA-00904: TP.POSTED occurs.
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM user_tab_columns
+    WHERE table_name = 'TRAVEL_PLAN'
+      AND column_name = 'POSTED';
+
+    IF v_count = 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE travel_plan ADD (posted NUMBER(1) DEFAULT 0 NOT NULL)';
+    END IF;
+END;
+/
+
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM user_constraints
+    WHERE table_name = 'TRAVEL_PLAN'
+      AND constraint_name = 'CHK_TRAVEL_PLAN_POSTED';
+
+    IF v_count = 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE travel_plan ADD CONSTRAINT chk_travel_plan_posted CHECK (posted IN (0, 1))';
+    END IF;
+END;
+/
+
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM user_tab_columns
+    WHERE table_name = 'TRAVEL_PLAN'
+      AND column_name = 'POST_DATE';
+
+    IF v_count = 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE travel_plan ADD (post_date DATE)';
+    END IF;
+END;
+/
+
+-- Backfill existing plans so current data appears in Explore.
+UPDATE travel_plan
+SET posted = 1
+WHERE posted = 0;
+
+UPDATE travel_plan
+SET post_date = SYSDATE
+WHERE posted = 1
+  AND post_date IS NULL;
+
+COMMIT;
 
 -- -----------------------------------------------------------------------------
 -- §3) 샘플 (테스트용)

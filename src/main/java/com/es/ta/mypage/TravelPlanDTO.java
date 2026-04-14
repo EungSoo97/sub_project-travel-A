@@ -34,6 +34,8 @@ public class TravelPlanDTO {
     private String message;
 
     private String responseJson;
+    private int posted;
+    private Date postDate;
 
     private Date createdAt;
     private Date updatedAt;

@@ -5,21 +5,15 @@ import com.es.ta.main.DBManager_new;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
 
 public class AccountDAO {
     public static void login(HttpServletRequest request) {
     }
 
-    /**
-     * 로그인 처리: DB에서 loginId/password 확인 후 세션에 AccountDTO 저장
-     *
-     * @return 로그인 성공 여부
-     */
     public static boolean loginProcess(HttpServletRequest request) {
-
         String loginId = request.getParameter("loginId");
         String password = request.getParameter("password");
 
@@ -51,18 +45,16 @@ public class AccountDAO {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-
+            DBManager_new.close(con, ps, rs);
         }
         return false;
     }
 
-    public static void newuser(HttpServletRequest request) {
-
+    public static boolean newuser(HttpServletRequest request) {
         Connection con = null;
         PreparedStatement ps = null;
-        ResultSet rs = null;
-        String sql = "INSERT INTO user_info ( u_user_id, u_login_id, u_password, u_name, u_gender, u_birth_date, u_email) values(user_info_seq.nextval,?,?,?,?,?,?)";
-
+        String sql = "INSERT INTO user_info (u_user_id, u_login_id, u_password, u_name, u_gender, u_birth_date, u_email) " +
+                "VALUES (user_info_seq.nextval, ?, ?, ?, ?, ?, ?)";
 
         try {
             con = DBManager_new.connect();
@@ -71,50 +63,43 @@ public class AccountDAO {
             ps.setString(2, request.getParameter("password"));
             ps.setString(3, request.getParameter("name"));
             ps.setString(4, request.getParameter("gender"));
-            ps.setString(5, request.getParameter("birth_date"));
+            ps.setDate(5, Date.valueOf(request.getParameter("birth_date")));
             ps.setString(6, request.getParameter("email"));
 
-            int result = ps.executeUpdate();
-            if (result == 1) {
+            boolean created = ps.executeUpdate() == 1;
+            if (created) {
                 System.out.println("회원가입 성공");
-
             }
-
+            return created;
         } catch (Exception e) {
-
             e.printStackTrace();
+            return false;
         } finally {
-            DBManager_new.close(con, ps, rs);
+            DBManager_new.close(con, ps, null);
         }
-
-
     }
 
-    public static int idcheck(String loginId) {  // loginId를 파라미터로 받기
+    public static int idcheck(String loginId) {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String sql = "SELECT u_login_id FROM user_info WHERE u_login_id = ?";
-        int count = 0;
+        String sql = "SELECT COUNT(*) FROM user_info WHERE u_login_id = ?";
 
         try {
             con = DBManager_new.connect();
             ps = con.prepareStatement(sql);
-            ps.setString(1, loginId);       // 값 세팅 후
-            rs = ps.executeQuery();         // 실행
+            ps.setString(1, loginId);
+            rs = ps.executeQuery();
 
             if (rs.next()) {
-                count = rs.getInt(1);       // 0 or 1
+                return rs.getInt(1);
             }
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             DBManager_new.close(con, ps, rs);
         }
 
-        return count;
+        return 0;
     }
-
-
 }

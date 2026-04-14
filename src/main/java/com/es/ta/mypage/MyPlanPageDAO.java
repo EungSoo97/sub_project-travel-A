@@ -16,7 +16,7 @@ public class MyPlanPageDAO {
 
         String sql = "SELECT plan_id, user_id, destination, title, start_date, end_date, " +
                 "days, travelers, travel_style, total_estimated_cost, currency, overview, " +
-                "success, message, response_json, created_at, updated_at " +
+                "success, message, response_json, posted, post_date, created_at, updated_at " +
                 "FROM travel_plan " +
                 "WHERE plan_id = ? AND user_id = ?";
 
@@ -44,6 +44,8 @@ public class MyPlanPageDAO {
                 plan.setSuccess(rs.getInt("success"));
                 plan.setMessage(rs.getString("message"));
                 plan.setResponseJson(rs.getString("response_json"));
+                plan.setPosted(rs.getInt("posted"));
+                plan.setPostDate(rs.getDate("post_date"));
                 plan.setCreatedAt(rs.getDate("created_at"));
                 plan.setUpdatedAt(rs.getDate("updated_at"));
             }
@@ -110,6 +112,34 @@ public class MyPlanPageDAO {
     }
 
     // 기존 MyPlanPageDAO 에 메서드 추가
+    public static boolean updatePostedByPlanIdAndUserId(int planId, int userId, boolean posted) {
+        Connection con = null;
+        PreparedStatement ps = null;
+
+        String sql = "UPDATE travel_plan " +
+                "SET posted = ?, " +
+                "post_date = CASE WHEN ? = 1 THEN SYSDATE ELSE NULL END, " +
+                "updated_at = SYSDATE " +
+                "WHERE plan_id = ? AND user_id = ?";
+
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+            int postedValue = posted ? 1 : 0;
+            ps.setInt(1, postedValue);
+            ps.setInt(2, postedValue);
+            ps.setInt(3, planId);
+            ps.setInt(4, userId);
+
+            return ps.executeUpdate() == 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            DBManager_new.close(con, ps, null);
+        }
+    }
+
     public static boolean updateResponseJson(int planId, int userId, String responseJson) {
         Connection con = null;
         PreparedStatement ps = null;

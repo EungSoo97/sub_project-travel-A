@@ -1,6 +1,6 @@
 package com.es.ta.ai;
 
-import com.es.ta.account.AccountDTO;
+import com.es.ta.resultpage.TravelResultVDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.servlet.ServletException;
@@ -87,24 +87,6 @@ public class TravelPlanServlet extends HttpServlet {
             String responseJson = objectMapper.writeValueAsString(result);
             System.out.println("[" + traceId + "] responseJson length=" + responseJson.length());
 
-            // 5. DB 저장
-            if (result != null) {
-                try {
-                    // 세션에서 사용자 정보 조회
-                    AccountDTO user = (AccountDTO) req.getSession().getAttribute("user");
-                    Integer userId = (user != null) ? user.getUser_id() : null;
-                    
-                    System.out.println("[" + traceId + "] calling TravelDao.insertTravelPlan() with userId=" + userId);
-                    travelDao.insertTravelPlan(requestDto, result, responseJson, userId);
-                    System.out.println("[" + traceId + "] insertTravelPlan completed");
-                } catch (Exception dbError) {
-                    dbError.printStackTrace();
-                    System.out.println("[" + traceId + "] insertTravelPlan failed: " + dbError.getMessage());
-                    req.setAttribute("dbWarning", "일정 생성은 성공했지만 DB 저장에는 실패했습니다.");
-                }
-            }
-
-
             try {
                 String jsonDir = req.getServletContext().getRealPath("/json/response");
                 java.nio.file.Path dirPath = java.nio.file.Paths.get(jsonDir);
@@ -134,8 +116,11 @@ public class TravelPlanServlet extends HttpServlet {
             if (result == null || !result.isSuccess()) {
                 String errorMsg = (result != null) ? result.getMessage() : "AI 응답 실패";
                 req.setAttribute("error", errorMsg);
+                req.getSession().removeAttribute("latestTravelResult");
             } else {
-                req.setAttribute("result", result);
+                TravelResultVDTO displayResult = objectMapper.convertValue(result, TravelResultVDTO.class);
+                req.getSession().setAttribute("latestTravelResult", displayResult);
+                req.setAttribute("result", displayResult);
             }
 
             attachGoogleMapsConfig(req);

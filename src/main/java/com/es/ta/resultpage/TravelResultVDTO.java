@@ -19,6 +19,10 @@ import java.util.Map;
 public class TravelResultVDTO {
     @JsonIgnore
     private int planId;
+    @JsonIgnore
+    private String userName;
+    @JsonIgnore
+    private String postDate;
 
     private boolean success;
     private String message;
