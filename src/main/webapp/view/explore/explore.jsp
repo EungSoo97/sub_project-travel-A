@@ -22,22 +22,30 @@
     <h1>여행 플랜 탐색</h1>
     <p>다른 여행자들의 멋진 여행 계획을 둘러보고 영감을 받아보세요</p>
 </div>
-
 <div class="search-box">
-    <div class="search-wrap">
-        <input type="text"
-               id="searchInput"
-               placeholder="여행지, 키워드 검색..."
-               autocomplete="off" />
-    </div>
+    <form id="searchForm" action="${pageContext.request.contextPath}/explore" method="get">
+        <div class="search-input-wrap">
+            <input
+                    type="text"
+                    id="searchInput"
+                    name="q"
+                    placeholder="여행지, 태그, 키워드 검색"
+                    value="${param.q}"
+            />
+            <button type="button" id="searchBtn" class="search-btn" aria-label="검색">🔍</button>
+        </div>
+
+        <input type="hidden" id="selectedTagsInput" name="selectedTags" value="${param.selectedTags}" />
+    </form>
 
     <div id="autocompleteList" class="autocomplete-list"></div>
 </div>
 
-
 <div class="search-tag-box">
     <c:forEach var="tag" items="${tagList}">
-        <span class="search-tag" data-keyword="${tag}">#${tag}</span>
+        <button type="button" class="search-tag" data-value="${tag}">
+            #${tag}
+        </button>
     </c:forEach>
 </div>
 <!-- 필터 -->
@@ -45,12 +53,12 @@
 <div class="filter-box card-box">
     <h3>🔎 필터</h3>
     <div class="filter-items">
-        <div class="filter-item active">🌍 전체</div>
-        <div class="filter-item">🍽 식도락</div>
-        <div class="filter-item">🧘 힐링</div>
-        <div class="filter-item">🏃 액티브</div>
-        <div class="filter-item">🏛 문화</div>
-        <div class="filter-item">🛍 쇼핑</div>
+        <button type="button" class="filter-item" data-value="전체">🌍 전체</button>
+        <button type="button" class="filter-item" data-value="식도락">🍽 식도락</button>
+        <button type="button" class="filter-item" data-value="힐링">🧘 힐링</button>
+        <button type="button" class="filter-item" data-value="액티브">🏃 액티브</button>
+        <button type="button" class="filter-item" data-value="문화">🏛 문화</button>
+        <button type="button" class="filter-item" data-value="쇼핑">🛍 쇼핑</button>
     </div>
 </div>
 
@@ -153,107 +161,31 @@
 
 </div>
 <script>
-    const input = document.getElementById("searchInput");
-    const list = document.getElementById("autocompleteList");
+    const searchBtn = document.getElementById("searchBtn");
+    const searchForm = document.getElementById("searchForm");
+    const searchInput = document.getElementById("searchInput");
+    const selectedTagsInput = document.getElementById("selectedTagsInput");
+    const autocompleteList = document.getElementById("autocompleteList");
+
+    const filterButtons = document.querySelectorAll(".filter-item");
+    const tagButtons = document.querySelectorAll(".search-tag");
+    const allButtons = [...filterButtons, ...tagButtons];
+
+    const selectedTags = new Set();
 
     let currentSuggestions = [];
     let activeIndex = -1;
     let latestRequestKeyword = "";
 
-    input.addEventListener("input", function () {
-        const value = this.value.trim();
-
-        list.innerHTML = "";
-        currentSuggestions = [];
-        activeIndex = -1;
-
-        if (!value) return;
-
-        latestRequestKeyword = value;
-
-        fetch("${pageContext.request.contextPath}/search-autocomplete?q=" + encodeURIComponent(value))
-            .then(res => res.json())
-            .then(data => {
-                if (input.value.trim() !== latestRequestKeyword) {
-                    return;
-                }
-
-                currentSuggestions = data;
-                renderSuggestions(data, value);
-            })
-            .catch(err => {
-                console.error("자동완성 오류:", err);
-            });
-    });
-
-    input.addEventListener("keydown", function (e) {
-        if (!currentSuggestions.length) {
-            if (e.key === "Enter") {
-                e.preventDefault();
-            }
-            return;
-        }
-
-        if (e.key === "ArrowDown") {
-            e.preventDefault();
-            activeIndex = (activeIndex + 1) % currentSuggestions.length;
-            updateActiveItem();
-        } else if (e.key === "ArrowUp") {
-            e.preventDefault();
-            activeIndex = (activeIndex - 1 + currentSuggestions.length) % currentSuggestions.length;
-            updateActiveItem();
-        } else if (e.key === "Enter") {
-            e.preventDefault();
-
-            if (activeIndex >= 0 && activeIndex < currentSuggestions.length) {
-                moveToDetail(currentSuggestions[activeIndex]);
-            } else {
-                moveToDetail(currentSuggestions[0]);
-            }
-        } else if (e.key === "Escape") {
-            list.innerHTML = "";
-            activeIndex = -1;
-        }
-    });
-
-    function renderSuggestions(data, keyword) {
-        list.innerHTML = "";
-
-        data.forEach((item, index) => {
-            const div = document.createElement("div");
-            div.className = "autocomplete-item";
-            div.dataset.index = index;
-            div.innerHTML = highlightKeyword(item.text, keyword);
-
-            div.addEventListener("mouseenter", function () {
-                activeIndex = index;
-                updateActiveItem();
-            });
-
-            div.addEventListener("mousedown", function (e) {
-                e.preventDefault();
-                moveToDetail(item);
-            });
-
-            list.appendChild(div);
-        });
+    function normalize(text) {
+        return (text || "").toLowerCase().replace(/#/g, "").trim();
     }
 
-    function updateActiveItem() {
-        const items = list.querySelectorAll(".autocomplete-item");
-
-        items.forEach(item => item.classList.remove("is-active"));
-
-        if (activeIndex >= 0 && items[activeIndex]) {
-            items[activeIndex].classList.add("is-active");
-            items[activeIndex].scrollIntoView({ block: "nearest" });
-        }
-    }
-
-    function moveToDetail(item) {
-        list.innerHTML = "";
-        activeIndex = -1;
-        location.href = "${pageContext.request.contextPath}/detail-page?id=" + item.id;
+    function splitTokens(text) {
+        return (text || "")
+            .split(/[\s,]+/)
+            .map(token => normalize(token))
+            .filter(token => token.length > 0);
     }
 
     function escapeHtml(str) {
@@ -266,55 +198,268 @@
     }
 
     function escapeRegExp(str) {
-        return String(str).replace(/[.*+?\^$\{\}()|[\]\\]/g, "\\$&");
+        return String(str).replace(/[.*+?^$()|[\]\\{}]/g, "\\$&");
     }
 
     function highlightKeyword(text, keyword) {
-        const safeText = escapeHtml(text);
-        const trimmedKeyword = keyword.trim();
-
+        const safeText = escapeHtml(text || "");
+        const trimmedKeyword = (keyword || "").trim();
         if (!trimmedKeyword) return safeText;
 
         const pattern = new RegExp("(" + escapeRegExp(trimmedKeyword) + ")", "gi");
         return safeText.replace(pattern, '<span class="search-highlight">$1</span>');
     }
 
-    document.addEventListener("click", function (e) {
-        if (!e.target.closest(".search-box")) {
-            list.innerHTML = "";
-            activeIndex = -1;
+    function updateHiddenInput() {
+        selectedTagsInput.value = Array.from(selectedTags).join(",");
+    }
+
+    function addToInput(value) {
+        const normalizedValue = normalize(value);
+        const currentTokens = splitTokens(searchInput.value);
+
+        if (!currentTokens.includes(normalizedValue)) {
+            searchInput.value = searchInput.value.trim()
+                ? searchInput.value.trim() + " " + value
+                : value;
+        }
+    }
+
+    function removeFromInput(value) {
+        const normalizedValue = normalize(value);
+        const newTokens = splitTokens(searchInput.value)
+            .filter(token => token !== normalizedValue);
+
+        searchInput.value = newTokens.join(" ");
+    }
+
+    function clearAutocomplete() {
+        autocompleteList.innerHTML = "";
+        currentSuggestions = [];
+        activeIndex = -1;
+    }
+
+    function clearAllSelections() {
+        allButtons.forEach(btn => btn.classList.remove("active"));
+        selectedTags.clear();
+    }
+
+    function setWholeButtonState() {
+        const wholeButton = [...filterButtons].find(
+            btn => normalize(btn.dataset.value) === "전체"
+        );
+
+        if (!wholeButton) return;
+
+        if (selectedTags.size === 0 && searchInput.value.trim() === "") {
+            wholeButton.classList.add("active");
+        } else {
+            wholeButton.classList.remove("active");
+        }
+    }
+
+    function updateActiveStateFromInput() {
+        clearAllSelections();
+
+        const tokensFromInput = splitTokens(searchInput.value);
+        const allTokens = [...new Set(tokensFromInput)];
+
+        allButtons.forEach(btn => {
+            const value = normalize(btn.dataset.value);
+            if (value === "전체") return;
+
+            const matched = allTokens.some(token =>
+                token === value || token.includes(value) || value.includes(token)
+            );
+
+            if (matched) {
+                btn.classList.add("active");
+                selectedTags.add(btn.dataset.value);
+            }
+        });
+
+        setWholeButtonState();
+    }
+
+    function renderSuggestions(data, keyword) {
+        autocompleteList.innerHTML = "";
+
+        if (!data || data.length === 0) {
+            clearAutocomplete();
+            return;
+        }
+
+        currentSuggestions = data;
+        activeIndex = -1;
+
+        data.forEach((item, index) => {
+            const div = document.createElement("div");
+            div.className = "autocomplete-item";
+            div.dataset.index = index;
+
+            const mainText = item.text || item.title || item.destination || "";
+            const subText =
+                item.destination && item.destination !== mainText
+                    ? item.destination
+                    : (item.travelStyle || "");
+
+            div.innerHTML =
+                '<div>' + highlightKeyword(mainText, keyword) + '</div>' +
+                (subText ? '<small>' + escapeHtml(subText) + '</small>' : '');
+
+            div.addEventListener("mouseenter", function () {
+                activeIndex = index;
+                updateActiveItem();
+            });
+
+            div.addEventListener("mousedown", function (e) {
+                e.preventDefault();
+                applySuggestion(item);
+            });
+
+            autocompleteList.appendChild(div);
+        });
+    }
+
+    function updateActiveItem() {
+        const items = autocompleteList.querySelectorAll(".autocomplete-item");
+        items.forEach(item => item.classList.remove("is-active"));
+
+        if (activeIndex >= 0 && items[activeIndex]) {
+            items[activeIndex].classList.add("is-active");
+            items[activeIndex].scrollIntoView({ block: "nearest" });
+        }
+    }
+
+    function applySuggestion(item) {
+        clearAutocomplete();
+        const value = item.text || item.title || item.destination || "";
+        searchInput.value = value;
+        updateActiveStateFromInput();
+        updateHiddenInput();
+    }
+
+    function toggleButton(button) {
+        const value = button.dataset.value;
+        const normalizedValue = normalize(value);
+
+        if (normalizedValue === "전체") {
+            clearAllSelections();
+            searchInput.value = "";
+            clearAutocomplete();
+            updateHiddenInput();
+            setWholeButtonState();
+            return;
+        }
+
+        filterButtons.forEach(btn => {
+            if (normalize(btn.dataset.value) === "전체") {
+                btn.classList.remove("active");
+            }
+        });
+
+        const isActive = button.classList.contains("active");
+
+        if (isActive) {
+            button.classList.remove("active");
+            selectedTags.delete(value);
+            removeFromInput(value);
+        } else {
+            button.classList.add("active");
+            selectedTags.add(value);
+            addToInput(value);
+        }
+
+        updateHiddenInput();
+        setWholeButtonState();
+        searchInput.dispatchEvent(new Event("input"));
+        searchInput.focus();
+    }
+
+    searchInput.addEventListener("input", function () {
+        const value = this.value.trim();
+
+        updateActiveStateFromInput();
+        updateHiddenInput();
+        clearAutocomplete();
+
+        if (!value) {
+            setWholeButtonState();
+            return;
+        }
+
+        latestRequestKeyword = value;
+
+        fetch("${pageContext.request.contextPath}/search-autocomplete?q=" + encodeURIComponent(value))
+            .then(res => {
+                if (!res.ok) throw new Error("자동완성 요청 실패: " + res.status);
+                return res.json();
+            })
+            .then(data => {
+                console.log("autocomplete data =", data);
+                if (searchInput.value.trim() !== latestRequestKeyword) return;
+                renderSuggestions(data, value);
+            })
+            .catch(err => {
+                console.error("자동완성 오류:", err);
+                clearAutocomplete();
+            });
+    });
+
+    searchInput.addEventListener("keydown", function (e) {
+        if (e.key === "ArrowDown") {
+            if (!currentSuggestions.length) return;
+            e.preventDefault();
+            activeIndex = (activeIndex + 1) % currentSuggestions.length;
+            updateActiveItem();
+            return;
+        }
+
+        if (e.key === "ArrowUp") {
+            if (!currentSuggestions.length) return;
+            e.preventDefault();
+            activeIndex = (activeIndex - 1 + currentSuggestions.length) % currentSuggestions.length;
+            updateActiveItem();
+            return;
+        }
+
+        if (e.key === "Escape") {
+            clearAutocomplete();
+            return;
+        }
+
+        if (e.key === "Enter") {
+            e.preventDefault();
+            if (currentSuggestions.length > 0 && activeIndex >= 0) {
+                applySuggestion(currentSuggestions[activeIndex]);
+            }
         }
     });
 
-    // ✅ 태그 클릭 시 검색창에 넣고 자동완성 실행
-    document.addEventListener("click", function (e) {
-        const tag = e.target.closest(".search-tag");
-        if (!tag) return;
-
-        const keyword = tag.dataset.keyword || tag.textContent.replace("#", "").trim();
-        input.value = keyword;
-        input.dispatchEvent(new Event("input"));
-        input.focus();
+    allButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            toggleButton(this);
+        });
     });
-</script>
-<script>
-    const input = document.getElementById("searchInput");
 
     document.addEventListener("click", function (e) {
-        const tag = e.target.closest(".search-tag");
-        if (!tag) return;
+        if (!e.target.closest(".search-box")) {
+            clearAutocomplete();
+        }
+    });
 
-        const keyword = tag.dataset.keyword;
+    window.addEventListener("DOMContentLoaded", function () {
+        updateActiveStateFromInput();
+        updateHiddenInput();
+    });
 
-        input.value = keyword;
-
-        // 🔥 자동완성 트리거
-        input.dispatchEvent(new Event("input"));
-
-        input.focus();
+    searchBtn.addEventListener("click", function () {
+        updateActiveStateFromInput();
+        updateHiddenInput();
+        clearAutocomplete();
+        searchForm.submit();
     });
 </script>
-
 </body>
 
 </html>

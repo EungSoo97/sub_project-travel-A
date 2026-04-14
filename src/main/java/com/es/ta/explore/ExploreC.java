@@ -14,30 +14,31 @@ import java.util.List;
 @WebServlet(name = "ExploreC", value = "/explore")
 public class ExploreC extends HttpServlet {
 
-
-    public void doGet(HttpServletRequest request, HttpServletResponse response)
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
 
-        // 🔥 1. 검색어 받기
+        request.setCharacterEncoding("UTF-8");
+
         String q = request.getParameter("q");
+        String selectedTags = request.getParameter("selectedTags");
+        System.out.println("q = " + q);
+        System.out.println("selectedTags = " + selectedTags);
+        boolean hasQ = q != null && !q.trim().isEmpty();
+        boolean hasSelectedTags = selectedTags != null && !selectedTags.trim().isEmpty();
 
         List<TravelResultVDTO> planList;
 
-        // 🔥 2. 검색 여부 판단
-        if (q != null && !q.trim().isEmpty()) {
-            planList = ResultpageDAO.searchPlan(q);   // 🔥 검색
+        if (hasQ || hasSelectedTags) {
+            planList = ExploreDAO.searchPlans(q, selectedTags);
         } else {
-            planList = ResultpageDAO.getPlanList();   // 🔥 전체
+            planList = ResultpageDAO.getPlanList();
         }
 
         request.setAttribute("planList", planList);
-
-        // 🔥 태그는 그대로
-        List<String> tagList = ExploreDAO.getPopularTags();
-        System.out.println("tagList = " + tagList);
-        request.setAttribute("tagList", tagList);
+        request.setAttribute("tagList", ExploreDAO.getPopularTags());
 
         request.setAttribute("content", "view/explore/explore.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
-    }
+}

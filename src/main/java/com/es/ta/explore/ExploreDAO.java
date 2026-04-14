@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.es.ta.resultpage.ResultpageDAO;
+import com.es.ta.resultpage.TravelResultVDTO;
+
 
 public class ExploreDAO {
 
@@ -326,4 +329,131 @@ public class ExploreDAO {
                 return tag;
         }
     }
-}
+
+    public static List<TravelResultVDTO> searchPlans(String q, String selectedTags) {
+        List<TravelResultVDTO> allPlans = ResultpageDAO.getPlanList();
+        List<TravelResultVDTO> result = new ArrayList<>();
+
+        Set<String> tokens = new LinkedHashSet<>();
+
+        if (q != null && !q.trim().isEmpty()) {
+            String[] qArr = q.trim().split("[\\s,]+");
+            for (String token : qArr) {
+                String normalized = normalizeSearchToken(token);
+                if (!normalized.isEmpty()) {
+                    tokens.add(normalized);
+                }
+            }
+        }
+
+        if (selectedTags != null && !selectedTags.trim().isEmpty()) {
+            String[] tagArr = selectedTags.split(",");
+            for (String tag : tagArr) {
+                String normalized = normalizeSearchToken(tag);
+                if (!normalized.isEmpty()) {
+                    tokens.add(normalized);
+                }
+            }
+        }
+
+        if (tokens.isEmpty()) {
+            return allPlans;
+        }
+
+        for (TravelResultVDTO plan : allPlans) {
+            if (plan == null || plan.getSummary() == null) {
+                continue;
+            }
+
+            TravelResultVDTO.Summary s = plan.getSummary();
+
+            List<String> searchable = new ArrayList<>();
+            searchable.add(safeLower(s.getDestination()));
+            searchable.add(safeLower(s.getTitle()));
+            searchable.add(safeLower(s.getTravelStyle()));
+            searchable.add(safeLower(s.getOverview()));
+
+            if (s.getRequestStyles() != null) {
+                for (String item : s.getRequestStyles()) {
+                    searchable.add(safeLower(item));
+                }
+            }
+
+            if (s.getRequestThemes() != null) {
+                for (String item : s.getRequestThemes()) {
+                    searchable.add(safeLower(item));
+                }
+            }
+
+            if (s.getCustomTags() != null) {
+                for (String item : s.getCustomTags()) {
+                    searchable.add(safeLower(item));
+                }
+            }
+
+            boolean matched = false;
+
+            for (String token : tokens) {
+                String t = safeLower(token);
+
+                if (t.isBlank()) {
+                    continue;
+                }
+
+                for (String field : searchable) {
+                    if (field == null || field.isBlank()) {
+                        continue;
+                    }
+
+                    if (field.contains(t)) {
+                        matched = true;
+                        break;
+                    }
+                }
+
+                if (matched) {
+                    break;
+                }
+            }
+
+            if (matched) {
+                result.add(plan);
+            }
+        }
+
+        return result;
+    }
+
+
+    private static String normalizeSearchToken(String text) {
+        if (text == null) return "";
+        return text.trim()
+                .replace("#", "")
+                .replace("\"", "")
+                .replace("'", "")
+                .toLowerCase();
+    }
+
+    private static String safeLower(String text) {
+        return text == null ? "" : text.toLowerCase().trim();
+    }
+
+    private static boolean containsInList(List<String> list, String token) {
+        if (list == null || token == null || token.isEmpty()) {
+            return false;
+        }
+
+        for (String item : list) {
+            if (item == null) continue;
+
+            String normalizedItem = item.trim()
+                    .replace("#", "")
+                    .toLowerCase();
+
+            if (normalizedItem.contains(token) || token.contains(normalizedItem)) {
+                return true;
+            }
+        }
+
+        return false;
+    }}
