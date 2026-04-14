@@ -28,9 +28,14 @@
             <div class="container-result mp-container detail-page-container">
 
                 <div class="mp-header">
-                    <a class="mp-back-link" href="${pageContext.request.contextPath}/explore">
-                        ← 목록으로 돌아가기
-                    </a>
+                    <div class="mp-header-topbar">
+                        <a class="mp-back-link" href="${pageContext.request.contextPath}/explore">
+                            ← 목록으로 돌아가기
+                        </a>
+                        <button type="button" class="header-collapse-toggle" aria-expanded="true" aria-label="상단 정보 접기">
+                            <span class="header-collapse-symbol">−</span>
+                        </button>
+                    </div>
 
                     <div class="mp-title-area detail-title-area">
                         <div class="detail-title-row">
@@ -221,6 +226,7 @@
 
                             <div class="time-section">
                                 <c:forEach var="act" items="${item.activities}" varStatus="activityStatus">
+                                    <c:set var="activityCategory" value="${fn:toUpperCase(not empty act.categoryCode ? act.categoryCode : (not empty act.category ? act.category : act.type))}" />
                                     <div
                                         class="item schedule-item"
                                         data-day="${item.day}"
@@ -233,13 +239,13 @@
                                         data-is-new="${(empty act.lat || empty act.lng) ? 'true' : 'false'}">
 
                                         <c:choose>
-                                            <c:when test="${act.category eq 'transport'}">
+                                            <c:when test="${activityCategory == 'TRANSPORT' or activityCategory == 'MOVE'}">
                                                 <div class="icon move">🚗</div>
                                             </c:when>
-                                            <c:when test="${act.category eq 'food' or act.category eq 'dining'}">
+                                            <c:when test="${activityCategory == 'DINING' or activityCategory == 'FOOD' or activityCategory == 'RESTAURANT'}">
                                                 <div class="icon food">🍽</div>
                                             </c:when>
-                                            <c:when test="${act.category eq 'hotel' or act.category eq 'accommodation'}">
+                                            <c:when test="${activityCategory == 'ACCOMMODATION' or activityCategory == 'HOTEL'}">
                                                 <div class="icon hotel">🏨</div>
                                             </c:when>
                                             <c:otherwise>
@@ -414,6 +420,21 @@
         </div>
 
         <script>
+            (function initHeaderCollapse() {
+                const toggleBtn = document.querySelector(".header-collapse-toggle");
+                const page = toggleBtn ? toggleBtn.closest(".container-result") : null;
+                const symbol = toggleBtn ? toggleBtn.querySelector(".header-collapse-symbol") : null;
+
+                if (!toggleBtn || !page || !symbol) return;
+
+                toggleBtn.addEventListener("click", function () {
+                    const isCollapsed = page.classList.toggle("is-header-collapsed");
+                    toggleBtn.setAttribute("aria-expanded", String(!isCollapsed));
+                    toggleBtn.setAttribute("aria-label", isCollapsed ? "상단 정보 펼치기" : "상단 정보 접기");
+                    symbol.textContent = isCollapsed ? "+" : "−";
+                });
+            })();
+
             (function () {
                 const mapSection = document.querySelector(".map-section");
                 const mapHeader = mapSection ? mapSection.querySelector(".map-header") : null;
@@ -421,7 +442,10 @@
                 const mapElement = document.getElementById("travelMap");
                 const fallbackElement = document.getElementById("mapFallbackMessage");
                 const dayButtons = Array.from(document.querySelectorAll(".day-filter-button"));
-                const scheduleItems = Array.from(document.querySelectorAll(".schedule-item"));
+                const scheduleItems = Array.from(document.querySelectorAll(".schedule-item"))
+                    .filter(function(item) {
+                        return item.dataset.isNew !== "true";
+                    });
                 initializeMapSectionToggle();
 
                 if (!mapElement) return;
@@ -826,6 +850,8 @@
                     if (!category) return "ATTRACTION";
                     const upperCategory = category.toUpperCase();
                     if (upperCategory === "RESTAURANT") return "DINING";
+                    if (upperCategory === "MOVE") return "TRANSPORT";
+                    if (upperCategory === "HOTEL") return "ACCOMMODATION";
                     return upperCategory;
                 }
 
@@ -966,7 +992,7 @@
             }
 
             function showLoginAlert() {
-                alert("로그인 후 이용 가능합니다.");
+                showDpSnackbar("로그인 후 이용 가능합니다.");
             }
 
             function goLoginWithReturn() {

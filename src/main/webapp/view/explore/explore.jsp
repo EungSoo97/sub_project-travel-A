@@ -46,7 +46,7 @@
     <h3>🔎 필터</h3>
     <div class="filter-items">
         <div class="filter-item active">🌍 전체</div>
-        <div class="filter-item">🍽 미식</div>
+        <div class="filter-item">🍽 식도락</div>
         <div class="filter-item">🧘 힐링</div>
         <div class="filter-item">🏃 액티브</div>
         <div class="filter-item">🏛 문화</div>

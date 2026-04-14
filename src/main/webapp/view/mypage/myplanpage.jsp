@@ -16,8 +16,11 @@
         <div class="result-page">
             <div class="container-result">
                 <div class="header">
-                    <div>
+                    <div class="header-topbar">
                         <a href="${pageContext.request.contextPath}/mypage">←마이페이지로 돌아가기</a>
+                        <button type="button" class="header-collapse-toggle" aria-expanded="true" aria-label="상단 정보 접기">
+                            <span class="header-collapse-symbol">−</span>
+                        </button>
                     </div>
 
                     <div class="title-area">
@@ -171,6 +174,7 @@
 
                             <div class="time-section">
                                 <c:forEach var="act" items="${item.activities}" varStatus="activityStatus">
+                                    <c:set var="activityCategory" value="${fn:toUpperCase(not empty act.categoryCode ? act.categoryCode : (not empty act.category ? act.category : act.type))}" />
                                     <div
                                             class="item schedule-item"
                                             data-day="${item.day}"
@@ -183,13 +187,13 @@
                                             data-is-new="${(empty act.lat || empty act.lng) ? 'true' : 'false'}">
 
                                             <c:choose>
-                                                <c:when test="${act.category eq 'transport'}">
+                                                <c:when test="${activityCategory == 'TRANSPORT' or activityCategory == 'MOVE'}">
                                                     <div class="icon move">🚗</div>
                                                 </c:when>
-                                                <c:when test="${act.category eq 'food' || act.category eq 'dining'}">
+                                                <c:when test="${activityCategory == 'DINING' or activityCategory == 'FOOD' or activityCategory == 'RESTAURANT'}">
                                                     <div class="icon food">🍽</div>
                                                 </c:when>
-                                                <c:when test="${act.category eq 'hotel' || act.category eq 'accommodation'}">
+                                                <c:when test="${activityCategory == 'ACCOMMODATION' or activityCategory == 'HOTEL'}">
                                                     <div class="icon hotel">🏨</div>
                                                 </c:when>
                                                 <c:otherwise>
@@ -283,6 +287,21 @@
         </div>
 
         <script>
+            (function initHeaderCollapse() {
+                const toggleBtn = document.querySelector(".header-collapse-toggle");
+                const page = toggleBtn ? toggleBtn.closest(".container-result") : null;
+                const symbol = toggleBtn ? toggleBtn.querySelector(".header-collapse-symbol") : null;
+
+                if (!toggleBtn || !page || !symbol) return;
+
+                toggleBtn.addEventListener("click", function () {
+                    const isCollapsed = page.classList.toggle("is-header-collapsed");
+                    toggleBtn.setAttribute("aria-expanded", String(!isCollapsed));
+                    toggleBtn.setAttribute("aria-label", isCollapsed ? "상단 정보 펼치기" : "상단 정보 접기");
+                    symbol.textContent = isCollapsed ? "+" : "−";
+                });
+            })();
+
             async function toggleStar(btn) {
                 if (!btn) return;
 
@@ -774,6 +793,12 @@
                     const upperCategory = category.toUpperCase();
                     if (upperCategory === "RESTAURANT") {
                         return "DINING";
+                    }
+                    if (upperCategory === "MOVE") {
+                        return "TRANSPORT";
+                    }
+                    if (upperCategory === "HOTEL") {
+                        return "ACCOMMODATION";
                     }
                     return upperCategory;
                 }
