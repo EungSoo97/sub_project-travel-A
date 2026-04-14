@@ -1,4 +1,5 @@
 package com.es.ta.explore;
+
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
@@ -49,15 +50,13 @@ public class SearchAutocompleteC extends HttpServlet {
     private String buildText(ExploreDTO dto) {
         StringBuilder text = new StringBuilder();
 
-        if (dto.getDestination() != null) {
+        if (dto.getDestination() != null && !dto.getDestination().isEmpty()) {
             text.append(dto.getDestination());
         }
 
         if (dto.getTitle() != null && !dto.getTitle().isEmpty()) {
-
             String cleanTitle = dto.getTitle();
 
-            // 🔥 마지막 단어 제거 (작성자 제거)
             if (cleanTitle.contains(" ")) {
                 int lastSpace = cleanTitle.lastIndexOf(" ");
                 cleanTitle = cleanTitle.substring(0, lastSpace);
@@ -66,14 +65,27 @@ public class SearchAutocompleteC extends HttpServlet {
             if (text.length() > 0) text.append(" · ");
             text.append(cleanTitle.trim());
         }
-
         if (dto.getTravelStyle() != null && !dto.getTravelStyle().isEmpty()) {
-            if (text.length() > 0) text.append(" · ");
-            text.append(dto.getTravelStyle());
+            if (!"ROUND_TRIP".equalsIgnoreCase(dto.getTravelStyle().trim())) {
+                if (text.length() > 0) text.append(" · ");
+                text.append(dto.getTravelStyle());
+            }
+        }
+        if (dto.getCustomTags() != null && !dto.getCustomTags().isEmpty()) {
+            int count = 0;
+            for (String tag : dto.getCustomTags()) {
+                if (tag != null && !tag.trim().isEmpty()) {
+                    if (text.length() > 0) text.append(" · ");
+                    text.append("#").append(tag.trim());
+                    count++;
+                    if (count == 2) break;
+                }
+            }
         }
 
         return text.toString();
     }
+
     private String escapeJson(String s) {
         if (s == null) return "";
         return s.replace("\\", "\\\\")

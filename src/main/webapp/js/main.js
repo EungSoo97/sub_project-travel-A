@@ -6,6 +6,8 @@
   const plusBtn     = document.querySelector("[data-counter-plus]");
   const presets     = document.querySelectorAll(".preset-chip");
   const badge       = document.getElementById("travelerBadge");
+
+
   const MIN = 1, MAX = 20;
   let count = 2;
 

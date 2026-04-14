@@ -28,6 +28,8 @@ public class TravelResultVDTO {
     private List<Hotel> hotels;
     private int likeCnt;
 
+    private String createdAt;
+
     @Data
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -49,11 +51,17 @@ public class TravelResultVDTO {
 
         // ✅ customTags getter 추가
         public List<String> getCustomTags() {
-            if (travelStrategy == null) return new ArrayList<>();
-            Object tags = travelStrategy.get("customTags");
-            if (tags instanceof List) {
-                return (List<String>) tags;
+            if (customTags != null && !customTags.isEmpty()) {
+                return customTags;
             }
+
+            if (travelStrategy != null) {
+                Object tags = travelStrategy.get("customTags");
+                if (tags instanceof List) {
+                    return (List<String>) tags;
+                }
+            }
+
             return new ArrayList<>();
         }
     }

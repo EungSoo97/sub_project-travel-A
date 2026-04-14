@@ -92,7 +92,9 @@
         </div>
       </footer>
     </div>
-    <script src="${pageContext.request.contextPath}/js/main.js"></script>
+    <c:if test="${content ne 'view/explore/explore.jsp'}">
+        <script src="${pageContext.request.contextPath}/js/main.js"></script>
+    </c:if>
     <script>
         function loginAlert (event) {
             if (event) {
