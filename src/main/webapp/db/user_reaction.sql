@@ -157,4 +157,11 @@ WHERE user_id = ?
   AND TO_CHAR(start_date, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY')
   AND start_date IS NOT NULL
 GROUP BY TO_CHAR(start_date, 'MM')
-ORDER BY month
+ORDER BY month;
+
+SELECT tp.*,
+       (SELECT COUNT(*)
+        FROM plan_like pl
+        WHERE pl.plan_id = tp.plan_id) AS like_cnt
+FROM travel_plan tp
+ORDER BY tp.plan_id DESC;
