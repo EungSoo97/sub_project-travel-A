@@ -33,7 +33,7 @@ public class TravelResponseDto {
     private Boolean retryable;
     private Boolean partial;
     private List<String> processingLog;
-
+//    private String createdAt;
     /** 품질 점수(있을 때만). */
     private Integer qualityScore;
     /** 검증·품질 메타(있을 때만). */
