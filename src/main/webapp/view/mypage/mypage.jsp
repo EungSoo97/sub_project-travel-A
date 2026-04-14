@@ -18,7 +18,7 @@
             </div>
             <div class="profile-info">
                 <div class="name-row">
-                    <h2>김여행</h2>
+                    <h2><c:out value="${sessionScope.user.name}" /></h2>
                     <div class="action-icons">
                         <button title="설정" onclick="location.href='${pageContext.request.contextPath}/settings'">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -37,7 +37,7 @@
                         </button>
                     </div>
                 </div>
-                <p class="email">travel.lover@email.com</p>
+                <p class="email"><c:out value="${sessionScope.user.email}" /></p>
                 <div class="badges">
                 <%--<span class="badge" onclick="openTitleModal()">🏅 여행 플랜 마스터</span>--%>
                     <span class="badge" onclick="openTitleModal()">

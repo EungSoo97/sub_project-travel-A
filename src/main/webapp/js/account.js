@@ -1,7 +1,6 @@
 const select = document.getElementById("emailDomain");
 const custom = document.getElementById("customDomain");
 
-// 도메인 선택
 select.addEventListener("change", function () {
     if (this.value === "direct") {
         custom.style.display = "inline";
@@ -10,18 +9,17 @@ select.addEventListener("change", function () {
     }
 });
 
-// 이메일 합치기
 function setEmail() {
     const emailInput = document.querySelector('input[name="email"]');
     const domainSelect = document.getElementById("emailDomain").value;
     const customDomain = document.getElementById("customDomain").value.trim();
 
-    let id = emailInput.value;
+    let id = emailInput.value.trim();
     let domain = "";
 
     if (domainSelect === "direct") {
         if (!customDomain) {
-            alert("도메인을 입력해주세요");
+            alert("\ub3c4\uba54\uc778\uc744 \uc785\ub825\ud574\uc8fc\uc138\uc694.");
             return false;
         }
         domain = customDomain.replace("@", "");
@@ -30,15 +28,18 @@ function setEmail() {
     }
 
     if (!id) {
-        alert("이메일을 입력해주세요");
+        alert("\uc774\uba54\uc77c \uc544\uc774\ub514\ub97c \uc785\ub825\ud574\uc8fc\uc138\uc694.");
         return false;
+    }
+
+    if (id.includes("@")) {
+        id = id.split("@")[0];
     }
 
     emailInput.value = id + "@" + domain;
     return true;
 }
 
-// 비밀번호 체크
 function checkPassword() {
     const pw1 = document.getElementById("pw1").value;
     const pw2 = document.getElementById("pw2").value;
@@ -50,24 +51,25 @@ function checkPassword() {
     }
 
     if (pw1 === pw2) {
-        msg.innerText = "비밀번호 일치";
+        msg.innerText = "\ube44\ubc00\ubc88\ud638 \uc77c\uce58";
         msg.style.color = "green";
     } else {
-        msg.innerText = "비밀번호 불일치";
+        msg.innerText = "\ube44\ubc00\ubc88\ud638 \ubd88\uc77c\uce58";
         msg.style.color = "red";
     }
-
 }
+
 function checkAgree() {
     const agree = document.getElementById("agree");
 
     if (!agree.checked) {
-        alert("이용약관에 동의해주세요");
+        alert("\uc774\uc6a9\uc57d\uad00\uc5d0 \ub3d9\uc758\ud574\uc8fc\uc138\uc694.");
         return false;
     }
 
     return true;
 }
+
 function validateForm() {
     if (!checkAgree()) return false;
     if (!setEmail()) return false;

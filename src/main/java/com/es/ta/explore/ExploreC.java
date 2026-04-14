@@ -9,24 +9,29 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 
 @WebServlet(name = "ExploreC", value = "/explore")
 public class ExploreC extends HttpServlet {
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response)
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
-//        List<TravelResultVDTO> planList = ResultpageDAO.getPlanList();
-//        request.setAttribute("planList", planList);
 
-        // 1. 정렬 기준 파라미터 받기 (기본값: popular)
+        request.setCharacterEncoding("UTF-8");
+
+        String q = request.getParameter("q");
+        String selectedTags = request.getParameter("selectedTags");
+        boolean hasQ = q != null && !q.trim().isEmpty();
+        boolean hasSelectedTags = selectedTags != null && !selectedTags.trim().isEmpty();
+
         String sort = request.getParameter("sort");
         if (sort == null || sort.isEmpty()) {
             sort = "popular";
         }
 
-        // 2. 페이징 처리
-        int page = 1; // 기본 페이지
+        int page = 1;
         String pageStr = request.getParameter("page");
         if (pageStr != null && !pageStr.isEmpty()) {
             try {
@@ -36,24 +41,46 @@ public class ExploreC extends HttpServlet {
             }
         }
 
-        int pageSize = 9; // 한 페이지에 보여줄 카드 개수
+        int pageSize = 9;
         int startRow = (page - 1) * pageSize;
 
-        // 3. DAO 호출 (정렬 방식과 시작 행, 가져올 개수를 넘김)
-        List<TravelResultVDTO> planList = ResultpageDAO.getPlanListSorted(sort, startRow, pageSize);
+        List<TravelResultVDTO> planList;
+        int totalCount;
 
-        // 전체 페이지 수 계산을 위한 총 게시글 수 (페이징 UI용)
-        int totalCount = ResultpageDAO.getTotalPlanCount();
+        if (hasQ || hasSelectedTags) {
+            List<TravelResultVDTO> allResults = ExploreDAO.searchPlans(q, selectedTags);
+            totalCount = allResults.size();
+
+            Comparator<TravelResultVDTO> comparator = "latest".equals(sort)
+                    ? Comparator.comparing(ExploreC::safePostDate).reversed()
+                    .thenComparing(Comparator.comparingInt(TravelResultVDTO::getPlanId).reversed())
+                    : Comparator.comparingInt(TravelResultVDTO::getLikeCnt).reversed();
+            allResults.sort(comparator);
+
+            int fromIndex = Math.min(startRow, allResults.size());
+            int toIndex = Math.min(startRow + pageSize, allResults.size());
+            planList = allResults.subList(fromIndex, toIndex);
+        } else {
+            planList = ResultpageDAO.getPlanListSorted(sort, startRow, pageSize);
+            totalCount = ResultpageDAO.getTotalPlanCount();
+        }
+
         int totalPage = (int) Math.ceil((double) totalCount / pageSize);
+        if (totalPage < 1) totalPage = 1;
 
-        // 4. JSP로 보낼 데이터 바인딩
         request.setAttribute("planList", planList);
-        request.setAttribute("sort", sort);       // 현재 정렬 상태 유지용
-        request.setAttribute("page", page);       // 현재 페이지 번호
-        request.setAttribute("totalPage", totalPage); // 전체 페이지 수
+        request.setAttribute("tagList", ExploreDAO.getPopularTags());
+        request.setAttribute("sort", sort);
+        request.setAttribute("page", page);
+        request.setAttribute("totalPage", totalPage);
+        request.setAttribute("q", q != null ? q : "");
+        request.setAttribute("selectedTags", selectedTags != null ? selectedTags : "");
 
-        // 5. 페이지 이동 (레이아웃 구조에 맞춤)
         request.setAttribute("content", "view/explore/explore.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+
+    private static String safePostDate(TravelResultVDTO plan) {
+        return plan == null || plan.getPostDate() == null ? "" : plan.getPostDate();
     }
 }
