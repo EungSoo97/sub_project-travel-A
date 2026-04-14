@@ -36,6 +36,7 @@
         </div>
 
         <input type="hidden" id="selectedTagsInput" name="selectedTags" value="${param.selectedTags}" />
+        <input type="hidden" id="sortInput" name="sort" value="${sort}" />
     </form>
 
     <div id="autocompleteList" class="autocomplete-list"></div>
@@ -68,13 +69,13 @@
 
     <div class="card-header">
         <h2>인기 여행 플랜</h2>
-        <select>
-            <option>인기순</option>
-            <option>최신순</option>
+        <select id="sortOrder">
+            <option value="popular" ${sort == 'popular' ? 'selected' : ''}>인기순</option>
+            <option value="latest" ${sort == 'latest' ? 'selected' : ''}>최신순</option>
         </select>
     </div>
 
-    <div class="card-list">
+    <div id="cardList" class="card-list">
 
         <!-- ✅ DB 데이터 반복 -->
         <c:forEach var="plan" items="${planList}">
@@ -142,21 +143,34 @@
     </div>
 
 <%--     페이징  아직  하는중 ,,,,--%>
-    <div class="pagination">
+    <div id="pagination" class="pagination">
         <c:if test="${page > 1}">
-            <a href="?page=${page-1}">이전</a>
+            <c:url var="prevUrl" value="/explore">
+                <c:param name="page" value="${page-1}"/>
+                <c:param name="sort" value="${sort}"/>
+                <c:if test="${not empty q}"><c:param name="q" value="${q}"/></c:if>
+                <c:if test="${not empty selectedTags}"><c:param name="selectedTags" value="${selectedTags}"/></c:if>
+            </c:url>
+            <a href="${prevUrl}">이전</a>
         </c:if>
         <c:forEach var="i" begin="1" end="${totalPage}">
-            <a href="?page=${i}"
-               style="${i == page ? 'font-weight:bold;' : ''}">
-                    ${i}
-            </a>
+            <c:url var="pageUrl" value="/explore">
+                <c:param name="page" value="${i}"/>
+                <c:param name="sort" value="${sort}"/>
+                <c:if test="${not empty q}"><c:param name="q" value="${q}"/></c:if>
+                <c:if test="${not empty selectedTags}"><c:param name="selectedTags" value="${selectedTags}"/></c:if>
+            </c:url>
+            <a href="${pageUrl}" style="${i == page ? 'font-weight:bold;' : ''}">${i}</a>
         </c:forEach>
-
         <c:if test="${page < totalPage}">
-            <a href="?page=${page+1}">다음</a>
+            <c:url var="nextUrl" value="/explore">
+                <c:param name="page" value="${page+1}"/>
+                <c:param name="sort" value="${sort}"/>
+                <c:if test="${not empty q}"><c:param name="q" value="${q}"/></c:if>
+                <c:if test="${not empty selectedTags}"><c:param name="selectedTags" value="${selectedTags}"/></c:if>
+            </c:url>
+            <a href="${nextUrl}">다음</a>
         </c:if>
-
     </div>
 
 </div>
@@ -166,6 +180,12 @@
     const searchInput = document.getElementById("searchInput");
     const selectedTagsInput = document.getElementById("selectedTagsInput");
     const autocompleteList = document.getElementById("autocompleteList");
+    const sortOrder = document.getElementById("sortOrder");
+    const sortInput = document.getElementById("sortInput");
+    const cardList = document.getElementById("cardList");
+    const pagination = document.getElementById("pagination");
+    const contextPath = "${pageContext.request.contextPath}";
+    let isLoadingPlans = false;
 
     const filterButtons = document.querySelectorAll(".filter-item");
     const tagButtons = document.querySelectorAll(".search-tag");
@@ -459,6 +479,92 @@
         clearAutocomplete();
         searchForm.submit();
     });
+
+    sortOrder.addEventListener("change", function () {
+        sortInput.value = this.value;
+        loadExploreSection({sort: this.value, page: 1, pushState: true});
+    });
+
+    pagination.addEventListener("click", function (e) {
+        const link = e.target.closest("a");
+        if (!link) return;
+
+        e.preventDefault();
+        const url = new URL(link.href, window.location.origin);
+        const page = Number(url.searchParams.get("page") || 1);
+        const sort = url.searchParams.get("sort") || sortOrder.value || "popular";
+        loadExploreSection({sort, page, pushState: true});
+    });
+
+    window.addEventListener("popstate", function () {
+        const params = new URLSearchParams(window.location.search);
+        const sort = params.get("sort") || "popular";
+        const page = Number(params.get("page") || 1);
+        const q = params.get("q") || "";
+        const tags = params.get("selectedTags") || "";
+
+        searchInput.value = q;
+        selectedTagsInput.value = tags;
+        sortInput.value = sort;
+        sortOrder.value = sort;
+        updateActiveStateFromInput();
+
+        loadExploreSection({sort, page, pushState: false});
+    });
+
+    function loadExploreSection({sort, page, pushState}) {
+        if (isLoadingPlans) return;
+
+        isLoadingPlans = true;
+        sortOrder.disabled = true;
+        cardList.style.opacity = "0.55";
+        pagination.style.opacity = "0.55";
+
+        const targetUrl = new URL(contextPath + "/explore", window.location.origin);
+        targetUrl.searchParams.set("sort", sort);
+        if (page > 1) {
+            targetUrl.searchParams.set("page", page);
+        }
+        const currentQ = searchInput.value.trim();
+        const currentTags = selectedTagsInput.value.trim();
+        if (currentQ) targetUrl.searchParams.set("q", currentQ);
+        if (currentTags) targetUrl.searchParams.set("selectedTags", currentTags);
+
+        fetch(targetUrl.toString(), {
+            headers: {"X-Requested-With": "XMLHttpRequest"}
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to load explore page");
+                return res.text();
+            })
+            .then(html => {
+                const parsed = new DOMParser().parseFromString(html, "text/html");
+                const nextCardList = parsed.querySelector("#cardList");
+                const nextPagination = parsed.querySelector("#pagination");
+                const nextSortOrder = parsed.querySelector("#sortOrder");
+
+                if (!nextCardList || !nextPagination || !nextSortOrder) {
+                    throw new Error("Explore fragment not found");
+                }
+
+                cardList.innerHTML = nextCardList.innerHTML;
+                pagination.innerHTML = nextPagination.innerHTML;
+                sortOrder.value = nextSortOrder.value;
+
+                if (pushState) {
+                    window.history.pushState({}, "", targetUrl);
+                }
+            })
+            .catch(() => {
+                window.location.href = targetUrl.toString();
+            })
+            .finally(() => {
+                isLoadingPlans = false;
+                sortOrder.disabled = false;
+                cardList.style.opacity = "1";
+                pagination.style.opacity = "1";
+            });
+    }
 </script>
 </body>
 

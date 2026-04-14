@@ -90,6 +90,74 @@ public class ResultpageDAO {
         }
         return list;
     }
+    public static List<TravelResultVDTO> getPlanListSorted(String sort, int startRow, int pageSize) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        String orderBy = "latest".equals(sort)
+                ? "tp.plan_id DESC"
+                : "NVL(pl.like_cnt, 0) DESC, tp.plan_id DESC";
+
+        String sql = "SELECT tp.plan_id, tp.response_json, NVL(pl.like_cnt, 0) AS like_cnt\n" +
+                "FROM travel_plan tp\n" +
+                "LEFT JOIN (\n" +
+                "    SELECT plan_id, COUNT(*) AS like_cnt\n" +
+                "    FROM plan_like\n" +
+                "    GROUP BY plan_id\n" +
+                ") pl ON tp.plan_id = pl.plan_id\n" +
+                "ORDER BY " + orderBy + "\n" +
+                "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        List<TravelResultVDTO> list = new ArrayList<>();
+
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, startRow);
+            ps.setInt(2, pageSize);
+            rs = ps.executeQuery();
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            while (rs.next()) {
+                String jsonString = rs.getString("response_json");
+                TravelResultVDTO dto = mapper.readValue(jsonString, TravelResultVDTO.class);
+                dto.setPlanId(rs.getInt("plan_id"));
+                dto.setLikeCnt(rs.getInt("like_cnt"));
+                list.add(dto);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            DBManager_new.close(con, ps, rs);
+        }
+        return list;
+    }
+
+    public static int getTotalPlanCount() {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        String sql = "SELECT COUNT(*) FROM travel_plan";
+
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            DBManager_new.close(con, ps, rs);
+        }
+        return 0;
+    }
+
     public static List<TravelResultVDTO> searchPlan(String keyword) {
         List<TravelResultVDTO> list = new ArrayList<>();
 
