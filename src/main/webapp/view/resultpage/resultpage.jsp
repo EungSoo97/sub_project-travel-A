@@ -65,7 +65,7 @@
         <!-- 지도 영역 -->
         <div class="map-section">
             <div class="map-header" role="button" tabindex="0" aria-expanded="true">
-                <span>🧭 여행 동선 지도</span>
+                <span>🗺 여행 동선 지도</span>
                 <span class="map-toggle-indicator map-toggle-label">지도 접기</span>
                 <div class="legend">
                     <span class="dot blue"></span> 관광지
@@ -171,7 +171,7 @@
                                     data-is-new="${(empty act.lat || empty act.lng) ? 'true' : 'false'}">
                                 <c:choose>
                                     <c:when test="${activityCategory == 'TRANSPORT' or activityCategory == 'MOVE'}">
-                                        <div class="icon move">▲</div>
+                                        <div class="icon move">🚗</div>
                                     </c:when>
                                     <c:when test="${activityCategory == 'DINING' or activityCategory == 'FOOD' or activityCategory == 'RESTAURANT'}">
                                         <div class="icon food">🍽</div>
@@ -226,7 +226,7 @@
 
                 <!-- 항공 -->
                 <div class="recommend-card">
-                    <h3>✈️ 항공권 최저가</h3>
+                    <h3>✈ 항공권 최저가</h3>
                     <c:choose>
                         <c:when test="${empty result.flights}">
                             <p>항공권 정보를 불러오지 못했습니다.</p>
@@ -240,7 +240,7 @@
                                     </div>
                                     <div class="right">
                                         <div class="price">${flight.price} ${flight.currency}</div>
-                                        <div class="sub">왕복 1인</div>
+                                        <div class="sub">항공 1인</div>
                                     </div>
                                 </div>
                             </c:forEach>
