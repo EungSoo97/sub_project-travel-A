@@ -18,6 +18,8 @@ import java.util.Map;
  *
  * <p>숙소 신호: {@code primaryAccommodationTier}는 {@link PrimaryAccommodationTier} 문자열과 동일.
  * {@code accommodationDecisionReason}은 {@link AccommodationDecisionReasonCodes} 참고.
+ *
+ * <p>{@code inventoryStatus}는 {@link InventoryStatus} API 문자열과 동일 (예: {@code MIXED_INVENTORY}).
  */
 @Data
 @NoArgsConstructor
@@ -64,7 +66,7 @@ public class TravelResponseDto {
     private String accommodationDecisionReason;
     /** FULL_PACKAGE | GUIDED_PACKAGE | ASSISTED_PLANNING */
     private String packageMode;
-    /** COMPLETE | REFERENCE_ONLY | PARTIAL | MISSING_* 등 */
+    /** COMPLETE | REFERENCE_ONLY | MIXED_INVENTORY | PARTIAL | MISSING_* 등 — {@link InventoryStatus} */
     private String inventoryStatus;
     private String completenessLevel;
     private String decisionCategory;
@@ -92,6 +94,11 @@ public class TravelResponseDto {
     /** {@link PrimaryAccommodationTier#fromApiValue(String)} 로 파싱. */
     public PrimaryAccommodationTier getPrimaryAccommodationTierEnum() {
         return PrimaryAccommodationTier.fromApiValue(primaryAccommodationTier);
+    }
+
+    /** {@link InventoryStatus#fromApiValue(String)} 로 파싱. */
+    public InventoryStatus getInventoryStatusEnum() {
+        return InventoryStatus.fromApiValue(inventoryStatus);
     }
 
     @Data
