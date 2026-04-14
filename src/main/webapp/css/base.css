@@ -2001,3 +2001,56 @@ input {
   background: var(--primary-dark);
   transform: scale(0.97);
 }
+.upload-analyze-btn {
+  margin-top: 18px;
+  padding: 12px 20px;
+
+  border: none;
+  border-radius: 14px;
+
+  background: linear-gradient(135deg, #4f7cff, #6ea8ff);
+  color: #fff;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow: 0 6px 18px rgba(79, 124, 255, 0.25);
+  transition: all 0.2s ease;
+}
+
+/* hover */
+.upload-analyze-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(79, 124, 255, 0.35);
+}
+
+/* 클릭 시 */
+.upload-analyze-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(79, 124, 255, 0.2);
+}
+
+/* 비활성 느낌 (처음 상태) */
+.upload-analyze-btn[style*="display: none"] {
+  opacity: 0;
+}
+
+/* 나중에 활성화될 때 부드럽게 */
+.upload-analyze-btn.show {
+  display: inline-block;
+  opacity: 1;
+  animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

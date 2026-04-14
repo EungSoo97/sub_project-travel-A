@@ -137,6 +137,57 @@
             }
         });
     })();
+    fetch("aiimage-upload", {
+        method: "POST",
+        body: formData
+    })
+    </script>
+    <script>
+        const imageFile = document.getElementById("imageFile");
+        const uploadTrigger = document.getElementById("uploadTrigger");
+        const uploadPreview = document.getElementById("uploadPreview");
+        const analyzeBtn = document.getElementById("analyzeBtn");
+
+        uploadTrigger.addEventListener("click", function () {
+            imageFile.click();
+        });
+
+        imageFile.addEventListener("change", async function () {
+            const file = this.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append("imageFile", file);
+
+            try {
+                const res = await fetch("aiimage-upload", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await res.json();
+
+                if (!data.success) {
+                    alert(data.message || "업로드 실패");
+                    return;
+                }
+
+                uploadPreview.innerHTML = `
+                <div class="upload-preview__card">
+                    <img src="${data.imageUrl}" alt="업로드 이미지" class="upload-preview__image">
+                    <p class="upload-preview__name">${data.fileName}</p>
+                </div>
+            `;
+
+                if (analyzeBtn) {
+                    analyzeBtn.style.display = "inline-block";
+                }
+
+            } catch (e) {
+                console.error(e);
+                alert("업로드 중 오류가 발생했습니다.");
+            }
+        });
     </script>
   </body>
 
