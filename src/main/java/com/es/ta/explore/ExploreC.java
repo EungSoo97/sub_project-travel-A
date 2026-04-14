@@ -18,9 +18,21 @@ public class ExploreC extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
 
-        List<TravelResultVDTO> planList = ResultpageDAO.getPlanList();
+        // 🔥 1. 검색어 받기
+        String q = request.getParameter("q");
+
+        List<TravelResultVDTO> planList;
+
+        // 🔥 2. 검색 여부 판단
+        if (q != null && !q.trim().isEmpty()) {
+            planList = ResultpageDAO.searchPlan(q);   // 🔥 검색
+        } else {
+            planList = ResultpageDAO.getPlanList();   // 🔥 전체
+        }
+
         request.setAttribute("planList", planList);
 
+        // 🔥 태그는 그대로
         List<String> tagList = ExploreDAO.getPopularTags();
         System.out.println("tagList = " + tagList);
         request.setAttribute("tagList", tagList);

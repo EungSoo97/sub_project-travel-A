@@ -693,11 +693,11 @@
 }
 .search-tag-box {
     display: flex;
+    flex-wrap: nowrap;          /* 🔥 줄바꿈 금지 */
     justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
     gap: 8px;
 
-    margin: 12px auto 18px;
-    width: 92%;   /* 🔥 카드들이랑 폭 맞춤 */
+    overflow-x: auto;           /* 🔥 넘치면 가로 스크롤 */
+    white-space: nowrap;        /* 🔥 텍스트 줄바꿈 방지 */
+    padding-bottom: 4px;
 }

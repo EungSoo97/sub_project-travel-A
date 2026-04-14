@@ -297,6 +297,23 @@
         input.focus();
     });
 </script>
+<script>
+    const input = document.getElementById("searchInput");
+
+    document.addEventListener("click", function (e) {
+        const tag = e.target.closest(".search-tag");
+        if (!tag) return;
+
+        const keyword = tag.dataset.keyword;
+
+        input.value = keyword;
+
+        // 🔥 자동완성 트리거
+        input.dispatchEvent(new Event("input"));
+
+        input.focus();
+    });
+</script>
 
 </body>
 

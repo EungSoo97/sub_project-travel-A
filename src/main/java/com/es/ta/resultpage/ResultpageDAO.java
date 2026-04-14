@@ -90,7 +90,54 @@ public class ResultpageDAO {
         }
         return list;
     }
+    public static List<TravelResultVDTO> searchPlan(String keyword) {
+        List<TravelResultVDTO> list = new ArrayList<>();
 
+        String sql =
+                "SELECT * FROM travel_plan " +
+                        "WHERE destination LIKE ? " +
+                        "   OR title LIKE ? " +
+                        "   OR travel_style LIKE ? " +
+                        "ORDER BY created_at DESC";
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = DBManager_new.connect();
+            pstmt = con.prepareStatement(sql);
+
+            String q = "%" + keyword + "%";
+
+            pstmt.setString(1, q);
+            pstmt.setString(2, q);
+            pstmt.setString(3, q);
+
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+
+                // 🔥👇 여기부터 getPlanList에서 복붙
+                TravelResultVDTO dto = new TravelResultVDTO();
+
+                dto.setPlanId(rs.getInt("plan_id"));
+
+                // ⚠️ 여기 중요
+                // getPlanList에서 summary 세팅 / JSON 파싱 / 값 넣는 코드
+                // 👉 그대로 복붙해야 화면 정상 나옴
+
+                list.add(dto);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager_new.close(con, pstmt, rs);
+        }
+
+        return list;
+    }
 
 
 }
