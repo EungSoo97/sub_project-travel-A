@@ -28,6 +28,21 @@
 
     function addLiveButtons() {
         const savedCards = document.querySelectorAll('#content-saved .trip-card');
+        const trackingPlanId = localStorage.getItem('liveTrackingPlanId');
+        
+        // 트래킹 중인 카드를 상단으로 이동
+        if (trackingPlanId) {
+            const trackingCard = Array.from(savedCards).find(card => {
+                const planId = extractPlanId(card);
+                return planId === trackingPlanId;
+            });
+            
+            if (trackingCard) {
+                const container = trackingCard.parentNode;
+                container.insertBefore(trackingCard, container.firstChild);
+            }
+        }
+        
         savedCards.forEach(card => {
             if (card.querySelector('.live-track-btn')) return;
 
@@ -64,6 +79,13 @@
             card.style.position = 'relative';
             card.appendChild(liveBtn);
 
+            // localStorage에 저장된 트래킹 상태 복원
+            if (trackingPlanId && trackingPlanId === planId) {
+                liveBtn.innerHTML = '🔴실시간 트래킹중';
+                liveBtn.disabled = true;
+                card.classList.add('active-card');
+            }
+
             // 3. 클릭 이벤트 처리
             liveBtn.addEventListener('click', function () {
                 // 🔴실시간 트래킹중으로 변경
@@ -84,6 +106,9 @@
                         otherCard.classList.remove('active-card');
                     }
                 });
+                
+                // localStorage에 현재 트래킹 상태 저장
+                localStorage.setItem('liveTrackingPlanId', planId);
                 
                 // 페이지 이동 (기능 유지)
                 const ctx = window.MYPAGE_CTX || '';
