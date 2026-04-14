@@ -52,7 +52,8 @@ public class ExploreC extends HttpServlet {
             totalCount = allResults.size();
 
             Comparator<TravelResultVDTO> comparator = "latest".equals(sort)
-                    ? Comparator.comparingInt(TravelResultVDTO::getPlanId).reversed()
+                    ? Comparator.comparing(ExploreC::safePostDate).reversed()
+                    .thenComparing(Comparator.comparingInt(TravelResultVDTO::getPlanId).reversed())
                     : Comparator.comparingInt(TravelResultVDTO::getLikeCnt).reversed();
             allResults.sort(comparator);
 
@@ -77,5 +78,9 @@ public class ExploreC extends HttpServlet {
 
         request.setAttribute("content", "view/explore/explore.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+
+    private static String safePostDate(TravelResultVDTO plan) {
+        return plan == null || plan.getPostDate() == null ? "" : plan.getPostDate();
     }
 }

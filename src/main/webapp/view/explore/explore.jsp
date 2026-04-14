@@ -51,8 +51,17 @@
 </div>
 <!-- 필터 -->
 
-<div class="filter-box card-box">
-    <h3>🔎 필터</h3>
+<div class="filter-box card-box" id="filterBox">
+    <div class="filter-header">
+        <h3>🔎 필터</h3>
+        <div class="filter-header-actions">
+            <div class="filter-summary" id="filterSummary" aria-live="polite"></div>
+            <button type="button" class="filter-toggle" id="filterToggle" aria-expanded="true" aria-controls="filterContent" aria-label="필터 접기">
+                <span class="filter-toggle-icon" aria-hidden="true">-</span>
+            </button>
+        </div>
+    </div>
+    <div class="filter-content" id="filterContent">
     <div class="filter-items">
         <button type="button" class="filter-item" data-value="전체">🌍 전체</button>
         <button type="button" class="filter-item" data-value="식도락">🍽 식도락</button>
@@ -61,11 +70,12 @@
         <button type="button" class="filter-item" data-value="문화">🏛 문화</button>
         <button type="button" class="filter-item" data-value="쇼핑">🛍 쇼핑</button>
     </div>
+    </div>
 </div>
 
 <!-- 인기 플랜 -->
 
-<div class="popular-box card-box">
+<div class="popular-box card-box" id="popularTravelBlock" tabindex="-1">
 
     <div class="card-header">
         <h2>인기 여행 플랜</h2>
@@ -93,7 +103,12 @@
                     </div>
 
                     <div class="card-body">
-                        <div class="user">👤 여행자</div>
+                        <div class="user">
+                            <span>👤 <c:out value="${empty plan.userName ? '여행자' : plan.userName}" /></span>
+                            <c:if test="${not empty plan.postDate}">
+                                <span class="post-date"><c:out value="${plan.postDate}" /></span>
+                            </c:if>
+                        </div>
                         <h3>${plan.summary.destination}</h3>
                         <div class="info">
                             <span>📅 ${plan.summary.days}일</span>
@@ -184,9 +199,15 @@
     const sortInput = document.getElementById("sortInput");
     const cardList = document.getElementById("cardList");
     const pagination = document.getElementById("pagination");
+    const popularTravelBlock = document.getElementById("popularTravelBlock");
     const contextPath = "${pageContext.request.contextPath}";
+    const focusPopularBlockAfterSearchKey = "focusPopularBlockAfterExploreSearch";
     let isLoadingPlans = false;
 
+    const filterBox = document.getElementById("filterBox");
+    const filterToggle = document.getElementById("filterToggle");
+    const filterToggleIcon = filterToggle ? filterToggle.querySelector(".filter-toggle-icon") : null;
+    const filterSummary = document.getElementById("filterSummary");
     const filterButtons = document.querySelectorAll(".filter-item");
     const tagButtons = document.querySelectorAll(".search-tag");
     const allButtons = [...filterButtons, ...tagButtons];
@@ -232,6 +253,71 @@
 
     function updateHiddenInput() {
         selectedTagsInput.value = Array.from(selectedTags).join(",");
+    }
+
+    function getSelectedFilterLabels() {
+        const activeFilters = [...filterButtons].filter(btn => btn.classList.contains("active"));
+        const nonWholeFilters = activeFilters.filter(btn => normalize(btn.dataset.value) !== "전체");
+        const visibleFilters = nonWholeFilters.length ? nonWholeFilters : activeFilters;
+
+        return visibleFilters.map(btn => btn.textContent.trim());
+    }
+
+    function updateFilterSummary() {
+        if (!filterSummary) return;
+
+        const labels = getSelectedFilterLabels();
+        filterSummary.innerHTML = "";
+
+        if (!labels.length) {
+            const chip = document.createElement("span");
+            chip.className = "filter-summary-chip";
+            chip.textContent = "전체";
+            filterSummary.appendChild(chip);
+            return;
+        }
+
+        labels.forEach(label => {
+            const chip = document.createElement("span");
+            chip.className = "filter-summary-chip";
+            chip.textContent = label;
+            filterSummary.appendChild(chip);
+        });
+    }
+
+    function setFilterCollapsed(isCollapsed) {
+        if (!filterBox || !filterToggle || !filterToggleIcon) return;
+
+        filterBox.classList.toggle("is-collapsed", isCollapsed);
+        filterToggle.setAttribute("aria-expanded", String(!isCollapsed));
+        filterToggle.setAttribute("aria-label", isCollapsed ? "Open filters" : "Close filters");
+        filterToggleIcon.textContent = isCollapsed ? "+" : "-";
+        updateFilterSummary();
+    }
+
+    function focusPopularTravelBlock() {
+        if (!popularTravelBlock) return;
+
+        const startY = window.scrollY;
+        const targetY = popularTravelBlock.getBoundingClientRect().top + window.scrollY;
+        const distance = targetY - startY;
+        const duration = 160;
+        const startTime = performance.now();
+
+        function scrollFrame(now) {
+            const progress = Math.min((now - startTime) / duration, 1);
+            const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+            window.scrollTo(0, startY + distance * easedProgress);
+
+            if (progress < 1) {
+                requestAnimationFrame(scrollFrame);
+            } else {
+                popularTravelBlock.focus({ preventScroll: true });
+            }
+        }
+
+        requestAnimationFrame(scrollFrame);
     }
 
     function addToInput(value) {
@@ -299,6 +385,7 @@
         });
 
         setWholeButtonState();
+        updateFilterSummary();
     }
 
     function renderSuggestions(data, keyword) {
@@ -369,6 +456,7 @@
             clearAutocomplete();
             updateHiddenInput();
             setWholeButtonState();
+            updateFilterSummary();
             return;
         }
 
@@ -392,6 +480,7 @@
 
         updateHiddenInput();
         setWholeButtonState();
+        updateFilterSummary();
         searchInput.dispatchEvent(new Event("input"));
         searchInput.focus();
     }
@@ -462,6 +551,12 @@
         });
     });
 
+    if (filterToggle) {
+        filterToggle.addEventListener("click", function () {
+            setFilterCollapsed(!filterBox.classList.contains("is-collapsed"));
+        });
+    }
+
     document.addEventListener("click", function (e) {
         if (!e.target.closest(".search-box")) {
             clearAutocomplete();
@@ -471,12 +566,21 @@
     window.addEventListener("DOMContentLoaded", function () {
         updateActiveStateFromInput();
         updateHiddenInput();
+        updateFilterSummary();
+
+        if (sessionStorage.getItem(focusPopularBlockAfterSearchKey) === "true") {
+            sessionStorage.removeItem(focusPopularBlockAfterSearchKey);
+            setFilterCollapsed(true);
+            window.setTimeout(focusPopularTravelBlock, 120);
+        }
     });
 
     searchBtn.addEventListener("click", function () {
         updateActiveStateFromInput();
         updateHiddenInput();
         clearAutocomplete();
+        setFilterCollapsed(true);
+        sessionStorage.setItem(focusPopularBlockAfterSearchKey, "true");
         searchForm.submit();
     });
 

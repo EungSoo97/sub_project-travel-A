@@ -56,14 +56,17 @@ public class ResultpageDAO {
         PreparedStatement ps = null;
         ResultSet rs = null;
 //        String sql = "SELECT plan_id, response_json FROM travel_plan";
-        String sql = "SELECT tp.plan_id, tp.response_json, NVL(pl.like_cnt, 0) AS like_cnt\n" +
+        String sql = "SELECT tp.plan_id, tp.response_json, NVL(pl.like_cnt, 0) AS like_cnt, " +
+                "NVL(u.u_name, '') AS user_name, TO_CHAR(tp.post_date, 'YYYY-MM-DD HH24:MI') AS post_date\n" +
                 "FROM travel_plan tp\n" +
                 "LEFT JOIN (\n" +
                 "    SELECT plan_id, COUNT(*) AS like_cnt\n" +
                 "    FROM plan_like\n" +
                 "    GROUP BY plan_id\n" +
                 ") pl ON tp.plan_id = pl.plan_id\n" +
-                "ORDER BY tp.plan_id DESC";
+                "LEFT JOIN user_info u ON tp.user_id = u.u_user_id\n" +
+                "WHERE tp.posted = 1\n" +
+                "ORDER BY tp.post_date DESC NULLS LAST, tp.plan_id DESC";
 
         List<TravelResultVDTO> list = new ArrayList<>();
 
@@ -80,6 +83,8 @@ public class ResultpageDAO {
                 TravelResultVDTO dto = mapper.readValue(jsonString, TravelResultVDTO.class);
                 dto.setPlanId(rs.getInt("plan_id"));
                 dto.setLikeCnt(rs.getInt("like_cnt"));
+                dto.setUserName(rs.getString("user_name"));
+                dto.setPostDate(rs.getString("post_date"));
 
                 list.add(dto);
             }
@@ -96,16 +101,19 @@ public class ResultpageDAO {
         ResultSet rs = null;
 
         String orderBy = "latest".equals(sort)
-                ? "tp.plan_id DESC"
+                ? "tp.post_date DESC NULLS LAST, tp.plan_id DESC"
                 : "NVL(pl.like_cnt, 0) DESC, tp.plan_id DESC";
 
-        String sql = "SELECT tp.plan_id, tp.response_json, NVL(pl.like_cnt, 0) AS like_cnt\n" +
+        String sql = "SELECT tp.plan_id, tp.response_json, NVL(pl.like_cnt, 0) AS like_cnt, " +
+                "NVL(u.u_name, '') AS user_name, TO_CHAR(tp.post_date, 'YYYY-MM-DD HH24:MI') AS post_date\n" +
                 "FROM travel_plan tp\n" +
                 "LEFT JOIN (\n" +
                 "    SELECT plan_id, COUNT(*) AS like_cnt\n" +
                 "    FROM plan_like\n" +
                 "    GROUP BY plan_id\n" +
                 ") pl ON tp.plan_id = pl.plan_id\n" +
+                "LEFT JOIN user_info u ON tp.user_id = u.u_user_id\n" +
+                "WHERE tp.posted = 1\n" +
                 "ORDER BY " + orderBy + "\n" +
                 "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
@@ -126,6 +134,8 @@ public class ResultpageDAO {
                 TravelResultVDTO dto = mapper.readValue(jsonString, TravelResultVDTO.class);
                 dto.setPlanId(rs.getInt("plan_id"));
                 dto.setLikeCnt(rs.getInt("like_cnt"));
+                dto.setUserName(rs.getString("user_name"));
+                dto.setPostDate(rs.getString("post_date"));
                 list.add(dto);
             }
         } catch (Exception e) {
@@ -141,7 +151,7 @@ public class ResultpageDAO {
         PreparedStatement ps = null;
         ResultSet rs = null;
 
-        String sql = "SELECT COUNT(*) FROM travel_plan";
+        String sql = "SELECT COUNT(*) FROM travel_plan WHERE posted = 1";
 
         try {
             con = DBManager_new.connect();
@@ -163,9 +173,10 @@ public class ResultpageDAO {
 
         String sql =
                 "SELECT * FROM travel_plan " +
-                        "WHERE destination LIKE ? " +
+                        "WHERE posted = 1 " +
+                        "  AND (destination LIKE ? " +
                         "   OR title LIKE ? " +
-                        "   OR travel_style LIKE ? " +
+                        "   OR travel_style LIKE ?) " +
                         "ORDER BY created_at DESC";
 
         Connection con = null;
