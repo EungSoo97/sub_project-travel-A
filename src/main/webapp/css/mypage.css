@@ -170,6 +170,7 @@
     font-size: 12px;
     font-weight: bold;
     color: #fff;
+    background-color: #6b8acf78;
     backdrop-filter: blur(4px); /* 블러 효과 추가 */
 }
 /* --- 기존에 있던 파란색 배지 --- */
@@ -852,3 +853,10 @@
     width: 16px;
     height: 16px;
 }
+.active-card {
+     border: 2px solid #378add;
+     box-shadow: 0 0 12px #378add57;
+     transform: scale(1.02);
+     transition: 0.2s;
+ }
+

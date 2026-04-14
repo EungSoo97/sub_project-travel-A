@@ -8,7 +8,7 @@
     <title>Mypage</title>
     <link rel="stylesheet" href="/css/mypage.css">
 </head>
-<body>
+<body data-context-path="${pageContext.request.contextPath}">
 <section class="profile-section">
     <div class="profile-inner">
         <div class="profile-header">
@@ -203,7 +203,7 @@
                                 </p>
                             </div>
                             <button type="button" class="btn-detail"
-                                    onclick="location.href='${pageContext.request.contextPath}/myplan-page?id=${trip.planId}'">
+                                    onclick="location.href='${pageContext.request.contextPath}/myplanpage-?id=${trip.planId}'">
                                 자세히 보기
                             </button>
                                 <%-- 확인용. 정상 동작 확인 후 지워도 됨 --%>
@@ -715,5 +715,6 @@
         // ... 기존 탭 클릭 이벤트 및 차트 로직 ...
     });
 </script>
+<script src="${pageContext.request.contextPath}/js/mypageBridge.js"></script>
 </body>
 </html>
