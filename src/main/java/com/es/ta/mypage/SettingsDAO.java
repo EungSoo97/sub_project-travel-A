@@ -1,16 +1,19 @@
 package com.es.ta.mypage;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.es.ta.account.AccountDTO;
+import com.es.ta.image.CloudinaryUtil;
 import com.es.ta.main.DBManager_new;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
-import java.io.File;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.UUID;
+import java.util.Map;
 
 public class SettingsDAO {
 
@@ -78,22 +81,33 @@ public class SettingsDAO {
             Part filePart = request.getPart("profileFile");
 
             if (filePart != null && filePart.getSize() > 0) {
-                String originalName = filePart.getSubmittedFileName();
-
-                if (originalName != null && originalName.contains(".")) {
-                    String ext = originalName.substring(originalName.lastIndexOf("."));
-
-                    String savedName = UUID.randomUUID() + ext;
-
-                    String uploadPath = request.getServletContext().getRealPath("/img/profile");
-                    File uploadDir = new File(uploadPath);
-                    if (!uploadDir.exists()) {
-                        uploadDir.mkdirs();
-                    }
-
-                    filePart.write(uploadPath + File.separator + savedName);
-                    profileImgPath = "img/profile/" + savedName;
+                String contentType = filePart.getContentType();
+                if (contentType == null || !contentType.startsWith("image/")) {
+                    return false;
                 }
+
+                Cloudinary cloudinary = CloudinaryUtil.getInstance(request.getServletContext());
+                Map<?, ?> uploadResult;
+                try (InputStream inputStream = filePart.getInputStream()) {
+                    byte[] imageBytes = inputStream.readAllBytes();
+                    uploadResult = cloudinary.uploader().upload(
+                            imageBytes,
+                            ObjectUtils.asMap(
+                                    "folder", "profile_images",
+                                    "public_id", "user_" + loginUser.getUser_id(),
+                                    "overwrite", true,
+                                    "invalidate", true,
+                                    "resource_type", "image"
+                            )
+                    );
+                }
+
+                String cloudinaryUrl = (String) uploadResult.get("secure_url");
+                if (cloudinaryUrl == null || cloudinaryUrl.isBlank()) {
+                    return false;
+                }
+
+                profileImgPath = cloudinaryUrl;
             }
 
             con = DBManager_new.connect();
