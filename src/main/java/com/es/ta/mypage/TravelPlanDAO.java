@@ -180,6 +180,7 @@ public class TravelPlanDAO {
 
         return plan;
     }
+
     public static final TravelPlanDAO DAO = new TravelPlanDAO();
 
     private TravelPlanDAO() {
@@ -208,10 +209,10 @@ public class TravelPlanDAO {
 
     public static ArrayList<TravelPlanDTO> getTrendList(int userId) {
         ArrayList<TravelPlanDTO> trendList = new ArrayList<>();
-        Connection con =null;
+        Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String sql ="SELECT destination, COUNT(*) as cnt " +
+        String sql = "SELECT destination, COUNT(*) as cnt " +
                 "FROM travel_plan " +
                 "WHERE user_id = ? " +
                 "GROUP BY destination " +
@@ -222,7 +223,7 @@ public class TravelPlanDAO {
             ps.setInt(1, userId);
             rs = ps.executeQuery();
 
-            while (rs.next()){
+            while (rs.next()) {
                 TravelPlanDTO plan = new TravelPlanDTO();
                 plan.setDestination(rs.getString("destination"));
                 plan.setPlanId(rs.getInt("cnt"));
@@ -230,13 +231,104 @@ public class TravelPlanDAO {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             DBManager_new.close(con, ps, rs);
         }
         return trendList;
     }
 
 
+    public static ArrayList<TravelPlanDTO> searchPlansByUserId(int userId, String keyword) {
+        ArrayList<TravelPlanDTO> plans = new ArrayList<>();
 
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
 
+        String sql =
+                "SELECT plan_id, user_id, destination, title, start_date, end_date, " +
+                        "days, travelers, travel_style, total_estimated_cost, currency, overview, " +
+                        "success, message, response_json, created_at, updated_at " +
+                        "FROM travel_plan " +
+                        "WHERE user_id = ? " +
+                        "AND (LOWER(title) LIKE ? OR LOWER(destination) LIKE ?) " +
+                        "ORDER BY created_at DESC";
+
+        try {
+            con = DBManager_new.connect();
+            pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, userId);
+            pstmt.setString(2, "%" + keyword.toLowerCase() + "%");
+            pstmt.setString(3, "%" + keyword.toLowerCase() + "%");
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                TravelPlanDTO plan = new TravelPlanDTO();
+                plan.setPlanId(rs.getInt("plan_id"));
+                plan.setUserId(rs.getInt("user_id"));
+                plan.setDestination(rs.getString("destination"));
+                plan.setTitle(rs.getString("title"));
+                plan.setStartDate(rs.getDate("start_date"));
+                plan.setEndDate(rs.getDate("end_date"));
+                plan.setDays(rs.getInt("days"));
+                plan.setTravelers(rs.getInt("travelers"));
+                plan.setTravelStyle(rs.getString("travel_style"));
+                plan.setTotalEstimatedCost(rs.getInt("total_estimated_cost"));
+                plan.setCurrency(rs.getString("currency"));
+                plan.setOverview(rs.getString("overview"));
+                plan.setSuccess(rs.getInt("success"));
+                plan.setMessage(rs.getString("message"));
+                plan.setResponseJson(rs.getString("response_json"));
+                plan.setCreatedAt(rs.getDate("created_at"));
+                plan.setUpdatedAt(rs.getDate("updated_at"));
+                plans.add(plan);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager_new.close(con, pstmt, rs);
+        }
+
+        return plans;
+    }
+
+    public static ArrayList<TravelPlanDTO> searchPlanSuggestionsByUserId(int userId, String keyword) {
+        ArrayList<TravelPlanDTO> plans = new ArrayList<>();
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        String sql =
+                "SELECT plan_id, destination, title " +
+                        "FROM travel_plan " +
+                        "WHERE user_id = ? " +
+                        "AND (LOWER(title) LIKE ? OR LOWER(destination) LIKE ?) " +
+                        "ORDER BY created_at DESC";
+
+        try {
+            con = DBManager_new.connect();
+            pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, userId);
+            pstmt.setString(2, "%" + keyword.toLowerCase() + "%");
+            pstmt.setString(3, "%" + keyword.toLowerCase() + "%");
+            rs = pstmt.executeQuery();
+
+            int count = 0;
+            while (rs.next() && count < 5) {
+                TravelPlanDTO plan = new TravelPlanDTO();
+                plan.setPlanId(rs.getInt("plan_id"));
+                plan.setDestination(rs.getString("destination"));
+                plan.setTitle(rs.getString("title"));
+                plans.add(plan);
+                count++;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager_new.close(con, pstmt, rs);
+        }
+
+        return plans;
+    }
 }
