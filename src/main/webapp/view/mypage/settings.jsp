@@ -6,21 +6,14 @@
 
     String profileImg = request.getContextPath() + "/img/profile/default.png";
     if (u != null && u.getProfileImg() != null && !u.getProfileImg().trim().isEmpty()) {
-        profileImg = request.getContextPath() + "/" + u.getProfileImg().replaceFirst("^/+", "");
+        String savedProfileImg = u.getProfileImg().trim();
+        if (savedProfileImg.startsWith("http://") || savedProfileImg.startsWith("https://")) {
+            profileImg = savedProfileImg;
+        } else {
+            profileImg = request.getContextPath() + "/" + savedProfileImg.replaceFirst("^/+", "");
+        }
     }
 %>
-
-<%
-    String success = request.getParameter("success");
-    if ("1".equals(success)) {
-%>
-<script>
-    alert("회원정보 수정이 완료되었습니다!");
-</script>
-<%
-    }
-%>
-
 <section class="settings-section">
     <div class="settings-container">
         <div class="settings-header">
@@ -83,7 +76,6 @@
     </div>
 </section>
 
-
 <script>
     document.getElementById('profileFile').addEventListener('change', function (e) {
         const file = e.target.files[0];
@@ -95,4 +87,5 @@
         };
         reader.readAsDataURL(file);
     });
+
 </script>
