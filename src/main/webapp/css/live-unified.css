@@ -1,0 +1,984 @@
+/* ========================================================================
+   LIVE PAGE UNIFIED CSS
+   ======================================================================== */
+
+/* --- Basic page & header setup --- */
+body {
+    background-color: #fafafa;
+    margin: 0;
+    padding: 0;
+}
+
+.live-header {
+    text-align: center;
+    margin-top: 30px;
+}
+.live-header h1 { font-size: 26px; margin-bottom: 8px; }
+.live-header p { color: #666; font-size: 14px; margin: 0; }
+
+/* --- Common box layout (mobile 400px optimized) --- */
+.realtime-box,
+.next-schedule-box,
+.nearby-booking-box,
+.weather-box,
+.traffic-box,
+.emergency-box {
+    width: 92%;
+    margin: 15px auto;
+    box-sizing: border-box;
+}
+
+.card-box {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+
+/* --- Real-time tracking card design --- */
+.live-plan-card {
+    background: #ffffff;
+    border: 1px solid #e3f2fd;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 1px 3px rgba(59, 130, 246, 0.1);
+    position: relative;
+    padding-left: 20px;
+}
+
+.live-plan-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #3b82f6;
+    border-radius: 12px 0 0 12px;
+}
+
+.plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4px;
+}
+
+.plan-header h2 {
+    color: #1e40af;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.plan-header h2::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: #ef4444;
+    border-radius: 50%;
+    animation: blink 1.5s ease-in-out infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.plan-destination {
+    color: #3b82f6;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+.plan-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.plan-details {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.plan-details p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.plan-details span {
+    font-size: 12px;
+    width: 0px;
+    text-align: center;
+    color: #3b82f6;
+    display: none;
+}
+
+.plan-actions {
+    display: flex;
+    align-items: flex-start;
+    align-self: flex-start;
+    position: relative;
+    bottom: 8px;
+}
+
+.btn-stop-tracking {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-stop-tracking:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+.btn-stop-tracking:active {
+    transform: translateY(0);
+}
+
+/* --- Current time box --- */
+.time-box {
+    background-color: #f4f4f4;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    border: 1px solid #ebebeb;
+}
+.time-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.time-label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.time-display {
+    font-size: 28px;
+    font-weight: 900;
+    color: #000;
+    letter-spacing: -0.5px;
+}
+.time-bottom {
+    color: #888;
+    font-size: 12px;
+}
+
+/* --- Current activity card --- */
+.activity-card {
+    border: 1px solid #f0f0f0;
+    border-radius: 12px;
+    padding: 16px;
+    background-color: #fff;
+}
+.activity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+.status-badge {
+    color: #4caf50;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: bold;
+}
+.status-badge .dot {
+    width: 8px;
+    height: 8px;
+    background-color: #4caf50;
+    border-radius: 50%;
+}
+.time-remaining { color: #666; }
+.time-remaining strong { color: #000; font-size: 14px; }
+
+.activity-title {
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0 0 6px 0;
+}
+.activity-address {
+    font-size: 13px;
+    color: #888;
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+/* --- 3-column info grid --- */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.info-item {
+    background-color: #fafafa;
+    padding: 12px 4px;
+    border-radius: 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.info-label {
+    font-size: 11px;
+    color: #888;
+}
+.info-value {
+    font-size: 15px;
+    font-weight: bold;
+    color: #000;
+}
+.info-value.status-good {
+    color: #1bba53;
+}
+
+/* --- Congestion banner --- */
+.congestion-banner {
+    background-color: #eaf8ee;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.banner-icon { font-size: 20px; }
+.banner-text strong {
+    display: block;
+    font-size: 13px;
+    color: #1bba53;
+    margin-bottom: 2px;
+}
+.banner-text p {
+    margin: 0;
+    font-size: 12px;
+    color: #666;
+}
+
+/* --- Next schedule & nearby booking common --- */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.section-title {
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.section-title svg { margin-bottom: 2px; }
+.subtitle { font-size: 12px; color: #888; }
+
+/* --- Next schedule --- */
+.schedule-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+}
+.schedule-info h3 {
+    font-size: 18px;
+    margin: 0 0 4px 0;
+    color: #111;
+}
+.schedule-info p {
+    font-size: 13px;
+    color: #888;
+    margin: 0;
+}
+.btn-dark {
+    width: 100%;
+    background-color: #2563eb;
+    color: #ffffff;
+    padding: 14px 0;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+    text-align: center;
+}
+.btn-dark:hover { background-color: #1d4ed8; }
+
+/* --- Nearby booking & photo spots --- */
+.booking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.booking-item {
+    background-color: #fafafa;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #f0f0f0;
+}
+
+.place-title-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+.place-title-row h4 {
+    margin: 0;
+    font-size: 15px;
+    color: #111;
+    word-break: keep-all;
+}
+
+.badge-gray {
+    background-color: #e0e0e0;
+    color: #555;
+    padding: 3px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: bold;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.place-info p {
+    margin: 0;
+    font-size: 12px;
+    color: #888;
+    word-break: keep-all;
+}
+
+.btn-outline {
+    background-color: #ffffff;
+    border: 1px solid #333;
+    color: #333;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 13px;
+    transition: 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 10px;
+}
+
+.btn-outline:hover {
+    background-color: #f5f5f5;
+}
+
+.disabled-text {
+    font-size: 12px;
+    color: #aaa;
+    padding-right: 5px;
+    white-space: nowrap;
+}
+
+/* --- Weather, traffic, emergency info --- */
+.weather-main {
+    text-align: center;
+    margin: 15px 0 20px 0;
+}
+.weather-main h2 {
+    font-size: 42px;
+    font-weight: 300;
+    margin: 0 0 5px 0;
+    color: #111;
+}
+.weather-main p {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+}
+
+.weather-details {
+    display: flex;
+    gap: 10px;
+}
+.detail-item {
+    flex: 1;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+.detail-label {
+    font-size: 12px;
+    color: #888;
+}
+.detail-value {
+    font-size: 15px;
+    font-weight: bold;
+    color: #111;
+}
+
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 15px;
+}
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.info-name {
+    font-size: 14px;
+    color: #111;
+}
+.info-name.text-gray {
+    color: #777;
+}
+.info-value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #111;
+}
+
+.status-text {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: bold;
+}
+.status-text.good {
+    color: #1bba53;
+}
+.status-text.warning {
+    color: #f5a623;
+}
+
+/* --- Mobile-optimized daily itinerary styles --- */
+.itinerary-container {
+    width: 92%;
+    margin: 15px auto;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    overflow: hidden;
+}
+
+.itinerary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: #f4f4f4;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.itinerary-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.toggle-all-btn {
+    background: #378ADD;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.toggle-all-btn:hover {
+    background: #2c6bb0;
+    transform: translateY(-1px);
+}
+
+.days-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.day-item {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.day-item:last-child {
+    border-bottom: none;
+}
+
+.day-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.day-toggle:hover {
+    background-color: #f8f9fa;
+}
+
+.day-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.day-badge {
+    background: #378ADD;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.day-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+}
+
+.toggle-icon {
+    font-size: 14px;
+    color: #666;
+    transition: transform 0.2s ease;
+    font-weight: bold;
+}
+
+.day-item.expanded .toggle-icon {
+    transform: rotate(90deg);
+}
+
+.day-content {
+    padding: 0 20px;
+    background: #fafafa;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-time {
+    min-width: 60px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #378ADD;
+    flex-shrink: 0;
+}
+
+.activity-details {
+    flex: 1;
+}
+
+.activity-details h4 {
+    margin: 0 0 6px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.activity-details p {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+}
+
+/* --- Bottom slide-up modal for daily itinerary --- */
+.schedule-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.schedule-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.schedule-modal {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-height: 80vh;
+    background: white;
+    border-radius: 0;
+    box-shadow: none;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    overflow: hidden;
+    z-index: 10000;
+}
+
+.schedule-modal.active {
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    background: transparent;
+    border: none;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: #e9ecef;
+    color: #333;
+}
+
+.modal-content {
+    max-height: calc(80vh - 80px);
+    overflow-y: auto;
+    padding: 0;
+    background: white;
+    border: none;
+    border-radius: 0;
+}
+
+/* Unified modal header - no nested sections */
+.day-summary-header {
+    background: white;
+    padding: 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.day-summary-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 12px 0;
+}
+
+
+.day-summary-info {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.day-summary-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #1976d2;
+    font-weight: 600;
+}
+
+.day-summary-item::before {
+    content: 'Time';
+    font-size: 16px;
+}
+
+.day-summary-item.distance::before {
+    content: 'Distance';
+}
+
+.day-summary-item.duration::before {
+    content: 'Duration';
+}
+
+/* Unified activity section - no nested sections */
+.activity-details-section {
+    background: white;
+    padding: 0;
+    border: none;
+}
+
+.activity-details-header {
+    background: white;
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.activity-details-list {
+    padding: 0;
+}
+
+.detailed-activity-item {
+    display: flex;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s ease;
+}
+
+.detailed-activity-item:hover {
+    background-color: #f8f9fa;
+}
+
+.detailed-activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-time-info {
+    min-width: 80px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #378ADD;
+    flex-shrink: 0;
+}
+
+.activity-content-info {
+    flex: 1;
+    margin: 0 16px;
+}
+
+.activity-content-info h4 {
+    margin: 0 0 4px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+}
+
+.activity-content-info p {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.activity-cost-info {
+    min-width: 80px;
+    text-align: right;
+    font-size: 14px;
+    font-weight: 600;
+    color: #e91e63;
+    flex-shrink: 0;
+}
+
+/* Unified cost summary - no nested sections */
+.cost-summary-section {
+    background: white;
+    padding: 20px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.cost-summary-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 12px 0;
+}
+
+
+.cost-summary-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.cost-summary-details:last-child {
+    border-bottom: none;
+}
+
+.cost-label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+.cost-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+}
+
+.cost-value.total {
+    color: #333;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+    
+.modal-empty {
+    padding: 60px 20px;
+    text-align: center;
+    color: #999;
+    font-size: 16px;
+    background: white;
+    border-radius: 0;
+    margin: 0;
+}
+
+.modal-empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+    color: #378ADD;
+}
+
+/* --- Mobile responsive adjustments --- */
+@media (max-width: 768px) {
+    .live-plan-card {
+        padding: 10px;
+        margin: 8px;
+        padding-left: 16px;
+        width: 367px;
+        left: 9px;
+    }
+    
+    .plan-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .plan-header h2 {
+        font-size: 15px;
+    }
+    
+    .plan-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .plan-details {
+        flex-direction: row;
+        gap: 8px;
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    
+    .plan-actions {
+        width: 100%;
+        justify-content: flex-end;
+        align-self: flex-start;
+    }
+    
+    .btn-stop-tracking {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .itinerary-container {
+        width: 95%;
+        margin: 10px auto;
+    }
+    
+    .itinerary-header {
+        padding: 12px;
+    }
+    
+    .day-toggle {
+        padding: 12px;
+    }
+    
+    .day-content {
+        padding: 0 12px;
+    }
+    
+    .modal-header {
+        padding: 16px;
+    }
+    
+    .modal-title {
+        font-size: 16px;
+    }
+    
+    }
+
+/* --- Dark mode support --- */
+@media (prefers-color-scheme: dark) {
+    .live-plan-card {
+        background: linear-gradient(135deg, #1e3a8a, #1e40af);
+        border-color: #60a5fa;
+    }
+    
+    .plan-header h2 {
+        color: #f0f9ff;
+    }
+    
+    .plan-destination {
+        color: #93c5fd;
+    }
+    
+    .plan-details p {
+        color: #cbd5e1;
+    }
+}

@@ -474,6 +474,8 @@
 .detail-header h2 {
     font-size: 17px;
     font-weight: 700;
+    position: relative;
+    left: 19px;
 }
 
 .total-cost {
