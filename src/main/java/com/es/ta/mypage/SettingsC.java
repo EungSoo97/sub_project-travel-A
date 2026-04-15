@@ -66,7 +66,7 @@ public class SettingsC extends HttpServlet {
         boolean result = SettingsDAO.updateUserInfo(request);
 
         if (result) {
-            response.sendRedirect("settings?success=1");   // ✅ 여기
+            response.sendRedirect(request.getContextPath() + "/mypage?settingsSuccess=1");
         } else {
             request.setAttribute("error", "회원정보 수정 실패");
             request.setAttribute("content", "view/mypage/settings.jsp");
