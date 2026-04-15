@@ -35,6 +35,12 @@ public class MypageC extends HttpServlet {
             return;
         }
 
+        AccountDTO latestUser = SettingsDAO.getUserInfo(request);
+        if (latestUser != null) {
+            loginUser = latestUser;
+            session.setAttribute("user", latestUser);
+        }
+
         int userId = loginUser.getUser_id();
         // 저장된 여행
 
