@@ -203,7 +203,7 @@
                                 </p>
                             </div>
                             <button type="button" class="btn-detail"
-                                    onclick="location.href='${pageContext.request.contextPath}/myplanpage-?id=${trip.planId}'">
+                                    onclick="location.href='${pageContext.request.contextPath}/myplan-page?id=${trip.planId}'">
                                 자세히 보기
                             </button>
                                 <%-- 확인용. 정상 동작 확인 후 지워도 됨 --%>

@@ -27,6 +27,30 @@
     }
 
     function addLiveButtons() {
+        // Check for stopTracking parameter and reset state if needed
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('stopTracking') === 'true') {
+            console.log('Stop tracking parameter detected, resetting all tracking states');
+            
+            // Clear localStorage
+            localStorage.removeItem('liveTrackingPlanId');
+            
+            // Reset all tracking buttons to initial state
+            const allCards = document.querySelectorAll('#content-saved .trip-card');
+            allCards.forEach(card => {
+                const liveBtn = card.querySelector('.live-track-btn');
+                if (liveBtn) {
+                    liveBtn.innerHTML = 'ð\x9f\x9a\x80 \uc2e4\uc2dc\uac04 \ud2b8\ub798\ud0b9 \ud558\uae30';
+                    liveBtn.disabled = false;
+                    card.classList.remove('active-card');
+                }
+            });
+            
+            // Remove the stopTracking parameter from URL
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, '', newUrl);
+        }
+        
         const savedCards = document.querySelectorAll('#content-saved .trip-card');
         const trackingPlanId = localStorage.getItem('liveTrackingPlanId');
         
@@ -110,9 +134,12 @@
                 // localStorage에 현재 트래킹 상태 저장
                 localStorage.setItem('liveTrackingPlanId', planId);
                 
-                // 페이지 이동 (기능 유지)
+                // 페이지 이동 (기능 유지) - destination 인코딩 문제 해결
                 const ctx = window.MYPAGE_CTX || '';
-                const url = `${ctx}/my-live?planId=${encodeURIComponent(this.dataset.planId)}&destination=${encodeURIComponent(this.dataset.destination || '')}`;
+                const destination = this.dataset.destination || '';
+                const encodedDestination = encodeURIComponent(destination);
+                const url = `${ctx}/my-live?planId=${encodeURIComponent(this.dataset.planId)}&destination=${encodedDestination}`;
+                console.log('이동 URL:', url);
                 window.location.href = url;
             });
         });
