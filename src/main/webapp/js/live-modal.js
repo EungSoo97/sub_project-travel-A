@@ -37,6 +37,12 @@ function initModal() {
     
     modalContent = document.createElement('div');
     modalContent.className = 'modal-content';
+    modalContent.style.cssText = `
+        overflow-y: auto;
+        max-height: 80vh;
+        padding-bottom: 20px;
+        box-sizing: border-box;
+    `;
     
     modalHeader.appendChild(modalTitle);
     modalHeader.appendChild(modalClose);
@@ -69,8 +75,8 @@ function initModal() {
         width: 100% !important;
         max-height: 80vh !important;
         background: white !important;
-        border-radius: 20px 20px 0 0 !important;
-        box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.2) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
         transform: translateY(100%) !important;
         transition: transform 0.3s ease !important;
         overflow: hidden !important;
@@ -264,6 +270,27 @@ function closeModal() {
 function getRealDayData(dayIndex) {
     console.log('Getting real data for day index:', dayIndex);
     
+    // Use window.PLAN_DETAIL from JSP (DB data)
+    if (window.PLAN_DETAIL && window.PLAN_DETAIL.itinerary && window.PLAN_DETAIL.itinerary.length > dayIndex) {
+        const dayData = window.PLAN_DETAIL.itinerary[dayIndex];
+        console.log('Found DB day data:', dayData);
+        
+        // Format the data to match expected structure
+        const formattedDayData = {
+            title: `Day ${dayData.day}`,
+            date: dayData.date,
+            distance: 'No data', // Not available in DB structure
+            duration: 'No data', // Not available in DB structure
+            activities: dayData.activities || []
+        };
+        
+        console.log('Formatted day data:', formattedDayData);
+        return formattedDayData;
+    }
+    
+    // Fallback to DOM parsing if no DB data found
+    console.log('No DB data found, falling back to DOM parsing');
+    
     // Find the day card for the given index
     const dayCards = document.querySelectorAll('.day-card');
     console.log('Total day cards found:', dayCards.length);
@@ -333,52 +360,102 @@ function getRealDayData(dayIndex) {
     return dayData;
 }
 
-// Create detailed modal content with blue/white/gray sections
+// Create single unified modal content - no nested sections
 function createDetailedModalContent(dayData, dayIndex, modalContent) {
     // Get real data from the page
     const realDayData = getRealDayData(dayIndex);
     
-    // Blue section - Day summary header
-    const daySummaryHeader = document.createElement('div');
-    daySummaryHeader.className = 'day-summary-header';
+    // Create single unified container
+    const unifiedContent = document.createElement('div');
+    unifiedContent.className = 'unified-modal-content';
+    unifiedContent.style.cssText = `
+        background: white;
+        padding: 0;
+        border-radius: 0;
+        overflow: hidden;
+    `;
     
-    const daySummaryTitle = document.createElement('h3');
-    daySummaryTitle.className = 'day-summary-title';
-    daySummaryTitle.textContent = `${dayIndex + 1}Day - ${realDayData.title || 'Daily Schedule'}`;
+    // Create header section
+    const headerSection = document.createElement('div');
+    headerSection.style.cssText = `
+        background: transparent;
+        padding: 20px;
+        border: none;
+        text-align: center;
+    `;
     
-    const daySummaryInfo = document.createElement('div');
-    daySummaryInfo.className = 'day-summary-info';
+    const titleElement = document.createElement('h3');
+    titleElement.style.cssText = `
+        font-size: 18px;
+        font-weight: 700;
+        color: #333;
+        margin: 0 0 12px 0;
+    `;
+    titleElement.textContent = `${dayIndex + 1}Day - ${realDayData.title || 'Daily Schedule'}`;
     
-    // Use real data from page
-    const dateItem = document.createElement('div');
-    dateItem.className = 'day-summary-item';
-    dateItem.textContent = realDayData.date || new Date().toLocaleDateString('ko-KR');
+    const infoContainer = document.createElement('div');
+    infoContainer.style.cssText = `
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+    `;
     
-    const distanceItem = document.createElement('div');
-    distanceItem.className = 'day-summary-item distance';
-    distanceItem.textContent = realDayData.distance || 'Distance info not available';
+    const dateInfo = document.createElement('div');
+    dateInfo.style.cssText = `
+        font-size: 14px;
+        color: #666;
+        font-weight: 500;
+    `;
+    dateInfo.textContent = realDayData.date || new Date().toLocaleDateString('ko-KR');
     
-    const durationItem = document.createElement('div');
-    durationItem.className = 'day-summary-item duration';
-    durationItem.textContent = realDayData.duration || 'Duration info not available';
+    const distanceInfo = document.createElement('div');
+    distanceInfo.style.cssText = `
+        font-size: 14px;
+        color: #666;
+        font-weight: 500;
+    `;
+    distanceInfo.textContent = realDayData.distance || 'No distance info';
     
-    daySummaryInfo.appendChild(dateItem);
-    daySummaryInfo.appendChild(distanceItem);
-    daySummaryInfo.appendChild(durationItem);
+    const durationInfo = document.createElement('div');
+    durationInfo.style.cssText = `
+        font-size: 14px;
+        color: #666;
+        font-weight: 500;
+    `;
+    durationInfo.textContent = realDayData.duration || 'No duration info';
     
-    daySummaryHeader.appendChild(daySummaryTitle);
-    daySummaryHeader.appendChild(daySummaryInfo);
+    infoContainer.appendChild(dateInfo);
+    infoContainer.appendChild(distanceInfo);
+    infoContainer.appendChild(durationInfo);
     
-    // White section - Activity details
-    const activitySection = document.createElement('div');
-    activitySection.className = 'activity-details-section';
+    headerSection.appendChild(titleElement);
+    headerSection.appendChild(infoContainer);
     
-    const activityHeader = document.createElement('div');
-    activityHeader.className = 'activity-details-header';
-    activityHeader.textContent = 'Detailed Schedule';
+    // Create activities section
+    const activitiesSection = document.createElement('div');
+    activitiesSection.style.cssText = `
+        background: transparent;
+        padding: 0;
+        max-height: none;
+        overflow: visible;
+    `;
     
-    const activityList = document.createElement('div');
-    activityList.className = 'activity-details-list';
+    const activitiesHeader = document.createElement('div');
+    activitiesHeader.style.cssText = `
+        background: transparent;
+        padding: 15px 20px;
+        border: none;
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+    `;
+    activitiesHeader.textContent = 'Daily Schedule';
+    
+    const activitiesList = document.createElement('div');
+    activitiesList.style.cssText = `
+        padding: 0;
+    `;
     
     // Use real activities from the page
     const realActivities = realDayData.activities;
@@ -386,53 +463,112 @@ function createDetailedModalContent(dayData, dayIndex, modalContent) {
     if (realActivities.length > 0) {
         realActivities.forEach((activity, index) => {
             const activityItem = document.createElement('div');
-            activityItem.className = 'detailed-activity-item';
+            activityItem.style.cssText = `
+                display: flex;
+                padding: 20px;
+                border: none;
+                transition: background-color 0.2s ease;
+                background: transparent;
+            `;
             
-            const timeInfo = document.createElement('div');
-            timeInfo.className = 'activity-time-info';
-            timeInfo.textContent = activity.time || '';
+            const timeElement = document.createElement('div');
+            timeElement.style.cssText = `
+                min-width: 80px;
+                font-size: 13px;
+                font-weight: 600;
+                color: #378ADD;
+                flex-shrink: 0;
+            `;
+            timeElement.textContent = activity.time || '';
             
-            const contentInfo = document.createElement('div');
-            contentInfo.className = 'activity-content-info';
+            const contentElement = document.createElement('div');
+            contentElement.style.cssText = `
+                flex: 1;
+                margin: 0 16px;
+            `;
             
-            const titleElement = document.createElement('h4');
-            titleElement.textContent = activity.name || '';
+            const activityTitle = document.createElement('h4');
+            activityTitle.style.cssText = `
+                margin: 0 0 4px 0;
+                font-size: 15px;
+                font-weight: 600;
+                color: #333;
+            `;
+            activityTitle.textContent = activity.name || '';
             
-            const descElement = document.createElement('p');
-            descElement.textContent = activity.description || '';
+            const activityDesc = document.createElement('p');
+            activityDesc.style.cssText = `
+                margin: 0;
+                font-size: 13px;
+                color: #666;
+                line-height: 1.4;
+            `;
+            activityDesc.textContent = activity.description || '';
             
-            contentInfo.appendChild(titleElement);
-            contentInfo.appendChild(descElement);
+            contentElement.appendChild(activityTitle);
+            contentElement.appendChild(activityDesc);
             
-            const costInfo = document.createElement('div');
-            costInfo.className = 'activity-cost-info';
-            costInfo.textContent = activity.cost || '';
+            const costElement = document.createElement('div');
+            costElement.style.cssText = `
+                min-width: 80px;
+                text-align: right;
+                font-size: 14px;
+                font-weight: 600;
+                color: #e91e63;
+                flex-shrink: 0;
+            `;
+            costElement.textContent = activity.cost || '';
             
-            activityItem.appendChild(timeInfo);
-            activityItem.appendChild(contentInfo);
-            activityItem.appendChild(costInfo);
+            activityItem.appendChild(timeElement);
+            activityItem.appendChild(contentElement);
+            activityItem.appendChild(costElement);
             
-            activityList.appendChild(activityItem);
+            // Add click event to show real-time location data
+            activityItem.style.cursor = 'pointer';
+            activityItem.onclick = function() {
+                // Add dayIndex to activity object
+                const activityWithDayIndex = {
+                    ...activity,
+                    dayIndex: dayIndex
+                };
+                showLocationRealtimeData(activityWithDayIndex);
+            };
+            
+            activitiesList.appendChild(activityItem);
         });
     } else {
         const emptyItem = document.createElement('div');
-        emptyItem.className = 'detailed-activity-item';
-        emptyItem.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">No activities scheduled</div>';
-        activityList.appendChild(emptyItem);
+        emptyItem.style.cssText = `
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            font-size: 16px;
+        `;
+        emptyItem.textContent = 'No activities scheduled';
+        activitiesList.appendChild(emptyItem);
     }
     
-    activitySection.appendChild(activityHeader);
-    activitySection.appendChild(activityList);
+    activitiesSection.appendChild(activitiesHeader);
+    activitiesSection.appendChild(activitiesList);
     
-    // Gray section - Cost summary
+    // Create cost summary section
     const costSection = document.createElement('div');
-    costSection.className = 'cost-summary-section';
+    costSection.style.cssText = `
+        background: transparent;
+        padding: 20px;
+        border: none;
+    `;
     
     const costTitle = document.createElement('h3');
-    costTitle.className = 'cost-summary-title';
-    costTitle.textContent = 'Estimated Costs';
+    costTitle.style.cssText = `
+        font-size: 16px;
+        font-weight: 700;
+        color: #333;
+        margin: 0 0 12px 0;
+    `;
+    costTitle.textContent = 'Cost Summary';
     
-    // Calculate real costs from activities
+    // Calculate costs
     let totalCost = 0;
     let transportCost = 0;
     let foodCost = 0;
@@ -443,7 +579,6 @@ function createDetailedModalContent(dayData, dayIndex, modalContent) {
         const costValue = parseInt(costText.replace(/[^\d]/g, '')) || 0;
         totalCost += costValue;
         
-        // Categorize costs based on activity type
         if (activity.category === 'TRANSPORT' || activity.category === 'MOVE') {
             transportCost += costValue;
         } else if (activity.category === 'DINING' || activity.category === 'FOOD' || activity.category === 'RESTAURANT') {
@@ -453,71 +588,60 @@ function createDetailedModalContent(dayData, dayIndex, modalContent) {
         }
     });
     
-    // Create cost details with real data
-    const costDetails = document.createElement('div');
-    costDetails.className = 'cost-summary-details';
+    // Create cost items
+    const costItems = [
+        { label: 'Transportation', value: transportCost > 0 ? `¥${transportCost.toLocaleString()}` : 'Free' },
+        { label: 'Food & Dining', value: foodCost > 0 ? `¥${foodCost.toLocaleString()}` : 'Free' },
+        { label: 'Activities', value: otherCost > 0 ? `¥${otherCost.toLocaleString()}` : 'Free' },
+        { label: 'Total Cost', value: `¥${totalCost.toLocaleString()}`, isTotal: true }
+    ];
     
-    const transportLabel = document.createElement('div');
-    transportLabel.className = 'cost-label';
-    transportLabel.textContent = 'Transportation';
+    costItems.forEach(item => {
+        const costItem = document.createElement('div');
+        costItem.style.cssText = `
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        `;
+        
+        if (item.isTotal) {
+            costItem.style.borderBottom = 'none';
+            costItem.style.marginTop = '8px';
+            costItem.style.paddingTop = '16px';
+            costItem.style.borderTop = '1px solid #f0f0f0';
+        }
+        
+        const label = document.createElement('span');
+        label.style.cssText = `
+            font-size: 14px;
+            color: ${item.isTotal ? '#333' : '#666'};
+            font-weight: ${item.isTotal ? '700' : '500'};
+        `;
+        label.textContent = item.label;
+        
+        const value = document.createElement('span');
+        value.style.cssText = `
+            font-size: ${item.isTotal ? '18px' : '16px'};
+            font-weight: ${item.isTotal ? '800' : '700'};
+            color: #333;
+        `;
+        value.textContent = item.value;
+        
+        costItem.appendChild(label);
+        costItem.appendChild(value);
+        costSection.appendChild(costItem);
+    });
     
-    const transportValue = document.createElement('div');
-    transportValue.className = 'cost-value';
-    transportValue.textContent = transportCost > 0 ? `¥${transportCost.toLocaleString()}` : '¥0';
+    // Assemble unified content
+    unifiedContent.appendChild(headerSection);
+    unifiedContent.appendChild(activitiesSection);
+    unifiedContent.appendChild(costSection);
     
-    const foodLabel = document.createElement('div');
-    foodLabel.className = 'cost-label';
-    foodLabel.textContent = 'Food & Dining';
-    
-    const foodValue = document.createElement('div');
-    foodValue.className = 'cost-value';
-    foodValue.textContent = foodCost > 0 ? `¥${foodCost.toLocaleString()}` : '¥0';
-    
-    const otherLabel = document.createElement('div');
-    otherLabel.className = 'cost-label';
-    otherLabel.textContent = 'Other Expenses';
-    
-    const otherValue = document.createElement('div');
-    otherValue.className = 'cost-value';
-    otherValue.textContent = otherCost > 0 ? `¥${otherCost.toLocaleString()}` : '¥0';
-    
-    // Total cost
-    const totalLabel = document.createElement('div');
-    totalLabel.className = 'cost-label';
-    totalLabel.textContent = 'Total Estimated';
-    
-    const totalValue = document.createElement('div');
-    totalValue.className = 'cost-value total';
-    totalValue.textContent = totalCost > 0 ? `¥${totalCost.toLocaleString()}` : '¥0';
-    
-    costDetails.appendChild(transportLabel);
-    costDetails.appendChild(transportValue);
-    
-    const foodDetails = document.createElement('div');
-    foodDetails.className = 'cost-summary-details';
-    foodDetails.appendChild(foodLabel);
-    foodDetails.appendChild(foodValue);
-    
-    const otherDetails = document.createElement('div');
-    otherDetails.className = 'cost-summary-details';
-    otherDetails.appendChild(otherLabel);
-    otherDetails.appendChild(otherValue);
-    
-    const totalDetails = document.createElement('div');
-    totalDetails.className = 'cost-summary-details';
-    totalDetails.appendChild(totalLabel);
-    totalDetails.appendChild(totalValue);
-    
-    costSection.appendChild(costTitle);
-    costSection.appendChild(costDetails);
-    costSection.appendChild(foodDetails);
-    costSection.appendChild(otherDetails);
-    costSection.appendChild(totalDetails);
-    
-    // Append all sections to modal content
-    modalContent.appendChild(daySummaryHeader);
-    modalContent.appendChild(activitySection);
-    modalContent.appendChild(costSection);
+    // Clear and add to modal content
+    modalContent.innerHTML = '';
+    modalContent.appendChild(unifiedContent);
 }
 
 // Create activity element for modal (legacy function)
@@ -704,3 +828,63 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 500);
 });
+
+// Show location name and times in main live card
+function showLocationRealtimeData(activity) {
+    console.log('Showing location:', activity);
+    
+    // Update main live card with location name and times
+    const titleElement = document.getElementById('liveActivityTitle');
+    const startElement = document.getElementById('liveActivityStart');
+    const endElement = document.getElementById('liveActivityEnd');
+    
+    // Set location name
+    if (titleElement) {
+        titleElement.textContent = activity.name || 'Loading...';
+    }
+    
+    // Set start time from clicked activity
+    if (startElement) {
+        startElement.textContent = activity.time || '-';
+    }
+    
+    // Set end time from next activity
+    if (endElement) {
+        const nextActivityTime = getNextActivityTime(activity);
+        endElement.textContent = nextActivityTime || '-';
+    }
+    
+    // Close modal after selection
+    closeModal();
+}
+
+// Get next activity time
+function getNextActivityTime(currentActivity) {
+    console.log('Getting next activity time for:', currentActivity);
+    
+    // Get all activities from the current day
+    const dayData = getRealDayData(currentActivity.dayIndex);
+    const activities = dayData.activities || [];
+    
+    console.log('Day data:', dayData);
+    console.log('Activities:', activities);
+    
+    // Find current activity index
+    const currentIndex = activities.findIndex(act => 
+        act.time === currentActivity.time && act.name === currentActivity.name
+    );
+    
+    console.log('Current activity index:', currentIndex);
+    
+    // If next activity exists, return its time
+    if (currentIndex !== -1 && currentIndex < activities.length - 1) {
+        const nextActivity = activities[currentIndex + 1];
+        console.log('Next activity found:', nextActivity);
+        return nextActivity.time;
+    }
+    
+    // No next activity found
+    console.log('No next activity found');
+    return null;
+}
+

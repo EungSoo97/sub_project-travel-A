@@ -273,6 +273,45 @@
     window.LIVE_CTX = '${pageContext.request.contextPath}';
     window.LIVE_DESTINATION = <%= destJson %>;
     
+    // Add planDetail data for modal use
+    <c:if test="${not empty planDetail}">
+        window.PLAN_DETAIL = {
+            summary: {
+                destination: '${planDetail.summary.destination}',
+                days: '${planDetail.summary.days}',
+                travelers: '${planDetail.summary.travelers}',
+                totalEstimatedCost: '${planDetail.summary.totalEstimatedCost}',
+                currency: '${planDetail.summary.currency}'
+            },
+            itinerary: [
+                <c:forEach var="item" items="${planDetail.itinerary}" varStatus="status">
+                    {
+                        day: ${item.day},
+                        date: '${item.date}',
+                        summary: '${item.summary}',
+                        estimatedCost: '${item.estimatedCost}',
+                        currency: '${item.currency}',
+                        activities: [
+                            <c:forEach var="act" items="${item.activities}" varStatus="actStatus">
+                                {
+                                    time: '${act.time}',
+                                    name: '${fn:escapeXml(act.name)}',
+                                    description: '${fn:escapeXml(act.description)}',
+                                    durationMinutes: '${act.durationMinutes}',
+                                    cost: '${act.cost}',
+                                    currency: '${act.currency}',
+                                    lat: '${act.lat}',
+                                    lng: '${act.lng}',
+                                    category: '${fn:escapeXml(empty act.categoryCode ? act.category : act.categoryCode)}'
+                                }<c:if test="${not actStatus.last}">,</c:if>
+                            </c:forEach>
+                        ]
+                    }<c:if test="${not status.last}">,</c:if>
+                </c:forEach>
+            ]
+        };
+    </c:if>
+    
     function stopTracking() {
         localStorage.removeItem('liveTrackingPlanId');
         window.location.href = window.LIVE_CTX + '/mypage?stopTracking=true';
@@ -281,6 +320,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         console.log('My Live page loaded');
         console.log('planDetail data:', window.LIVE_PLAN_ID);
+        console.log('PLAN_DETAIL:', window.PLAN_DETAIL);
     });
 </script>
 <script src="${pageContext.request.contextPath}/js/live-itinerary-mobile.js"></script>
