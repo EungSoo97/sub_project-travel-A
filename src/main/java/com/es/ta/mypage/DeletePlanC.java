@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-@WebServlet(name = "PostPlanC", value = "/post-plan")
-public class PostPlanC extends HttpServlet {
+@WebServlet(name = "DeletePlanC", value = "/delete-plan")
+public class DeletePlanC extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -25,22 +25,16 @@ public class PostPlanC extends HttpServlet {
             return;
         }
 
-        AccountDTO loginUser = (AccountDTO) session.getAttribute("user");
         Integer planId = parsePlanId(request.getParameter("planId"));
         if (planId == null) {
-            response.sendRedirect(request.getContextPath() + "/mypage");
+            response.sendRedirect(request.getContextPath() + "/mypage?deleteFail=1");
             return;
         }
 
-        TravelPlanDTO plan = MyPlanPageDAO.getPlanByPlanIdAndUserId(planId, loginUser.getUser_id());
-        if (plan == null) {
-            response.sendRedirect(request.getContextPath() + "/mypage");
-            return;
-        }
+        AccountDTO loginUser = (AccountDTO) session.getAttribute("user");
+        boolean deleted = TravelPlanDAO.deletePlanByPlanIdAndUserId(planId, loginUser.getUser_id());
 
-        boolean nextPosted = plan.getPosted() != 1;
-        MyPlanPageDAO.updatePostedByPlanIdAndUserId(planId, loginUser.getUser_id(), nextPosted);
-        response.sendRedirect(request.getContextPath() + "/mypage?posted=" + (nextPosted ? "1" : "0"));
+        response.sendRedirect(request.getContextPath() + "/mypage?deleteSuccess=" + (deleted ? "1" : "0"));
     }
 
     private Integer parsePlanId(String value) {

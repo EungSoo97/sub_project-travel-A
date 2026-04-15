@@ -139,6 +139,12 @@ input {
   display: flex;
 }
 
+@media (min-width: 400px) {
+  #headerLoginBtns.is-login.is-visible {
+    margin-right: 14px;
+  }
+}
+
 .site-nav__auth {
   display: none;
 }
@@ -2176,86 +2182,4 @@ input {
 .btn-cal-apply:not(:disabled):active {
   background: var(--primary-dark);
   transform: scale(0.97);
-}
-.upload-analyze-btn {
-  margin-top: 18px;
-  padding: 12px 20px;
-
-  border: none;
-  border-radius: 14px;
-
-  background: linear-gradient(135deg, #4f7cff, #6ea8ff);
-  color: #fff;
-
-  font-size: 14px;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  box-shadow: 0 6px 18px rgba(79, 124, 255, 0.25);
-  transition: all 0.2s ease;
-}
-
-/* hover */
-.upload-analyze-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(79, 124, 255, 0.35);
-}
-
-/* 클릭 시 */
-.upload-analyze-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 4px 10px rgba(79, 124, 255, 0.2);
-}
-
-/* 비활성 느낌 (처음 상태) */
-.upload-analyze-btn[style*="display: none"] {
-  opacity: 0;
-}
-
-/* 나중에 활성화될 때 부드럽게 */
-.upload-analyze-btn.show {
-  display: inline-block;
-  opacity: 1;
-  animation: fadeInUp 0.3s ease;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.upload-preview {
-  margin-top: 16px;
-  min-height: 50px;
-}
-
-.upload-preview__card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.upload-preview__image {
-  display: block;
-  width: 100%;
-  max-width: 280px;
-  max-height: 220px;
-  object-fit: cover;
-  border-radius: 14px;
-  margin: 0 auto;
-}
-
-.upload-preview__name {
-  margin: 0;
-  font-size: 13px;
-  color: #555;
-  word-break: break-all;
 }

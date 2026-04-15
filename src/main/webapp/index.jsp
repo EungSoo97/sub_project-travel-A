@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/settings.css">
       <link rel="stylesheet" href="${pageContext.request.contextPath}/css/result-page.css" />
-      <link rel="stylesheet" href="${pageContext.request.contextPath}/css/liveSelect.css">
 
     <!-- 푸터 하단 고정 -->
     <style>
@@ -29,7 +28,7 @@
         <div class="container site-header__inner">
           <a href="${pageContext.request.contextPath}/" class="site-logo">✈ Travel-A(AI)</a>
           <div class="site-actions">
-            <div class="login-register" id="headerLoginBtns">
+            <div class="login-register ${not empty sessionScope.user ? 'is-login' : ''}" id="headerLoginBtns">
                 <c:choose>
                     <c:when test="${not empty sessionScope.user}">
                         <div class="drawer-user-name">👤 ${sessionScope.user.name}님</div>
@@ -96,7 +95,6 @@
     <c:if test="${content ne 'view/explore/explore.jsp'}">
         <script src="${pageContext.request.contextPath}/js/main.js"></script>
     </c:if>
-    <!-- 로그인 안내 -->
     <script>
         function loginAlert (event) {
             if (event) {
@@ -120,37 +118,37 @@
         }
     </script>
     <script>
-        (() => {
-            const menuTriggerEl = document.querySelector(".menu-trigger");
-            const navEl = document.querySelector(".site-nav");
-            const loginBtnsEl = document.getElementById("headerLoginBtns");
+    (() => {
+        const menuTriggerEl = document.querySelector(".menu-trigger");
+        const navEl = document.querySelector(".site-nav");
+        const loginBtnsEl = document.getElementById("headerLoginBtns");
 
-            if (!menuTriggerEl || !navEl) {
-                return;
+        if (!menuTriggerEl || !navEl) {
+            return;
+        }
+
+        menuTriggerEl.addEventListener("click", function (e) {
+            e.preventDefault();
+            const isActive = this.classList.toggle("is-active");
+            loginBtnsEl && loginBtnsEl.classList.toggle("is-visible", isActive);
+
+            if (isActive) {
+                navEl.style.display = "flex";
+                requestAnimationFrame(() => navEl.classList.add("is-open"));
+            } else {
+                navEl.classList.remove("is-open");
+                navEl.addEventListener(
+                    "transitionend",
+                    () => {
+                        if (!navEl.classList.contains("is-open")) {
+                            navEl.style.display = "none";
+                        }
+                    },
+                    { once: true },
+                );
             }
-
-            menuTriggerEl.addEventListener("click", function (e) {
-                e.preventDefault();
-                const isActive = this.classList.toggle("is-active");
-                loginBtnsEl && loginBtnsEl.classList.toggle("is-visible", isActive);
-
-                if (isActive) {
-                    navEl.style.display = "flex";
-                    requestAnimationFrame(() => navEl.classList.add("is-open"));
-                } else {
-                    navEl.classList.remove("is-open");
-                    navEl.addEventListener(
-                        "transitionend",
-                        () => {
-                            if (!navEl.classList.contains("is-open")) {
-                                navEl.style.display = "none";
-                            }
-                        },
-                        { once: true },
-                    );
-                }
-            });
-        })();
+        });
+    })();
     </script>
   </body>
 

@@ -28,6 +28,23 @@ public class SavePlanC extends HttpServlet {
             return;
         }
 
+        String sourcePlanId = request.getParameter("sourcePlanId");
+        if (sourcePlanId != null && !sourcePlanId.trim().isEmpty()) {
+            try {
+                int planId = Integer.parseInt(sourcePlanId);
+                boolean copied = MyPlanPageDAO.copyPostedPlanToUser(planId, loginUser.getUser_id());
+
+                if (copied) {
+                    response.sendRedirect(request.getContextPath() + "/mypage?copySuccess=1");
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/detail-page?id=" + planId + "&copyFail=1");
+                }
+            } catch (NumberFormatException e) {
+                response.sendRedirect(request.getContextPath() + "/explore");
+            }
+            return;
+        }
+
         TravelResultVDTO result = (TravelResultVDTO) session.getAttribute("latestTravelResult");
 
         if (result == null) {

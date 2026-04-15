@@ -1,6 +1,8 @@
 package com.es.ta.resultpage;
 
 import com.es.ta.account.AccountDTO;
+import com.es.ta.mypage.MyPlanPageDAO;
+import com.es.ta.mypage.TravelPlanDTO;
 import com.es.ta.userreaction.UserreactionDAO;
 
 import javax.servlet.ServletContext;
@@ -41,6 +43,19 @@ public class DetailPageC extends HttpServlet {
                 request.setAttribute("reviews", UserreactionDAO.getReviewsByPlanId(id));
 
                 AccountDTO user = (AccountDTO) request.getSession().getAttribute("user");
+                TravelPlanDTO sourcePlan = MyPlanPageDAO.getPlanByPlanId(id);
+                boolean isPostedPlan = sourcePlan != null && sourcePlan.getPosted() == 1;
+                boolean isOwnPlan = user != null && sourcePlan != null && sourcePlan.getUserId() == user.getUser_id();
+                boolean alreadySavedPlan = user != null && !isOwnPlan &&
+                        MyPlanPageDAO.existsCopiedPlanByResponseJson(id, user.getUser_id());
+                boolean canSavePlan = user != null && isPostedPlan && !isOwnPlan && !alreadySavedPlan;
+
+                request.setAttribute("sourcePlan", sourcePlan);
+                request.setAttribute("isPostedPlan", isPostedPlan);
+                request.setAttribute("isOwnPlan", isOwnPlan);
+                request.setAttribute("alreadySavedPlan", alreadySavedPlan);
+                request.setAttribute("canSavePlan", canSavePlan);
+
                 boolean liked = user != null && new UserreactionDAO().existsLike(id, user.getUser_id());
                 request.setAttribute("liked", liked);
 

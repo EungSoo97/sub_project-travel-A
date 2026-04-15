@@ -24,6 +24,10 @@ public class MyPlanPageC extends HttpServlet {
             throws IOException, ServletException {
 
         HttpSession session = request.getSession(false);
+        response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+        response.setHeader("Pragma", "no-cache");
+        response.setDateHeader("Expires", 0);
+
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;

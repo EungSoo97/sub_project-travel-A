@@ -35,6 +35,7 @@ public class TravelPlanDTO {
 
     private String responseJson;
     private int posted;
+    private int likeCnt;
     private Date postDate;
 
     private Date createdAt;

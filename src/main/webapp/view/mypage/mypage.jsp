@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/css/mypage.css">
 </head>
 <body>
-    <c:set var="settingsUpdated" value="${param.settingsSuccess eq '1'}" />
+<c:set var="settingsUpdated" value="${param.settingsSuccess eq '1'}" />
 <div id="mypageSnackbar" class="mypage-snackbar ${settingsUpdated ? 'show' : ''}" role="status" aria-live="polite">
     회원 정보 수정이 완료되었습니다.
 </div>
@@ -28,12 +28,13 @@
                         </c:otherwise>
                     </c:choose>
                 </c:if>
-                <img src="${profileImg}" alt="프로필">
+                <img src="${profileImg}"
+                     alt="프로필">
             </div>
             <div class="profile-info">
                 <div class="name-row">
-                    <h2>${sessionScope.user.name}</h2>
-                                        <div class="action-icons">
+                    <h2><c:out value="${sessionScope.user.name}" /></h2>
+                    <div class="action-icons">
                         <button title="설정" onclick="location.href='${pageContext.request.contextPath}/settings'">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -51,7 +52,7 @@
                         </button>
                     </div>
                 </div>
-                <p class="email">${sessionScope.user.email}</p>
+                <p class="email"><c:out value="${sessionScope.user.email}" /></p>
                 <div class="badges">
                 <%--<span class="badge" onclick="openTitleModal()">🏅 여행 플랜 마스터</span>--%>
                     <span class="badge" onclick="openTitleModal()">
@@ -190,6 +191,12 @@
                         </div>
                         <div class="card-body">
                             <h3>${trip.displayTitle}</h3>
+                            <c:if test="${trip.posted == 1}">
+                                <div class="trip-publish-meta">
+                                    <span class="publish-badge">게시됨</span>
+                                    <span class="heart-count">♥ ${trip.likeCnt}</span>
+                                </div>
+                            </c:if>
                             <div class="trip-details">
                                 <p><span>📍</span><c:out value="${trip.destination}" default="여행지 미정"/></p>
                                 <p>
@@ -216,12 +223,17 @@
                                     </c:choose>
                                 </p>
                             </div>
-                            <button type="button" class="btn-detail"
-                                    onclick="location.href='${pageContext.request.contextPath}/myplan-page?id=${trip.planId}'">
-                                자세히 보기
-                            </button>
-                                <%-- 확인용. 정상 동작 확인 후 지워도 됨 --%>
-                            <p>id: ${trip.planId}</p>
+                            <div class="trip-card-actions">
+                                <button type="button" class="btn-detail"
+                                        onclick="location.href='${pageContext.request.contextPath}/myplan-page?id=${trip.planId}'">
+                                    자세히 보기
+                                </button>
+                                <form action="${pageContext.request.contextPath}/delete-plan" method="post"
+                                      onsubmit="return confirm('이 여행 플랜을 삭제할까요?');">
+                                    <input type="hidden" name="planId" value="${trip.planId}">
+                                    <button type="submit" class="btn-delete-plan">삭제</button>
+                                </form>
+                            </div>
                         </div>
                     </article>
                 </c:forEach>
@@ -728,7 +740,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         // ... 기존 탭 클릭 이벤트 및 차트 로직 ...
     });
-       const mypageSnackbar = document.getElementById('mypageSnackbar');
+    const mypageSnackbar = document.getElementById('mypageSnackbar');
     if (mypageSnackbar && mypageSnackbar.classList.contains('show')) {
         setTimeout(() => {
             mypageSnackbar.classList.remove('show');
