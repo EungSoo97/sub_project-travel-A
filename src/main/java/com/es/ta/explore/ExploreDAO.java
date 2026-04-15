@@ -27,10 +27,11 @@ public class ExploreDAO {
         String sql =
                 "SELECT plan_id, destination, title, travel_style, response_json " +
                         "FROM travel_plan " +
-                        "WHERE destination LIKE ? " +
+                        "WHERE posted = 1 " +
+                        "  AND (destination LIKE ? " +
                         "   OR title LIKE ? " +
                         "   OR request_styles LIKE ? " +
-                        "   OR request_themes LIKE ? " +
+                        "   OR request_themes LIKE ?) " +
                         "ORDER BY " +
                         "   CASE " +
                         "       WHEN destination LIKE ? THEN 1 " +
@@ -89,7 +90,8 @@ public class ExploreDAO {
         String sql =
                 "SELECT plan_id, response_json " +
                         "FROM travel_plan " +
-                        "WHERE response_json LIKE '%customTags%' " +
+                        "WHERE posted = 1 " +
+                        "  AND response_json LIKE '%customTags%' " +
                         "ORDER BY created_at DESC";
 
         Connection con = null;

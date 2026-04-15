@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --bg: #f7f9fc;
   --surface: #ffffff;
   --surface-soft: #eef4ff;
@@ -17,7 +17,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ── Reset ── */
+/* ?? Reset ?? */
 * {
   box-sizing: border-box;
 }
@@ -44,7 +44,7 @@ input {
   font: inherit;
 }
 
-/* ── Layout ── */
+/* ?? Layout ?? */
 .container {
   width: calc(100% - 32px);
   margin: 0 auto;
@@ -57,7 +57,7 @@ input {
   background: linear-gradient(180deg, #f4f8ff 0%, #eef3fb 100%);
 }
 
-/* ── Header ── */
+/* ?? Header ?? */
 .site-header {
   position: sticky;
   top: 0;
@@ -83,13 +83,13 @@ input {
   white-space: nowrap;
 }
 
-/* 데스크톱 nav 숨김 */
+/* ?곗뒪?ы넲 nav ?④? */
 .site-nav {
   display: none;
   position: absolute;
   top: 60px;
-  right: 0; /* 왼쪽 full width 대신 오른쪽 고정 */
-  width: 280px; /* 원하는 너비로 조절 */
+  right: 0; /* ?쇱そ full width ????ㅻⅨ履?怨좎젙 */
+  width: 280px; /* ?먰븯???덈퉬濡?議곗젅 */
   background: #fff;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
@@ -100,7 +100,7 @@ input {
   gap: 2px;
   z-index: 100;
 
-  /* 오른쪽에서 펼쳐지는 애니메이션 */
+  /* ?ㅻⅨ履쎌뿉???쇱퀜吏???좊땲硫붿씠??*/
   transform-origin: top right;
   transform: scale(0.85);
   opacity: 0;
@@ -118,7 +118,7 @@ input {
   color: #475569;
   font-weight: 600;
   font-size: 1.15rem;
-  padding: 15px 14px; /* 추가 — 터치 영역 확보 */
+  padding: 15px 14px; /* 異붽? ???곗튂 ?곸뿭 ?뺣낫 */
   border-radius: 12px;
   transition:
     background 0.15s,
@@ -129,7 +129,7 @@ input {
   background: #eef4ff;
 }
 
-/*로그인 회원가입*/
+/* Header auth buttons */
 #headerLoginBtns {
   display: none;
   align-items: center;
@@ -137,6 +137,10 @@ input {
 }
 #headerLoginBtns.is-visible {
   display: flex;
+}
+
+.site-nav__auth {
+  display: none;
 }
 
 .btn--register {
@@ -179,7 +183,7 @@ input {
   cursor: pointer;
 }
 
-/* ── Hero ── */
+/* ?? Hero ?? */
 .hero {
   padding-top: 56px;
   padding-bottom: 56px;
@@ -217,7 +221,7 @@ input {
   max-width: 100%;
 }
 
-/* ── Search Card ── */
+/* ?? Search Card ?? */
 .search-section {
   margin-top: -36px;
 }
@@ -249,7 +253,7 @@ input {
   margin-bottom: 16px;
 }
 
-/* ── Form ── */
+/* ?? Form ?? */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -541,8 +545,8 @@ input {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border-radius: 13px;
-  padding: 0px 20px;
+  border-radius: 8px;
+  padding: 0 14px;
   cursor: pointer;
   font-weight: 700;
   font-size: 0.95rem;
@@ -550,7 +554,10 @@ input {
   background: #fbfdff;
   border: 1px solid var(--line);
   color: var(--text);
-  width: 28%;
+  width: auto;
+  min-width: 90px;
+  min-height: 48px;
+  white-space: nowrap;
 }
 .dup-check:hover{
   border-color: var(--primary);
@@ -558,7 +565,7 @@ input {
 ;
 
 }
-/* 여행 인원*/
+/* ?ы뻾 ?몄썝*/
 .traveler-box {
   width: 100%;
   background: #fff;
@@ -708,7 +715,7 @@ input {
   border-radius: 999px;
 }
 
-/* 슬라이더 트랙 */
+/* ?щ씪?대뜑 ?몃옓 */
 .budget-range-track {
   height: 6px;
   background: #e8edf5;
@@ -767,7 +774,7 @@ input {
 #rangeMin { z-index: 3; }
 #rangeMax { z-index: 4; }
 
-/* 금액 입력 박스 */
+/* 湲덉븸 ?낅젰 諛뺤뒪 */
 .budget-amounts {
   display: flex;
   align-items: center;
@@ -818,7 +825,7 @@ input {
   flex-shrink: 0;
 }
 
-/* 빠른 프리셋 버튼 */
+/* 鍮좊Ⅸ ?꾨━??踰꾪듉 */
 .budget-presets {
   display: flex;
   gap: 6px;
@@ -846,7 +853,7 @@ input {
   color: var(--primary);
 }
 
-/* 예산 요약 배너 */
+/* ?덉궛 ?붿빟 諛곕꼫 */
 .budget-summary {
   background: linear-gradient(135deg, rgba(37,99,235,0.05) 0%, rgba(96,165,250,0.05) 100%);
   border: 1px solid rgba(37, 99, 235, 0.12);
@@ -869,7 +876,7 @@ input {
   white-space: nowrap;
 }
 
-/* ── Chips ── */
+/* ?? Chips ?? */
 .chip-group-wrap {
   margin-top: 18px;
 }
@@ -942,7 +949,7 @@ input {
   background: rgba(37, 99, 235, 0.07);
 }
 
-/* 바텀 시트 */
+/* 諛뷀? ?쒗듃 */
 .input-sheet-backdrop {
   display: none;
   position: fixed;
@@ -1027,7 +1034,7 @@ input {
   cursor: pointer;
 }
 
-/* ── Buttons ── */
+/* ?? Buttons ?? */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -1059,7 +1066,7 @@ input {
   color: var(--primary);
 }
 
-/* ── Upload ── */
+/* ?? Upload ?? */
 .upload-box {
   border: 2px dashed rgba(37, 99, 235, 0.28);
   border-radius: 18px;
@@ -1092,7 +1099,7 @@ input {
   margin: 0 auto;
 }
 
-/* ── Feature / Destination Grid (단일 열) ── */
+/* ?? Feature / Destination Grid (?⑥씪 ?? ?? */
 .feature-grid,
 .destination-grid {
   display: grid;
@@ -1140,7 +1147,8 @@ input {
 }
 .destination-card__image img {
   width: 100%;
-  height: 100%;
+  height: 100dvh;
+  min-height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
@@ -1364,7 +1372,7 @@ input {
   color: var(--primary);
 }
 
-/* ── CTA ── */
+/* ?? CTA ?? */
 .cta {
   background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
 }
@@ -1377,7 +1385,7 @@ input {
   font-size: 0.95rem;
 }
 
-/* ── Footer ── */
+/* ?? Footer ?? */
 .site-footer {
   padding: 22px 0;
   border-top: 1px solid var(--line);
@@ -1416,7 +1424,7 @@ input {
   transform: translateX(-50%) translateY(0);
 }
 
-/* ── 햄버거 메뉴 버튼 ── */
+/* ?? ?꾨쾭嫄?硫붾돱 踰꾪듉 ?? */
 .mobile-menu-btn {
   display: flex;
   align-items: center;
@@ -1463,37 +1471,107 @@ input {
   transform: translateY(-7px) rotate(-45deg);
 }
 
-/* ── Loading Overlay ── */
-/* ── Loading Overlay High-End Design ── */
+@media (max-width: 399px) {
+  #headerLoginBtns,
+  #headerLoginBtns.is-visible {
+    display: none;
+  }
+
+  .site-nav {
+    width: min(280px, calc(100vw - 32px));
+  }
+
+  .site-nav__auth {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .site-nav__auth .btn--login,
+  .site-nav__auth .btn--register,
+  .site-nav__auth .nav-auth-name {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 0;
+    min-width: 0;
+    border-radius: 10px;
+    padding: 7px 13px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .site-nav__auth .nav-auth-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: #fff;
+    border: 1px solid var(--line);
+    color: var(--text);
+  }
+
+  .site-nav__auth .btn--login {
+    background: #fff;
+    border: 1px solid var(--line);
+    color: var(--text);
+  }
+
+  .site-nav__auth .btn--register {
+    background: var(--primary);
+    border: 1px solid var(--primary);
+    color: #fff;
+  }
+
+  .site-nav__auth .btn--login:hover,
+  .site-nav__auth .nav-auth-name:hover {
+    background: #fff;
+    color: var(--text);
+  }
+
+  .site-nav__auth .btn--register:hover {
+    background: var(--primary-dark);
+    color: #fff;
+  }
+}
+
+/* ?? Loading Overlay ?? */
+/* ?? Loading Overlay High-End Design ?? */
 #loadingOverlay {
   display: none;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 100dvh;
+  min-height: 100%;
   z-index: 10000;
   background: radial-gradient(circle at 50% 0%, #ffffff 0%, #f0f7ff 100%);
   backdrop-filter: blur(20px);
   justify-content: center;
-  align-items: center; /* 중앙 정렬로 변경 */
+  align-items: center; /* 以묒븰 ?뺣젹濡?蹂寃?*/
   padding: 20px;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .loading-container {
-  width: 100%;
+  width: min(100%, 400px);
   max-width: 400px;
   display: flex;
   flex-direction: column;
   gap: 32px;
+  margin: auto 0;
 }
 
-/* 메인 애니메이션 서클 */
+/* 硫붿씤 ?좊땲硫붿씠???쒗겢 */
 .loading-circle {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 108px;
+  height: 108px;
   margin: 0 auto 20px;
 }
 
@@ -1527,7 +1605,7 @@ input {
   justify-content: center;
   color: white;
   z-index: 2;
-  transform: scale(0.85); /* 약간 작게 하여 핑 효과 강조 */
+  transform: scale(0.85); /* ?쎄컙 ?묎쾶 ?섏뿬 ???④낵 媛뺤“ */
 }
 
 @keyframes ping {
@@ -1568,7 +1646,7 @@ input {
   border-radius: 20px;
 }
 
-/* 진행률 바 고도화 */
+/* 吏꾪뻾瑜?諛?怨좊룄??*/
 .progress-section {
   background: white;
   padding: 16px;
@@ -1608,7 +1686,7 @@ input {
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 단계별 리스트 고도화 */
+/* ?④퀎蹂?由ъ뒪??怨좊룄??*/
 .steps-wrapper {
   display: flex;
   flex-direction: column;
@@ -1672,7 +1750,7 @@ input {
   color: #64748b;
 }
 
-/* AI 메시지 카드 (Bottom) */
+/* AI 硫붿떆吏 移대뱶 (Bottom) */
 .ai-msg-card {
   background: #1e293b;
   padding: 16px;
@@ -1693,6 +1771,104 @@ input {
   font-weight: 500;
 }
 
+@media (max-width: 480px), (max-height: 720px) {
+  #loadingOverlay {
+    align-items: flex-start;
+    padding: 14px;
+  }
+
+  .loading-container {
+    gap: 16px;
+    margin: clamp(26px, 6vh, 48px) 0 0;
+  }
+
+  .loading-circle {
+    width: 76px;
+    height: 76px;
+    margin-bottom: 12px;
+  }
+
+  .loading-title {
+    font-size: 1.2rem;
+    line-height: 1.25;
+  }
+
+  .loading-meta {
+    max-width: 100%;
+    box-sizing: border-box;
+    font-size: 0.78rem;
+    padding: 4px 10px;
+    overflow-wrap: anywhere;
+  }
+
+  .progress-section {
+    padding: 12px;
+  }
+
+  .progress-info {
+    margin-bottom: 8px;
+  }
+
+  .progress-label {
+    font-size: 0.78rem;
+  }
+
+  .progress-percentage {
+    font-size: 1rem;
+  }
+
+  .steps-wrapper {
+    gap: 8px;
+  }
+
+  .step {
+    gap: 10px;
+    padding: 10px;
+    align-items: flex-start;
+  }
+
+  .step.active {
+    transform: none;
+  }
+
+  .step-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    flex: 0 0 auto;
+  }
+
+  .step-content {
+    min-width: 0;
+  }
+
+  .step-content h3 {
+    font-size: 0.86rem;
+  }
+
+  .step-content p {
+    font-size: 0.74rem;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .ai-msg-card {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .ai-msg-icon {
+    flex: 0 0 auto;
+  }
+
+  .ai-msg-text {
+    min-width: 0;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+}
+
 @keyframes bounce {
   0%,
   100% {
@@ -1703,7 +1879,7 @@ input {
   }
 }
 
-/* ── Date Range Picker (Bottom Sheet) ── */
+/* ?? Date Range Picker (Bottom Sheet) ?? */
 .date-trigger {
   display: flex;
   align-items: center;
