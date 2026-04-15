@@ -29,16 +29,16 @@
 <div class="live-page" data-context-path="${pageContext.request.contextPath}" data-plan-id="<%= livePlanId %>">
 
 <div class="live-header">
-    <h1>Real-time Travel</h1>
-    <p>Manage your trip in real-time</p>
-    <p id="liveDestinationHint" class="live-muted" style="margin-top:6px;"></p>
+    <h1>실시간 여행</h1>
+    <p>지금 이 순간의 여행을 실시간으로 관리하세요</p>
 </div>
 
 <!-- Real-time tracking card -->
 <c:if test="${not empty planDetail}">
+    <p id="liveDestinationHint" class="live-muted" style="margin-top:6px;">${planDetail.summary.destination}</p>
     <div class="live-plan-card card-box">
         <div class="plan-header">
-            <h2>Real-time Tracking</h2>
+            <h2>🔴실시간 트래킹중</h2>
             <div class="plan-destination">${planDetail.summary.destination}</div>
         </div>
         <div class="plan-info">
@@ -173,7 +173,7 @@
 
     <div class="time-box">
         <div class="time-top">
-            <span class="time-label">Current Time</span>
+            <span class="time-label">🕒 현재 시각</span>
             <span class="time-display" id="currentTime">-</span>
         </div>
         <div class="time-bottom">
@@ -184,7 +184,7 @@
     <div class="activity-card" id="liveCurrentActivityWrap">
         <div class="activity-header">
             <div class="status-badge"><span class="dot"></span> <span id="liveActivityStatus">-</span></div>
-            <div class="time-remaining">Time remaining <strong id="liveRemainingMin">-</strong> min</div>
+            <div class="time-remaining">남은 시간 <strong id="liveRemainingMin">-</strong> 분</div>
         </div>
 
         <h3 class="activity-title" id="liveActivityTitle">Loading...</h3>
@@ -192,15 +192,15 @@
 
         <div class="info-grid">
             <div class="info-item">
-                <span class="info-label">Start</span>
+                <span class="info-label">시작</span>
                 <span class="info-value" id="liveActivityStart">-</span>
             </div>
             <div class="info-item">
-                <span class="info-label">End</span>
+                <span class="info-label">종료</span>
                 <span class="info-value" id="liveActivityEnd">-</span>
             </div>
             <div class="info-item">
-                <span class="info-label">Crowd Level</span>
+                <span class="info-label">혼잡도</span>
                 <span class="info-value status-good" id="liveCrowdLabel">-</span>
             </div>
         </div>
