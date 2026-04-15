@@ -48,7 +48,12 @@
                         <form action="pdf" method="get">
                             <button type="submit" class="action-btn download-btn">⬇ PDF</button>
                         </form>
-                        <button class="action-btn post-btn">📢 게시</button>
+                        <form action="${pageContext.request.contextPath}/post-plan" method="post" style="display:inline;">
+                            <input type="hidden" name="planId" value="${savedPlan.planId}">
+                            <button type="submit" class="action-btn post-btn">
+                                ${savedPlan.posted == 1 ? '게시 취소' : '📢 게시 하기'}
+                            </button>
+                        </form>
                     </div>
                 </div>
 
@@ -152,9 +157,6 @@
                                 <div class="day-right">
                                     <span class="transport">
                                         <c:choose>
-                                            <c:when test="${not empty item.dayRoute && not empty item.dayRoute.routePreferenceLabelKo}">
-                                                <c:out value="${item.dayRoute.routePreferenceLabelKo}" />
-                                            </c:when>
                                             <c:when test="${not empty item.transportation}">
                                                 <c:out value="${item.transportation}" />
                                             </c:when>
@@ -237,7 +239,7 @@
 
                     <div class="recommend-grid">
                         <div class="recommend-card">
-                            <h3>✈ 저가 항공권 최저가</h3>
+                            <h3>✈ 항공권 최저가</h3>
                             <c:choose>
                                 <c:when test="${empty result.flights}">
                                     <p>항공권 정보를 불러오지 못했습니다.</p>

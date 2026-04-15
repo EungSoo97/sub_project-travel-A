@@ -24,22 +24,25 @@
                 <p class="sub">${result.summary.destination} · ${result.summary.days}일 여행</p>
             </div>
 
-            <div class="actions">
-                <button id="heartBtn" onclick="toggleHeart(this)" class="action-btn icon-btn">♡</button>
-                <form action="edit-plan">
-                    <button type="submit" class="action-btn edit-btn">✏️ 편집</button>
-                </form>
-                <form action="pdf" method="get">
-                    <button type="submit" class="action-btn download-btn">⬇ PDF</button>
-                </form>
-                <button class="action-btn post-btn">📢 게시</button>
-            </div>
+            <c:if test="${empty savedPlan}">
+                <div class="actions result-save-choice">
+                    <c:choose>
+                        <c:when test="${not empty sessionScope.user}">
+                            <form action="${pageContext.request.contextPath}/save-plan" method="post">
+                                <input type="hidden" name="title" value="${result.summary.title}">
+                                <button type="submit" class="action-btn result-choice-btn save-btn" title="저장하기" aria-label="저장하기">💾</button>
+                            </form>
+                            <form action="${pageContext.request.contextPath}/discard-plan" method="post">
+                                <button type="submit" class="action-btn result-choice-btn discard-btn" title="저장하지 않기" aria-label="저장하지 않기">🗑</button>
+                            </form>
+                        </c:when>
+                        <c:otherwise>
+                            <button type="button" class="action-btn result-login-btn" onclick="goResultLogin()">로그인 하기</button>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </c:if>
         </div>
-
-        <form action="${pageContext.request.contextPath}/save-plan" method="post">
-            <input type="hidden" name="title" value="${result.summary.title}">
-            <button type="submit">저장하기</button>
-        </form>
 
         <!-- 여행 정보 -->
         <div class="mp-summary-grid">
@@ -62,7 +65,7 @@
         <!-- 지도 영역 -->
         <div class="map-section">
             <div class="map-header" role="button" tabindex="0" aria-expanded="true">
-                <span>🧭 여행 동선 지도</span>
+                <span>🗺 여행 동선 지도</span>
                 <span class="map-toggle-indicator map-toggle-label">지도 접기</span>
                 <div class="legend">
                     <span class="dot blue"></span> 관광지
@@ -135,9 +138,6 @@
                         <div class="day-right">
     <span class="transport">
         <c:choose>
-            <c:when test="${not empty item.dayRoute && not empty item.dayRoute.routePreferenceLabelKo}">
-                <c:out value="${item.dayRoute.routePreferenceLabelKo}" />
-            </c:when>
             <c:when test="${not empty item.transportation}">
                 <c:out value="${item.transportation}" />
             </c:when>
@@ -171,7 +171,7 @@
                                     data-is-new="${(empty act.lat || empty act.lng) ? 'true' : 'false'}">
                                 <c:choose>
                                     <c:when test="${activityCategory == 'TRANSPORT' or activityCategory == 'MOVE'}">
-                                        <div class="icon move">▲</div>
+                                        <div class="icon move">🚗</div>
                                     </c:when>
                                     <c:when test="${activityCategory == 'DINING' or activityCategory == 'FOOD' or activityCategory == 'RESTAURANT'}">
                                         <div class="icon food">🍽</div>
@@ -226,7 +226,7 @@
 
                 <!-- 항공 -->
                 <div class="recommend-card">
-                    <h3>✈️ 항공권 최저가</h3>
+                    <h3>✈ 항공권 최저가</h3>
                     <c:choose>
                         <c:when test="${empty result.flights}">
                             <p>항공권 정보를 불러오지 못했습니다.</p>
@@ -240,7 +240,7 @@
                                     </div>
                                     <div class="right">
                                         <div class="price">${flight.price} ${flight.currency}</div>
-                                        <div class="sub">왕복 1인</div>
+                                        <div class="sub">항공 1인</div>
                                     </div>
                                 </div>
                             </c:forEach>
@@ -273,6 +273,10 @@
 
 </div>
 <script>
+    function goResultLogin() {
+        window.location.href = "${pageContext.request.contextPath}/login?returnUrl=" + encodeURIComponent("/result-draft");
+    }
+
     (function initHeaderCollapse() {
         const toggleBtn = document.querySelector(".header-collapse-toggle");
         const page = toggleBtn ? toggleBtn.closest(".container-result") : null;

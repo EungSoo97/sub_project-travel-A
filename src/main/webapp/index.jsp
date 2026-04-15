@@ -52,6 +52,18 @@
           </div>
 
           <nav class="site-nav" id="siteNav">
+              <div class="site-nav__auth">
+                  <c:choose>
+                      <c:when test="${not empty sessionScope.user}">
+                          <span class="nav-auth-name">👤 ${sessionScope.user.name}님</span>
+                          <a href="${pageContext.request.contextPath}/logout" class="btn--login">로그아웃</a>
+                      </c:when>
+                      <c:otherwise>
+                          <a href="${pageContext.request.contextPath}/login" class="btn--login">로그인</a>
+                          <a href="${pageContext.request.contextPath}/account" class="btn--register">회원가입</a>
+                      </c:otherwise>
+                  </c:choose>
+              </div>
             <a href="${pageContext.request.contextPath}/">여행 계획</a>
             <a href="${pageContext.request.contextPath}/explore">탐색</a>
             <a href="${pageContext.request.contextPath}/live">실시간 여행</a>
@@ -80,7 +92,9 @@
         </div>
       </footer>
     </div>
-    <script src="${pageContext.request.contextPath}/js/main.js"></script>
+    <c:if test="${content ne 'view/explore/explore.jsp'}">
+        <script src="${pageContext.request.contextPath}/js/main.js"></script>
+    </c:if>
     <script>
         function loginAlert (event) {
             if (event) {

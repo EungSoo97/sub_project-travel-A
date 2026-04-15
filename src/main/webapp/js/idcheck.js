@@ -8,13 +8,13 @@ $(function () {
         }
 
         $.ajax({
-            url: 'idcheck',
+            url: "idcheck",
             data: { login_id: loginId }
         }).done(function (resData) {
-            if (resData === 0) {
+            if (Number(resData) === 0) {
                 $(".result").text("사용 가능한 ID입니다.").css("color", "green");
             } else {
-                $(".result").text("이미 사용 중인 ID입니다.").css("color", "red");
+                $(".result").text("중복된 아이디가 있습니다.").css("color", "red");
             }
         }).fail(function () {
             $(".result").text("서버 오류가 발생했습니다.").css("color", "red");

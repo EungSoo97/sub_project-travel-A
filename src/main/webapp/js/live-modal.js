@@ -854,6 +854,9 @@ function showLocationRealtimeData(activity) {
         endElement.textContent = nextActivityTime || '-';
     }
     
+    // Update next schedule information
+    updateNextScheduleInfo(activity);
+    
     // Close modal after selection
     closeModal();
 }
@@ -886,5 +889,51 @@ function getNextActivityTime(currentActivity) {
     // No next activity found
     console.log('No next activity found');
     return null;
+}
+
+// Update next schedule information
+function updateNextScheduleInfo(currentActivity) {
+    console.log('Updating next schedule info for:', currentActivity);
+    
+    // Get all activities from the current day
+    const dayData = getRealDayData(currentActivity.dayIndex);
+    const activities = dayData.activities || [];
+    
+    // Find current activity index
+    const currentIndex = activities.findIndex(act => 
+        act.time === currentActivity.time && act.name === currentActivity.name
+    );
+    
+    // Get next schedule elements
+    const nextTitleElement = document.getElementById('liveNextTitle');
+    const nextSummaryElement = document.getElementById('liveNextSummary');
+    
+    // Reset to default values
+    if (nextTitleElement) nextTitleElement.textContent = '-';
+    if (nextSummaryElement) nextSummaryElement.textContent = '-';
+    
+    // If next activity exists, update the information
+    if (currentIndex !== -1 && currentIndex < activities.length - 1) {
+        const nextActivity = activities[currentIndex + 1];
+        console.log('Next activity found:', nextActivity);
+        
+        // Update next title
+        if (nextTitleElement && nextActivity.name) {
+            nextTitleElement.textContent = nextActivity.name;
+        }
+        
+        // Format summary: time · distance · duration
+        if (nextSummaryElement) {
+            const time = nextActivity.time || '-';
+            const distance = nextActivity.distance || '1.2km'; // Default distance
+            const duration = nextActivity.durationMinutes || '15분'; // Default duration
+            
+            // Format: "17:00 예정 · 1.2km · 15분"
+            const summary = `${time} 예정 · ${distance} · ${duration}`;
+            nextSummaryElement.textContent = summary;
+        }
+    } else {
+        console.log('No next activity found for schedule info');
+    }
 }
 

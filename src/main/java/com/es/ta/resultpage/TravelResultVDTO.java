@@ -19,6 +19,10 @@ import java.util.Map;
 public class TravelResultVDTO {
     @JsonIgnore
     private int planId;
+    @JsonIgnore
+    private String userName;
+    @JsonIgnore
+    private String postDate;
 
     private boolean success;
     private String message;
@@ -51,11 +55,17 @@ public class TravelResultVDTO {
 
         // ✅ customTags getter 추가
         public List<String> getCustomTags() {
-            if (travelStrategy == null) return new ArrayList<>();
-            Object tags = travelStrategy.get("customTags");
-            if (tags instanceof List) {
-                return (List<String>) tags;
+            if (customTags != null && !customTags.isEmpty()) {
+                return customTags;
             }
+
+            if (travelStrategy != null) {
+                Object tags = travelStrategy.get("customTags");
+                if (tags instanceof List) {
+                    return (List<String>) tags;
+                }
+            }
+
             return new ArrayList<>();
         }
     }

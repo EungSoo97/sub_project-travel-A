@@ -204,9 +204,6 @@
                                 <div class="day-right">
                                     <span class="transport">
                                         <c:choose>
-                                            <c:when test="${not empty item.dayRoute and not empty item.dayRoute.routePreferenceLabelKo}">
-                                                <c:out value="${item.dayRoute.routePreferenceLabelKo}" />
-                                            </c:when>
                                             <c:when test="${not empty item.transportation}">
                                                 <c:out value="${item.transportation}" />
                                             </c:when>

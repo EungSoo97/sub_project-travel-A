@@ -8,17 +8,32 @@
     <title>Mypage</title>
     <link rel="stylesheet" href="/css/mypage.css">
 </head>
-<body data-context-path="${pageContext.request.contextPath}">
+<body>
+<c:set var="settingsUpdated" value="${param.settingsSuccess eq '1'}" />
+<div id="mypageSnackbar" class="mypage-snackbar ${settingsUpdated ? 'show' : ''}" role="status" aria-live="polite">
+    회원 정보 수정이 완료되었습니다.
+</div>
 <section class="profile-section">
     <div class="profile-inner">
         <div class="profile-header">
             <div class="profile-img-wrap">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+                <c:set var="profileImg" value="${pageContext.request.contextPath}/img/profile/default.png" />
+                <c:if test="${not empty sessionScope.user.profileImg}">
+                    <c:choose>
+                        <c:when test="${fn:startsWith(sessionScope.user.profileImg, 'http://') or fn:startsWith(sessionScope.user.profileImg, 'https://')}">
+                            <c:set var="profileImg" value="${sessionScope.user.profileImg}" />
+                        </c:when>
+                        <c:otherwise>
+                            <c:url var="profileImg" value="/${sessionScope.user.profileImg}" />
+                        </c:otherwise>
+                    </c:choose>
+                </c:if>
+                <img src="${profileImg}"
                      alt="프로필">
             </div>
             <div class="profile-info">
                 <div class="name-row">
-                    <h2>김여행</h2>
+                    <h2><c:out value="${sessionScope.user.name}" /></h2>
                     <div class="action-icons">
                         <button title="설정" onclick="location.href='${pageContext.request.contextPath}/settings'">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -37,7 +52,7 @@
                         </button>
                     </div>
                 </div>
-                <p class="email">travel.lover@email.com</p>
+                <p class="email"><c:out value="${sessionScope.user.email}" /></p>
                 <div class="badges">
                 <%--<span class="badge" onclick="openTitleModal()">🏅 여행 플랜 마스터</span>--%>
                     <span class="badge" onclick="openTitleModal()">
@@ -714,6 +729,12 @@
     document.addEventListener('DOMContentLoaded', function () {
         // ... 기존 탭 클릭 이벤트 및 차트 로직 ...
     });
+    const mypageSnackbar = document.getElementById('mypageSnackbar');
+    if (mypageSnackbar && mypageSnackbar.classList.contains('show')) {
+        setTimeout(() => {
+            mypageSnackbar.classList.remove('show');
+        }, 5000);
+    }
 </script>
 <script src="${pageContext.request.contextPath}/js/mypageBridge.js"></script>
 </body>
