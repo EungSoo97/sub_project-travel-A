@@ -35,7 +35,8 @@
 
 <!-- Real-time tracking card -->
 <c:if test="${not empty planDetail}">
-    <p id="liveDestinationHint" class="live-muted" style="margin-top:6px;">${planDetail.summary.destination}</p>
+<%--    <p id="liveDestinationHint" class="live-muted" style="margin-top:6px; text-align:center;">-</p>--%>
+    <br>
     <div class="live-plan-card card-box">
         <div class="plan-header">
             <h2>🔴실시간 트래킹중</h2>
@@ -43,9 +44,9 @@
         </div>
         <div class="plan-info">
             <div class="plan-details">
-                <p><span>4</span> ${planDetail.summary.days} days</p>
-                <p><span>1</span> ${planDetail.summary.travelers} people</p>
-                <p><span>0</span> ${planDetail.summary.totalEstimatedCost}</p>
+                <p><span>4</span> ${planDetail.summary.days} 일</p>
+                <p><span>1</span> ${planDetail.summary.travelers} 명</p>
+                <p><span>0</span> ${planDetail.summary.totalEstimatedCost} KRW</p>
             </div>
             <div class="plan-actions">
                 <button class="btn-stop-tracking" onclick="stopTracking()">Stop Tracking</button>
@@ -62,8 +63,8 @@
 <c:if test="${not empty planDetail}">
     <div class="schedule">
         <div class="detail-header">
-            <h2>Detailed Schedule</h2>
-            <div class="total-cost">Total estimated cost: ${planDetail.summary.totalEstimatedCost} ${planDetail.summary.currency}</div>
+            <h2>상세 일정</h2>
+            <div class="total-cost">총 예상 비용: ${planDetail.summary.totalEstimatedCost} ${planDetail.summary.currency}</div>
         </div>
 
         <!-- Daily repetition -->
@@ -75,7 +76,7 @@
                     <div class="day-left">
                         <div class="day-badge">D${item.day}</div>
                         <div>
-                            <div class="day-title">${item.day} Day</div>
+                            <div class="day-title">${item.day} 일차</div>
                             <div class="day-date">${item.date}</div>
                         </div>
                     </div>
@@ -95,7 +96,8 @@
                         <span class="distance">
                             <c:choose>
                                 <c:when test="${item.totalDistanceKm != null && item.totalTravelTimeMinutes != null}">
-                                    About <c:out value="${item.totalDistanceKm}" />km · Daily movement about <c:out value="${item.totalTravelTimeMinutes}" /> min
+                                    약 <c:out value="${item.totalDistanceKm}" />km · 당일 이동 약 <c:out value="${item.totalTravelTimeMinutes}" /> 분
+
                                 </c:when>
                                 <c:otherwise>No distance information</c:otherwise>
                             </c:choose>
@@ -206,7 +208,7 @@
         </div>
 
         <div class="congestion-banner">
-            <div class="banner-icon">Crowd</div>
+            <div class="banner-icon">👥</div>
             <div class="banner-text">
                 <strong id="liveCrowdSectionTitle">Real-time Crowd Level</strong>
                 <p id="liveCrowdMessage">-</p>
@@ -215,7 +217,7 @@
     </div>
     <div class="next-schedule-box card-box">
         <div class="section-title">
-            Next Schedule
+            다음 일정
         </div>
 
         <div class="schedule-content">
@@ -230,7 +232,7 @@
     <div class="nearby-booking-box card-box">
         <div class="section-header">
             <div class="section-title">
-                Nearby Photo Spots
+                📷 주변 인생샷 스폿
             </div>
             <span class="subtitle" id="liveSpotSubtitle">Within 10 minutes walk</span>
         </div>
@@ -241,14 +243,14 @@
     </div>
     <div class="weather-box card-box">
         <div class="section-title">
-            Real-time Weather
+            실시간 날씨
         </div>
         <div id="weatherArea">Loading weather...</div>
     </div>
 
     <div class="traffic-box card-box">
         <div class="section-title">
-            Traffic Information
+            교통 상황
         </div>
 
         <div class="info-list" id="liveTraffic">
@@ -258,7 +260,7 @@
 
     <div class="emergency-box card-box">
         <div class="section-title">
-            Emergency Contacts
+            긴급 연락처
         </div>
 
         <div class="info-list" id="liveEmergency">
@@ -321,6 +323,22 @@
         console.log('My Live page loaded');
         console.log('planDetail data:', window.LIVE_PLAN_ID);
         console.log('PLAN_DETAIL:', window.PLAN_DETAIL);
+        
+        // Copy destination from plan-destination to liveDestinationHint
+        const planDestination = document.querySelector('.plan-destination');
+        const liveDestinationHint = document.getElementById('liveDestinationHint');
+        
+        if (planDestination && liveDestinationHint) {
+            const destinationText = planDestination.textContent.trim();
+            if (destinationText) {
+                liveDestinationHint.textContent = destinationText;
+                console.log('Destination copied:', destinationText);
+            } else {
+                console.log('Destination text is empty');
+            }
+        } else {
+            console.log('Elements not found - planDestination:', planDestination, 'liveDestinationHint:', liveDestinationHint);
+        }
     });
 </script>
 <script src="${pageContext.request.contextPath}/js/live-itinerary-mobile.js"></script>
