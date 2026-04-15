@@ -363,3 +363,101 @@ body {
 .status-text.warning {
     color: #f5a623; /* 지연 주황/노란색 */
 }
+.live-plan-search-box {
+    width: 92%;
+    margin: 16px auto;
+    box-sizing: border-box;
+}
+
+.live-plan-search-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #111;
+    margin-bottom: 12px;
+}
+
+.live-plan-search-form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.live-plan-search-input {
+    flex: 1;
+    height: 42px;
+    border: 1px solid #dcdcdc;
+    border-radius: 10px;
+    padding: 0 12px;
+    font-size: 14px;
+    outline: none;
+}
+
+.live-plan-search-input:focus {
+    border-color: #2563eb;
+}
+
+.live-plan-search-btn {
+    border: none;
+    background: #2563eb;
+    color: white;
+    border-radius: 10px;
+    padding: 0 14px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.live-selected-plan {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.live-plan-result-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.live-plan-item-form {
+    margin: 0;
+}
+
+.live-plan-item {
+    width: 100%;
+    text-align: left;
+    background: #fafafa;
+    border: 1px solid #ececec;
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+}
+
+.live-plan-item-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #111;
+    margin-bottom: 4px;
+}
+
+.live-plan-item-sub {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.live-plan-item-date {
+    font-size: 12px;
+    color: #999;
+}
+
+.live-plan-empty {
+    font-size: 13px;
+    color: #888;
+    padding: 10px 2px;
+}

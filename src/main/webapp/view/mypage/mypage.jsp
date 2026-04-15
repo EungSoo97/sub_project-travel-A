@@ -18,11 +18,8 @@
             </div>
             <div class="profile-info">
                 <div class="name-row">
-<<<<<<< HEAD
                     <h2>${sessionScope.user.name}</h2>
-=======
-                    <h2><c:out value="${sessionScope.user.name}" /></h2>
->>>>>>> 92467b9e20751ba540e9a71d93280584b6675440
+
                     <div class="action-icons">
                         <button title="설정" onclick="location.href='${pageContext.request.contextPath}/settings'">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -41,11 +38,10 @@
                         </button>
                     </div>
                 </div>
-<<<<<<< HEAD
+
                 <p class="email">${sessionScope.user.email}</p>
-=======
-                <p class="email"><c:out value="${sessionScope.user.email}" /></p>
->>>>>>> 92467b9e20751ba540e9a71d93280584b6675440
+
+
                 <div class="badges">
                 <%--<span class="badge" onclick="openTitleModal()">🏅 여행 플랜 마스터</span>--%>
                     <span class="badge" onclick="openTitleModal()">
