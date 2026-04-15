@@ -105,8 +105,8 @@
                     </div>
                 </div>
 
-                <!-- Activity list -->
-                <div class="time-section">
+                <!-- Activity list (hidden) -->
+                <div class="time-section" style="display:none;">
                     <c:forEach var="act" items="${item.activities}" varStatus="activityStatus">
                         <div
                             class="item schedule-item"
