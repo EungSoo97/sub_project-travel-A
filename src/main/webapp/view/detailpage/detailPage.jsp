@@ -85,15 +85,18 @@
                         </form>
 
                         <c:choose>
-                            <c:when test="${isLoggedIn}">
+                            <c:when test="${canSavePlan}">
                                 <form action="${pageContext.request.contextPath}/save-plan" method="post">
-                                    <input type="hidden" name="title" value="${empty plan.summary.title ? plan.summary.destination : plan.summary.title}">
+                                    <input type="hidden" name="sourcePlanId" value="${plan.planId}">
                                     <button type="submit" class="action-btn edit-btn">저장</button>
                                 </form>
                             </c:when>
-                            <c:otherwise>
+                            <c:when test="${alreadySavedPlan}">
+                                <button type="button" class="action-btn saved-plan-btn" disabled>저장됨</button>
+                            </c:when>
+                            <c:when test="${not isLoggedIn and isPostedPlan}">
                                 <button type="button" class="action-btn edit-btn" onclick="showLoginAlert()">저장</button>
-                            </c:otherwise>
+                            </c:when>
                         </c:choose>
 
                     </div>

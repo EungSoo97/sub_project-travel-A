@@ -77,12 +77,18 @@ public class TravelPlanDAO {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
-        String sql = "SELECT plan_id, user_id, destination, title, start_date, end_date, " +
-                "days, travelers, travel_style, total_estimated_cost, currency, overview, " +
-                "success, message, response_json, created_at, updated_at " +
-                "FROM travel_plan " +
-                "WHERE user_id = ? " +
-                "ORDER BY created_at DESC";
+        String sql = "SELECT tp.plan_id, tp.user_id, tp.destination, tp.title, tp.start_date, tp.end_date, " +
+                "tp.days, tp.travelers, tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview, " +
+                "tp.success, tp.message, tp.response_json, tp.posted, tp.created_at, tp.updated_at, " +
+                "NVL(pl.like_cnt, 0) AS like_cnt " +
+                "FROM travel_plan tp " +
+                "LEFT JOIN ( " +
+                "    SELECT plan_id, COUNT(*) AS like_cnt " +
+                "    FROM plan_like " +
+                "    GROUP BY plan_id " +
+                ") pl ON tp.plan_id = pl.plan_id " +
+                "WHERE tp.user_id = ? " +
+                "ORDER BY tp.created_at DESC";
 
         try {
             con = DBManager_new.connect();
@@ -107,6 +113,8 @@ public class TravelPlanDAO {
                 plan.setSuccess(rs.getInt("success"));
                 plan.setMessage(rs.getString("message"));
                 plan.setResponseJson(rs.getString("response_json"));
+                plan.setPosted(rs.getInt("posted"));
+                plan.setLikeCnt(rs.getInt("like_cnt"));
                 plan.setCreatedAt(rs.getDate("created_at"));
                 plan.setUpdatedAt(rs.getDate("updated_at"));
                 plans.add(plan);
@@ -180,7 +188,6 @@ public class TravelPlanDAO {
 
         return plan;
     }
-
     public static final TravelPlanDAO DAO = new TravelPlanDAO();
 
     private TravelPlanDAO() {
@@ -207,12 +214,68 @@ public class TravelPlanDAO {
         }
     }
 
+    public static boolean deletePlanByPlanIdAndUserId(int planId, int userId) {
+        Connection con = null;
+        PreparedStatement deleteReviews = null;
+        PreparedStatement deleteLikes = null;
+        PreparedStatement deleteStars = null;
+        PreparedStatement deletePlan = null;
+
+        try {
+            con = DBManager_new.connect();
+            con.setAutoCommit(false);
+
+            deleteReviews = con.prepareStatement("DELETE FROM review WHERE plan_id = ?");
+            deleteReviews.setInt(1, planId);
+            deleteReviews.executeUpdate();
+
+            deleteLikes = con.prepareStatement("DELETE FROM plan_like WHERE plan_id = ?");
+            deleteLikes.setInt(1, planId);
+            deleteLikes.executeUpdate();
+
+            deleteStars = con.prepareStatement("DELETE FROM plan_star WHERE plan_id = ?");
+            deleteStars.setInt(1, planId);
+            deleteStars.executeUpdate();
+
+            deletePlan = con.prepareStatement("DELETE FROM travel_plan WHERE plan_id = ? AND user_id = ?");
+            deletePlan.setInt(1, planId);
+            deletePlan.setInt(2, userId);
+
+            boolean deleted = deletePlan.executeUpdate() == 1;
+            con.commit();
+            return deleted;
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                if (con != null) {
+                    con.rollback();
+                }
+            } catch (Exception rollbackError) {
+                rollbackError.printStackTrace();
+            }
+            return false;
+        } finally {
+            try {
+                if (deletePlan != null) deletePlan.close();
+                if (deleteStars != null) deleteStars.close();
+                if (deleteLikes != null) deleteLikes.close();
+                if (deleteReviews != null) deleteReviews.close();
+                if (con != null) {
+                    con.setAutoCommit(true);
+                    con.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static ArrayList<TravelPlanDTO> getTrendList(int userId) {
         ArrayList<TravelPlanDTO> trendList = new ArrayList<>();
-        Connection con = null;
+        Connection con =null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String sql = "SELECT destination, COUNT(*) as cnt " +
+        String sql ="SELECT destination, COUNT(*) as cnt " +
                 "FROM travel_plan " +
                 "WHERE user_id = ? " +
                 "GROUP BY destination " +
@@ -223,7 +286,7 @@ public class TravelPlanDAO {
             ps.setInt(1, userId);
             rs = ps.executeQuery();
 
-            while (rs.next()) {
+            while (rs.next()){
                 TravelPlanDTO plan = new TravelPlanDTO();
                 plan.setDestination(rs.getString("destination"));
                 plan.setPlanId(rs.getInt("cnt"));
@@ -231,12 +294,11 @@ public class TravelPlanDAO {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
+        }finally {
             DBManager_new.close(con, ps, rs);
         }
         return trendList;
     }
-
 
     public static ArrayList<TravelPlanDTO> searchPlansByUserId(int userId, String keyword) {
         ArrayList<TravelPlanDTO> plans = new ArrayList<>();
@@ -331,4 +393,8 @@ public class TravelPlanDAO {
 
         return plans;
     }
+
+
+
+
 }

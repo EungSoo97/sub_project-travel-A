@@ -223,6 +223,37 @@
     font-size: 18px; /* 한 줄에 예쁘게 들어오게 조정 */
     color: #111;
 }
+
+.trip-publish-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin: -4px 0 12px;
+}
+
+.publish-badge,
+.heart-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 24px;
+    padding: 4px 9px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.publish-badge {
+    background: #e8f8ee;
+    color: #12803b;
+}
+
+.heart-count {
+    background: #fbeaf0;
+    color: #b91c1c;
+}
 /* 여행 상세 정보 목록 */
 .trip-details {
     display: flex;
@@ -263,6 +294,40 @@
 
 .btn-detail:hover {
     background-color: #1a2238; /* 살짝 연한 색 */
+}
+
+.trip-card-actions {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.trip-card-actions form {
+    margin: 0;
+}
+
+.btn-delete-plan {
+    height: 100%;
+    min-width: 74px;
+    padding: 0 14px;
+    border: none;
+    border-radius: 8px;
+    background: #fee2e2;
+    color: #b91c1c;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.btn-delete-plan:hover {
+    background: #fecaca;
+    transform: translateY(-1px);
+}
+
+.btn-delete-plan:active {
+    transform: scale(0.98);
 }
 /* --- 탭 콘텐츠 숨김/표시 처리 --- */
 .tab-content {
