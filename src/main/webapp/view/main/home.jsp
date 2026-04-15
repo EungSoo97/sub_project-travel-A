@@ -229,14 +229,23 @@
             <div class="image-search-card">
                 <div class="section-head section-head--center">
                     <h2>이미지로 여행지 찾기</h2>
-                    <p>React의 업로드 컴포넌트를 JSP/HTML 구조로 단순화했습니다. 실제 AI 분석은 추후 API 호출로 연결하면 됩니다.</p>
+                    <p>이미지를 업로드하면 미리보기를 보여주고, 이후 AI 분석 결과를 연결할 수 있습니다.</p>
                 </div>
 
                 <div class="upload-box" id="uploadBox">
                     <input type="file" id="imageFile" accept="image/*" hidden>
-                    <button type="button" class="upload-box__button" id="uploadTrigger" onclick = "location.href='image-page'">이미지 업로드</button>
-                    <p class="upload-box__text">클릭하거나 파일을 드래그하여 업로드하세요</p>
+
+                    <button type="button" class="upload-box__button" id="uploadTrigger">
+                        이미지 업로드
+                    </button>
+
+                    <p class="upload-box__text" id="uploadText">클릭하거나 파일을 드래그하여 업로드하세요</p>
+
                     <div class="upload-preview" id="uploadPreview"></div>
+
+                    <button type="button" class="upload-analyze-btn" id="analyzeBtn" style="display:none;">
+                        이 이미지로 여행지 추천받기
+                    </button>
                 </div>
             </div>
         </div>
@@ -462,5 +471,49 @@
     </div>
 </div>
 <script src="/js/cardModal.js"></script>
+<script>
+    const imageFile = document.getElementById("imageFile");
+    const uploadTrigger = document.getElementById("uploadTrigger");
+    const uploadPreview = document.getElementById("uploadPreview");
+    const analyzeBtn = document.getElementById("analyzeBtn");
+
+    let selectedFile = null;
+
+    uploadTrigger.addEventListener("click", function () {
+        imageFile.click();
+    });
+
+    imageFile.addEventListener("change", function () {
+        const file = this.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            alert("이미지 파일만 업로드 가능합니다.");
+            this.value = "";
+            return;
+        }
+
+        selectedFile = file;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            uploadPreview.innerHTML =
+                '<div class="upload-preview__card">' +
+                '<img src="' + e.target.result + '" alt="업로드 이미지 미리보기" class="upload-preview__image">' +
+                '<p class="upload-preview__name">' + file.name + '</p>' +
+                '</div>';
+
+            uploadText.style.display = "none";
+            analyzeBtn.style.display = "inline-block";
+        };
+
+        reader.onerror = function () {
+            alert("이미지 미리보기를 불러오지 못했습니다.");
+        };
+
+        reader.readAsDataURL(file);
+    });
+    const uploadText = document.getElementById("uploadText");
+</script>
 </body>
 </html>

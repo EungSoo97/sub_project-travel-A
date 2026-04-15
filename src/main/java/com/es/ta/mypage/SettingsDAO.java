@@ -104,6 +104,9 @@ public class SettingsDAO {
 
                 String cloudinaryUrl = (String) uploadResult.get("secure_url");
                 if (cloudinaryUrl == null || cloudinaryUrl.isBlank()) {
+                    cloudinaryUrl = (String) uploadResult.get("url");
+                }
+                if (cloudinaryUrl == null || cloudinaryUrl.isBlank()) {
                     return false;
                 }
 

@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/css/mypage.css">
 </head>
 <body>
-<c:set var="settingsUpdated" value="${param.settingsSuccess eq '1'}" />
+    <c:set var="settingsUpdated" value="${param.settingsSuccess eq '1'}" />
 <div id="mypageSnackbar" class="mypage-snackbar ${settingsUpdated ? 'show' : ''}" role="status" aria-live="polite">
     회원 정보 수정이 완료되었습니다.
 </div>
@@ -28,13 +28,12 @@
                         </c:otherwise>
                     </c:choose>
                 </c:if>
-                <img src="${profileImg}"
-                     alt="프로필">
+                <img src="${profileImg}" alt="프로필">
             </div>
             <div class="profile-info">
                 <div class="name-row">
-                    <h2><c:out value="${sessionScope.user.name}" /></h2>
-                    <div class="action-icons">
+                    <h2>${sessionScope.user.name}</h2>
+                                        <div class="action-icons">
                         <button title="설정" onclick="location.href='${pageContext.request.contextPath}/settings'">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -52,7 +51,7 @@
                         </button>
                     </div>
                 </div>
-                <p class="email"><c:out value="${sessionScope.user.email}" /></p>
+                <p class="email">${sessionScope.user.email}</p>
                 <div class="badges">
                 <%--<span class="badge" onclick="openTitleModal()">🏅 여행 플랜 마스터</span>--%>
                     <span class="badge" onclick="openTitleModal()">
@@ -729,7 +728,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         // ... 기존 탭 클릭 이벤트 및 차트 로직 ...
     });
-    const mypageSnackbar = document.getElementById('mypageSnackbar');
+       const mypageSnackbar = document.getElementById('mypageSnackbar');
     if (mypageSnackbar && mypageSnackbar.classList.contains('show')) {
         setTimeout(() => {
             mypageSnackbar.classList.remove('show');

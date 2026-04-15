@@ -28,4 +28,9 @@ public class TravelRequestDto {
     private int minbudget;
     private int maxbudget;
     private List<String> customTag;
+    /**
+     * 직전 응답의 CDI policyMode(SPARSE|NORMAL|DENSE) — 재시도·수정 요청 시 히스테리시스.
+     * FastAPI {@code TravelRequest.prevPolicyMode} 와 동일. 미사용 시 생략(null).
+     */
+    private String prevPolicyMode;
 }
