@@ -735,5 +735,6 @@
         }, 5000);
     }
 </script>
+<script src="${pageContext.request.contextPath}/js/mypageBridge.js"></script>
 </body>
 </html>
