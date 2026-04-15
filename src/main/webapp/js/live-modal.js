@@ -161,31 +161,62 @@ function openModal(dayIndex, planData) {
         console.error('Day data not found for index:', dayIndex);
         console.error('Available itinerary data:', Object.keys(planData.itinerary || {}));
         
-        // Create empty state with proper message
-        modalTitle.textContent = `Day ${dayIndex + 1} - No Schedule`;
-        modalContent.innerHTML = `
-            <div class="modal-empty">
-                <div class="modal-empty-icon">Calendar</div>
-                <div>No schedule available for Day ${dayIndex + 1}</div>
-            </div>
-        `;
+        // Check if we have real day data from the page
+        const realDayData = getRealDayData(dayIndex);
         
-        // Show modal anyway
-        modalOverlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        return;
+        if (realDayData.activities.length > 0) {
+            // Use real data from page instead
+            console.log('Using real data from page for day:', dayIndex);
+            
+            // Clear content first
+            modalContent.innerHTML = '';
+            createDetailedModalContent(realDayData, dayIndex, modalContent);
+            
+            // Show modal with forced styles
+            modalOverlay.classList.add('active');
+            modalOverlay.style.pointerEvents = 'auto';
+            modalOverlay.style.opacity = '1';
+            modalOverlay.style.visibility = 'visible';
+            
+            // Show modal content
+            const modal = modalOverlay.querySelector('.schedule-modal');
+            if (modal) {
+                modal.style.transform = 'translateY(0)';
+            }
+            
+            document.body.style.overflow = 'hidden';
+            return;
+        } else {
+            // Create empty state with proper message
+            modalTitle.textContent = `Day ${dayIndex + 1} - No Schedule`;
+            modalContent.innerHTML = `
+                <div class="modal-empty">
+                    <div class="modal-empty-icon">Calendar</div>
+                    <div>No schedule available for Day ${dayIndex + 1}</div>
+                </div>
+            `;
+            
+            // Show modal anyway
+            modalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            return;
+        }
     }
     
     console.log('Day data found:', dayData);
     
+    // Use real data from page instead of original dayData
+    const realDayData = getRealDayData(dayIndex);
+    console.log('Using real data for modal display');
+    
     // Set title
-    modalTitle.textContent = `Day ${dayIndex + 1} - ${dayData.title || dayData.name || 'Daily Schedule'}`;
+    modalTitle.textContent = `Day ${dayIndex + 1} - ${realDayData.title || 'Daily Schedule'}`;
     
     // Clear content
     modalContent.innerHTML = '';
     
-    // Create detailed modal content
-    createDetailedModalContent(dayData, dayIndex, modalContent);
+    // Create detailed modal content with real data
+    createDetailedModalContent(realDayData, dayIndex, modalContent);
     
     // Show modal
     modalOverlay.classList.add('active');
@@ -235,16 +266,22 @@ function getRealDayData(dayIndex) {
     
     // Find the day card for the given index
     const dayCards = document.querySelectorAll('.day-card');
+    console.log('Total day cards found:', dayCards.length);
+    
     const dayCard = dayCards[dayIndex];
     
     if (!dayCard) {
         console.log('Day card not found for index:', dayIndex);
+        console.log('Available indices:', Array.from({length: dayCards.length}, (_, i) => i));
+        
+        // Return empty data for missing day
         return {
             title: `Day ${dayIndex + 1}`,
             date: new Date().toLocaleDateString('ko-KR'),
             distance: 'No data',
             duration: 'No data',
-            activities: []
+            activities: [],
+            estimatedCost: '¥0'
         };
     }
     
@@ -516,25 +553,25 @@ function createDayClickButtons(planData) {
     
     console.log('Creating day click buttons for planData:', planData);
     
-    // Try different selectors to find day headers
-    let dayHeaders = document.querySelectorAll('.day-header');
-    if (dayHeaders.length === 0) {
-        dayHeaders = document.querySelectorAll('.day-toggle');
-    }
-    if (dayHeaders.length === 0) {
-        dayHeaders = document.querySelectorAll('.itinerary-container .day-item');
-    }
-    if (dayHeaders.length === 0) {
-        dayHeaders = document.querySelectorAll('[class*="day"]');
-    }
+    // Use actual day cards instead of day headers
+    const dayCards = document.querySelectorAll('.day-card');
+    console.log('Found day cards:', dayCards.length);
     
-    console.log('Found day headers:', dayHeaders.length);
-    
-    dayHeaders.forEach((header, index) => {
-        // Check if button already exists
-        if (header.querySelector('.day-click-btn')) return;
+    dayCards.forEach((dayCard, index) => {
+        // Find the header within this day card
+        const dayHeader = dayCard.querySelector('.day-header');
+        if (!dayHeader) {
+            console.log('No header found for day card:', index);
+            return;
+        }
         
-        console.log('Adding button to header:', header, 'index:', index);
+        // Check if button already exists
+        if (dayHeader.querySelector('.day-click-btn')) {
+            console.log('Button already exists for day:', index);
+            return;
+        }
+        
+        console.log('Adding button to header:', dayHeader, 'index:', index);
         
         // Create click button
         const clickBtn = document.createElement('button');
@@ -568,7 +605,7 @@ function createDayClickButtons(planData) {
         };
         
         // Add to header
-        header.appendChild(clickBtn);
+        dayHeader.appendChild(clickBtn);
     });
 }
 
@@ -588,6 +625,55 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
                 console.log('Creating day click buttons...');
                 createDayClickButtons(planData);
+                
+                // Also try to create buttons directly from DOM if plan data doesn't work
+                setTimeout(function() {
+                    console.log('Checking for day cards directly...');
+                    const dayCards = document.querySelectorAll('.day-card');
+                    console.log('Found day cards:', dayCards.length);
+                    
+                    if (dayCards.length > 0) {
+                        // Create buttons for each day card regardless of plan data
+                        dayCards.forEach((dayCard, index) => {
+                            const dayHeader = dayCard.querySelector('.day-header');
+                            if (dayHeader && !dayHeader.querySelector('.day-click-btn')) {
+                                console.log('Creating button for day card:', index);
+                                
+                                const clickBtn = document.createElement('button');
+                                clickBtn.className = 'day-click-btn';
+                                clickBtn.innerHTML = 'View Details';
+                                clickBtn.onclick = function() {
+                                    console.log('Button clicked for day:', index);
+                                    openModal(index, planData);
+                                };
+                                
+                                clickBtn.style.cssText = `
+                                    background: #378ADD;
+                                    color: white;
+                                    border: none;
+                                    padding: 6px 12px;
+                                    border-radius: 6px;
+                                    font-size: 12px;
+                                    cursor: pointer;
+                                    margin-left: 10px;
+                                    transition: all 0.2s ease;
+                                `;
+                                
+                                clickBtn.onmouseover = function() {
+                                    this.style.background = '#2c6bb0';
+                                    this.style.transform = 'translateY(-1px)';
+                                };
+                                
+                                clickBtn.onmouseout = function() {
+                                    this.style.background = '#378ADD';
+                                    this.style.transform = 'translateY(0)';
+                                };
+                                
+                                dayHeader.appendChild(clickBtn);
+                            }
+                        });
+                    }
+                }, 500);
             }, 1000);
         } else {
             console.log('No plan data found, trying demo data...');
