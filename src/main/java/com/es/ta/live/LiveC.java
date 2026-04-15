@@ -62,4 +62,3 @@ public class LiveC extends HttpServlet {
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 }
-
