@@ -10,6 +10,7 @@
 </style>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/live.css" />
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/live-itinerary-mobile.css" />
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/live-modal.css" />
 <%
     String planParam = request.getParameter("planId");
     int livePlanId = 1;
@@ -402,4 +403,5 @@
     });
 </script>
 <script src="${pageContext.request.contextPath}/js/live-itinerary-mobile.js"></script>
+<script src="${pageContext.request.contextPath}/js/live-modal.js"></script>
 <script src="${pageContext.request.contextPath}/js/livePage.js"></script>
