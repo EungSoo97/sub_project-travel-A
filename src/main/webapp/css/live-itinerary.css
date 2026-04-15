@@ -1,0 +1,152 @@
+/* ── 일자별 상세 일정 스타일 ── */
+
+/* ── 하루 카드 ── */
+.day-card {
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    border: 1px solid #e0e0e0;
+    margin-bottom: 12px;
+}
+
+/* ── day-header ── */
+.day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #EFF6FF, #F0F9FF);
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.day-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.day-badge {
+    width: 36px;
+    height: 36px;
+    background: #378ADD;
+    color: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.day-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #333;
+}
+
+.day-date {
+    font-size: 12px;
+    color: #666;
+}
+
+.day-right {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-end;
+}
+
+.transport, .distance {
+    font-size: 12px;
+    color: #666;
+}
+
+/* ── 활동 목록 ── */
+.time-section {
+    padding: 0 16px;
+}
+
+.schedule-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.schedule-item:last-child {
+    border-bottom: none;
+}
+
+.icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.icon.move { color: #2196f3; }
+.icon.food { color: #ff9800; }
+.icon.hotel { color: #4caf50; }
+.icon.spot { color: #ff5722; }
+
+.content {
+    flex: 1;
+}
+
+.top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.time {
+    font-size: 14px;
+    font-weight: 600;
+    color: #378ADD;
+    min-width: 60px;
+}
+
+.title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    flex: 1;
+}
+
+.desc {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+}
+
+.day-footer {
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.day-footer span {
+    font-size: 13px;
+}
+
+.day-footer span:last-child {
+    font-weight: 600;
+    color: #378ADD;
+}
