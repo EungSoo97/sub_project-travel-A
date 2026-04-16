@@ -265,7 +265,16 @@
 
     function stopTracking() {
         localStorage.removeItem('liveTrackingPlanId');
-        window.location.href = window.LIVE_CTX + '/mypage?stopTracking=true';
+        fetch(window.LIVE_CTX + '/live-tracking', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ action: 'stop', planId: window.LIVE_PLAN_ID })
+        }).finally(function () {
+            window.location.href = window.LIVE_CTX + '/mypage?stopTracking=true';
+        });
     }
 
     document.addEventListener('DOMContentLoaded', function() {

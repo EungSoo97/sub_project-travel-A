@@ -12,6 +12,7 @@
 <body>
 <c:set var="settingsUpdated" value="${param.settingsSuccess eq '1'}" />
 <c:set var="reviewDeleted" value="${param.reviewDeleted eq 'true'}" />
+<c:url var="defaultPlanImage" value="/img/defaultplan/default.jpg" />
 <div id="mypageSnackbar" class="mypage-snackbar ${settingsUpdated or reviewDeleted ? 'show' : ''}" role="status" aria-live="polite">
     <c:choose>
         <c:when test="${reviewDeleted}">후기가 삭제되었습니다.</c:when>
@@ -196,22 +197,13 @@
         <c:choose>
             <c:when test="${not empty savedTrips}">
                 <c:forEach var="trip" items="${savedTrips}">
-                    <article class="trip-card">
+                    <article class="trip-card"
+                             data-plan-id="${trip.planId}"
+                             data-live-tracking="${trip.liveTracking}">
                         <div class="card-img-wrap">
-                            <c:choose>
-                                <c:when test="${trip.destination eq 'Tokyo' || trip.destination eq '도쿄'}">
-                                    <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80" alt="도쿄">
-                                </c:when>
-                                <c:when test="${trip.destination eq 'Osaka' || trip.destination eq '오사카'}">
-                                    <img src="https://images.unsplash.com/photo-1590559899731-a382839e5549?auto=format&fit=crop&w=800&q=80" alt="오사카">
-                                </c:when>
-                                <c:when test="${trip.destination eq 'Seoul' || trip.destination eq '서울'}">
-                                    <img src="https://images.unsplash.com/photo-1538485399081-7c897c8e6b7b?auto=format&fit=crop&w=800&q=80" alt="서울">
-                                </c:when>
-                                <c:otherwise>
-                                    <img src="https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=800&q=80" alt="${trip.destination}">
-                                </c:otherwise>
-                            </c:choose>
+                            <img src="${empty trip.thumbnailUrl ? defaultPlanImage : trip.thumbnailUrl}"
+                                 alt="${empty trip.destination ? '여행 플랜 이미지' : trip.destination}"
+                                 onerror="this.src='${defaultPlanImage}'">
                             <c:if test="${trip.starred}">
                                 <span class="favorite-badge" aria-label="즐겨찾기">★</span>
                             </c:if>
@@ -295,20 +287,9 @@
                 <c:forEach var="trip" items="${likedPlans}">
                     <article class="trip-card">
                         <div class="card-img-wrap">
-                            <c:choose>
-                                <c:when test="${trip.destination eq 'Tokyo' || trip.destination eq '도쿄'}">
-                                    <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80" alt="도쿄">
-                                </c:when>
-                                <c:when test="${trip.destination eq 'Osaka' || trip.destination eq '오사카'}">
-                                    <img src="https://images.unsplash.com/photo-1590559899731-a382839e5549?auto=format&fit=crop&w=800&q=80" alt="오사카">
-                                </c:when>
-                                <c:when test="${trip.destination eq 'Seoul' || trip.destination eq '서울'}">
-                                    <img src="https://images.unsplash.com/photo-1538485399081-7c897c8e6b7b?auto=format&fit=crop&w=800&q=80" alt="서울">
-                                </c:when>
-                                <c:otherwise>
-                                    <img src="https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=800&q=80" alt="${trip.destination}">
-                                </c:otherwise>
-                            </c:choose>
+                            <img src="${empty trip.thumbnailUrl ? defaultPlanImage : trip.thumbnailUrl}"
+                                 alt="${empty trip.destination ? '여행 플랜 이미지' : trip.destination}"
+                                 onerror="this.src='${defaultPlanImage}'">
                             <span class="liked-plan-price">
                                 <c:choose>
                                     <c:when test="${trip.totalEstimatedCost > 0}">
@@ -356,6 +337,11 @@
                                 <c:otherwise>
                                     <button type="button" class="btn-detail btn-detail--disabled" disabled>
                                         작성자에 의해 게시 중단 된 플랜 입니다
+                                    </button>
+                                    <button type="button"
+                                            class="btn-cancel-like"
+                                            data-cancel-like-plan-id="${trip.planId}">
+                                        좋아요 취소
                                     </button>
                                 </c:otherwise>
                             </c:choose>
@@ -891,6 +877,57 @@
                     return;
                 }
                 openConfirm(planConfirm, planConfirmBtn);
+            });
+        });
+
+        document.querySelectorAll('[data-cancel-like-plan-id]').forEach(button => {
+            button.addEventListener('click', function () {
+                const planId = this.dataset.cancelLikePlanId;
+                if (!planId || this.disabled) return;
+
+                this.disabled = true;
+                this.textContent = '취소 중...';
+
+                fetch('${pageContext.request.contextPath}/like', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ planId: Number(planId) })
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('like request failed');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!data.success || data.liked) {
+                            throw new Error('unexpected like state');
+                        }
+
+                        const card = this.closest('.trip-card');
+                        if (card) {
+                            card.remove();
+                        }
+
+                        const likedCount = document.querySelector('.stat-box[onclick*="content-liked"] .stat-num');
+                        if (likedCount) {
+                            const nextCount = Math.max((parseInt(likedCount.textContent, 10) || 1) - 1, 0);
+                            likedCount.textContent = nextCount;
+                        }
+
+                        const likedTab = document.getElementById('content-liked');
+                        if (likedTab && !likedTab.querySelector('.trip-card')) {
+                            likedTab.innerHTML = '<div class="empty-state"><p>❤️ 아직 좋아요를 누른 여행이 없어요!</p></div>';
+                        }
+                    })
+                    .catch(() => {
+                        this.disabled = false;
+                        this.textContent = '좋아요 취소';
+                        alert('좋아요 취소에 실패했습니다. 잠시 후 다시 시도해주세요.');
+                    });
             });
         });
 

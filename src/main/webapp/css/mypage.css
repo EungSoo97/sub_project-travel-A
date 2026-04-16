@@ -444,6 +444,32 @@
     padding-right: 12px;
 }
 
+.btn-cancel-like {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px 0;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    background: #fff5f5;
+    color: #b91c1c;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.btn-cancel-like:hover {
+    background: #fee2e2;
+    transform: translateY(-1px);
+}
+
+.btn-cancel-like:disabled {
+    cursor: wait;
+    opacity: 0.65;
+    transform: none;
+}
+
 .trip-card-actions {
     display: grid;
     grid-template-columns: 1fr auto;
