@@ -154,6 +154,12 @@
     <script>
     /* ── 실시간 여행 메뉴: 트래킹 중이면 myLive 페이지로 자동 연결 ── */
     (function () {
+        /* 비로그인 상태: localStorage의 stale 트래킹 데이터 즉시 초기화 후 종료 */
+        <c:if test="${empty sessionScope.user}">
+        localStorage.removeItem('liveTrackingPlanId');
+        return;
+        </c:if>
+
         const trackingPlanId = localStorage.getItem('liveTrackingPlanId');
         const liveLink = document.querySelector('.site-nav a[href*="/live"]');
 
