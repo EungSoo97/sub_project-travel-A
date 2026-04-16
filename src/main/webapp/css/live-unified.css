@@ -1207,6 +1207,33 @@ body {
     transform: translateY(0) scale(0.97);
 }
 
+/* 텍스트 숨김 전환 */
+.float-stop-btn .float-stop-text {
+    display: inline-block;
+    max-width: 80px;
+    overflow: hidden;
+    white-space: nowrap;
+    opacity: 1;
+    transition: max-width 0.35s ease, opacity 0.3s ease;
+}
+.float-stop-btn.icon-only .float-stop-text {
+    max-width: 0;
+    opacity: 0;
+}
+.float-stop-btn.icon-only {
+    gap: 0;
+    padding: 11px 13px;
+}
+/* 호버 시 텍스트 다시 표시 */
+.float-stop-btn.icon-only:hover .float-stop-text {
+    max-width: 80px;
+    opacity: 1;
+}
+.float-stop-btn.icon-only:hover {
+    gap: 6px;
+    padding: 11px 16px;
+}
+
 /* --- Dark mode support --- */
 @media (prefers-color-scheme: dark) {
     .live-plan-card {

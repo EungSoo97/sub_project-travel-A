@@ -81,7 +81,7 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                 <rect x="4" y="4" width="16" height="16" rx="2"/>
             </svg>
-            트래킹 중지
+            <span class="float-stop-text">트래킹 중지</span>
         </button>
     </c:if>
 
@@ -273,9 +273,25 @@
         const livePlanCard  = document.getElementById('livePlanCard');
         const floatStopBtn  = document.getElementById('floatStopBtn');
         if (livePlanCard && floatStopBtn) {
+            let iconOnlyTimer = null;
+
             const cardObserver = new IntersectionObserver(
                 ([entry]) => {
-                    floatStopBtn.classList.toggle('visible', !entry.isIntersecting);
+                    const isVisible = !entry.isIntersecting;
+                    floatStopBtn.classList.toggle('visible', isVisible);
+
+                    if (isVisible) {
+                        // 버튼이 나타나면 2초 후 텍스트 숨김
+                        floatStopBtn.classList.remove('icon-only');
+                        clearTimeout(iconOnlyTimer);
+                        iconOnlyTimer = setTimeout(function () {
+                            floatStopBtn.classList.add('icon-only');
+                        }, 2000);
+                    } else {
+                        // 버튼이 사라지면 타이머 취소 + 텍스트 상태 초기화
+                        clearTimeout(iconOnlyTimer);
+                        floatStopBtn.classList.remove('icon-only');
+                    }
                 },
                 { threshold: 0 }
             );
