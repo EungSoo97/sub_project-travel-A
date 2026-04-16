@@ -36,125 +36,187 @@ body {
     box-shadow: 0 2px 10px rgba(0,0,0,0.03);
 }
 
-/* --- Real-time tracking card design --- */
+/* ── live-plan-card (아코디언) ───────────────────────── */
 .live-plan-card {
-    background: #ffffff;
-    border: 1px solid #e3f2fd;
-    border-radius: 12px;
-    padding: 12px;
-    box-shadow: 0 1px 3px rgba(59, 130, 246, 0.1);
-    position: relative;
-    padding-left: 20px;
+    /*background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 60%);*/
+    border: 1.5px solid #d1d5db;
+    border-radius: 16px;
+    padding: 12px 14px;
+    /*box-shadow: 0 3px 12px rgba(59, 130, 246, 0.10);*/
+    width: 92%;
+    margin: 10px auto;
+    box-sizing: border-box;
 }
 
-.live-plan-card::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: #3b82f6;
-    border-radius: 12px 0 0 12px;
-}
+/* 장식 제거 */
+.live-plan-card::before,
+.live-plan-card::after { display: none; }
 
-.plan-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 4px;
-}
-
-.plan-header h2 {
-    color: #1e40af;
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0;
+/* 헤더 행 (항상 표시) */
+.live-card-header {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
 }
 
-.plan-header h2::before {
-    content: '';
-    width: 6px;
-    height: 6px;
+/* 상태 뱃지 */
+.live-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.18);
+    border-radius: 999px;
+    padding: 4px 7px;           /* 접혔을 때: 점만 있으므로 좌우 균등 */
+    flex-shrink: 0;
+    transition: padding 0.2s ease;
+}
+.live-plan-card.expanded .live-status-badge {
+    padding: 4px 10px 4px 7px;  /* 펼쳤을 때: 텍스트 우측 여백 추가 */
+}
+
+/* 펄스 애니메이션 */
+.live-pulse-wrapper {
+    position: relative;
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+}
+.live-pulse-dot {
+    width: 10px;
+    height: 10px;
     background: #ef4444;
     border-radius: 50%;
-    animation: blink 1.5s ease-in-out infinite;
+    position: absolute;
+}
+.live-pulse-ring {
+    width: 10px;
+    height: 10px;
+    border: 2px solid #ef4444;
+    border-radius: 50%;
+    position: absolute;
+    animation: liveRingPulse 1.6s ease-out infinite;
+}
+@keyframes liveRingPulse {
+    0%   { transform: scale(1);   opacity: 1; }
+    100% { transform: scale(2.6); opacity: 0; }
+}
+.live-badge-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #dc2626;
+    letter-spacing: 0.2px;
+    display: none;              /* 접혔을 때 숨김 */
+    white-space: nowrap;
+}
+.live-plan-card.expanded .live-badge-label {
+    display: inline;            /* 펼쳤을 때 표시 */
 }
 
-@keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-}
-
-.plan-destination {
-    color: #3b82f6;
+/* 목적지 (헤더 인라인) */
+.live-card-dest {
+    flex: 0 1 auto;       /* 자연 너비 사용, 공간 부족 시만 축소 */
+    max-width: 130px;     /* 너무 길면 말줄임 */
     font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+/* 접혔을 때만 보이는 간략 정보 (이모지 + 값만) */
+.live-card-mini-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+.live-card-mini-info span {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #475569;
+    white-space: nowrap;
+}
+.live-plan-card.expanded .live-card-mini-info {
+    display: none;              /* 펼쳤을 때는 바디의 메타 칩으로 대체 */
+}
+
+/* 접기 화살표 */
+.live-card-chevron {
+    color: #94a3b8;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    transition: transform 0.25s ease;
+    margin-left: auto;    /* 뱃지들은 왼쪽, 화살표만 오른쪽 끝 */
+}
+.live-plan-card.expanded .live-card-chevron {
+    transform: rotate(180deg);
+}
+
+/* 바디: 기본 닫힘 */
+.live-card-body {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.25s ease, padding-top 0.25s ease;
+    padding-top: 0;
+}
+.live-plan-card.expanded .live-card-body {
+    max-height: 200px;
+    opacity: 1;
+    padding-top: 12px;
+}
+
+/* 메타 칩 */
+.live-plan-meta {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+.live-meta-chip {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid #bfdbfe;
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 12px;
+    color: #1d4ed8;
     font-weight: 500;
-    margin-top: 2px;
 }
 
-.plan-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 16px;
-}
-
-.plan-details {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-}
-
-.plan-details p {
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0px;
-    color: #64748b;
-    font-size: 12px;
-    font-weight: 400;
-}
-
-.plan-details span {
-    font-size: 12px;
-    width: 0px;
-    text-align: center;
-    color: #3b82f6;
-    display: none;
-}
-
-.plan-actions {
-    display: flex;
-    align-items: flex-start;
-    align-self: flex-start;
-    position: relative;
-    bottom: 8px;
-}
-
+/* 트래킹 중지 버튼 */
 .btn-stop-tracking {
-    background: #3b82f6;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    background: #ffffff;
+    color: #dc2626;
+    border: 1.5px solid #fca5a5;
+    padding: 9px 0;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
 }
-
 .btn-stop-tracking:hover {
-    background: #2563eb;
+    background: #fef2f2;
+    border-color: #ef4444;
     transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.15);
 }
-
-.btn-stop-tracking:active {
-    transform: translateY(0);
-}
+.btn-stop-tracking:active { transform: translateY(0); }
 
 /* --- Current time box --- */
 .time-box {
@@ -216,8 +278,18 @@ body {
     background-color: #4caf50;
     border-radius: 50%;
 }
+
+/* 상태별 색상 */
+.status-badge.status-active         { color: #16a34a; }
+.status-badge.status-active .dot    { background-color: #16a34a; }
+.status-badge.status-past           { color: #94a3b8; }
+.status-badge.status-past .dot      { background-color: #94a3b8; }
+.status-badge.status-future         { color: #3b82f6; }
+.status-badge.status-future .dot    { background-color: #3b82f6; }
+
 .time-remaining { color: #666; }
 .time-remaining strong { color: #000; font-size: 14px; }
+
 
 .activity-title {
     font-size: 22px;
@@ -874,7 +946,7 @@ body {
     font-weight: 800;
 }
 
-    
+
 .modal-empty {
     padding: 60px 20px;
     text-align: center;
@@ -892,76 +964,275 @@ body {
     color: #378ADD;
 }
 
-/* --- Mobile responsive adjustments --- */
+/* ── schedule-trigger-box 재설계 ─────────────────────── */
+.schedule-trigger-box {
+    display: flex;
+    align-items: center;
+    width: 92%;
+    margin: 0 auto 20px auto;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-sizing: border-box;
+    gap: 14px;
+}
+.schedule-trigger-box:hover {
+    background: #f0f7ff;
+    border-color: #93c5fd;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.10);
+}
+
+.sched-icon-wrap {
+    width: 46px;
+    height: 46px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
+    transition: box-shadow 0.25s ease;
+}
+.schedule-trigger-box:hover .sched-icon-wrap {
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+}
+
+.sched-text-wrap { flex: 1; min-width: 0; }
+.sched-title {
+    margin: 0 0 3px 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+}
+.sched-subtitle {
+    margin: 0;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.sched-arrow-wrap {
+    width: 30px;
+    height: 30px;
+    background: #f1f5f9;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    flex-shrink: 0;
+    transition: all 0.25s ease;
+}
+.schedule-trigger-box:hover .sched-arrow-wrap {
+    background: #3b82f6;
+    color: white;
+}
+
+/* --- New Full Schedule Accordion Modal --- */
+.fs-modal-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+.fs-modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+.fs-expand-btn {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.fs-day-item {
+    border-bottom: 1px solid #e2e8f0;
+}
+.fs-day-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    cursor: pointer;
+    background-color: #ffffff;
+    transition: background-color 0.2s ease;
+}
+.fs-day-toggle:hover {
+    background-color: #f8fafc;
+}
+.fs-day-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.fs-day-circle {
+    background-color: #3b82f6;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.1;
+}
+.fs-day-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f172a;
+}
+.fs-toggle-icon {
+    color: #64748b;
+    font-weight: bold;
+    transform: rotate(0deg);
+    transition: transform 0.2s ease;
+}
+.fs-day-item.expanded .fs-toggle-icon {
+    transform: rotate(90deg);
+}
+.fs-day-content {
+    background-color: #f8fafc;
+    display: none;
+}
+.fs-activity-item {
+    display: flex;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.fs-activity-item:hover {
+    background-color: #f1f5f9;
+}
+.fs-activity-time {
+    color: #3b82f6;
+    font-weight: 700;
+    font-size: 13px;
+    width: 60px;
+    flex-shrink: 0;
+}
+.fs-activity-details h4 {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    color: #1e293b;
+    font-weight: 600;
+}
+.fs-activity-details p {
+    margin: 0;
+    font-size: 12px;
+    color: #64748b;
+}
 @media (max-width: 768px) {
     .live-plan-card {
-        padding: 10px;
-        margin: 8px;
-        padding-left: 16px;
-        width: 367px;
-        left: 9px;
+        padding: 10px 12px;
+        margin: 8px auto;
     }
-    
-    .plan-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-    }
-    
-    .plan-header h2 {
-        font-size: 15px;
-    }
-    
-    .plan-info {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-    
-    .plan-details {
-        flex-direction: row;
-        gap: 8px;
-        width: 100%;
-        flex-wrap: wrap;
-    }
-    
-    .plan-actions {
-        width: 100%;
-        justify-content: flex-end;
-        align-self: flex-start;
-    }
-    
-    .btn-stop-tracking {
-        padding: 6px 12px;
-        font-size: 12px;
-    }
-    
+
     .itinerary-container {
         width: 95%;
         margin: 10px auto;
     }
-    
+
     .itinerary-header {
         padding: 12px;
     }
-    
+
     .day-toggle {
         padding: 12px;
     }
-    
+
     .day-content {
         padding: 0 12px;
     }
-    
+
     .modal-header {
         padding: 16px;
     }
-    
+
     .modal-title {
         font-size: 16px;
     }
-    
-    }
+
+}
+
+/* ── 플로팅 트래킹 중지 버튼 ─────────────────────────── */
+.float-stop-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 20px;
+    background: #dc2626;
+    color: #ffffff;
+    border: none;
+    border-radius: 999px;
+    padding: 11px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 998;
+    box-shadow: 0 4px 16px rgba(220, 38, 38, 0.35);
+    /* 기본: 숨김 상태 */
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease,
+    background 0.2s ease, box-shadow 0.2s ease;
+}
+.float-stop-btn.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+.float-stop-btn:hover {
+    background: #b91c1c;
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.45);
+    transform: translateY(-2px) scale(1.02);
+}
+.float-stop-btn:active {
+    transform: translateY(0) scale(0.97);
+}
+
+/* 텍스트 숨김 전환 */
+.float-stop-btn .float-stop-text {
+    display: inline-block;
+    max-width: 80px;
+    overflow: hidden;
+    white-space: nowrap;
+    opacity: 1;
+    transition: max-width 0.35s ease, opacity 0.3s ease;
+}
+.float-stop-btn.icon-only .float-stop-text {
+    max-width: 0;
+    opacity: 0;
+}
+.float-stop-btn.icon-only {
+    gap: 0;
+    padding: 11px 13px;
+}
+/* 호버 시 텍스트 다시 표시 */
+.float-stop-btn.icon-only:hover .float-stop-text {
+    max-width: 80px;
+    opacity: 1;
+}
+.float-stop-btn.icon-only:hover {
+    gap: 6px;
+    padding: 11px 16px;
+}
 
 /* --- Dark mode support --- */
 @media (prefers-color-scheme: dark) {
@@ -969,16 +1240,7 @@ body {
         background: linear-gradient(135deg, #1e3a8a, #1e40af);
         border-color: #60a5fa;
     }
-    
-    .plan-header h2 {
-        color: #f0f9ff;
-    }
-    
-    .plan-destination {
-        color: #93c5fd;
-    }
-    
-    .plan-details p {
-        color: #cbd5e1;
+    .live-card-dest {
+        color: #bfdbfe;
     }
 }
