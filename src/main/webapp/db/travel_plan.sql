@@ -38,6 +38,7 @@ CREATE TABLE travel_plan (
                              quality_score       NUMBER,
                              posted              NUMBER(1)      DEFAULT 0 NOT NULL,
                              post_date           DATE,
+                             live_tracking        NUMBER(1)      DEFAULT 0 NOT NULL,
                              original_user_id     NUMBER,
                              copied_modified      NUMBER(1)      DEFAULT 1 NOT NULL,
 
@@ -46,7 +47,8 @@ CREATE TABLE travel_plan (
                              created_at        DATE           DEFAULT SYSDATE,
                              updated_at        DATE           DEFAULT SYSDATE,
 
-                             CONSTRAINT chk_travel_plan_posted CHECK (posted IN (0, 1))
+                             CONSTRAINT chk_travel_plan_posted CHECK (posted IN (0, 1)),
+                             CONSTRAINT chk_travel_plan_live_tracking CHECK (live_tracking IN (0, 1))
 );
 
 
@@ -66,6 +68,8 @@ select * from travel_plan;
 --ALTER TABLE travel_plan ADD (posted NUMBER(1) DEFAULT 0 NOT NULL);
 --ALTER TABLE travel_plan ADD CONSTRAINT chk_travel_plan_posted CHECK (posted IN (0, 1));
 --ALTER TABLE travel_plan ADD (post_date DATE);
+--ALTER TABLE travel_plan ADD (live_tracking NUMBER(1) DEFAULT 0 NOT NULL);
+--ALTER TABLE travel_plan ADD CONSTRAINT chk_travel_plan_live_tracking CHECK (live_tracking IN (0, 1));
 -- ALTER TABLE travel_plan MODIFY (travel_style VARCHAR2(200));
 
 -- Migration for an existing travel_plan table. Run this once if ORA-00904: TP.POSTED occurs.
@@ -80,6 +84,50 @@ BEGIN
 
     IF v_count = 0 THEN
         EXECUTE IMMEDIATE 'ALTER TABLE travel_plan ADD (posted NUMBER(1) DEFAULT 0 NOT NULL)';
+    END IF;
+END;
+/
+
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM user_tab_columns
+    WHERE table_name = 'TRAVEL_PLAN'
+      AND column_name = 'LIVE_TRACKING';
+
+    IF v_count = 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE travel_plan ADD (live_tracking NUMBER(1) DEFAULT 0 NOT NULL)';
+    END IF;
+END;
+/
+
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM user_indexes
+    WHERE index_name = 'UX_TRAVEL_PLAN_LIVE_USER';
+
+    IF v_count = 0 THEN
+        EXECUTE IMMEDIATE 'CREATE UNIQUE INDEX ux_travel_plan_live_user ON travel_plan (CASE WHEN live_tracking = 1 THEN user_id END)';
+    END IF;
+END;
+/
+
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM user_constraints
+    WHERE table_name = 'TRAVEL_PLAN'
+      AND constraint_name = 'CHK_TRAVEL_PLAN_LIVE_TRACKING';
+
+    IF v_count = 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE travel_plan ADD CONSTRAINT chk_travel_plan_live_tracking CHECK (live_tracking IN (0, 1))';
     END IF;
 END;
 /

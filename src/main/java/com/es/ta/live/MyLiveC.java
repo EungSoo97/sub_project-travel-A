@@ -2,6 +2,7 @@ package com.es.ta.live;
 
 import com.es.ta.account.AccountDTO;
 
+import com.es.ta.mypage.MyPlanPageDAO;
 import com.es.ta.resultpage.ResultpageDAO;
 import com.es.ta.resultpage.TravelResultVDTO;
 import javax.servlet.ServletException;
@@ -23,7 +24,14 @@ public class MyLiveC extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
+        AccountDTO loginUser = (AccountDTO) session.getAttribute("user");
         String planId = request.getParameter("planId");
+        if (planId == null || planId.trim().isEmpty()) {
+            Integer activePlanId = LiveTrackingDAO.getActivePlanId(loginUser.getUser_id());
+            if (activePlanId != null) {
+                planId = String.valueOf(activePlanId);
+            }
+        }
 
         System.out.println("planId: " + request.getParameter("planId"));
         System.out.println("destination: " + request.getParameter("destination"));
@@ -32,6 +40,14 @@ public class MyLiveC extends HttpServlet {
         if (planId != null && !planId.isEmpty()) {
             try {
                 int planIdInt = Integer.parseInt(planId);
+                if (MyPlanPageDAO.getPlanByPlanIdAndUserId(planIdInt, loginUser.getUser_id()) == null) {
+                    request.setAttribute("error", "Cannot find your active travel plan.");
+                    request.setAttribute("content","view/live/myLive.jsp");
+                    request.getRequestDispatcher("index.jsp").forward(request,response);
+                    return;
+                }
+
+                LiveTrackingDAO.startTracking(loginUser.getUser_id(), planIdInt);
                 TravelResultVDTO planDetail = ResultpageDAO.detailpage(planIdInt);
                 
                 if (planDetail != null) {
