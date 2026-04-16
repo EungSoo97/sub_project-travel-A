@@ -33,6 +33,10 @@ public class ReviewC extends HttpServlet {
 
         if ("delete".equals(action)) {
             deleteReview(request, user);
+            if ("mypage".equals(request.getParameter("returnTo"))) {
+                response.sendRedirect(request.getContextPath() + "/mypage?tab=reviews&reviewDeleted=true");
+                return;
+            }
             response.sendRedirect(request.getContextPath() + "/detail-page?id=" + planId + "&reviewDeleted=true");
             return;
         }

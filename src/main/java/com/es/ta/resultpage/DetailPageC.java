@@ -1,19 +1,17 @@
 package com.es.ta.resultpage;
 
 import com.es.ta.account.AccountDTO;
+import com.es.ta.common.GoogleMapsConfig;
 import com.es.ta.mypage.MyPlanPageDAO;
 import com.es.ta.mypage.TravelPlanDTO;
 import com.es.ta.userreaction.UserreactionDAO;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 
 @WebServlet(name = "DetailPageC", value = "/detail-page")
 public class DetailPageC extends HttpServlet {
@@ -66,7 +64,7 @@ public class DetailPageC extends HttpServlet {
                 request.getSession().setAttribute("plan", result);
             }
             
-            attachGoogleMapsConfig(request);
+            GoogleMapsConfig.attach(request);
             request.setAttribute("content", "view/detailpage/detailPage.jsp");
             request.getRequestDispatcher("index.jsp").forward(request, response);
 
@@ -92,25 +90,5 @@ public class DetailPageC extends HttpServlet {
 
     @Override
     public void destroy() {
-    }
-
-    private void attachGoogleMapsConfig(HttpServletRequest request) {
-        Properties props = loadApplicationProperties(request.getServletContext());
-        request.setAttribute("googleMapsApiKey", props.getProperty("GOOGLE_API_KEY", ""));
-        request.setAttribute("googleMapsMapId", props.getProperty("GOOGLE_MAP_ID", ""));
-    }
-
-    private Properties loadApplicationProperties(ServletContext context) {
-        Properties props = new Properties();
-
-        try (InputStream in = context.getResourceAsStream("/WEB-INF/application.properties")) {
-            if (in == null) {
-                return props;
-            }
-            props.load(in);
-        } catch (IOException e) {
-        }
-
-        return props;
     }
 }

@@ -405,16 +405,31 @@
                     </c:when>
                     <c:otherwise>
                         <c:forEach var="review" items="${reviews}">
+                            <c:set var="reviewProfileImg" value="${pageContext.request.contextPath}/img/profile/default.png" />
+                            <c:if test="${not empty review.profileImg}">
+                                <c:choose>
+                                    <c:when test="${fn:startsWith(review.profileImg, 'http://') or fn:startsWith(review.profileImg, 'https://')}">
+                                        <c:set var="reviewProfileImg" value="${review.profileImg}" />
+                                    </c:when>
+                                    <c:otherwise>
+                                        <c:url var="reviewProfileImg" value="/${review.profileImg}" />
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:if>
                             <div class="dp-review-item">
+                                <img class="dp-review-avatar"
+                                     src="${reviewProfileImg}"
+                                     alt="${review.userName} 프로필"
+                                     onerror="this.onerror=null; this.src='${pageContext.request.contextPath}/img/profile/default.png';">
                                 <div class="dp-review-top">
                                     <p class="dp-review-writer">
                                         <c:out value="${review.userName}" />
                                         <span class="dp-review-date">
-                                            <fmt:formatDate value="${review.createdAt}" pattern="yyyy-MM-dd" />
+                                            <fmt:formatDate value="${review.createdAt}" pattern="yyyy-MM-dd HH:mm" timeZone="Asia/Seoul" />
                                         </span>
                                     </p>
                                     <c:if test="${isLoggedIn and currentUserId == review.userId}">
-                                        <form action="${pageContext.request.contextPath}/review" method="post" onsubmit="return confirm('후기를 삭제할까요?');">
+                                        <form action="${pageContext.request.contextPath}/review" method="post" data-dp-review-delete-form>
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="planId" value="${plan.planId}">
                                             <input type="hidden" name="reviewId" value="${review.reviewId}">
@@ -427,6 +442,16 @@
                         </c:forEach>
                     </c:otherwise>
                 </c:choose>
+            </div>
+        </div>
+        <div class="dp-confirm-backdrop" id="dpReviewDeleteConfirm" aria-hidden="true">
+            <div class="dp-confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="dpReviewDeleteConfirmTitle">
+                <p class="dp-confirm-title" id="dpReviewDeleteConfirmTitle">후기를 삭제할까요?</p>
+                <p class="dp-confirm-text">삭제한 후기는 다시 복구할 수 없습니다.</p>
+                <div class="dp-confirm-actions">
+                    <button type="button" class="dp-confirm-cancel" id="dpReviewDeleteCancel">취소</button>
+                    <button type="button" class="dp-confirm-delete" id="dpReviewDeleteConfirmBtn">삭제</button>
+                </div>
             </div>
         </div>
 
@@ -932,6 +957,51 @@
             const dpOpenModalBtn = document.getElementById("dpOpenModalBtn");
             const dpCloseModalBtn = document.getElementById("dpCloseModalBtn");
             const dpSnackbar = document.getElementById("dpSnackbar");
+            const dpReviewDeleteConfirm = document.getElementById("dpReviewDeleteConfirm");
+            const dpReviewDeleteCancel = document.getElementById("dpReviewDeleteCancel");
+            const dpReviewDeleteConfirmBtn = document.getElementById("dpReviewDeleteConfirmBtn");
+            let pendingDpReviewDeleteForm = null;
+
+            function closeDpReviewDeleteConfirm() {
+                pendingDpReviewDeleteForm = null;
+                if (!dpReviewDeleteConfirm) return;
+                dpReviewDeleteConfirm.classList.remove("is-open");
+                dpReviewDeleteConfirm.setAttribute("aria-hidden", "true");
+            }
+
+            document.querySelectorAll("[data-dp-review-delete-form]").forEach(function(form) {
+                form.addEventListener("submit", function(event) {
+                    event.preventDefault();
+                    pendingDpReviewDeleteForm = form;
+                    if (!dpReviewDeleteConfirm) {
+                        form.submit();
+                        return;
+                    }
+                    dpReviewDeleteConfirm.classList.add("is-open");
+                    dpReviewDeleteConfirm.setAttribute("aria-hidden", "false");
+                    if (dpReviewDeleteConfirmBtn) dpReviewDeleteConfirmBtn.focus();
+                });
+            });
+
+            if (dpReviewDeleteCancel) {
+                dpReviewDeleteCancel.addEventListener("click", closeDpReviewDeleteConfirm);
+            }
+
+            if (dpReviewDeleteConfirmBtn) {
+                dpReviewDeleteConfirmBtn.addEventListener("click", function() {
+                    const form = pendingDpReviewDeleteForm;
+                    closeDpReviewDeleteConfirm();
+                    if (form) form.submit();
+                });
+            }
+
+            if (dpReviewDeleteConfirm) {
+                dpReviewDeleteConfirm.addEventListener("click", function(event) {
+                    if (event.target === dpReviewDeleteConfirm) {
+                        closeDpReviewDeleteConfirm();
+                    }
+                });
+            }
 
             if (dpOpenModalBtn) {
                 dpOpenModalBtn.addEventListener("click", function () {
