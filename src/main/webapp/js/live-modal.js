@@ -937,142 +937,370 @@ function updateNextScheduleInfo(currentActivity) {
     }
 }
 
-// --- New Full Schedule Accordion UI ---
-function openFullScheduleModal() {
-    if (!modalOverlay) {
-        initModal();
+// ─── Full Schedule Bottom-Sheet Modal ───────────────────────────────────────
+let fsModalOverlay = null;
+let fsAllExpanded  = false;
+
+/* 카테고리별 아이콘 매핑 */
+function _fsCategoryIcon(cat) {
+    const map = {
+        TRANSPORT: '🚌', MOVE: '🚌', FLIGHT: '✈️',
+        HOTEL: '🏨', ACCOMMODATION: '🏨',
+        DINING: '🍽️', FOOD: '🍽️', RESTAURANT: '🍽️',
+        SHOPPING: '🛍️', CULTURE: '🏛️', MUSEUM: '🏛️',
+        NATURE: '🌿', ACTIVITY: '🎡', TOUR: '🗺️',
+        CAFE: '☕', SPA: '♨️'
+    };
+    if (!cat) return '📍';
+    const key = cat.toString().toUpperCase();
+    for (const [k, v] of Object.entries(map)) {
+        if (key.includes(k)) return v;
     }
-    
-    // Set up modal header
-    let planDetail = window.PLAN_DETAIL;
+    return '📍';
+}
+
+/* 비용 포맷 */
+function _fsFmtCost(cost, currency) {
+    if (!cost || cost === '0' || cost === 0) return '무료';
+    const num = parseInt(String(cost).replace(/[^0-9]/g, ''), 10);
+    if (!num) return '무료';
+    const cur = currency || 'KRW';
+    return num.toLocaleString() + ' ' + cur;
+}
+
+/* 소요시간 포맷 */
+function _fsFmtDur(min) {
+    const m = parseInt(min, 10);
+    if (!m || isNaN(m)) return '';
+    return m + '분';
+}
+
+function openFullScheduleModal() {
+    const planDetail = window.PLAN_DETAIL;
     if (!planDetail || !planDetail.itinerary) {
-        // Fallback or demo data if needed. Usually myLive exposes PLAN_DETAIL.
-        console.error('No plan detail found. Trying to parse from DOM but PLAN_DETAIL is expected.');
+        console.error('PLAN_DETAIL이 없습니다.');
         return;
     }
 
-    modalContent.innerHTML = '';
-    
-    const headerTop = document.createElement('div');
-    headerTop.className = 'fs-modal-header-top';
-    headerTop.innerHTML = `
-        <h3 class="fs-modal-title">daily schedule</h3>
-        <button class="fs-expand-btn" onclick="toggleAllFsDays()">expand all</button>
-    `;
-    modalContent.appendChild(headerTop);
+    // 이미 열려있으면 제거
+    if (fsModalOverlay) { fsModalOverlay.remove(); fsModalOverlay = null; }
+    fsAllExpanded = false;
 
-    const accordionContainer = document.createElement('div');
-    accordionContainer.style.paddingBottom = '30px'; // Extra padding for better scrolling
-    
+    /* ── 배경 오버레이 ── */
+    fsModalOverlay = document.createElement('div');
+    fsModalOverlay.id = 'fs-modal-overlay';
+    Object.assign(fsModalOverlay.style, {
+        position:'fixed', top:'0', left:'0',
+        width:'100%', height:'100%',
+        background:'rgba(0,0,0,0.5)',
+        zIndex:'99999',
+        display:'flex', alignItems:'flex-end'
+    });
+    fsModalOverlay.addEventListener('click', e => {
+        if (e.target === fsModalOverlay) closeFullScheduleModal();
+    });
+
+    /* ── 바텀시트 ── */
+    const sheet = document.createElement('div');
+    Object.assign(sheet.style, {
+        width:'100%', maxHeight:'85vh',
+        background:'#f8fafc',
+        borderRadius:'20px 20px 0 0',
+        display:'flex', flexDirection:'column',
+        overflow:'hidden',
+        boxShadow:'0 -6px 32px rgba(0,0,0,0.18)',
+        transform:'translateY(100%)',
+        transition:'transform 0.32s cubic-bezier(0.32,0.72,0,1)'
+    });
+
+    /* 드래그 핸들 */
+    const handle = document.createElement('div');
+    Object.assign(handle.style, {
+        width:'40px', height:'4px', background:'#cbd5e1',
+        borderRadius:'2px', margin:'10px auto 0', flexShrink:'0'
+    });
+    sheet.appendChild(handle);
+
+    /* 상단 헤더 */
+    const header = document.createElement('div');
+    Object.assign(header.style, {
+        display:'flex', alignItems:'center', justifyContent:'space-between',
+        padding:'12px 18px 14px', background:'#fff',
+        borderBottom:'1px solid #e2e8f0', flexShrink:'0'
+    });
+    header.innerHTML = `<h3 style="margin:0;font-size:16px;font-weight:700;color:#0f172a;">상세 일정</h3>`;
+
+    const rightGrp = document.createElement('div');
+    Object.assign(rightGrp.style, { display:'flex', alignItems:'center', gap:'8px' });
+
+    const expandBtn = document.createElement('button');
+    expandBtn.id = 'fs-expand-btn';
+    expandBtn.textContent = '전체 펼치기';
+    Object.assign(expandBtn.style, {
+        background:'#3b82f6', color:'#fff', border:'none',
+        borderRadius:'8px', padding:'5px 12px',
+        fontSize:'12px', fontWeight:'600', cursor:'pointer'
+    });
+    expandBtn.onclick = toggleAllFsDays;
+
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '✕';
+    Object.assign(closeBtn.style, {
+        background:'transparent', border:'none',
+        fontSize:'18px', color:'#94a3b8', cursor:'pointer', padding:'0'
+    });
+    closeBtn.onclick = closeFullScheduleModal;
+
+    rightGrp.appendChild(expandBtn);
+    rightGrp.appendChild(closeBtn);
+    header.appendChild(rightGrp);
+    sheet.appendChild(header);
+
+    /* 스크롤 영역 */
+    const scrollArea = document.createElement('div');
+    Object.assign(scrollArea.style, { overflowY:'auto', flex:'1', paddingBottom:'30px' });
+
+    /* ── 일자별 아코디언 ── */
     planDetail.itinerary.forEach((dayData, index) => {
+        const dayNum = dayData.day || (index + 1);
+
+        // 예상비용 합산
+        let totalCost = 0;
+        const currency = (dayData.activities && dayData.activities[0] && dayData.activities[0].currency)
+                          || dayData.currency || 'KRW';
+        (dayData.activities || []).forEach(a => {
+            const v = parseInt(String(a.cost || '0').replace(/[^0-9]/g,''), 10);
+            if (!isNaN(v)) totalCost += v;
+        });
+
+        /* 아코디언 아이템 컨테이너 */
         const dayItem = document.createElement('div');
         dayItem.className = 'fs-day-item';
         dayItem.dataset.day = index;
+        Object.assign(dayItem.style, { background:'#f8fafc' });
 
+        /* ── 헤더 토글 버튼 (D2 2일차 …) ── */
         const dayToggle = document.createElement('div');
         dayToggle.className = 'fs-day-toggle';
-        dayToggle.onclick = function() { toggleFsDay(index); };
-        
-        dayToggle.innerHTML = `
-            <div class="fs-day-info">
-                <div class="fs-day-circle">
-                    <span>day</span>
-                    <span>${index + 1}</span>
-                </div>
-                <span class="fs-day-title">${index + 1}${index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th'} day</span>
+        Object.assign(dayToggle.style, {
+            display:'flex', alignItems:'flex-start', gap:'12px',
+            padding:'14px 16px', cursor:'pointer',
+            background:'#fff', borderBottom:'1px solid #e2e8f0',
+            transition:'background 0.15s'
+        });
+        dayToggle.onmouseenter = () => dayToggle.style.background = '#f0f9ff';
+        dayToggle.onmouseleave = () => dayToggle.style.background = '#fff';
+        dayToggle.onclick = () => toggleFsDay(index);
+
+        // D2 뱃지
+        const badge = document.createElement('div');
+        Object.assign(badge.style, {
+            background:'#3b82f6', color:'#fff',
+            width:'38px', height:'38px', borderRadius:'10px',
+            display:'flex', flexDirection:'column',
+            alignItems:'center', justifyContent:'center',
+            fontSize:'9px', fontWeight:'800', lineHeight:'1.2',
+            flexShrink:'0', letterSpacing:'0.5px'
+        });
+        badge.innerHTML = `<span style="font-size:8px;opacity:0.85;">D${dayNum}</span><span style="font-size:13px;">${dayNum}일차</span>`;
+
+        // 날짜 + 이동정보 텍스트
+        const dayInfoWrap = document.createElement('div');
+        Object.assign(dayInfoWrap.style, { flex:'1', minWidth:'0' });
+        dayInfoWrap.innerHTML = `
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span style="font-size:14px;font-weight:700;color:#0f172a;">${dayNum}일차</span>
+                <span style="font-size:11px;color:#64748b;">${dayData.date || ''}</span>
             </div>
-            <div class="fs-toggle-icon">&gt;</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:2px;">
+                ${dayData.summary || ''}
+            </div>
         `;
 
+        const toggleIcon = document.createElement('span');
+        toggleIcon.className = 'fs-toggle-icon';
+        Object.assign(toggleIcon.style, {
+            color:'#94a3b8', fontSize:'18px',
+            transition:'transform 0.2s', marginTop:'8px', flexShrink:'0'
+        });
+        toggleIcon.innerHTML = '&#8250;';
+
+        dayToggle.appendChild(badge);
+        dayToggle.appendChild(dayInfoWrap);
+        dayToggle.appendChild(toggleIcon);
+
+        /* ── 콘텐츠 패널 ── */
         const dayContent = document.createElement('div');
         dayContent.className = 'fs-day-content';
         dayContent.id = 'fs-day-content-' + index;
+        dayContent.style.display = 'none';
 
-        if (dayData.activities && dayData.activities.length > 0) {
-            dayData.activities.forEach(act => {
-                const actItem = document.createElement('div');
-                actItem.className = 'fs-activity-item';
-                actItem.onclick = function() {
-                    const activityWithDayIndex = { ...act, dayIndex: index };
-                    // Leverage existing function to update dash
-                    showLocationRealtimeData(activityWithDayIndex);
-                };
+        const activities = dayData.activities || [];
+        if (activities.length > 0) {
+            activities.forEach((act, ai) => {
+                const isLast = (ai === activities.length - 1);
+                const icon = _fsCategoryIcon(act.category);
+                const costStr = _fsFmtCost(act.cost, act.currency || currency);
+                const durStr  = _fsFmtDur(act.durationMinutes);
+                const isFree  = costStr === '무료';
 
-                actItem.innerHTML = `
-                    <div class="fs-activity-time">${act.time || ''}</div>
-                    <div class="fs-activity-details">
-                        <h4>${act.name || ''}</h4>
-                        <p>${act.description || ''}</p>
-                    </div>
+                const actRow = document.createElement('div');
+                Object.assign(actRow.style, {
+                    display:'flex', gap:'12px', alignItems:'flex-start',
+                    padding:'12px 16px',
+                    borderBottom: isLast ? 'none' : '1px solid #f1f5f9',
+                    background:'#fff', cursor:'pointer',
+                    transition:'background 0.15s'
+                });
+                actRow.onmouseenter = () => actRow.style.background = '#f0f9ff';
+                actRow.onmouseleave = () => actRow.style.background = '#fff';
+                actRow.onclick = () => showLocationRealtimeData({ ...act, dayIndex: index });
+
+                // 시간
+                const timeCol = document.createElement('div');
+                Object.assign(timeCol.style, {
+                    width:'42px', flexShrink:'0', paddingTop:'2px',
+                    textAlign:'right'
+                });
+                timeCol.innerHTML = `<span style="font-size:12px;font-weight:600;color:#475569;">${act.time || ''}</span>`;
+
+                // 수직 타임라인 선 + 아이콘
+                const timelineCol = document.createElement('div');
+                Object.assign(timelineCol.style, {
+                    display:'flex', flexDirection:'column', alignItems:'center',
+                    flexShrink:'0', width:'28px'
+                });
+                timelineCol.innerHTML = `
+                    <div style="width:28px;height:28px;border-radius:50%;background:#eff6ff;
+                                border:2px solid #bfdbfe;display:flex;
+                                align-items:center;justify-content:center;
+                                font-size:14px;flex-shrink:0;">${icon}</div>
+                    ${!isLast ? `<div style="width:2px;flex:1;min-height:12px;background:#e2e8f0;margin-top:4px;"></div>` : ''}
                 `;
-                dayContent.appendChild(actItem);
+
+                // 내용
+                const contentCol = document.createElement('div');
+                Object.assign(contentCol.style, { flex:'1', minWidth:'0', paddingBottom:'4px' });
+
+                // 이름 + 비용
+                const nameLine = document.createElement('div');
+                Object.assign(nameLine.style, {
+                    display:'flex', justifyContent:'space-between',
+                    alignItems:'flex-start', gap:'8px', flexWrap:'wrap'
+                });
+                nameLine.innerHTML = `
+                    <span style="font-size:14px;font-weight:600;color:#0f172a;line-height:1.3;flex:1;">${act.name || ''}</span>
+                    <span style="font-size:13px;font-weight:700;color:${isFree ? '#10b981' : '#ef4444'};flex-shrink:0;">${costStr}</span>
+                `;
+
+                // 설명 + 소요시간
+                const metaLine = document.createElement('div');
+                Object.assign(metaLine.style, { marginTop:'3px' });
+                metaLine.innerHTML = `
+                    <div style="font-size:11px;color:#64748b;line-height:1.4;">${act.description || ''}</div>
+                    ${durStr ? `<div style="font-size:11px;color:#94a3b8;margin-top:2px;">⏱ ${durStr}</div>` : ''}
+                `;
+
+                contentCol.appendChild(nameLine);
+                contentCol.appendChild(metaLine);
+
+                actRow.appendChild(timeCol);
+                actRow.appendChild(timelineCol);
+                actRow.appendChild(contentCol);
+                dayContent.appendChild(actRow);
             });
+
+            // ── 예상 비용 합계 푸터 ──
+            const footer = document.createElement('div');
+            Object.assign(footer.style, {
+                display:'flex', justifyContent:'space-between', alignItems:'center',
+                padding:'10px 16px',
+                background:'#eff6ff', borderTop:'1px solid #dbeafe'
+            });
+            footer.innerHTML = `
+                <span style="font-size:12px;color:#3b82f6;font-weight:600;">${dayNum}일차 예상 일정</span>
+                <span style="font-size:13px;font-weight:700;color:#1d4ed8;">
+                    예상 비용: ${totalCost > 0 ? totalCost.toLocaleString() + ' ' + currency : '무료'}
+                </span>
+            `;
+            dayContent.appendChild(footer);
+
         } else {
-            const emptyAct = document.createElement('div');
-            emptyAct.style.cssText = 'padding: 16px 20px; color: #94a3b8; font-size: 13px; text-align: center;';
-            emptyAct.textContent = '아직 등록된 일정이 없습니다.';
-            dayContent.appendChild(emptyAct);
+            const empty = document.createElement('div');
+            Object.assign(empty.style, {
+                padding:'24px', textAlign:'center',
+                color:'#94a3b8', fontSize:'13px', background:'#fff'
+            });
+            empty.textContent = '아직 등록된 일정이 없습니다.';
+            dayContent.appendChild(empty);
         }
 
         dayItem.appendChild(dayToggle);
         dayItem.appendChild(dayContent);
-        accordionContainer.appendChild(dayItem);
+        scrollArea.appendChild(dayItem);
     });
 
-    modalContent.appendChild(accordionContainer);
-    
-    // Hide default modal title
-    if (modalTitle) modalTitle.textContent = ''; 
-
-    modalOverlay.classList.add('active');
-    modalOverlay.style.pointerEvents = 'auto';
-    modalOverlay.style.opacity = '1';
-    modalOverlay.style.visibility = 'visible';
-    
-    const modal = modalOverlay.querySelector('.schedule-modal');
-    if (modal) {
-        modal.style.transform = 'translateY(0)';
-    }
+    sheet.appendChild(scrollArea);
+    fsModalOverlay.appendChild(sheet);
+    document.body.appendChild(fsModalOverlay);
     document.body.style.overflow = 'hidden';
+
+    // 슬라이드업 애니메이션
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        sheet.style.transform = 'translateY(0)';
+    }));
+}
+
+function closeFullScheduleModal() {
+    if (!fsModalOverlay) return;
+    const sheet = fsModalOverlay.firstElementChild;
+    if (sheet) {
+        sheet.style.transform = 'translateY(100%)';
+        setTimeout(() => {
+            if (fsModalOverlay) { fsModalOverlay.remove(); fsModalOverlay = null; }
+            document.body.style.overflow = '';
+        }, 320);
+    } else {
+        fsModalOverlay.remove(); fsModalOverlay = null;
+        document.body.style.overflow = '';
+    }
 }
 
 function toggleFsDay(index) {
-    const dayItem = document.querySelector('.fs-day-item[data-day="' + index + '"]');
+    const dayItem    = document.querySelector('.fs-day-item[data-day="' + index + '"]');
     const dayContent = document.getElementById('fs-day-content-' + index);
-    
-    if (dayItem && dayContent) {
-        if (dayItem.classList.contains('expanded')) {
-            dayItem.classList.remove('expanded');
-            dayContent.style.display = 'none';
-        } else {
-            dayItem.classList.add('expanded');
-            dayContent.style.display = 'block';
-        }
+    const icon       = dayItem && dayItem.querySelector('.fs-toggle-icon');
+    if (!dayItem || !dayContent) return;
+
+    if (dayItem.classList.contains('expanded')) {
+        dayItem.classList.remove('expanded');
+        dayContent.style.display = 'none';
+        if (icon) icon.style.transform = 'rotate(0deg)';
+    } else {
+        dayItem.classList.add('expanded');
+        dayContent.style.display = 'block';
+        if (icon) icon.style.transform = 'rotate(90deg)';
     }
 }
 
-let fsAllExpanded = false;
 function toggleAllFsDays() {
-    const btn = document.querySelector('.fs-expand-btn');
+    const btn   = document.getElementById('fs-expand-btn');
     const items = document.querySelectorAll('.fs-day-item');
-    const contents = document.querySelectorAll('.fs-day-content');
-
     fsAllExpanded = !fsAllExpanded;
 
     items.forEach(item => {
+        const idx     = item.dataset.day;
+        const content = document.getElementById('fs-day-content-' + idx);
+        const icon    = item.querySelector('.fs-toggle-icon');
         if (fsAllExpanded) {
             item.classList.add('expanded');
+            if (content) content.style.display = 'block';
+            if (icon)    icon.style.transform   = 'rotate(90deg)';
         } else {
             item.classList.remove('expanded');
+            if (content) content.style.display = 'none';
+            if (icon)    icon.style.transform   = 'rotate(0deg)';
         }
     });
-
-    contents.forEach(content => {
-        content.style.display = fsAllExpanded ? 'block' : 'none';
-    });
-
-    if (btn) {
-        btn.textContent = fsAllExpanded ? 'collapse all' : 'expand all';
-    }
+    if (btn) btn.textContent = fsAllExpanded ? '전체 접기' : '전체 펼치기';
 }
-

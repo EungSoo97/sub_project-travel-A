@@ -150,6 +150,43 @@
         });
     })();
     </script>
+
+    <script>
+    /* ── 실시간 여행 메뉴: 트래킹 중이면 myLive 페이지로 자동 연결 ── */
+    (function () {
+        const trackingPlanId = localStorage.getItem('liveTrackingPlanId');
+        const liveLink = document.querySelector('.site-nav a[href*="/live"]');
+
+        if (!liveLink) return;
+
+        if (trackingPlanId) {
+            const ctx = '${pageContext.request.contextPath}';
+            liveLink.href = ctx + '/my-live?planId=' + encodeURIComponent(trackingPlanId);
+
+            /* 트래킹 중 시각적 표시: 빨간 점 뱃지 */
+            liveLink.style.position = 'relative';
+            liveLink.style.paddingRight = '14px';
+
+            const dot = document.createElement('span');
+            dot.style.cssText = [
+                'position:absolute', 'top:4px', 'right:0',
+                'width:8px', 'height:8px', 'border-radius:50%',
+                'background:#ef4444',
+                'animation:livePulse 1.4s ease-in-out infinite'
+            ].join(';');
+            liveLink.appendChild(dot);
+
+            /* 펄스 키프레임 (중복 삽입 방지) */
+            if (!document.getElementById('livePulseStyle')) {
+                const style = document.createElement('style');
+                style.id = 'livePulseStyle';
+                style.textContent = '@keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.3)}}';
+                document.head.appendChild(style);
+            }
+        }
+    })();
+    </script>
   </body>
 
 </html>
+
