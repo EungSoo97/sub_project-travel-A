@@ -449,4 +449,23 @@ SELECT
     end_date,
     travel_style,
     thumbnail_url   -- 🔥 이거 꼭 있어야됨
+FROM travel_plan;
+SELECT plan_id, destination, thumbnail_url
 FROM travel_plan
+ORDER BY plan_id DESC;
+
+UPDATE travel_plan
+SET thumbnail_url = 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?auto=format&fit=crop&w=1200&q=80'
+WHERE plan_id = 434;
+
+COMMIT;
+
+SELECT plan_id, destination, thumbnail_url
+FROM travel_plan
+WHERE plan_id = 434;
+
+UPDATE travel_plan
+SET thumbnail_url = NULL
+WHERE plan_id = 435;
+
+select * from travel_plan;
