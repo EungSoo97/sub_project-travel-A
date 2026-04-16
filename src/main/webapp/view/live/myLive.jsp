@@ -37,27 +37,52 @@
     <c:if test="${not empty planDetail}">
         <%--    <p id="liveDestinationHint" class="live-muted" style="margin-top:6px; text-align:center;">-</p>--%>
         <br>
-        <div class="live-plan-card card-box">
-            <div class="live-status-badge">
-                <div class="live-pulse-wrapper">
-                    <span class="live-pulse-ring"></span>
-                    <span class="live-pulse-dot"></span>
+        <div class="live-plan-card card-box" id="livePlanCard">
+            <!-- 헤더: 항상 표시, 클릭 시 아코디언 토글 -->
+            <div class="live-card-header" onclick="toggleLivePlanCard()">
+                <div class="live-status-badge">
+                    <div class="live-pulse-wrapper">
+                        <span class="live-pulse-ring"></span>
+                        <span class="live-pulse-dot"></span>
+                    </div>
+                    <span class="live-badge-label">실시간 트래킹 중</span>
                 </div>
-                <span class="live-badge-label">실시간 트래킹 중</span>
+                <span class="live-card-dest">${planDetail.summary.destination}</span>
+                <!-- 접혔을 때만 표시되는 간략 정보 -->
+                <div class="live-card-mini-info">
+                    <span>📅 ${planDetail.summary.days}</span>
+                    <span>👥 ${planDetail.summary.travelers}</span>
+                </div>
+                <div class="live-card-chevron">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </div>
             </div>
-            <div class="live-plan-destination-name">${planDetail.summary.destination}</div>
-            <div class="live-plan-meta">
-                <span class="live-meta-chip">📅 ${planDetail.summary.days}일</span>
-                <span class="live-meta-chip">👥 ${planDetail.summary.travelers}명</span>
-                <span class="live-meta-chip">💰 ${planDetail.summary.totalEstimatedCost} KRW</span>
+            <!-- 바디: 접기/펼치기 -->
+            <div class="live-card-body">
+                <div class="live-plan-meta">
+                    <span class="live-meta-chip">📅 ${planDetail.summary.days}일</span>
+                    <span class="live-meta-chip">👥 ${planDetail.summary.travelers}명</span>
+                    <span class="live-meta-chip">💰 ${planDetail.summary.totalEstimatedCost} KRW</span>
+                </div>
+                <button class="btn-stop-tracking" onclick="event.stopPropagation(); stopTracking();">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                        <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    </svg>
+                    트래킹 중지
+                </button>
             </div>
-            <button class="btn-stop-tracking" onclick="stopTracking()">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-                    <rect x="4" y="4" width="16" height="16" rx="2"/>
-                </svg>
-                트래킹 중지
-            </button>
         </div>
+
+        <!-- 카드가 스크롤 아웃 시 우측 하단에 나타나는 플로팅 중지 버튼 -->
+        <button class="float-stop-btn" id="floatStopBtn" onclick="stopTracking()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="4" y="4" width="16" height="16" rx="2"/>
+            </svg>
+            트래킹 중지
+        </button>
     </c:if>
 
     <c:if test="${not empty error}">
@@ -234,30 +259,27 @@
     };
     </c:if>
 
+    function toggleLivePlanCard() {
+        document.getElementById('livePlanCard').classList.toggle('expanded');
+    }
+
     function stopTracking() {
         localStorage.removeItem('liveTrackingPlanId');
         window.location.href = window.LIVE_CTX + '/mypage?stopTracking=true';
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('My Live page loaded');
-        console.log('planDetail data:', window.LIVE_PLAN_ID);
-        console.log('PLAN_DETAIL:', window.PLAN_DETAIL);
-
-        // Copy destination from plan-destination to liveDestinationHint
-        const planDestination = document.querySelector('.plan-destination');
-        const liveDestinationHint = document.getElementById('liveDestinationHint');
-
-        if (planDestination && liveDestinationHint) {
-            const destinationText = planDestination.textContent.trim();
-            if (destinationText) {
-                liveDestinationHint.textContent = destinationText;
-                console.log('Destination copied:', destinationText);
-            } else {
-                console.log('Destination text is empty');
-            }
-        } else {
-            console.log('Elements not found - planDestination:', planDestination, 'liveDestinationHint:', liveDestinationHint);
+        // 트래킹 카드가 뷰포트에서 사라지면 플로팅 중지 버튼 표시
+        const livePlanCard  = document.getElementById('livePlanCard');
+        const floatStopBtn  = document.getElementById('floatStopBtn');
+        if (livePlanCard && floatStopBtn) {
+            const cardObserver = new IntersectionObserver(
+                ([entry]) => {
+                    floatStopBtn.classList.toggle('visible', !entry.isIntersecting);
+                },
+                { threshold: 0 }
+            );
+            cardObserver.observe(livePlanCard);
         }
     });
 </script>
