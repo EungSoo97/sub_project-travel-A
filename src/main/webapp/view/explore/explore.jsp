@@ -98,7 +98,8 @@
 
                     <div class="card-img">
                         <!-- 이미지 없으면 기본 이미지 -->
-                        <img src="${empty plan.hotels[0].name ? '/img/defaultplan/default.jpg' : '/img/defaultplan/default.jpg'}">
+                        <img src="${empty plan.thumbnailUrl ? '/img/defaultplan/default.jpg' : plan.thumbnailUrl}"
+                             onerror="this.src='${pageContext.request.contextPath}/img/defaultplan/default.jpg'">
                         <span class="price">₩${plan.summary.totalEstimatedCost}</span>
                     </div>
 

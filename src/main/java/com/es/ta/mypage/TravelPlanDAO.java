@@ -118,6 +118,8 @@ public class TravelPlanDAO {
                 plan.setCreatedAt(rs.getDate("created_at"));
                 plan.setUpdatedAt(rs.getDate("updated_at"));
                 plans.add(plan);
+                plan.setThumbnailUrl(rs.getString("thumbnail_url"));
+
             }
         } catch (Exception e) {
             e.printStackTrace();

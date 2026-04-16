@@ -404,3 +404,15 @@ SELECT response_json
 FROM travel_plan
 WHERE plan_id = 322;
 
+ALTER TABLE travel_plan ADD thumbnail_url VARCHAR2(1000);
+
+
+SELECT
+    plan_id,
+    destination,
+    title,
+    start_date,
+    end_date,
+    travel_style,
+    thumbnail_url   -- 🔥 이거 꼭 있어야됨
+FROM travel_plan
