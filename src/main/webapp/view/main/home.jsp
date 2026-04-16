@@ -46,7 +46,7 @@
 
                     <div class="form-field form-field--wide">
                         <label>여행 기간</label>
-                        <div class="date-trigger" id="dateTrigger">
+                        <div class="date-trigger" id="dateTrigger" role="button" tabindex="0">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--primary);flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
                             <div class="trigger-main">
                                 <span class="trigger-label">출발일 · 도착일</span>
