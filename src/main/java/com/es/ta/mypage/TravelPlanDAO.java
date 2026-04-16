@@ -79,7 +79,7 @@ public class TravelPlanDAO {
 
         String sql = "SELECT tp.plan_id, tp.user_id, tp.destination, tp.title, tp.start_date, tp.end_date, " +
                 "tp.days, tp.travelers, tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview, " +
-                "tp.success, tp.message, tp.response_json, tp.posted, tp.created_at, tp.updated_at, " +
+                "tp.success, tp.message, tp.response_json, tp.thumbnail_url, tp.posted, tp.created_at, tp.updated_at, " +
                 "NVL(tp.original_user_id, 0) AS original_user_id, NVL(tp.copied_modified, 1) AS copied_modified, " +
                 "NVL(pl.like_cnt, 0) AS like_cnt, " +
                 "CASE WHEN ps_user.plan_id IS NULL THEN 0 ELSE 1 END AS is_starred, " +

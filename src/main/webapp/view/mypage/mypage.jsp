@@ -821,40 +821,12 @@
             }
         };
 
-        /* 2. 기존의 DOMContentLoaded 로직은 그대로 유지 */
-        document.addEventListener('DOMContentLoaded', function () {
-            // ... 기존 탭 클릭 이벤트 및 차트 로직 ...
-        });
-        const mypageSnackbar = document.getElementById('mypageSnackbar');
+        var mypageSnackbar = document.getElementById('mypageSnackbar');
         if (mypageSnackbar && mypageSnackbar.classList.contains('show')) {
             setTimeout(() => {
                 mypageSnackbar.classList.remove('show');
             }, 5000);
         }
-
-        // 3. targetId에 맞는 콘텐츠 찾아 활성화
-        const targetContent = document.getElementById(targetId);
-        if (targetContent) {
-            targetContent.classList.add('active');
-        }
-
-        // 4. 클릭 후 탭 위치로 자동 스크롤 (화면이 클 때 편리함)
-        const tabsElement = document.querySelector('.tabs');
-        if(tabsElement) {
-            tabsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    };
-
-    /* 2. 기존의 DOMContentLoaded 로직은 그대로 유지 */
-    document.addEventListener('DOMContentLoaded', function () {
-        // ... 기존 탭 클릭 이벤트 및 차트 로직 ...
-    });
-    const mypageSnackbar = document.getElementById('mypageSnackbar');
-    if (mypageSnackbar && mypageSnackbar.classList.contains('show')) {
-        setTimeout(() => {
-            mypageSnackbar.classList.remove('show');
-        }, 5000);
-    }
 
     const initialTab = new URLSearchParams(window.location.search).get('tab');
     if (initialTab === 'reviews') {
