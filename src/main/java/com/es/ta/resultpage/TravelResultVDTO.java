@@ -27,6 +27,8 @@ public class TravelResultVDTO {
     private String editorUserName;
     @JsonIgnore
     private String postDate;
+    @JsonIgnore
+    private String thumbnailUrl;
 
     private boolean success;
     private String message;

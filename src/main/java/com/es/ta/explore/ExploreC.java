@@ -9,8 +9,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Properties;
 
 @WebServlet(name = "ExploreC", value = "/explore")
 public class ExploreC extends HttpServlet {
@@ -47,8 +49,10 @@ public class ExploreC extends HttpServlet {
         List<TravelResultVDTO> planList;
         int totalCount;
 
+        String googleApiKey = getGoogleApiKey();
+
         if (hasQ || hasSelectedTags) {
-            List<TravelResultVDTO> allResults = ExploreDAO.searchPlans(q, selectedTags);
+            List<TravelResultVDTO> allResults = ExploreDAO.searchPlans(q, selectedTags, googleApiKey);
             totalCount = allResults.size();
 
             Comparator<TravelResultVDTO> comparator = "latest".equals(sort)
@@ -61,7 +65,7 @@ public class ExploreC extends HttpServlet {
             int toIndex = Math.min(startRow + pageSize, allResults.size());
             planList = allResults.subList(fromIndex, toIndex);
         } else {
-            planList = ResultpageDAO.getPlanListSorted(sort, startRow, pageSize);
+            planList = ResultpageDAO.getPlanListSorted(sort, startRow, pageSize, googleApiKey);
             totalCount = ResultpageDAO.getTotalPlanCount();
         }
 
@@ -82,5 +86,24 @@ public class ExploreC extends HttpServlet {
 
     private static String safePostDate(TravelResultVDTO plan) {
         return plan == null || plan.getPostDate() == null ? "" : plan.getPostDate();
+    }
+
+    private String getGoogleApiKey() {
+        Properties props = new Properties();
+
+        try (InputStream in = getServletContext().getResourceAsStream("/WEB-INF/application.properties")) {
+            if (in == null) {
+                System.out.println("application.properties 못찾음");
+                return "";
+            }
+
+            props.load(in);
+
+            return props.getProperty("GOOGLE_API_KEY", "");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "";
     }
 }
