@@ -989,17 +989,32 @@
                     body: JSON.stringify({ planId: planId })
                 })
                     .then(function (res) {
+                        if (!res.ok) {
+                            throw new Error("좋아요 처리에 실패했습니다.");
+                        }
                         return res.json();
                     })
                     .then(function (data) {
                         btn.innerText = data.liked ? "♥" : "♡";
                         btn.classList.toggle("is-heart", data.liked);
+                        updateLikeCount(data.likeCount);
                         showDpSnackbar(data.liked ? "좋아요가 반영되었습니다." : "좋아요를 취소했습니다.");
                     })
                     .catch(function (err) {
                         console.error(err);
                         showDpSnackbar("좋아요 처리 중 오류가 발생했습니다.");
                     });
+            }
+
+            function updateLikeCount(likeCount) {
+                const likePill = document.querySelector(".plan-like-pill");
+                const nextCount = Number(likeCount);
+
+                if (!likePill || !Number.isFinite(nextCount)) {
+                    return;
+                }
+
+                likePill.textContent = "♥ " + nextCount;
             }
 
             function showLoginAlert() {

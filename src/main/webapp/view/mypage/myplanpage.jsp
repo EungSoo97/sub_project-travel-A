@@ -338,12 +338,12 @@
                 btn.disabled = true;
 
                 try {
-                    const response = await fetch("${pageContext.request.contextPath}/plan-like/toggle", {
+                    const response = await fetch("${pageContext.request.contextPath}/star", {
                         method: "POST",
                         headers: {
-                            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                            "Content-Type": "application/json"
                         },
-                        body: "planId=" + encodeURIComponent(planId)
+                        body: JSON.stringify({ planId: Number(planId) })
                     });
 
                     const data = await response.json();
@@ -361,6 +361,7 @@
                     const liked = !!data.liked;
 
                     btn.classList.toggle("is-liked", liked);
+                    updateMpLikeCount(data.likeCount);
                     btn.textContent = liked ? "★" : "☆";
 
                     showMpSnackbar(liked ? "즐겨찾기에 저장했어요." : "즐겨찾기를 해제했어요.");
@@ -371,6 +372,17 @@
                     btn.dataset.loading = "false";
                     btn.disabled = false;
                 }
+            }
+
+            function updateMpLikeCount(likeCount) {
+                const likePill = document.querySelector(".plan-like-pill");
+                const nextCount = Number(likeCount);
+
+                if (!likePill || !Number.isFinite(nextCount)) {
+                    return;
+                }
+
+                likePill.textContent = "♥ " + nextCount;
             }
 
             function showMpSnackbar(message) {
