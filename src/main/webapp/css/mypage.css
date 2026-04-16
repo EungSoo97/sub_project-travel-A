@@ -426,9 +426,10 @@
 }
 
 .section-title {
-    font-size: 13px;
-    color: #888;
-    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 14px;
 }
 
 .level-row {
@@ -439,8 +440,8 @@
 }
 
 .level-info .level-name {
-    font-size: 15px;
-    font-weight: 500;
+    font-size: 16px;
+    font-weight: 700;
     color: #1a1a1a;
 }
 
@@ -460,7 +461,9 @@
 .bar-fill {
     height: 8px;
     border-radius: 999px;
-    background: #378ADD;
+    background: linear-gradient(90deg, #60a5fa, #2563eb);
+    width: 0%;
+    transition: width 0.85s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .bar-label {
@@ -933,14 +936,14 @@
     }
 }
 .level-badge {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
     background: #E6F1FB;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 26px;
     flex-shrink: 0;
 }
 
@@ -971,4 +974,68 @@
      transform: scale(1.02);
      transition: 0.2s;
  }
+
+/* ══════════════════════════════════════════
+   통계 탭 UI 개선
+   ══════════════════════════════════════════ */
+
+/* 칭호 타이틀 행 (우측에 좋아요 수 칩) */
+.section-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+.section-title-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+.section-like-chip {
+    font-size: 12px;
+    font-weight: 700;
+    color: #b91c1c;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 999px;
+    padding: 3px 10px;
+}
+
+/* 칭호 등급별 배지 색상 */
+.level-badge-1 { background: #f0fdf4; } /* 새싹 */
+.level-badge-2 { background: #eff6ff; } /* 탐험가 */
+.level-badge-3 { background: #fefce8; } /* 마스터 */
+.level-badge-4 { background: #fff7ed; } /* 전설 */
+
+/* 상단 요약 미니 카드 행 */
+.stats-summary-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.stats-sum-card {
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    border-radius: 14px;
+    padding: 14px 6px 12px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+.stats-sum-icon { font-size: 20px; line-height: 1.2; }
+.stats-sum-num  { font-size: 22px; font-weight: 800; color: #111; line-height: 1.1; }
+.stats-sum-lbl  { font-size: 11px; color: #888; font-weight: 500; }
+
+/* 트렌드 바 / 스타일 바 애니메이션 강화 */
+.trend-bar {
+    width: 0%;
+    transition: width 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.style-bar {
+    width: 0%;
+    transition: width 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
