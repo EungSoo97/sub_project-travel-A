@@ -39,6 +39,12 @@ public class PostPlanC extends HttpServlet {
         }
 
         boolean nextPosted = plan.getPosted() != 1;
+        boolean canPostPlan = plan.getOriginalUserId() == 0 || plan.getCopiedModified() == 1;
+        if (nextPosted && !canPostPlan) {
+            response.sendRedirect(request.getContextPath() + "/myplan-page?id=" + planId + "&postBlocked=1");
+            return;
+        }
+
         MyPlanPageDAO.updatePostedByPlanIdAndUserId(planId, loginUser.getUser_id(), nextPosted);
         response.sendRedirect(request.getContextPath() + "/mypage?posted=" + (nextPosted ? "1" : "0"));
     }

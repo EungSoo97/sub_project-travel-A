@@ -93,6 +93,49 @@
     color: var(--text-secondary);
 }
 
+.plan-creator-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.plan-creator-pill,
+.plan-editor-pill,
+.plan-like-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 26px;
+    padding: 5px 9px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.2;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #374151;
+}
+
+.plan-creator-pill {
+    border-color: #bfdbfe;
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.plan-like-pill {
+    border-color: #fecdd3;
+    background: #fff1f2;
+    color: #be123c;
+}
+
+.plan-editor-pill {
+    border-color: #c7d2fe;
+    background: #eef2ff;
+    color: #4338ca;
+}
+
 .title-meta-row {
     display: flex;
     align-items: center;
@@ -1357,6 +1400,7 @@
 .title-meta-row,
 .mp-sub,
 .detail-title-divider,
+.detail-plan-meta,
 .dp-review-link-btn {
     transition: max-height 0.28s ease, opacity 0.2s ease, transform 0.24s ease, margin 0.24s ease, padding 0.24s ease;
 }
@@ -1374,6 +1418,7 @@
 .is-header-collapsed .title-meta-row,
 .is-header-collapsed .mp-sub,
 .is-header-collapsed .detail-title-divider,
+.is-header-collapsed .detail-plan-meta,
 .is-header-collapsed .dp-review-link-btn {
     max-height: 0;
     margin-top: 0;

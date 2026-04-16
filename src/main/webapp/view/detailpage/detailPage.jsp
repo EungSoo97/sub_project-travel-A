@@ -56,6 +56,17 @@
                         </div>
 
                         <div class="detail-title-divider"></div>
+                        <div class="detail-plan-meta plan-creator-meta">
+                            <span class="plan-creator-pill">👤
+                                <c:out value="${empty sourcePlan.creatorName ? '여행자' : sourcePlan.creatorName}" />
+                            </span>
+                            <c:if test="${not empty sourcePlan.editorName and sourcePlan.editorName ne sourcePlan.creatorName}">
+                                <span class="plan-editor-pill">✏️
+                                    <c:out value="${sourcePlan.editorName}" />
+                                </span>
+                            </c:if>
+                            <span class="plan-like-pill">♥ ${plan.likeCnt}</span>
+                        </div>
                     </div>
 
                     <div class="actions">
