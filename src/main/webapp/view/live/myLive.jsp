@@ -49,7 +49,7 @@
                 <p><span>0</span> ${planDetail.summary.totalEstimatedCost} KRW</p>
             </div>
             <div class="plan-actions">
-                <button class="btn-stop-tracking" onclick="stopTracking()">Stop Tracking</button>
+                <button class="btn-stop-tracking" onclick="stopTracking()">트래킹 중지</button>
             </div>
         </div>
     </div>
@@ -59,113 +59,21 @@
     <div class="live-dashboard-error">${error}</div>
 </c:if>
 
-<!-- Daily schedule -->
+<!-- Full detailed schedule button -->
 <c:if test="${not empty planDetail}">
-    <div class="schedule">
-        <div class="detail-header">
-            <h2>상세 일정</h2>
-            <div class="total-cost">총 예상 비용: ${planDetail.summary.totalEstimatedCost} ${planDetail.summary.currency}</div>
-        </div>
-
-        <!-- Daily repetition -->
-        <c:forEach var="item" items="${planDetail.itinerary}">
-            <div class="day-card">
-                
-                <!-- Day header -->
-                <div class="day-header">
-                    <div class="day-left">
-                        <div class="day-badge">D${item.day}</div>
-                        <div>
-                            <div class="day-title">${item.day} 일차</div>
-                            <div class="day-date">${item.date}</div>
-                        </div>
-                    </div>
-
-                    <div class="day-right">
-                        <span class="transport">
-                            <c:choose>
-                                <c:when test="${not empty item.dayRoute && not empty item.dayRoute.routePreferenceLabelKo}">
-                                    <c:out value="${item.dayRoute.routePreferenceLabelKo}" />
-                                </c:when>
-                                <c:when test="${not empty item.transportation}">
-                                    <c:out value="${item.transportation}" />
-                                </c:when>
-                                <c:otherwise>No movement information</c:otherwise>
-                            </c:choose>
-                        </span>
-                        <span class="distance">
-                            <c:choose>
-                                <c:when test="${item.totalDistanceKm != null && item.totalTravelTimeMinutes != null}">
-                                    약 <c:out value="${item.totalDistanceKm}" />km · 당일 이동 약 <c:out value="${item.totalTravelTimeMinutes}" /> 분
-
-                                </c:when>
-                                <c:otherwise>No distance information</c:otherwise>
-                            </c:choose>
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Activity list (hidden) -->
-                <div class="time-section" style="display:none;">
-                    <c:forEach var="act" items="${item.activities}" varStatus="activityStatus">
-                        <div
-                            class="item schedule-item"
-                            data-day="${item.day}"
-                            data-order="${activityStatus.count}"
-                            data-name="${fn:escapeXml(act.name)}"
-                            data-category="${fn:escapeXml(empty act.categoryCode ? act.category : act.categoryCode)}"
-                            data-lat="${act.lat}"
-                            data-lng="${act.lng}"
-                            data-time="${fn:escapeXml(act.time)}"
-                            data-is-new="${(empty act.lat || empty act.lng) ? 'true' : 'false'}">
-                            
-                            <c:set var="activityCategory" value="${fn:toUpperCase(not empty act.categoryCode ? act.categoryCode : (not empty act.category ? act.category : act.type))}" />
-                            
-                            <c:choose>
-                                <c:when test="${activityCategory == 'TRANSPORT' or activityCategory == 'MOVE'}">
-                                    <div class="icon move">Up</div>
-                                </c:when>
-                                <c:when test="${activityCategory == 'DINING' or activityCategory == 'FOOD' or activityCategory == 'RESTAURANT'}">
-                                    <div class="icon food">Dining</div>
-                                </c:when>
-                                <c:when test="${activityCategory == 'ACCOMMODATION' or activityCategory == 'HOTEL'}">
-                                    <div class="icon hotel">Hotel</div>
-                                </c:when>
-                                <c:otherwise>
-                                    <div class="icon spot">Location</div>
-                                </c:otherwise>
-                            </c:choose>
-
-                            <div class="content">
-                                <div class="top">
-                                    <span class="time">${act.time}</span>
-                                    <span class="title">${act.name}</span>
-                                </div>
-                                <div class="desc">${act.description}</div>
-                            </div>
-
-                            <div class="meta">
-                                <span>${act.durationMinutes} min</span>
-                                <c:choose>
-                                    <c:when test="${act.cost == 0}">
-                                        <span>Free</span>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <span>${act.cost} ${act.currency}</span>
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
-                        </div>
-                    </c:forEach>
-                </div>
-
-                <!-- Bottom summary -->
-                <div class="day-footer">
-                    <span>${item.summary}</span>
-                    <span>Estimated cost: ${item.estimatedCost} ${item.currency}</span>
-                </div>
+    <div class="schedule-trigger-box card-box" onclick="openFullScheduleModal()" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 20px; transition: transform 0.2s ease;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="background-color: #3b82f6; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
             </div>
-        </c:forEach>
+            <div>
+                <h3 style="margin: 0; font-size: 16px; color: #1e40af; font-weight: 700;">상세 일정 확인 하기</h3>
+                <p style="margin: 3px 0 0 0; font-size: 12px; color: #64748b;">일자별 상세 일정 및 여행 동선 보기</p>
+            </div>
+        </div>
+        <div style="color: #cbd5e1;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
     </div>
 </c:if>
 
@@ -189,7 +97,7 @@
             <div class="time-remaining">남은 시간 <strong id="liveRemainingMin">-</strong> 분</div>
         </div>
 
-        <h3 class="activity-title" id="liveActivityTitle">Loading...</h3>
+        <h3 class="activity-title" id="liveActivityTitle">로딩중...</h3>
         <p class="activity-address" id="liveActivityAddress">-</p>
 
         <div class="info-grid">
@@ -210,7 +118,7 @@
         <div class="congestion-banner">
             <div class="banner-icon">👥</div>
             <div class="banner-text">
-                <strong id="liveCrowdSectionTitle">Real-time Crowd Level</strong>
+                <strong id="liveCrowdSectionTitle">실시간 혼잡도</strong>
                 <p id="liveCrowdMessage">-</p>
             </div>
         </div>
@@ -225,7 +133,7 @@
                 <h3 id="liveNextTitle">-</h3>
                 <p id="liveNextSummary">-</p>
             </div>
-            <button type="button" class="btn-dark" id="liveNextRouteBtn">View Route</button>
+            <button type="button" class="btn-dark" id="liveNextRouteBtn">경로 보기</button>
         </div>
     </div>
 
@@ -234,18 +142,18 @@
             <div class="section-title">
                 📷 주변 인생샷 스폿
             </div>
-            <span class="subtitle" id="liveSpotSubtitle">Within 10 minutes walk</span>
+            <span class="subtitle" id="liveSpotSubtitle">도보 10분 이내</span>
         </div>
 
         <div class="booking-list" id="liveRecommendations">
-            <p class="live-muted">Loading...</p>
+            <p class="live-muted">로딩중...</p>
         </div>
     </div>
     <div class="weather-box card-box">
         <div class="section-title">
             실시간 날씨
         </div>
-        <div id="weatherArea">Loading weather...</div>
+        <div id="weatherArea">날씨 로딩중...</div>
     </div>
 
     <div class="traffic-box card-box">
@@ -254,7 +162,7 @@
         </div>
 
         <div class="info-list" id="liveTraffic">
-            <p class="live-muted">Loading...</p>
+            <p class="live-muted">로딩중...</p>
         </div>
     </div>
 
@@ -264,7 +172,7 @@
         </div>
 
         <div class="info-list" id="liveEmergency">
-            <p class="live-muted">Loading...</p>
+            <p class="live-muted">로딩중...</p>
         </div>
     </div>
 </div>

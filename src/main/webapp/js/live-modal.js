@@ -937,3 +937,142 @@ function updateNextScheduleInfo(currentActivity) {
     }
 }
 
+// --- New Full Schedule Accordion UI ---
+function openFullScheduleModal() {
+    if (!modalOverlay) {
+        initModal();
+    }
+    
+    // Set up modal header
+    let planDetail = window.PLAN_DETAIL;
+    if (!planDetail || !planDetail.itinerary) {
+        // Fallback or demo data if needed. Usually myLive exposes PLAN_DETAIL.
+        console.error('No plan detail found. Trying to parse from DOM but PLAN_DETAIL is expected.');
+        return;
+    }
+
+    modalContent.innerHTML = '';
+    
+    const headerTop = document.createElement('div');
+    headerTop.className = 'fs-modal-header-top';
+    headerTop.innerHTML = `
+        <h3 class="fs-modal-title">daily schedule</h3>
+        <button class="fs-expand-btn" onclick="toggleAllFsDays()">expand all</button>
+    `;
+    modalContent.appendChild(headerTop);
+
+    const accordionContainer = document.createElement('div');
+    accordionContainer.style.paddingBottom = '30px'; // Extra padding for better scrolling
+    
+    planDetail.itinerary.forEach((dayData, index) => {
+        const dayItem = document.createElement('div');
+        dayItem.className = 'fs-day-item';
+        dayItem.dataset.day = index;
+
+        const dayToggle = document.createElement('div');
+        dayToggle.className = 'fs-day-toggle';
+        dayToggle.onclick = function() { toggleFsDay(index); };
+        
+        dayToggle.innerHTML = `
+            <div class="fs-day-info">
+                <div class="fs-day-circle">
+                    <span>day</span>
+                    <span>${index + 1}</span>
+                </div>
+                <span class="fs-day-title">${index + 1}${index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th'} day</span>
+            </div>
+            <div class="fs-toggle-icon">&gt;</div>
+        `;
+
+        const dayContent = document.createElement('div');
+        dayContent.className = 'fs-day-content';
+        dayContent.id = 'fs-day-content-' + index;
+
+        if (dayData.activities && dayData.activities.length > 0) {
+            dayData.activities.forEach(act => {
+                const actItem = document.createElement('div');
+                actItem.className = 'fs-activity-item';
+                actItem.onclick = function() {
+                    const activityWithDayIndex = { ...act, dayIndex: index };
+                    // Leverage existing function to update dash
+                    showLocationRealtimeData(activityWithDayIndex);
+                };
+
+                actItem.innerHTML = `
+                    <div class="fs-activity-time">${act.time || ''}</div>
+                    <div class="fs-activity-details">
+                        <h4>${act.name || ''}</h4>
+                        <p>${act.description || ''}</p>
+                    </div>
+                `;
+                dayContent.appendChild(actItem);
+            });
+        } else {
+            const emptyAct = document.createElement('div');
+            emptyAct.style.cssText = 'padding: 16px 20px; color: #94a3b8; font-size: 13px; text-align: center;';
+            emptyAct.textContent = '아직 등록된 일정이 없습니다.';
+            dayContent.appendChild(emptyAct);
+        }
+
+        dayItem.appendChild(dayToggle);
+        dayItem.appendChild(dayContent);
+        accordionContainer.appendChild(dayItem);
+    });
+
+    modalContent.appendChild(accordionContainer);
+    
+    // Hide default modal title
+    if (modalTitle) modalTitle.textContent = ''; 
+
+    modalOverlay.classList.add('active');
+    modalOverlay.style.pointerEvents = 'auto';
+    modalOverlay.style.opacity = '1';
+    modalOverlay.style.visibility = 'visible';
+    
+    const modal = modalOverlay.querySelector('.schedule-modal');
+    if (modal) {
+        modal.style.transform = 'translateY(0)';
+    }
+    document.body.style.overflow = 'hidden';
+}
+
+function toggleFsDay(index) {
+    const dayItem = document.querySelector('.fs-day-item[data-day="' + index + '"]');
+    const dayContent = document.getElementById('fs-day-content-' + index);
+    
+    if (dayItem && dayContent) {
+        if (dayItem.classList.contains('expanded')) {
+            dayItem.classList.remove('expanded');
+            dayContent.style.display = 'none';
+        } else {
+            dayItem.classList.add('expanded');
+            dayContent.style.display = 'block';
+        }
+    }
+}
+
+let fsAllExpanded = false;
+function toggleAllFsDays() {
+    const btn = document.querySelector('.fs-expand-btn');
+    const items = document.querySelectorAll('.fs-day-item');
+    const contents = document.querySelectorAll('.fs-day-content');
+
+    fsAllExpanded = !fsAllExpanded;
+
+    items.forEach(item => {
+        if (fsAllExpanded) {
+            item.classList.add('expanded');
+        } else {
+            item.classList.remove('expanded');
+        }
+    });
+
+    contents.forEach(content => {
+        content.style.display = fsAllExpanded ? 'block' : 'none';
+    });
+
+    if (btn) {
+        btn.textContent = fsAllExpanded ? 'collapse all' : 'expand all';
+    }
+}
+
