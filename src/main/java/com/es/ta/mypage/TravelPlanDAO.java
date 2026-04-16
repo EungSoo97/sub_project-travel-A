@@ -79,7 +79,17 @@ public class TravelPlanDAO {
 
         String sql = "SELECT tp.plan_id, tp.user_id, tp.destination, tp.title, tp.start_date, tp.end_date, " +
                 "tp.days, tp.travelers, tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview, " +
-                "tp.success, tp.message, tp.response_json, tp.thumbnail_url, tp.posted, tp.created_at, tp.updated_at, " +
+                "tp.success, tp.message, tp.response_json, " +
+                "NVL(tp.thumbnail_url, ( " +
+                "    SELECT src.thumbnail_url " +
+                "    FROM travel_plan src " +
+                "    WHERE src.posted = 1 " +
+                "    AND src.thumbnail_url IS NOT NULL " +
+                "    AND src.plan_id <> tp.plan_id " +
+                "    AND DBMS_LOB.COMPARE(src.response_json, tp.response_json) = 0 " +
+                "    FETCH FIRST 1 ROW ONLY " +
+                ")) AS thumbnail_url, " +
+                "tp.posted, NVL(tp.live_tracking, 0) AS live_tracking, tp.created_at, tp.updated_at, " +
                 "NVL(tp.original_user_id, 0) AS original_user_id, NVL(tp.copied_modified, 1) AS copied_modified, " +
                 "NVL(pl.like_cnt, 0) AS like_cnt, " +
                 "CASE WHEN ps_user.plan_id IS NULL THEN 0 ELSE 1 END AS is_starred, " +
@@ -94,7 +104,7 @@ public class TravelPlanDAO {
                 "LEFT JOIN user_info creator ON NVL(tp.original_user_id, tp.user_id) = creator.u_user_id " +
                 "LEFT JOIN user_info editor ON tp.user_id = editor.u_user_id " +
                 "WHERE tp.user_id = ? " +
-                "ORDER BY CASE WHEN ps_user.plan_id IS NULL THEN 1 ELSE 0 END, tp.created_at DESC";
+                "ORDER BY NVL(tp.live_tracking, 0) DESC, CASE WHEN ps_user.plan_id IS NULL THEN 1 ELSE 0 END, tp.created_at DESC";
 
         try {
             con = DBManager_new.connect();
@@ -121,6 +131,7 @@ public class TravelPlanDAO {
                 plan.setMessage(rs.getString("message"));
                 plan.setResponseJson(rs.getString("response_json"));
                 plan.setPosted(rs.getInt("posted"));
+                plan.setLiveTracking(rs.getInt("live_tracking"));
                 plan.setLikeCnt(rs.getInt("like_cnt"));
                 plan.setStarred(rs.getInt("is_starred") == 1);
                 plan.setOriginalUserId(rs.getInt("original_user_id"));
