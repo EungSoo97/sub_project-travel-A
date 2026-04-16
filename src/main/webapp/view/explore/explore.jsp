@@ -168,7 +168,16 @@
     </div>
 
 <%--     페이징  아직  하는중 ,,,,--%>
+    <c:set var="pageGroupSize" value="5" />
+    <c:set var="startPage" value="${((page - 1) / pageGroupSize) * pageGroupSize + 1}" />
+    <c:set var="endPage" value="${startPage + pageGroupSize - 1}" />
+    <c:if test="${endPage > totalPage}">
+        <c:set var="endPage" value="${totalPage}" />
+    </c:if>
+
     <div id="pagination" class="pagination">
+
+        <!-- 이전 페이지 -->
         <c:if test="${page > 1}">
             <c:url var="prevUrl" value="/explore">
                 <c:param name="page" value="${page-1}"/>
@@ -176,17 +185,21 @@
                 <c:if test="${not empty q}"><c:param name="q" value="${q}"/></c:if>
                 <c:if test="${not empty selectedTags}"><c:param name="selectedTags" value="${selectedTags}"/></c:if>
             </c:url>
-            <a href="${prevUrl}">이전</a>
+            <a href="${prevUrl}" class="page-nav prev">‹</a>
         </c:if>
-        <c:forEach var="i" begin="1" end="${totalPage}">
+
+        <!-- 현재 5개 그룹만 출력 -->
+        <c:forEach var="i" begin="${startPage}" end="${endPage}">
             <c:url var="pageUrl" value="/explore">
                 <c:param name="page" value="${i}"/>
                 <c:param name="sort" value="${sort}"/>
                 <c:if test="${not empty q}"><c:param name="q" value="${q}"/></c:if>
                 <c:if test="${not empty selectedTags}"><c:param name="selectedTags" value="${selectedTags}"/></c:if>
             </c:url>
-            <a href="${pageUrl}" style="${i == page ? 'font-weight:bold;' : ''}">${i}</a>
+            <a href="${pageUrl}" class="page-number ${i == page ? 'is-current' : ''}">${i}</a>
         </c:forEach>
+
+        <!-- 다음 페이지 -->
         <c:if test="${page < totalPage}">
             <c:url var="nextUrl" value="/explore">
                 <c:param name="page" value="${page+1}"/>
@@ -194,11 +207,9 @@
                 <c:if test="${not empty q}"><c:param name="q" value="${q}"/></c:if>
                 <c:if test="${not empty selectedTags}"><c:param name="selectedTags" value="${selectedTags}"/></c:if>
             </c:url>
-            <a href="${nextUrl}">다음</a>
+            <a href="${nextUrl}" class="page-nav next">›</a>
         </c:if>
     </div>
-
-</div>
 <script>
     const searchBtn = document.getElementById("searchBtn");
     const searchForm = document.getElementById("searchForm");
