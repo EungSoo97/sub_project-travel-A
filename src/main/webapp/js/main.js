@@ -300,6 +300,11 @@ const progressBar = document.getElementById("progressBar");
 const progressText = document.getElementById("progressText");
 const destinationInput = document.querySelector('input[name="destination"]');
 const travelersInput = document.querySelector('input[name="travelers"]');
+const departureAirportInput = document.getElementById("departureAirportCode");
+const startDateInput = document.getElementById("startDate");
+const endDateInput = document.getElementById("endDate");
+const airportTrigger = document.getElementById("airportTrigger");
+const dateTrigger = document.getElementById("dateTrigger");
 const aiMessage = document.getElementById("aiMessage");
 
 let progress = 0;
@@ -368,9 +373,109 @@ function resetLoadingState() {
   lucide.createIcons();
 }
 
+function getFieldWrapper(control) {
+  return control ? control.closest(".form-field") : null;
+}
+
+function setFieldError(control, message) {
+  const wrapper = getFieldWrapper(control);
+  if (!wrapper) return;
+
+  control.classList.add("is-invalid");
+  control.setAttribute("aria-invalid", "true");
+
+  let errorEl = wrapper.querySelector(".field-error");
+  if (!errorEl) {
+    errorEl = document.createElement("p");
+    errorEl.className = "field-error";
+    wrapper.appendChild(errorEl);
+  }
+  errorEl.textContent = message;
+}
+
+function clearFieldError(control) {
+  const wrapper = getFieldWrapper(control);
+  if (!wrapper) return;
+
+  control.classList.remove("is-invalid");
+  control.removeAttribute("aria-invalid");
+
+  const errorEl = wrapper.querySelector(".field-error");
+  if (errorEl) {
+    errorEl.remove();
+  }
+}
+
+function validateRequiredSearchFields() {
+  const checks = [
+    {
+      control: airportTrigger,
+      isValid: departureAirportInput && departureAirportInput.value.trim(),
+      message: "출발 공항을 선택해 주세요."
+    },
+    {
+      control: destinationInput,
+      isValid: destinationInput && destinationInput.value.trim(),
+      message: "여행지를 입력해 주세요."
+    },
+    {
+      control: dateTrigger,
+      isValid: startDateInput && startDateInput.value.trim() && endDateInput && endDateInput.value.trim(),
+      message: "여행 기간을 선택해 주세요."
+    }
+  ];
+
+  let firstInvalid = null;
+  checks.forEach(function(check) {
+    if (!check.control) return;
+
+    if (check.isValid) {
+      clearFieldError(check.control);
+      return;
+    }
+
+    setFieldError(check.control, check.message);
+    if (!firstInvalid) {
+      firstInvalid = check.control;
+    }
+  });
+
+  if (firstInvalid) {
+    firstInvalid.focus();
+    firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+    return false;
+  }
+
+  return true;
+}
+
+if (airportTrigger) {
+  airportTrigger.addEventListener("click", function() {
+    clearFieldError(airportTrigger);
+  });
+}
+
+if (destinationInput) {
+  destinationInput.addEventListener("input", function() {
+    if (destinationInput.value.trim()) {
+      clearFieldError(destinationInput);
+    }
+  });
+}
+
+if (dateTrigger) {
+  dateTrigger.addEventListener("click", function() {
+    clearFieldError(dateTrigger);
+  });
+}
+
 if (form) {
   form.addEventListener("submit", function (e) {
     e.preventDefault();
+
+    if (!validateRequiredSearchFields()) {
+      return;
+    }
 
     resetLoadingState();
 
