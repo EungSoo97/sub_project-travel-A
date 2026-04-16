@@ -15,7 +15,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @WebServlet(name = "MypageC", value = "/mypage")
 public class MypageC extends HttpServlet {
@@ -57,6 +59,7 @@ public class MypageC extends HttpServlet {
 
         ArrayList<UserreactionDTO> reviews = UserreactionDAO.getReviewsByUserId(userId);
         request.setAttribute("reviewList", reviews);
+        request.setAttribute("reviewGroups", groupReviewsByPlanId(reviews));
 
         // 내가 받은 좋아요 수
         int receivedLikes = UserreactionDAO.getlike(userId);
@@ -86,5 +89,17 @@ public class MypageC extends HttpServlet {
 
     @Override
     public void destroy() {
+    }
+
+    private List<Map.Entry<Integer, List<UserreactionDTO>>> groupReviewsByPlanId(List<UserreactionDTO> reviews) {
+        Map<Integer, List<UserreactionDTO>> groupedReviews = new LinkedHashMap<>();
+
+        for (UserreactionDTO review : reviews) {
+            groupedReviews
+                    .computeIfAbsent(review.getPlanId(), key -> new ArrayList<>())
+                    .add(review);
+        }
+
+        return new ArrayList<>(groupedReviews.entrySet());
     }
 }

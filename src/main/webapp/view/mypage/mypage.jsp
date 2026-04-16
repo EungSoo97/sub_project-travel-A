@@ -7,11 +7,36 @@
 <head>
     <title>Mypage</title>
     <link rel="stylesheet" href="/css/mypage.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/mypage-review-stack.css">
 </head>
 <body>
 <c:set var="settingsUpdated" value="${param.settingsSuccess eq '1'}" />
-<div id="mypageSnackbar" class="mypage-snackbar ${settingsUpdated ? 'show' : ''}" role="status" aria-live="polite">
-    회원 정보 수정이 완료되었습니다.
+<c:set var="reviewDeleted" value="${param.reviewDeleted eq 'true'}" />
+<div id="mypageSnackbar" class="mypage-snackbar ${settingsUpdated or reviewDeleted ? 'show' : ''}" role="status" aria-live="polite">
+    <c:choose>
+        <c:when test="${reviewDeleted}">후기가 삭제되었습니다.</c:when>
+        <c:otherwise>회원 정보 수정이 완료되었습니다.</c:otherwise>
+    </c:choose>
+</div>
+<div class="review-confirm-backdrop" id="reviewDeleteConfirm" aria-hidden="true">
+    <div class="review-confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="reviewDeleteConfirmTitle">
+        <p class="review-confirm-title" id="reviewDeleteConfirmTitle">후기를 삭제할까요?</p>
+        <p class="review-confirm-text">삭제한 후기는 다시 복구할 수 없습니다.</p>
+        <div class="review-confirm-actions">
+            <button type="button" class="review-confirm-cancel" id="reviewDeleteCancel">취소</button>
+            <button type="button" class="review-confirm-delete" id="reviewDeleteConfirmBtn">삭제</button>
+        </div>
+    </div>
+</div>
+<div class="review-confirm-backdrop" id="planDeleteConfirm" aria-hidden="true">
+    <div class="review-confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="planDeleteConfirmTitle">
+        <p class="review-confirm-title" id="planDeleteConfirmTitle">여행 플랜을 삭제할까요?</p>
+        <p class="review-confirm-text">저장된 일정과 관련 기록이 함께 삭제됩니다.</p>
+        <div class="review-confirm-actions">
+            <button type="button" class="review-confirm-cancel" id="planDeleteCancel">취소</button>
+            <button type="button" class="review-confirm-delete" id="planDeleteConfirmBtn">삭제</button>
+        </div>
+    </div>
 </div>
 <section class="profile-section">
     <div class="profile-inner">
@@ -242,7 +267,7 @@
                                     자세히 보기
                                 </button>
                                 <form action="${pageContext.request.contextPath}/delete-plan" method="post"
-                                      onsubmit="return confirm('이 여행 플랜을 삭제할까요?');">
+                                      data-plan-delete-form>
                                     <input type="hidden" name="planId" value="${trip.planId}">
                                     <button type="submit" class="btn-delete-plan">삭제</button>
                                 </form>
@@ -281,10 +306,28 @@
                                     <img src="https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=800&q=80" alt="${trip.destination}">
                                 </c:otherwise>
                             </c:choose>
-                            <span class="status-badge ${trip.statusClass}">${trip.status}</span>
+                            <span class="liked-plan-price">
+                                <c:choose>
+                                    <c:when test="${trip.totalEstimatedCost > 0}">
+                                        ₩<fmt:formatNumber value="${trip.totalEstimatedCost}" pattern="#,###" />
+                                    </c:when>
+                                    <c:otherwise>비용 미정</c:otherwise>
+                                </c:choose>
+                            </span>
                         </div>
                         <div class="card-body">
                             <h3>${trip.displayTitle}</h3>
+                            <div class="trip-publish-meta trip-creator-meta">
+                                <span class="creator-badge">👤
+                                    <c:out value="${empty trip.creatorName ? '여행자' : trip.creatorName}" />
+                                </span>
+                                <span class="heart-count">♥ ${trip.likeCnt}</span>
+                                <c:if test="${not empty trip.editorName and trip.editorName ne trip.creatorName}">
+                                    <span class="editor-badge">✏️
+                                        <c:out value="${trip.editorName}" />
+                                    </span>
+                                </c:if>
+                            </div>
                             <div class="trip-details">
                                 <p><span>📍</span><c:out value="${trip.destination}" default="여행지 미정"/></p>
                                 <p>
@@ -300,10 +343,19 @@
                                 <p><span>🗓️</span><c:choose><c:when test="${trip.days > 0}">${trip.days}일</c:when><c:otherwise>기간 미정</c:otherwise></c:choose></p>
                                 <p><span>👥</span><c:choose><c:when test="${trip.travelers > 0}">${trip.travelers}명</c:when><c:otherwise>인원 미정</c:otherwise></c:choose></p>
                             </div>
-                            <button type="button" class="btn-detail"
-                                    onclick="location.href='${pageContext.request.contextPath}/myplan-page?id=${trip.planId}'">
-                                자세히 보기
-                            </button>
+                            <c:choose>
+                                <c:when test="${trip.posted == 1}">
+                                    <button type="button" class="btn-detail"
+                                            onclick="location.href='${pageContext.request.contextPath}/myplan-page?id=${trip.planId}'">
+                                        자세히 보기
+                                    </button>
+                                </c:when>
+                                <c:otherwise>
+                                    <button type="button" class="btn-detail btn-detail--disabled" disabled>
+                                        작성자에 의해 게시 중단 된 플랜 입니다
+                                    </button>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
                     </article>
                 </c:forEach>
@@ -321,60 +373,100 @@
 
 <%--리뷰탭--%>
     <%-- ===================== /후기 탭 ===================== --%>
-    <div id="content-reviews" class="tab-content active">
+    <div id="content-reviews" class="tab-content">
         <c:choose>
-            <c:when test="${not empty reviewList}">
-        <div class="review-timeline">
-            <c:set var="currentYear" value="0" />
+            <c:when test="${not empty reviewGroups}">
+                <div class="review-timeline review-stack-list">
+                    <c:set var="currentYear" value="" />
+                    <c:forEach var="reviewGroup" items="${reviewGroups}" varStatus="groupStatus">
+                        <c:set var="groupReviews" value="${reviewGroup.value}" />
+                        <c:set var="mainReview" value="${groupReviews[0]}" />
+                        <c:set var="reviewCount" value="${fn:length(groupReviews)}" />
+                        <fmt:formatDate var="groupYear" value="${mainReview.createdAt}" pattern="yyyy" timeZone="Asia/Seoul" />
 
-            <c:forEach var="review" items="${reviewList}" varStatus="status">
-
-                <%-- 1. 연도 구분 (에러 방지를 위해 단순 비교로 변경) --%>
-                <c:set var="thisYear" value="${fn:substring(review.createdAt, 0, 4)}" />
-                <c:if test="${thisYear != currentYear}">
-                    <div class="review-year-divider">${thisYear}</div>
-                    <c:set var="currentYear" value="${thisYear}" />
-                </c:if>
-
-                <div class="review-tl-wrap">
-                    <div class="review-tl-axis">
-                        <div class="review-tl-dot" style="background: ${status.index % 2 == 0 ? '#378ADD' : '#1BBA53'};"></div>
-                        <c:if test="${not status.last}">
-                            <div class="review-tl-line"></div>
+                        <c:if test="${groupYear ne currentYear}">
+                            <div class="review-year-divider">${groupYear}</div>
+                            <c:set var="currentYear" value="${groupYear}" />
                         </c:if>
-                    </div>
 
-                    <div class="review-card">
-                        <div class="review-card-head">
-                        <span class="review-dest-tag" style="background: ${status.index % 2 == 0 ? '#E6F1FB' : '#E8F8EE'}; color: ${status.index % 2 == 0 ? '#185FA5' : '#12803B'};">
-                            📍 ${review.city}
-                        </span>
-                            <span class="review-meta-date relative-date" data-date="${review.createdAt}">
-                            <fmt:formatDate value="${review.createdAt}" pattern="yyyy.MM.dd"/> · ${review.createdAt}
-                            </span>
+                        <div class="review-tl-wrap">
+                            <div class="review-tl-axis">
+                                <div class="review-tl-dot" style="background: ${groupStatus.index % 2 == 0 ? '#378ADD' : '#1BBA53'};"></div>
+                                <c:if test="${not groupStatus.last}">
+                                    <div class="review-tl-line"></div>
+                                </c:if>
+                            </div>
+
+                            <section class="review-stack-group is-collapsed has-stack"
+                                     data-review-stack>
+                                <button type="button"
+                                        class="review-stack-toggle"
+                                        aria-expanded="false">
+                                    <span class="review-stack-toggle__content">
+                                        <span class="review-stack-toggle__main">
+                                            <span class="review-dest-tag" style="background: ${groupStatus.index % 2 == 0 ? '#E6F1FB' : '#E8F8EE'}; color: ${groupStatus.index % 2 == 0 ? '#185FA5' : '#12803B'};">
+                                                📍 <c:out value="${mainReview.city}" />
+                                            </span>
+                                            <span class="review-plan-id">plan #${reviewGroup.key}</span>
+                                        <span class="review-stack-count">${reviewCount}개 후기</span>
+                                        </span>
+                                        <span class="review-stack-title">
+                                            <c:choose>
+                                                <c:when test="${not empty mainReview.planTitle}">
+                                                    <c:out value="${mainReview.planTitle}" />
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <c:out value="${mainReview.city}" />
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </span>
+                                        <span class="review-stack-meta">
+                                            👤 <c:out value="${empty mainReview.planCreatorName ? '여행자' : mainReview.planCreatorName}" />
+                                            <span>♥ ${mainReview.likeCnt}</span>
+                                        </span>
+                                    </span>
+                                    <span class="review-stack-toggle__hint">
+                                        <c:choose>
+                                            <c:when test="${reviewCount > 0}">펼치기</c:when>
+                                            <c:otherwise>후기 없음</c:otherwise>
+                                        </c:choose>
+                                    </span>
+                                </button>
+
+                                <div class="review-stack-cards">
+                                    <c:forEach var="review" items="${groupReviews}" varStatus="status">
+                                        <article class="review-card review-stack-card">
+                                            <div class="review-card-head">
+                                                <span class="review-plan-id">plan #${review.planId}</span>
+                                                <span class="review-meta-date">
+                                                    <fmt:formatDate value="${review.createdAt}" pattern="yyyy.MM.dd HH:mm" timeZone="Asia/Seoul"/>
+                                                </span>
+                                            </div>
+
+                                            <div class="review-body">
+                                                <c:out value="${review.content}" />
+                                            </div>
+
+                                            <div class="review-card-footer">
+                                                <button type="button" class="review-tag" onclick="location.href='detail-page?id=${review.planId}'">일정 상세보기</button>
+                                                <form class="review-delete-form"
+                                                      action="${pageContext.request.contextPath}/review"
+                                                      method="post"
+                                                      data-review-delete-form>
+                                                    <input type="hidden" name="action" value="delete">
+                                                    <input type="hidden" name="returnTo" value="mypage">
+                                                    <input type="hidden" name="planId" value="${review.planId}">
+                                                    <input type="hidden" name="reviewId" value="${review.reviewId}">
+                                                    <button type="submit" class="review-delete-btn">삭제</button>
+                                                </form>
+                                            </div>
+                                        </article>
+                                    </c:forEach>
+                                </div>
+                            </section>
                         </div>
-
-                        <div class="review-title">${review.city}</div>
-
-                        <div class="review-body">
-                                ${review.content}
-                        </div>
-
-                        <div class="review-tags">
-                            <span class="review-tag">#여행기록</span>
-                            <span class="review-tag">#기록</span>
-                        </div>
-
-                        <div class="review-card-footer">
-
-                            <button class="review-tag" onclick= "location.href ='detail-page?id=${review.planId}'">일정 상세보기</button>
-
-                        </div>
-                    </div>
+                    </c:forEach>
                 </div>
-
-            </c:forEach>
-        </div>
             </c:when>
             <c:otherwise>
                 <div class="empty-state">
@@ -759,6 +851,145 @@
             mypageSnackbar.classList.remove('show');
         }, 5000);
     }
+
+    const initialTab = new URLSearchParams(window.location.search).get('tab');
+    if (initialTab === 'reviews') {
+        window.addEventListener('load', function () {
+            if (typeof window.triggerTab === 'function') {
+                window.triggerTab('content-reviews');
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const reviewConfirm = document.getElementById('reviewDeleteConfirm');
+        const reviewCancel = document.getElementById('reviewDeleteCancel');
+        const reviewConfirmBtn = document.getElementById('reviewDeleteConfirmBtn');
+        let pendingReviewDeleteForm = null;
+        const planConfirm = document.getElementById('planDeleteConfirm');
+        const planCancel = document.getElementById('planDeleteCancel');
+        const planConfirmBtn = document.getElementById('planDeleteConfirmBtn');
+        let pendingPlanDeleteForm = null;
+
+        function openConfirm(confirmEl, focusEl) {
+            if (!confirmEl) return;
+            confirmEl.classList.add('is-open');
+            confirmEl.setAttribute('aria-hidden', 'false');
+            if (focusEl) focusEl.focus();
+        }
+
+        function closeConfirm(confirmEl) {
+            if (!confirmEl) return;
+            confirmEl.classList.remove('is-open');
+            confirmEl.setAttribute('aria-hidden', 'true');
+        }
+
+        function closeReviewConfirm() {
+            pendingReviewDeleteForm = null;
+            closeConfirm(reviewConfirm);
+        }
+
+        function closePlanConfirm() {
+            pendingPlanDeleteForm = null;
+            closeConfirm(planConfirm);
+        }
+
+        document.querySelectorAll('[data-review-delete-form]').forEach(form => {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                pendingReviewDeleteForm = form;
+                if (!reviewConfirm) {
+                    form.submit();
+                    return;
+                }
+                openConfirm(reviewConfirm, reviewConfirmBtn);
+            });
+        });
+
+        document.querySelectorAll('[data-plan-delete-form]').forEach(form => {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                pendingPlanDeleteForm = form;
+                if (!planConfirm) {
+                    form.submit();
+                    return;
+                }
+                openConfirm(planConfirm, planConfirmBtn);
+            });
+        });
+
+        if (reviewCancel) {
+            reviewCancel.addEventListener('click', closeReviewConfirm);
+        }
+
+        if (reviewConfirmBtn) {
+            reviewConfirmBtn.addEventListener('click', function () {
+                const form = pendingReviewDeleteForm;
+                closeReviewConfirm();
+                if (form) form.submit();
+            });
+        }
+
+        if (planCancel) {
+            planCancel.addEventListener('click', closePlanConfirm);
+        }
+
+        if (planConfirmBtn) {
+            planConfirmBtn.addEventListener('click', function () {
+                const form = pendingPlanDeleteForm;
+                closePlanConfirm();
+                if (form) form.submit();
+            });
+        }
+
+        if (reviewConfirm) {
+            reviewConfirm.addEventListener('click', function (event) {
+                if (event.target === reviewConfirm) {
+                    closeReviewConfirm();
+                }
+            });
+        }
+
+        if (planConfirm) {
+            planConfirm.addEventListener('click', function (event) {
+                if (event.target === planConfirm) {
+                    closePlanConfirm();
+                }
+            });
+        }
+
+        document.querySelectorAll('[data-review-stack]').forEach(stack => {
+            const toggle = stack.querySelector('.review-stack-toggle');
+            const cards = stack.querySelector('.review-stack-cards');
+            if (!toggle || toggle.disabled) return;
+
+            const toggleStack = function () {
+                const isExpanded = stack.classList.toggle('is-expanded');
+                stack.classList.toggle('is-collapsed', !isExpanded);
+                toggle.setAttribute('aria-expanded', String(isExpanded));
+
+                const hint = toggle.querySelector('.review-stack-toggle__hint');
+                if (hint) {
+                    hint.textContent = isExpanded ? '접기' : '펼치기';
+                }
+
+                if (isExpanded) {
+                    setTimeout(function () {
+                        stack.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 80);
+                }
+            };
+
+            toggle.addEventListener('click', toggleStack);
+            if (cards) {
+                cards.addEventListener('click', function () {
+                    if (stack.classList.contains('is-collapsed')) {
+                        toggleStack();
+                    }
+                });
+            }
+        });
+    });
 </script>
 <script src="${pageContext.request.contextPath}/js/mypageBridge.js"></script>
 </body>
