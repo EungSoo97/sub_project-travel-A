@@ -106,41 +106,46 @@
             // localStorage에 저장된 트래킹 상태 복원
             if (trackingPlanId && trackingPlanId === planId) {
                 liveBtn.innerHTML = '🔴실시간 트래킹중';
-                liveBtn.disabled = true;
+                liveBtn.disabled = false;
                 card.classList.add('active-card');
             }
 
             // 3. 클릭 이벤트 처리
             liveBtn.addEventListener('click', function () {
-                // 🔴실시간 트래킹중으로 변경
-                this.innerHTML = '🔴실시간 트래킹중';
-                this.disabled = true;
-                
-                // 카드 강조 표시
-                card.classList.add('active-card');
-                
-                // 다른 카드의 트래킹 상태 초기화
-                savedCards.forEach(otherCard => {
-                    if (otherCard !== card) {
-                        const otherBtn = otherCard.querySelector('.live-track-btn');
-                        if (otherBtn) {
-                            otherBtn.innerHTML = '🚀 실시간 트래킹 하기';
-                            otherBtn.disabled = false;
+                const isTracking = this.innerHTML.includes('실시간 트래킹중');
+
+                if (isTracking) {
+                    // 트래킹 중지
+                    this.innerHTML = '🚀 실시간 트래킹 하기';
+                    card.classList.remove('active-card');
+                    localStorage.removeItem('liveTrackingPlanId');
+                } else {
+                    // 트래킹 시작
+                    this.innerHTML = '🔴실시간 트래킹중';
+                    card.classList.add('active-card');
+
+                    // 다른 카드의 트래킹 상태 초기화
+                    savedCards.forEach(otherCard => {
+                        if (otherCard !== card) {
+                            const otherBtn = otherCard.querySelector('.live-track-btn');
+                            if (otherBtn) {
+                                otherBtn.innerHTML = '🚀 실시간 트래킹 하기';
+                            }
+                            otherCard.classList.remove('active-card');
                         }
-                        otherCard.classList.remove('active-card');
-                    }
-                });
-                
-                // localStorage에 현재 트래킹 상태 저장
-                localStorage.setItem('liveTrackingPlanId', planId);
-                
-                // 페이지 이동 (기능 유지) - destination 인코딩 문제 해결
-                const ctx = window.MYPAGE_CTX || '';
-                const destination = this.dataset.destination || '';
-                const encodedDestination = encodeURIComponent(destination);
-                const url = `${ctx}/my-live?planId=${encodeURIComponent(this.dataset.planId)}&destination=${encodedDestination}`;
-                console.log('이동 URL:', url);
-                window.location.href = url;
+                    });
+
+                    // localStorage에 현재 트래킹 상태 저장
+                    localStorage.setItem('liveTrackingPlanId', planId);
+
+                    // 페이지 이동
+                    const ctx = window.MYPAGE_CTX || '';
+                    const destination = this.dataset.destination || '';
+                    const encodedDestination = encodeURIComponent(destination);
+                    const url = `${ctx}/my-live?planId=${encodeURIComponent(this.dataset.planId)}&destination=${encodedDestination}`;
+                    console.log('이동 URL:', url);
+                    window.location.href = url;
+                }
             });
         });
     }
