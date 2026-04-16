@@ -212,6 +212,9 @@
                                     <img src="https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=800&q=80" alt="${trip.destination}">
                                 </c:otherwise>
                             </c:choose>
+                            <c:if test="${trip.starred}">
+                                <span class="favorite-badge" aria-label="즐겨찾기">★</span>
+                            </c:if>
                             <span class="status-badge ${trip.statusClass}">${trip.status}</span>
                         </div>
                         <div class="card-body">
@@ -346,7 +349,7 @@
                             <c:choose>
                                 <c:when test="${trip.posted == 1}">
                                     <button type="button" class="btn-detail"
-                                            onclick="location.href='${pageContext.request.contextPath}/myplan-page?id=${trip.planId}'">
+                                            onclick="location.href='${pageContext.request.contextPath}/detail-page?id=${trip.planId}'">
                                         자세히 보기
                                     </button>
                                 </c:when>

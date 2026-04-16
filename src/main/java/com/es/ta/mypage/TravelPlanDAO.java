@@ -81,22 +81,26 @@ public class TravelPlanDAO {
                 "tp.days, tp.travelers, tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview, " +
                 "tp.success, tp.message, tp.response_json, tp.posted, tp.created_at, tp.updated_at, " +
                 "NVL(tp.original_user_id, 0) AS original_user_id, NVL(tp.copied_modified, 1) AS copied_modified, " +
-                "NVL(pl.like_cnt, 0) AS like_cnt, NVL(creator.u_name, '') AS creator_name, NVL(editor.u_name, '') AS editor_name " +
+                "NVL(pl.like_cnt, 0) AS like_cnt, " +
+                "CASE WHEN ps_user.plan_id IS NULL THEN 0 ELSE 1 END AS is_starred, " +
+                "NVL(creator.u_name, '') AS creator_name, NVL(editor.u_name, '') AS editor_name " +
                 "FROM travel_plan tp " +
                 "LEFT JOIN ( " +
                 "    SELECT plan_id, COUNT(*) AS like_cnt " +
                 "    FROM plan_like " +
                 "    GROUP BY plan_id " +
                 ") pl ON tp.plan_id = pl.plan_id " +
+                "LEFT JOIN plan_star ps_user ON tp.plan_id = ps_user.plan_id AND ps_user.user_id = ? " +
                 "LEFT JOIN user_info creator ON NVL(tp.original_user_id, tp.user_id) = creator.u_user_id " +
                 "LEFT JOIN user_info editor ON tp.user_id = editor.u_user_id " +
                 "WHERE tp.user_id = ? " +
-                "ORDER BY tp.created_at DESC";
+                "ORDER BY CASE WHEN ps_user.plan_id IS NULL THEN 1 ELSE 0 END, tp.created_at DESC";
 
         try {
             con = DBManager_new.connect();
             pstmt = con.prepareStatement(sql);
             pstmt.setInt(1, userId);
+            pstmt.setInt(2, userId);
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -118,6 +122,7 @@ public class TravelPlanDAO {
                 plan.setResponseJson(rs.getString("response_json"));
                 plan.setPosted(rs.getInt("posted"));
                 plan.setLikeCnt(rs.getInt("like_cnt"));
+                plan.setStarred(rs.getInt("is_starred") == 1);
                 plan.setOriginalUserId(rs.getInt("original_user_id"));
                 plan.setCopiedModified(rs.getInt("copied_modified"));
                 plan.setCreatorName(rs.getString("creator_name"));

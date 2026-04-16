@@ -289,6 +289,36 @@
     background-color: rgba(27, 186, 83, 0.85); /* 편안한 초록색 */
 }
 
+.favorite-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #facc15;
+    text-shadow:
+        0 0 5px rgba(250, 204, 21, 0.95),
+        0 0 14px rgba(250, 204, 21, 0.72),
+        0 3px 8px rgba(113, 63, 18, 0.38);
+    font-size: 26px;
+    font-weight: 900;
+    transform-origin: center;
+    animation: favoriteGlow 1.8s ease-in-out infinite;
+}
+
+@keyframes favoriteGlow {
+    0%, 100% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+    50% {
+        transform: scale(1.08);
+        filter: brightness(1.18);
+    }
+}
+
 .liked-plan-price {
     position: absolute;
     top: 10px;
