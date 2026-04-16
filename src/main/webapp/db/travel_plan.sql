@@ -38,6 +38,8 @@ CREATE TABLE travel_plan (
                              quality_score       NUMBER,
                              posted              NUMBER(1)      DEFAULT 0 NOT NULL,
                              post_date           DATE,
+                             original_user_id     NUMBER,
+                             copied_modified      NUMBER(1)      DEFAULT 1 NOT NULL,
 
                              response_json     CLOB           NOT NULL,
 
@@ -49,6 +51,8 @@ CREATE TABLE travel_plan (
 
 
 select * from travel_plan;
+
+
 
 -- -----------------------------------------------------------------------------
 -- §2) 기존 travel_plan 이 이미 있을 때 — 아래 한 줄씩 실행 (ORA-01430 이미 존재 → 스킵)
@@ -106,6 +110,36 @@ BEGIN
 
     IF v_count = 0 THEN
         EXECUTE IMMEDIATE 'ALTER TABLE travel_plan ADD (post_date DATE)';
+    END IF;
+END;
+/
+
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM user_tab_columns
+    WHERE table_name = 'TRAVEL_PLAN'
+      AND column_name = 'ORIGINAL_USER_ID';
+
+    IF v_count = 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE travel_plan ADD (original_user_id NUMBER)';
+    END IF;
+END;
+/
+
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM user_tab_columns
+    WHERE table_name = 'TRAVEL_PLAN'
+      AND column_name = 'COPIED_MODIFIED';
+
+    IF v_count = 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE travel_plan ADD (copied_modified NUMBER(1) DEFAULT 1 NOT NULL)';
     END IF;
 END;
 /

@@ -105,7 +105,17 @@
 
                     <div class="card-body">
                         <div class="user">
-                            <span>👤 <c:out value="${empty plan.userName ? '여행자' : plan.userName}" /></span>
+                            <div class="explore-author-list">
+                                <c:choose>
+                                    <c:when test="${not empty plan.editorUserName and not empty plan.originalUserName and plan.editorUserName ne plan.originalUserName}">
+                                        <span class="explore-author-pill">👤 원본 <c:out value="${plan.originalUserName}" /></span>
+                                        <span class="explore-author-pill explore-author-pill--editor">✏️ 수정 <c:out value="${plan.editorUserName}" /></span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="explore-author-pill">👤 <c:out value="${empty plan.userName ? '여행자' : plan.userName}" /></span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
                             <c:if test="${not empty plan.postDate}">
                                 <span class="post-date"><c:out value="${plan.postDate}" /></span>
                             </c:if>
