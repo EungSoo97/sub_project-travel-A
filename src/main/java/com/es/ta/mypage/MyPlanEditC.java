@@ -1,12 +1,12 @@
 package com.es.ta.mypage;
 
 import com.es.ta.account.AccountDTO;
+import com.es.ta.common.GoogleMapsConfig;
 import com.es.ta.resultpage.TravelJsonParser;
 import com.es.ta.resultpage.TravelResultVDTO;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -14,11 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Properties;
 
 @WebServlet(name = "MyPlanEditC", value = "/myplan-edit")
 public class MyPlanEditC extends HttpServlet {
@@ -192,7 +190,7 @@ public class MyPlanEditC extends HttpServlet {
     }
 
     private void attachEditAttributes(HttpServletRequest request, TravelPlanDTO savedPlan, TravelResultVDTO result, String responseJsonText, String errorMessage) {
-        attachGoogleMapsConfig(request);
+        GoogleMapsConfig.attach(request);
         request.setAttribute("savedPlan", savedPlan);
         request.setAttribute("result", result);
         request.setAttribute("responseJsonText", responseJsonText == null ? savedPlan.getResponseJson() : responseJsonText);
@@ -222,27 +220,6 @@ public class MyPlanEditC extends HttpServlet {
         }
 
         return result;
-    }
-
-    private void attachGoogleMapsConfig(HttpServletRequest request) {
-        Properties props = loadApplicationProperties(request.getServletContext());
-        request.setAttribute("googleMapsApiKey", props.getProperty("GOOGLE_API_KEY", ""));
-        request.setAttribute("googleMapsMapId", props.getProperty("GOOGLE_MAP_ID", ""));
-    }
-
-    private Properties loadApplicationProperties(ServletContext context) {
-        Properties props = new Properties();
-
-        try (InputStream in = context.getResourceAsStream("/WEB-INF/application.properties")) {
-            if (in == null) {
-                return props;
-            }
-            props.load(in);
-        } catch (IOException e) {
-            System.out.println("[MyPlanEditC] application.properties load failed: " + e.getMessage());
-        }
-
-        return props;
     }
 
     private String safeTrim(String value) {
