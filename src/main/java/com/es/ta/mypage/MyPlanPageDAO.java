@@ -16,7 +16,7 @@ public class MyPlanPageDAO {
 
         String sql = "SELECT tp.plan_id, tp.user_id, tp.destination, tp.title, tp.start_date, tp.end_date, " +
                 "tp.days, tp.travelers, tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview, " +
-                "tp.success, tp.message, tp.response_json, tp.thumbnail_url, tp.posted, tp.post_date, tp.created_at, tp.updated_at, " +
+                "tp.success, tp.message, tp.response_json, tp.thumbnail_url, tp.posted, NVL(tp.live_tracking, 0) AS live_tracking, tp.post_date, tp.created_at, tp.updated_at, " +
                 "NVL(tp.original_user_id, 0) AS original_user_id, NVL(tp.copied_modified, 1) AS copied_modified, " +
                 "NVL(pl.like_cnt, 0) AS like_cnt, NVL(creator.u_name, '') AS creator_name, NVL(editor.u_name, '') AS editor_name " +
                 "FROM travel_plan tp " +
@@ -56,7 +56,7 @@ public class MyPlanPageDAO {
 
         String sql = "SELECT tp.plan_id, tp.user_id, tp.destination, tp.title, tp.start_date, tp.end_date, " +
                 "tp.days, tp.travelers, tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview, " +
-                "tp.success, tp.message, tp.response_json, tp.thumbnail_url, tp.posted, tp.post_date, tp.created_at, tp.updated_at, " +
+                "tp.success, tp.message, tp.response_json, tp.thumbnail_url, tp.posted, NVL(tp.live_tracking, 0) AS live_tracking, tp.post_date, tp.created_at, tp.updated_at, " +
                 "NVL(tp.original_user_id, 0) AS original_user_id, NVL(tp.copied_modified, 1) AS copied_modified, " +
                 "NVL(pl.like_cnt, 0) AS like_cnt, NVL(creator.u_name, '') AS creator_name, NVL(editor.u_name, '') AS editor_name " +
                 "FROM travel_plan tp " +
@@ -101,11 +101,11 @@ public class MyPlanPageDAO {
         String sql = "INSERT INTO travel_plan (" +
                 "plan_id, user_id, destination, title, start_date, end_date, days, travelers, " +
                 "travel_style, total_estimated_cost, currency, overview, success, message, " +
-                "response_json, posted, post_date, original_user_id, copied_modified, created_at, updated_at" +
+                "response_json, thumbnail_url, posted, post_date, original_user_id, copied_modified, created_at, updated_at" +
                 ") " +
                 "SELECT travel_plan_seq.NEXTVAL, ?, destination, title, start_date, end_date, days, travelers, " +
                 "travel_style, total_estimated_cost, currency, overview, success, message, " +
-                "response_json, 0, NULL, NVL(original_user_id, user_id), 0, SYSDATE, SYSDATE " +
+                "response_json, thumbnail_url, 0, NULL, NVL(original_user_id, user_id), 0, SYSDATE, SYSDATE " +
                 "FROM travel_plan " +
                 "WHERE plan_id = ? AND posted = 1 AND user_id <> ?";
 
@@ -218,6 +218,7 @@ public class MyPlanPageDAO {
         plan.setMessage(rs.getString("message"));
         plan.setResponseJson(rs.getString("response_json"));
         plan.setPosted(rs.getInt("posted"));
+        plan.setLiveTracking(rs.getInt("live_tracking"));
         plan.setOriginalUserId(rs.getInt("original_user_id"));
         plan.setCopiedModified(rs.getInt("copied_modified"));
         plan.setLikeCnt(rs.getInt("like_cnt"));

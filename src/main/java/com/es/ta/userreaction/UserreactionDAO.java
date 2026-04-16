@@ -364,7 +364,7 @@ public class UserreactionDAO {
 
         List<TravelPlanDTO> list = new ArrayList<>();
 
-        String sql = "SELECT tp.plan_id, tp.user_id, tp.destination, tp.title, " +
+        String sql = "SELECT tp.plan_id, tp.user_id, tp.destination, tp.title, tp.thumbnail_url, " +
                 "tp.start_date, tp.end_date, tp.days, tp.travelers, " +
                 "tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview, tp.posted, " +
                 "NVL(tp.original_user_id, 0) AS original_user_id, NVL(tp.copied_modified, 1) AS copied_modified, " +
@@ -394,6 +394,7 @@ public class UserreactionDAO {
                 dto.setUserId(rs.getInt("user_id"));
                 dto.setDestination(rs.getString("destination"));
                 dto.setTitle(rs.getString("title"));
+                dto.setThumbnailUrl(rs.getString("thumbnail_url"));
                 dto.setStartDate(rs.getDate("start_date"));
                 dto.setEndDate(rs.getDate("end_date"));
                 dto.setDays(rs.getInt("days"));
