@@ -854,10 +854,17 @@ function showLocationRealtimeData(activity) {
         endElement.textContent = nextActivityTime || '-';
     }
     
+    // 현재 시간 기준 상태 계산 및 표시
+    applyActivityStatus(activity);
+    
+    // 선택된 activity를 전역에 저장 (1분마다 갱신용)
+    window._liveSelectedActivity = activity;
+    
     // Update next schedule information
     updateNextScheduleInfo(activity);
     
     // Close modal after selection
+    closeFullScheduleModal();
     closeModal();
 }
 
@@ -1304,3 +1311,118 @@ function toggleAllFsDays() {
     });
     if (btn) btn.textContent = fsAllExpanded ? '전체 접기' : '전체 펼치기';
 }
+
+// ─── 현재 시간 기준 활동 상태 계산 ────────────────────────────────────────────
+
+/**
+ * activity.time ('HH:mm') + activity.durationMinutes 를 이용해
+ * { status: '진행 중'|'지난 일정'|'다음 일정', remainingMin: number|null } 반환
+ */
+function calcActivityStatus(activity) {
+    const time = activity.time || '';
+    const parts = time.split(':');
+    if (parts.length < 2) return { status: '다음 일정', remainingMin: null };
+
+    const startMin = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+    const dur      = parseInt(activity.durationMinutes || 0, 10);
+    const endMin   = startMin + (dur > 0 ? dur : 60); // 소요시간 없으면 1시간 기본
+
+    const now     = new Date();
+    const nowMin  = now.getHours() * 60 + now.getMinutes();
+
+    if (nowMin >= startMin && nowMin < endMin) {
+        return { status: '진행 중', remainingMin: endMin - nowMin };
+    } else if (nowMin >= endMin) {
+        return { status: '지난 일정', remainingMin: null };
+    } else {
+        return { status: '다음 일정', remainingMin: null };
+    }
+}
+
+/**
+ * 상태 계산 결과를 DOM 요소에 반영
+ * - #liveActivityStatus : 진행 중 / 지난 일정 / 다음 일정
+ * - #liveRemainingMin   : 남은 시간(분) — 진행 중일 때만 표시
+ * - .status-badge       : 상태에 따라 색상 클래스 교체
+ */
+function applyActivityStatus(activity) {
+    if (!activity) return;
+    const { status, remainingMin } = calcActivityStatus(activity);
+
+    // 상태 텍스트
+    const stEl = document.getElementById('liveActivityStatus');
+    if (stEl) stEl.textContent = status;
+
+    // 상태 배지 색상
+    const badge = stEl && stEl.closest('.status-badge');
+    if (badge) {
+        badge.classList.remove('status-active', 'status-past', 'status-future');
+        if (status === '진행 중')      badge.classList.add('status-active');
+        else if (status === '지난 일정') badge.classList.add('status-past');
+        else                           badge.classList.add('status-future');
+    }
+
+    // 남은 시간
+    const rmEl = document.getElementById('liveRemainingMin');
+    const rmWrap = rmEl && rmEl.closest('.time-remaining');
+    if (rmEl) {
+        if (status === '진행 중' && remainingMin != null) {
+            rmEl.textContent = String(remainingMin);
+            if (rmWrap) rmWrap.style.display = '';
+        } else {
+            rmEl.textContent = '-';
+            if (rmWrap) rmWrap.style.display = 'none';
+        }
+    }
+}
+
+/**
+ * PLAN_DETAIL 전체를 스캔해 현재 시간에 맞는 활동을 자동 감지하고
+ * 대시보드를 업데이트한다. (1분마다 반복)
+ */
+function autoDetectCurrentActivity() {
+    const planDetail = window.PLAN_DETAIL;
+    if (!planDetail || !planDetail.itinerary) return;
+
+    const now    = new Date();
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+
+    let found = null;
+
+    outer:
+    for (const day of planDetail.itinerary) {
+        for (const act of (day.activities || [])) {
+            const parts = (act.time || '').split(':');
+            if (parts.length < 2) continue;
+            const startMin = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+            const dur      = parseInt(act.durationMinutes || 0, 10);
+            const endMin   = startMin + (dur > 0 ? dur : 60);
+
+            // 진행 중인 활동 우선
+            if (nowMin >= startMin && nowMin < endMin) {
+                found = act;
+                break outer;
+            }
+        }
+    }
+
+    // 진행중인 게 없으면 _liveSelectedActivity 유지
+    if (found) {
+        const titleEl = document.getElementById('liveActivityTitle');
+        if (titleEl) titleEl.textContent = found.name || '';
+        const startEl = document.getElementById('liveActivityStart');
+        if (startEl) startEl.textContent = found.time || '-';
+        window._liveSelectedActivity = found;
+    }
+
+    // 선택된(또는 자동감지된) 활동의 상태를 최신 시간으로 재계산
+    if (window._liveSelectedActivity) {
+        applyActivityStatus(window._liveSelectedActivity);
+    }
+}
+
+// 페이지 로드 시 1회 실행, 이후 매 1분 갱신
+document.addEventListener('DOMContentLoaded', function () {
+    autoDetectCurrentActivity();
+    setInterval(autoDetectCurrentActivity, 60000);
+});

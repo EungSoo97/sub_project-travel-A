@@ -163,16 +163,19 @@
             const ctx = '${pageContext.request.contextPath}';
             liveLink.href = ctx + '/my-live?planId=' + encodeURIComponent(trackingPlanId);
 
-            /* 트래킹 중 시각적 표시: 빨간 점 뱃지 */
+            /* 트래킹 중 시각적 표시: 텍스트 앞 빨간 점 (텍스트 위치 밀림 없음) */
             liveLink.style.position = 'relative';
-            liveLink.style.paddingRight = '14px';
 
             const dot = document.createElement('span');
             dot.style.cssText = [
-                'position:absolute', 'top:4px', 'right:0',
-                'width:8px', 'height:8px', 'border-radius:50%',
+                'position:absolute',
+                'left:-4px',
+                'top:50%',
+                'transform:translateY(-50%)',
+                'width:9px', 'height:9px', 'border-radius:50%',
                 'background:#ef4444',
-                'animation:livePulse 1.4s ease-in-out infinite'
+                'animation:livePulse 1.4s ease-in-out infinite',
+                'pointer-events:none'
             ].join(';');
             liveLink.appendChild(dot);
 
@@ -180,12 +183,21 @@
             if (!document.getElementById('livePulseStyle')) {
                 const style = document.createElement('style');
                 style.id = 'livePulseStyle';
-                style.textContent = '@keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.3)}}';
+                style.textContent = '@keyframes livePulse{0%,100%{opacity:1;transform:translateY(-50%) scale(1)}50%{opacity:.4;transform:translateY(-50%) scale(1.4)}}';
                 document.head.appendChild(style);
             }
         }
+
+        /* ── 로그아웃 시 트래킹 상태 자동 해제 ── */
+        document.querySelectorAll('a[href*="/logout"]').forEach(function (logoutLink) {
+            logoutLink.addEventListener('click', function () {
+                localStorage.removeItem('liveTrackingPlanId');
+            });
+        });
     })();
     </script>
+
+
   </body>
 
 </html>
