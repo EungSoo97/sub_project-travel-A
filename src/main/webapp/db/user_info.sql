@@ -32,3 +32,5 @@ WHERE u_profile_img IS NULL;
 
 
 SELECT r.review_id, r.plan_id, r.user_id, r.content, r.created_at, u.u_name FROM review r JOIN user_info u ON r.user_id = u.u_user_id WHERE r.user_id = ? ORDER BY r.created_at DESC;
+
+delete user_info;

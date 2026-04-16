@@ -220,6 +220,7 @@ INSERT INTO travel_plan (
          );
 select * from travel_plan;
 
+
 -- delete
 -- from TRAVEL_PLAN;
 
@@ -438,4 +439,5 @@ SELECT response_json
 FROM travel_plan
 WHERE plan_id = 322;
 
-delete * from travel
+delete
+from TRAVEL_PLAN;
