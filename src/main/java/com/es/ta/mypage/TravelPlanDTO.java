@@ -44,6 +44,7 @@ public class TravelPlanDTO {
 
     private Date createdAt;
     private Date updatedAt;
+    private String thumbnailUrl;
 
    
     // =========================

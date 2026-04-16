@@ -226,6 +226,8 @@ public class MyPlanPageDAO {
         plan.setPostDate(rs.getDate("post_date"));
         plan.setCreatedAt(rs.getDate("created_at"));
         plan.setUpdatedAt(rs.getDate("updated_at"));
+        plan.setThumbnailUrl(rs.getString("thumbnail_url"));
+
         return plan;
     }
 
