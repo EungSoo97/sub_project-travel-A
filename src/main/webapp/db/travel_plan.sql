@@ -404,3 +404,4 @@ SELECT response_json
 FROM travel_plan
 WHERE plan_id = 322;
 
+delete * from travel
