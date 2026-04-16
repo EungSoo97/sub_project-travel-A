@@ -80,13 +80,16 @@ public class TravelPlanDAO {
         String sql = "SELECT tp.plan_id, tp.user_id, tp.destination, tp.title, tp.start_date, tp.end_date, " +
                 "tp.days, tp.travelers, tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview, " +
                 "tp.success, tp.message, tp.response_json, tp.posted, tp.created_at, tp.updated_at, " +
-                "NVL(pl.like_cnt, 0) AS like_cnt " +
+                "NVL(tp.original_user_id, 0) AS original_user_id, NVL(tp.copied_modified, 1) AS copied_modified, " +
+                "NVL(pl.like_cnt, 0) AS like_cnt, NVL(creator.u_name, '') AS creator_name, NVL(editor.u_name, '') AS editor_name " +
                 "FROM travel_plan tp " +
                 "LEFT JOIN ( " +
                 "    SELECT plan_id, COUNT(*) AS like_cnt " +
                 "    FROM plan_like " +
                 "    GROUP BY plan_id " +
                 ") pl ON tp.plan_id = pl.plan_id " +
+                "LEFT JOIN user_info creator ON NVL(tp.original_user_id, tp.user_id) = creator.u_user_id " +
+                "LEFT JOIN user_info editor ON tp.user_id = editor.u_user_id " +
                 "WHERE tp.user_id = ? " +
                 "ORDER BY tp.created_at DESC";
 
@@ -115,6 +118,10 @@ public class TravelPlanDAO {
                 plan.setResponseJson(rs.getString("response_json"));
                 plan.setPosted(rs.getInt("posted"));
                 plan.setLikeCnt(rs.getInt("like_cnt"));
+                plan.setOriginalUserId(rs.getInt("original_user_id"));
+                plan.setCopiedModified(rs.getInt("copied_modified"));
+                plan.setCreatorName(rs.getString("creator_name"));
+                plan.setEditorName(rs.getString("editor_name"));
                 plan.setCreatedAt(rs.getDate("created_at"));
                 plan.setUpdatedAt(rs.getDate("updated_at"));
                 plans.add(plan);

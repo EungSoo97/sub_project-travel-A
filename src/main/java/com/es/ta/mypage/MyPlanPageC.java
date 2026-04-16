@@ -55,6 +55,8 @@ public class MyPlanPageC extends HttpServlet {
             request.getRequestDispatcher("index.jsp").forward(request, response);
             return;
         }
+        result.setLikeCnt(savedPlan.getLikeCnt());
+        result.setUserName(savedPlan.getCreatorName());
 
         attachGoogleMapsConfig(request);
 
@@ -63,6 +65,7 @@ public class MyPlanPageC extends HttpServlet {
         request.setAttribute("savedPlan", savedPlan);
         request.setAttribute("result", result);
         request.setAttribute("liked", liked);
+        request.setAttribute("canPostPlan", savedPlan.getOriginalUserId() == 0 || savedPlan.getCopiedModified() == 1);
         request.setAttribute("content", "view/mypage/myplanpage.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }

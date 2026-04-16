@@ -197,6 +197,19 @@
                                     <span class="heart-count">♥ ${trip.likeCnt}</span>
                                 </div>
                             </c:if>
+                            <div class="trip-publish-meta trip-creator-meta">
+                                <span class="creator-badge">👤
+                                    <c:out value="${empty trip.creatorName ? '여행자' : trip.creatorName}" />
+                                </span>
+                                <c:if test="${not empty trip.editorName and trip.editorName ne trip.creatorName}">
+                                    <span class="editor-badge">✏️
+                                        <c:out value="${trip.editorName}" />
+                                    </span>
+                                </c:if>
+                                <c:if test="${trip.originalUserId != 0 && trip.copiedModified != 1}">
+                                    <span class="publish-badge">수정 후 게시 가능</span>
+                                </c:if>
+                            </div>
                             <div class="trip-details">
                                 <p><span>📍</span><c:out value="${trip.destination}" default="여행지 미정"/></p>
                                 <p>

@@ -36,6 +36,10 @@ public class TravelPlanDTO {
     private String responseJson;
     private int posted;
     private int likeCnt;
+    private int originalUserId;
+    private int copiedModified;
+    private String creatorName;
+    private String editorName;
     private Date postDate;
 
     private Date createdAt;
