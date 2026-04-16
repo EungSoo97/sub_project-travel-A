@@ -14,11 +14,20 @@ public class MyPlanPageDAO {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
-        String sql = "SELECT plan_id, user_id, destination, title, start_date, end_date, " +
-                "days, travelers, travel_style, total_estimated_cost, currency, overview, " +
-                "success, message, response_json, posted, post_date, created_at, updated_at " +
-                "FROM travel_plan " +
-                "WHERE plan_id = ?";
+        String sql = "SELECT tp.plan_id, tp.user_id, tp.destination, tp.title, tp.start_date, tp.end_date, " +
+                "tp.days, tp.travelers, tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview, " +
+                "tp.success, tp.message, tp.response_json, tp.posted, tp.post_date, tp.created_at, tp.updated_at, " +
+                "NVL(tp.original_user_id, 0) AS original_user_id, NVL(tp.copied_modified, 1) AS copied_modified, " +
+                "NVL(pl.like_cnt, 0) AS like_cnt, NVL(creator.u_name, '') AS creator_name, NVL(editor.u_name, '') AS editor_name " +
+                "FROM travel_plan tp " +
+                "LEFT JOIN ( " +
+                "    SELECT plan_id, COUNT(*) AS like_cnt " +
+                "    FROM plan_like " +
+                "    GROUP BY plan_id " +
+                ") pl ON tp.plan_id = pl.plan_id " +
+                "LEFT JOIN user_info creator ON NVL(tp.original_user_id, tp.user_id) = creator.u_user_id " +
+                "LEFT JOIN user_info editor ON tp.user_id = editor.u_user_id " +
+                "WHERE tp.plan_id = ?";
 
         try {
             con = DBManager_new.connect();
@@ -45,11 +54,20 @@ public class MyPlanPageDAO {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
-        String sql = "SELECT plan_id, user_id, destination, title, start_date, end_date, " +
-                "days, travelers, travel_style, total_estimated_cost, currency, overview, " +
-                "success, message, response_json, posted, post_date, created_at, updated_at " +
-                "FROM travel_plan " +
-                "WHERE plan_id = ? AND user_id = ?";
+        String sql = "SELECT tp.plan_id, tp.user_id, tp.destination, tp.title, tp.start_date, tp.end_date, " +
+                "tp.days, tp.travelers, tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview, " +
+                "tp.success, tp.message, tp.response_json, tp.posted, tp.post_date, tp.created_at, tp.updated_at, " +
+                "NVL(tp.original_user_id, 0) AS original_user_id, NVL(tp.copied_modified, 1) AS copied_modified, " +
+                "NVL(pl.like_cnt, 0) AS like_cnt, NVL(creator.u_name, '') AS creator_name, NVL(editor.u_name, '') AS editor_name " +
+                "FROM travel_plan tp " +
+                "LEFT JOIN ( " +
+                "    SELECT plan_id, COUNT(*) AS like_cnt " +
+                "    FROM plan_like " +
+                "    GROUP BY plan_id " +
+                ") pl ON tp.plan_id = pl.plan_id " +
+                "LEFT JOIN user_info creator ON NVL(tp.original_user_id, tp.user_id) = creator.u_user_id " +
+                "LEFT JOIN user_info editor ON tp.user_id = editor.u_user_id " +
+                "WHERE tp.plan_id = ? AND tp.user_id = ?";
 
         try {
             con = DBManager_new.connect();
@@ -83,11 +101,11 @@ public class MyPlanPageDAO {
         String sql = "INSERT INTO travel_plan (" +
                 "plan_id, user_id, destination, title, start_date, end_date, days, travelers, " +
                 "travel_style, total_estimated_cost, currency, overview, success, message, " +
-                "response_json, posted, post_date, created_at, updated_at" +
+                "response_json, posted, post_date, original_user_id, copied_modified, created_at, updated_at" +
                 ") " +
                 "SELECT travel_plan_seq.NEXTVAL, ?, destination, title, start_date, end_date, days, travelers, " +
                 "travel_style, total_estimated_cost, currency, overview, success, message, " +
-                "response_json, 0, NULL, SYSDATE, SYSDATE " +
+                "response_json, 0, NULL, NVL(original_user_id, user_id), 0, SYSDATE, SYSDATE " +
                 "FROM travel_plan " +
                 "WHERE plan_id = ? AND posted = 1 AND user_id <> ?";
 
@@ -141,7 +159,7 @@ public class MyPlanPageDAO {
 
         String sql = "UPDATE travel_plan " +
                 "SET destination = ?, title = ?, start_date = ?, end_date = ?, days = ?, travelers = ?, " +
-                "travel_style = ?, total_estimated_cost = ?, currency = ?, overview = ?, response_json = ?, updated_at = SYSDATE " +
+                "travel_style = ?, total_estimated_cost = ?, currency = ?, overview = ?, response_json = ?, copied_modified = 1, updated_at = SYSDATE " +
                 "WHERE plan_id = ? AND user_id = ?";
 
         try {
@@ -200,6 +218,11 @@ public class MyPlanPageDAO {
         plan.setMessage(rs.getString("message"));
         plan.setResponseJson(rs.getString("response_json"));
         plan.setPosted(rs.getInt("posted"));
+        plan.setOriginalUserId(rs.getInt("original_user_id"));
+        plan.setCopiedModified(rs.getInt("copied_modified"));
+        plan.setLikeCnt(rs.getInt("like_cnt"));
+        plan.setCreatorName(rs.getString("creator_name"));
+        plan.setEditorName(rs.getString("editor_name"));
         plan.setPostDate(rs.getDate("post_date"));
         plan.setCreatedAt(rs.getDate("created_at"));
         plan.setUpdatedAt(rs.getDate("updated_at"));
@@ -242,6 +265,7 @@ public class MyPlanPageDAO {
         String sql =
         "UPDATE travel_plan " +
         "SET response_json = ?, "+
+        "   copied_modified = 1, "+
         "   updated_at    = sysdate "+
         "WHERE plan_id = ? "+
         "AND user_id = ?";

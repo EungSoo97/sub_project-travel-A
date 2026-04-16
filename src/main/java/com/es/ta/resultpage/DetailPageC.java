@@ -44,6 +44,10 @@ public class DetailPageC extends HttpServlet {
 
                 AccountDTO user = (AccountDTO) request.getSession().getAttribute("user");
                 TravelPlanDTO sourcePlan = MyPlanPageDAO.getPlanByPlanId(id);
+                if (sourcePlan != null) {
+                    result.setLikeCnt(sourcePlan.getLikeCnt());
+                    result.setUserName(sourcePlan.getCreatorName());
+                }
                 boolean isPostedPlan = sourcePlan != null && sourcePlan.getPosted() == 1;
                 boolean isOwnPlan = user != null && sourcePlan != null && sourcePlan.getUserId() == user.getUser_id();
                 boolean alreadySavedPlan = user != null && !isOwnPlan &&

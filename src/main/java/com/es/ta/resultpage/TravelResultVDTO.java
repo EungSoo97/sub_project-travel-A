@@ -22,6 +22,10 @@ public class TravelResultVDTO {
     @JsonIgnore
     private String userName;
     @JsonIgnore
+    private String originalUserName;
+    @JsonIgnore
+    private String editorUserName;
+    @JsonIgnore
     private String postDate;
 
     private boolean success;
