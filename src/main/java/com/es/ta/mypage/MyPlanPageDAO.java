@@ -16,7 +16,7 @@ public class MyPlanPageDAO {
 
         String sql = "SELECT tp.plan_id, tp.user_id, tp.destination, tp.title, tp.start_date, tp.end_date, " +
                 "tp.days, tp.travelers, tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview, " +
-                "tp.success, tp.message, tp.response_json, tp.posted, tp.post_date, tp.created_at, tp.updated_at, " +
+                "tp.success, tp.message, tp.response_json, tp.thumbnail_url, tp.posted, tp.post_date, tp.created_at, tp.updated_at, " +
                 "NVL(tp.original_user_id, 0) AS original_user_id, NVL(tp.copied_modified, 1) AS copied_modified, " +
                 "NVL(pl.like_cnt, 0) AS like_cnt, NVL(creator.u_name, '') AS creator_name, NVL(editor.u_name, '') AS editor_name " +
                 "FROM travel_plan tp " +
@@ -56,7 +56,7 @@ public class MyPlanPageDAO {
 
         String sql = "SELECT tp.plan_id, tp.user_id, tp.destination, tp.title, tp.start_date, tp.end_date, " +
                 "tp.days, tp.travelers, tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview, " +
-                "tp.success, tp.message, tp.response_json, tp.posted, tp.post_date, tp.created_at, tp.updated_at, " +
+                "tp.success, tp.message, tp.response_json, tp.thumbnail_url, tp.posted, tp.post_date, tp.created_at, tp.updated_at, " +
                 "NVL(tp.original_user_id, 0) AS original_user_id, NVL(tp.copied_modified, 1) AS copied_modified, " +
                 "NVL(pl.like_cnt, 0) AS like_cnt, NVL(creator.u_name, '') AS creator_name, NVL(editor.u_name, '') AS editor_name " +
                 "FROM travel_plan tp " +
@@ -226,6 +226,8 @@ public class MyPlanPageDAO {
         plan.setPostDate(rs.getDate("post_date"));
         plan.setCreatedAt(rs.getDate("created_at"));
         plan.setUpdatedAt(rs.getDate("updated_at"));
+        plan.setThumbnailUrl(rs.getString("thumbnail_url"));
+
         return plan;
     }
 

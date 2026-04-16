@@ -332,93 +332,57 @@ public class ExploreDAO {
         }
     }
 
-    public static List<TravelResultVDTO> searchPlans(String q, String selectedTags) {
-        List<TravelResultVDTO> allPlans = ResultpageDAO.getPlanList();
+    public static List<TravelResultVDTO> searchPlans(String q, String selectedTags, String googleApiKey) {
+
+        List<TravelResultVDTO> allPlans = ResultpageDAO.getPlanList(googleApiKey);
         List<TravelResultVDTO> result = new ArrayList<>();
 
-        Set<String> tokens = new LinkedHashSet<>();
+        String keyword = (q != null) ? q.trim().toLowerCase() : "";
 
-        if (q != null && !q.trim().isEmpty()) {
-            String[] qArr = q.trim().split("[\\s,]+");
-            for (String token : qArr) {
-                String normalized = normalizeSearchToken(token);
-                if (!normalized.isEmpty()) {
-                    tokens.add(normalized);
-                }
-            }
-        }
-
+        List<String> tagList = new ArrayList<>();
         if (selectedTags != null && !selectedTags.trim().isEmpty()) {
-            String[] tagArr = selectedTags.split(",");
-            for (String tag : tagArr) {
-                String normalized = normalizeSearchToken(tag);
-                if (!normalized.isEmpty()) {
-                    tokens.add(normalized);
-                }
+            String[] tags = selectedTags.split(",");
+            for (String tag : tags) {
+                tagList.add(tag.trim().toLowerCase());
             }
-        }
-
-        if (tokens.isEmpty()) {
-            return allPlans;
         }
 
         for (TravelResultVDTO plan : allPlans) {
-            if (plan == null || plan.getSummary() == null) {
-                continue;
+
+            boolean matchKeyword = true;
+            boolean matchTag = true;
+
+            if (!keyword.isEmpty()) {
+                String title = (plan.getSummary() != null && plan.getSummary().getTitle() != null)
+                        ? plan.getSummary().getTitle().toLowerCase()
+                        : "";
+
+                String destination = (plan.getSummary() != null && plan.getSummary().getDestination() != null)
+                        ? plan.getSummary().getDestination().toLowerCase()
+                        : "";
+
+                matchKeyword = title.contains(keyword) || destination.contains(keyword);
             }
 
-            TravelResultVDTO.Summary s = plan.getSummary();
+            if (!tagList.isEmpty()) {
+                List<String> planTags = (plan.getSummary() != null && plan.getSummary().getCustomTags() != null)
+                        ? plan.getSummary().getCustomTags()
+                        : new ArrayList<>();
 
-            List<String> searchable = new ArrayList<>();
-            searchable.add(safeLower(s.getDestination()));
-            searchable.add(safeLower(s.getTitle()));
-            searchable.add(safeLower(s.getTravelStyle()));
-            searchable.add(safeLower(s.getOverview()));
+                matchTag = false;
 
-            if (s.getRequestStyles() != null) {
-                for (String item : s.getRequestStyles()) {
-                    searchable.add(safeLower(item));
-                }
-            }
-
-            if (s.getRequestThemes() != null) {
-                for (String item : s.getRequestThemes()) {
-                    searchable.add(safeLower(item));
-                }
-            }
-
-            if (s.getCustomTags() != null) {
-                for (String item : s.getCustomTags()) {
-                    searchable.add(safeLower(item));
-                }
-            }
-
-            boolean matched = false;
-
-            for (String token : tokens) {
-                String t = safeLower(token);
-
-                if (t.isBlank()) {
-                    continue;
-                }
-
-                for (String field : searchable) {
-                    if (field == null || field.isBlank()) {
-                        continue;
+                for (String tag : tagList) {
+                    for (String planTag : planTags) {
+                        if (planTag != null && planTag.toLowerCase().contains(tag)) {
+                            matchTag = true;
+                            break;
+                        }
                     }
-
-                    if (field.contains(t)) {
-                        matched = true;
-                        break;
-                    }
-                }
-
-                if (matched) {
-                    break;
+                    if (matchTag) break;
                 }
             }
 
-            if (matched) {
+            if (matchKeyword && matchTag) {
                 result.add(plan);
             }
         }

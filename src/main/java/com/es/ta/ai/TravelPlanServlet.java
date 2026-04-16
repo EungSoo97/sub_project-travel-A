@@ -1,21 +1,19 @@
 package com.es.ta.ai;
 
+import com.es.ta.common.GoogleMapsConfig;
 import com.es.ta.resultpage.TravelResultVDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 @WebServlet("/planner/result")
 public class TravelPlanServlet extends HttpServlet {
@@ -123,7 +121,7 @@ public class TravelPlanServlet extends HttpServlet {
                 req.setAttribute("result", displayResult);
             }
 
-            attachGoogleMapsConfig(req);
+            GoogleMapsConfig.attach(req);
             req.setAttribute("content", "view/resultpage/resultpage.jsp");
             System.out.println("[" + traceId + "] forwarding to /index.jsp");
             req.getRequestDispatcher("/index.jsp").forward(req, resp);
@@ -186,27 +184,6 @@ public class TravelPlanServlet extends HttpServlet {
             }
         }
         return Collections.emptyList();
-    }
-
-    private void attachGoogleMapsConfig(HttpServletRequest req) {
-        Properties props = loadApplicationProperties(req.getServletContext());
-        req.setAttribute("googleMapsApiKey", props.getProperty("GOOGLE_API_KEY", ""));
-        req.setAttribute("googleMapsMapId", props.getProperty("GOOGLE_MAP_ID", ""));
-    }
-
-    private Properties loadApplicationProperties(ServletContext context) {
-        Properties props = new Properties();
-
-        try (InputStream in = context.getResourceAsStream("/WEB-INF/application.properties")) {
-            if (in == null) {
-                return props;
-            }
-            props.load(in);
-        } catch (IOException e) {
-            System.out.println("[TravelPlanServlet] application.properties load failed: " + e.getMessage());
-        }
-
-        return props;
     }
 
 

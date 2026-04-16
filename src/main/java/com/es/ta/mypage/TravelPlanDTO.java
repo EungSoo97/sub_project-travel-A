@@ -36,6 +36,7 @@ public class TravelPlanDTO {
     private String responseJson;
     private int posted;
     private int likeCnt;
+    private boolean starred;
     private int originalUserId;
     private int copiedModified;
     private String creatorName;
@@ -44,6 +45,7 @@ public class TravelPlanDTO {
 
     private Date createdAt;
     private Date updatedAt;
+    private String thumbnailUrl;
 
    
     // =========================

@@ -98,9 +98,20 @@
 
                     <div class="card-img">
                         <!-- 이미지 없으면 기본 이미지 -->
-                        <img src="${empty plan.hotels[0].name ? '/img/defaultplan/default.jpg' : '/img/defaultplan/default.jpg'}">
+                        <img src="${empty plan.thumbnailUrl ? '/img/defaultplan/default.jpg' : plan.thumbnailUrl}"
+                             onerror="this.src='${pageContext.request.contextPath}/img/defaultplan/default.jpg'">
                         <span class="price">₩${plan.summary.totalEstimatedCost}</span>
+                        <div style="font-size:11px;color:#999;">
+                            ID: ${plan.planId}
+                        </div>
+                        <div style="font-size:11px;color:#999;">
+                            dest: ${plan.summary.destination}
+                        </div>
+                        <div style="font-size:11px;color:#999;">
+                            thumb: ${plan.thumbnailUrl}
+                        </div>
                     </div>
+
 
                     <div class="card-body">
                         <div class="user">

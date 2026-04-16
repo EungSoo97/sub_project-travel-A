@@ -47,7 +47,9 @@
                             <input type="hidden" name="planId" value="${savedPlan.planId}">
                             <button
                                     id="starBtn"
-                                    type="submit"
+                                    type="button"
+                                    data-plan-id="${savedPlan.planId}"
+                                    onclick="toggleStar(this)"
                                     class="action-btn icon-btn ${liked ? 'is-liked' : ''}">
                                 ${liked ? '★' : '☆'}
                             </button>
@@ -76,12 +78,6 @@
                         </c:choose>
                     </div>
                 </div>
-
-                <form action="${pageContext.request.contextPath}/save-plan" method="post">
-                    <input type="hidden" name="title" value="${result.summary.title}">
-                    <button type="submit">저장하기</button>
-                </form>
-
                 <!-- 여행 정보 -->
                 <div class="mp-summary-grid">
                     <div class="mp-summary-card mp-summary-card--full">
