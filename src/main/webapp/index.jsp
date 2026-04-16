@@ -150,6 +150,61 @@
         });
     })();
     </script>
+
+    <script>
+    /* ── 실시간 여행 메뉴: 트래킹 중이면 myLive 페이지로 자동 연결 ── */
+    (function () {
+        /* 비로그인 상태: localStorage의 stale 트래킹 데이터 즉시 초기화 후 종료 */
+        <c:if test="${empty sessionScope.user}">
+        localStorage.removeItem('liveTrackingPlanId');
+        return;
+        </c:if>
+
+        const trackingPlanId = localStorage.getItem('liveTrackingPlanId');
+        const liveLink = document.querySelector('.site-nav a[href*="/live"]');
+
+        if (!liveLink) return;
+
+        if (trackingPlanId) {
+            const ctx = '${pageContext.request.contextPath}';
+            liveLink.href = ctx + '/my-live?planId=' + encodeURIComponent(trackingPlanId);
+
+            /* 트래킹 중 시각적 표시: 텍스트 앞 빨간 점 (텍스트 위치 밀림 없음) */
+            liveLink.style.position = 'relative';
+
+            const dot = document.createElement('span');
+            dot.style.cssText = [
+                'position:absolute',
+                'left:-4px',
+                'top:50%',
+                'transform:translateY(-50%)',
+                'width:9px', 'height:9px', 'border-radius:50%',
+                'background:#ef4444',
+                'animation:livePulse 1.4s ease-in-out infinite',
+                'pointer-events:none'
+            ].join(';');
+            liveLink.appendChild(dot);
+
+            /* 펄스 키프레임 (중복 삽입 방지) */
+            if (!document.getElementById('livePulseStyle')) {
+                const style = document.createElement('style');
+                style.id = 'livePulseStyle';
+                style.textContent = '@keyframes livePulse{0%,100%{opacity:1;transform:translateY(-50%) scale(1)}50%{opacity:.4;transform:translateY(-50%) scale(1.4)}}';
+                document.head.appendChild(style);
+            }
+        }
+
+        /* ── 로그아웃 시 트래킹 상태 자동 해제 ── */
+        document.querySelectorAll('a[href*="/logout"]').forEach(function (logoutLink) {
+            logoutLink.addEventListener('click', function () {
+                localStorage.removeItem('liveTrackingPlanId');
+            });
+        });
+    })();
+    </script>
+
+
   </body>
 
 </html>
+

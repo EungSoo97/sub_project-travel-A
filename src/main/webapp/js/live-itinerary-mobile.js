@@ -3,6 +3,8 @@
 // Function to create mobile-optimized daily itinerary
 function createMobileItinerary(planDetail) {
     console.log('createMobileItinerary called with:', planDetail);
+    console.log('This function is disabled in favor of the new modal UI.');
+    return;
     
     if (!planDetail || !planDetail.itinerary) {
         console.log('No itinerary data available');
