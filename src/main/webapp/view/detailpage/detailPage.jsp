@@ -30,7 +30,7 @@
                 <div class="mp-header">
                     <div class="mp-header-topbar">
                         <a class="mp-back-link" href="${pageContext.request.contextPath}/explore">
-                            ← 목록으로 돌아가기
+                            <i class="fa-solid fa-arrow-left"></i> 목록으로 돌아가기
                         </a>
                         <button type="button" class="header-collapse-toggle" aria-expanded="true" aria-label="상단 정보 접기">
                             <span class="header-collapse-symbol">−</span>
@@ -57,15 +57,15 @@
 
                         <div class="detail-title-divider"></div>
                         <div class="detail-plan-meta plan-creator-meta">
-                            <span class="plan-creator-pill">👤
+                            <span class="plan-creator-pill"><i class="fa-regular fa-user"></i>
                                 <c:out value="${empty sourcePlan.creatorName ? '여행자' : sourcePlan.creatorName}" />
                             </span>
                             <c:if test="${not empty sourcePlan.editorName and sourcePlan.editorName ne sourcePlan.creatorName}">
-                                <span class="plan-editor-pill">✏️
+                                <span class="plan-editor-pill"><i class="fa-solid fa-pen"></i>
                                     <c:out value="${sourcePlan.editorName}" />
                                 </span>
                             </c:if>
-                            <span class="plan-like-pill">♥ ${plan.likeCnt}</span>
+                            <span class="plan-like-pill"><i class="fa-solid fa-heart"></i> ${plan.likeCnt}</span>
                         </div>
                     </div>
 
@@ -89,7 +89,7 @@
                             </c:otherwise>
                         </c:choose>
 
-                        <button type="button" class="action-btn icon-btn" onclick="copyUrl()">🔗</button>
+                        <button type="button" class="action-btn icon-btn" onclick="copyUrl()"><i class="fa-solid fa-link"></i></button>
 
                         <form action="${pageContext.request.contextPath}/pdf" method="get">
                             <button type="submit" class="action-btn download-btn">PDF</button>
@@ -132,24 +132,24 @@
 
                 <div class="mp-summary-grid">
                     <div class="mp-summary-card mp-summary-card--full">
-                        <p class="mp-summary-label"><span class="mp-label-icon">📅</span>여행 기간</p>
+                        <p class="mp-summary-label"><span class="mp-label-icon"><i class="fa-regular fa-calendar"></i></span>여행 기간</p>
                         <p class="mp-summary-value">${plan.summary.startDate} ~ ${plan.summary.endDate}</p>
                     </div>
 
                     <div class="mp-summary-card">
-                        <p class="mp-summary-label"><span class="mp-label-icon">👥</span>여행 인원</p>
+                        <p class="mp-summary-label"><span class="mp-label-icon"><i class="fa-solid fa-user-group"></i></span>여행 인원</p>
                         <p class="mp-summary-value">${plan.summary.travelers}명</p>
                     </div>
 
                     <div class="mp-summary-card">
-                        <p class="mp-summary-label"><span class="mp-label-icon">✨</span>여행 스타일</p>
+                        <p class="mp-summary-label"><span class="mp-label-icon"><i class="fa-solid fa-bullseye"></i></span>여행 스타일</p>
                         <p class="mp-summary-value">${plan.summary.travelStyle}</p>
                     </div>
                 </div>
 
                 <div class="map-section">
                         <div class="map-header" role="button" tabindex="0" aria-expanded="true">
-                            <span class="map-title"><span class="mp-inline-icon">🗺</span>여행 동선 지도</span>
+                            <span class="map-title"><span class="mp-inline-icon"><i class="fa-regular fa-map"></i></span>여행 동선 지도</span>
                             <span class="map-toggle-indicator map-toggle-label">지도 접기</span>
                             <div class="legend">
                                 <span class="dot blue"></span> 관광지
@@ -251,16 +251,16 @@
 
                                         <c:choose>
                                             <c:when test="${activityCategory == 'TRANSPORT' or activityCategory == 'MOVE'}">
-                                                <div class="icon move">🚗</div>
+                                                <div class="icon move"><i class="fa-solid fa-car"></i></div>
                                             </c:when>
                                             <c:when test="${activityCategory == 'DINING' or activityCategory == 'FOOD' or activityCategory == 'RESTAURANT'}">
-                                                <div class="icon food">🍽</div>
+                                                <div class="icon food"><i class="fa-solid fa-utensils"></i></div>
                                             </c:when>
                                             <c:when test="${activityCategory == 'ACCOMMODATION' or activityCategory == 'HOTEL'}">
-                                                <div class="icon hotel">🏨</div>
+                                                <div class="icon hotel"><i class="fa-solid fa-hotel"></i></div>
                                             </c:when>
                                             <c:otherwise>
-                                                <div class="icon spot">📍</div>
+                                                <div class="icon spot"><i class="fa-solid fa-location-dot"></i></div>
                                             </c:otherwise>
                                         </c:choose>
 
@@ -300,7 +300,7 @@
 
                     <div class="recommend-grid">
                         <div class="recommend-card">
-                            <h3>✈ 저가 항공권 최저가</h3>
+                            <h3><i class="fa-solid fa-plane"></i> 저가 항공권 최저가</h3>
                             <c:choose>
                                 <c:when test="${empty plan.flights}">
                                     <p>항공권 정보를 불러오지 못했습니다.</p>
@@ -323,7 +323,7 @@
                         </div>
 
                         <div class="recommend-card">
-                            <h3>🏨 숙박 추천</h3>
+                            <h3><i class="fa-solid fa-hotel"></i> 숙박 추천</h3>
                             <c:choose>
                                 <c:when test="${empty plan.hotels}">
                                     <p>숙박 정보를 불러오지 못했습니다.</p>
