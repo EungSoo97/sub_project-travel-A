@@ -14,11 +14,8 @@
     }
 
     function extractPlanId(card) {
-        if (card.dataset.planId) return card.dataset.planId;
-
         const detailBtn = card.querySelector('.btn-detail');
         if (!detailBtn) return '';
-
         const onclickAttr = detailBtn.getAttribute('onclick') || '';
         const match = onclickAttr.match(/id=(\d+)/);
         return match ? match[1] : '';
@@ -29,43 +26,45 @@
         return title ? title.textContent.trim() : '';
     }
 
-    function postTracking(ctx, payload) {
-        return fetch(`${ctx}/live-tracking`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        }).then(response => {
-            if (!response.ok) {
-                throw new Error('tracking request failed');
-            }
-            return response.json();
-        });
-    }
-
     function addLiveButtons() {
-        const ctx = window.MYPAGE_CTX || '';
+        // Check for stopTracking parameter and reset state if needed
         const urlParams = new URLSearchParams(window.location.search);
-
         if (urlParams.get('stopTracking') === 'true') {
+            console.log('Stop tracking parameter detected, resetting all tracking states');
+
+            // Clear localStorage
             localStorage.removeItem('liveTrackingPlanId');
-            postTracking(ctx, { action: 'stop' }).catch(() => {
-                // The tracking page usually stops tracking before redirecting here.
+
+            // Reset all tracking buttons to initial state
+            const allCards = document.querySelectorAll('#content-saved .trip-card');
+            allCards.forEach(card => {
+                const liveBtn = card.querySelector('.live-track-btn');
+                if (liveBtn) {
+                    liveBtn.innerHTML = 'ð\x9f\x9a\x80 \uc2e4\uc2dc\uac04 \ud2b8\ub798\ud0b9 \ud558\uae30';
+                    liveBtn.disabled = false;
+                    card.classList.remove('active-card');
+                }
             });
-            window.history.replaceState({}, '', window.location.pathname);
+
+            // Remove the stopTracking parameter from URL
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, '', newUrl);
         }
 
-        const savedCards = Array.from(document.querySelectorAll('#content-saved .trip-card'));
-        const activeCard = savedCards.find(card => card.dataset.liveTracking === '1');
-        const activePlanId = activeCard ? extractPlanId(activeCard) : '';
+        const savedCards = document.querySelectorAll('#content-saved .trip-card');
+        const trackingPlanId = localStorage.getItem('liveTrackingPlanId');
 
-        if (activeCard) {
-            activeCard.parentNode.insertBefore(activeCard, activeCard.parentNode.firstChild);
-            localStorage.setItem('liveTrackingPlanId', activePlanId);
-        } else {
-            localStorage.removeItem('liveTrackingPlanId');
+        // 트래킹 중인 카드를 상단으로 이동
+        if (trackingPlanId) {
+            const trackingCard = Array.from(savedCards).find(card => {
+                const planId = extractPlanId(card);
+                return planId === trackingPlanId;
+            });
+
+            if (trackingCard) {
+                const container = trackingCard.parentNode;
+                container.insertBefore(trackingCard, container.firstChild);
+            }
         }
 
         savedCards.forEach(card => {
@@ -74,17 +73,19 @@
             const planId = extractPlanId(card);
             if (!planId) return;
 
+            // 1. 예정됨 상태 표시 제거
             const statusBadge = card.querySelector('.status-badge');
             if (statusBadge) {
                 statusBadge.style.display = 'none';
             }
 
+            // 2. 실시간 트래킹 버튼 생성 및 위치 설정
             const liveBtn = document.createElement('button');
             liveBtn.type = 'button';
             liveBtn.className = 'live-track-btn';
             liveBtn.dataset.planId = planId;
             liveBtn.dataset.destination = extractDestination(card);
-            liveBtn.innerHTML = activePlanId === planId ? '🔴실시간 트래킹중' : '🚀 실시간 트래킹 하기';
+            liveBtn.innerHTML = '🚀 실시간 트래킹 하기';
             liveBtn.style.position = 'absolute';
             liveBtn.style.top = '10px';
             liveBtn.style.right = '10px';
@@ -98,72 +99,77 @@
             liveBtn.style.backgroundColor = '#1d4ed8ab';
             liveBtn.style.color = 'white';
 
+            // 카드 전체에 relative 위치 설정 후 상단에 버튼 추가
             card.style.position = 'relative';
-            card.classList.toggle('active-card', activePlanId === planId);
             card.appendChild(liveBtn);
 
+            // localStorage에 저장된 트래킹 상태 복원
+            if (trackingPlanId && trackingPlanId === planId) {
+                liveBtn.innerHTML = '🔴실시간 트래킹중';
+                liveBtn.style.backgroundColor = '#ef444480';
+                card.classList.add('active-card');
+            }
+
+            // 3. 클릭 이벤트 처리 (토글: 트래킹 시작 / 중지)
             liveBtn.addEventListener('click', function () {
-                const isCurrentlyActive = card.dataset.liveTracking === '1';
+                const isTracking = localStorage.getItem('liveTrackingPlanId') === planId;
 
-                if (isCurrentlyActive) {
-                    this.innerHTML = '해제 중...';
-                    this.disabled = true;
+                if (isTracking) {
+                    // ── 트래킹 중지 ──
+                    localStorage.removeItem('liveTrackingPlanId');
 
-                    postTracking(ctx, { action: 'stop', planId: Number(planId) })
-                        .then(data => {
-                            if (!data.success) {
-                                throw new Error('tracking stop failed');
-                            }
+                    // 서버에 트래킹 중지 요청
+                    const ctx = window.MYPAGE_CTX || '';
+                    fetch(ctx + '/live-tracking', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ action: 'stop', planId: planId })
+                    }).finally(function () {
+                        // 버튼 초기 상태로 복원
+                        this.innerHTML = '🚀 실시간 트래킹 하기';
+                        this.style.backgroundColor = '#1d4ed8ab';
+                        card.classList.remove('active-card');
 
-                            card.dataset.liveTracking = '0';
-                            card.classList.remove('active-card');
-                            localStorage.removeItem('liveTrackingPlanId');
-
-                            this.innerHTML = '🚀 실시간 트래킹 하기';
-                            this.disabled = false;
-                        })
-                        .catch(() => {
-                            this.innerHTML = '🔴실시간 트래킹중';
-                            this.disabled = false;
-                            alert('실시간 트래킹 해제에 실패했습니다. 잠시 후 다시 시도해주세요.');
-                        });
+                        // 내비게이션 빨간 점 제거 및 링크 원복
+                        const liveNavLink = document.querySelector('.site-nav a[href*="/my-live"]');
+                        if (liveNavLink) {
+                            const dot = liveNavLink.querySelector('span');
+                            if (dot) dot.remove();
+                            liveNavLink.href = ctx + '/live';
+                        }
+                    }.bind(this));
                     return;
                 }
 
-                this.innerHTML = '활성화 중...';
-                this.disabled = true;
+                // ── 트래킹 시작 ──
+                this.innerHTML = '🔴실시간 트래킹중';
+                this.style.backgroundColor = '#ef444480';
+                card.classList.add('active-card');
 
-                postTracking(ctx, { action: 'start', planId: Number(planId) })
-                    .then(data => {
-                        if (!data.success) {
-                            throw new Error('tracking update failed');
+                // 다른 카드의 트래킹 상태 초기화
+                savedCards.forEach(otherCard => {
+                    if (otherCard !== card) {
+                        const otherBtn = otherCard.querySelector('.live-track-btn');
+                        if (otherBtn) {
+                            otherBtn.innerHTML = '🚀 실시간 트래킹 하기';
+                            otherBtn.style.backgroundColor = '#1d4ed8ab';
                         }
+                        otherCard.classList.remove('active-card');
+                    }
+                });
 
-                        savedCards.forEach(otherCard => {
-                            const otherPlanId = extractPlanId(otherCard);
-                            const otherBtn = otherCard.querySelector('.live-track-btn');
-                            const isActive = otherPlanId === planId;
+                // localStorage에 현재 트래킹 상태 저장
+                localStorage.setItem('liveTrackingPlanId', planId);
 
-                            otherCard.dataset.liveTracking = isActive ? '1' : '0';
-                            otherCard.classList.toggle('active-card', isActive);
-
-                            if (otherBtn) {
-                                otherBtn.innerHTML = isActive ? '🔴실시간 트래킹중' : '🚀 실시간 트래킹 하기';
-                                otherBtn.disabled = false;
-                            }
-                        });
-
-                        localStorage.setItem('liveTrackingPlanId', planId);
-
-                        const destination = this.dataset.destination || '';
-                        const encodedDestination = encodeURIComponent(destination);
-                        window.location.href = `${ctx}/my-live?planId=${encodeURIComponent(planId)}&destination=${encodedDestination}`;
-                    })
-                    .catch(() => {
-                        this.innerHTML = '🚀 실시간 트래킹 하기';
-                        this.disabled = false;
-                        alert('실시간 트래킹 활성화에 실패했습니다. 잠시 후 다시 시도해주세요.');
-                    });
+                // 페이지 이동
+                const ctx = window.MYPAGE_CTX || '';
+                const destination = this.dataset.destination || '';
+                const encodedDestination = encodeURIComponent(destination);
+                const url = `${ctx}/my-live?planId=${encodeURIComponent(this.dataset.planId)}&destination=${encodedDestination}`;
+                window.location.href = url;
             });
         });
     }
