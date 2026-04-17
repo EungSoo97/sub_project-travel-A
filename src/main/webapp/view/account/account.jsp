@@ -59,6 +59,32 @@
             color: #2563eb;
         }
 
+        /* 비밀번호 보안 강도 표시 */
+        .password-strength {
+            margin-top: 8px;
+        }
+
+        .strength-bar-container {
+            width: 100%;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            background: #ddd;
+            transition: width 0.3s, background-color 0.3s;
+        }
+
+        .strength-text {
+            font-size: 12px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
         .email-row,
         .id-check-row {
             display: flex;
@@ -164,7 +190,7 @@
                     <div class="form-field">
                         <label>ID</label>
                         <div class="id-check-row">
-                            <input type="text" placeholder="(필수)" name="login_id" required onkeyup="checkIdRealtime()">
+                            <input type="text" placeholder="(필수)" name="login_id" value="" required onkeyup="checkIdRealtime()">
                             <button type="button" id="check-btn" class="dup-check">중복확인</button>
                         </div>
                         <div class="result"></div>
@@ -173,17 +199,23 @@
                     <div class="form-field">
                         <label>비밀번호</label>
                         <div class="password-toggle">
-                            <input type="password" id="pw1" placeholder="(필수)" name="password" onkeyup="checkPassword(); checkPasswordRealtime()" required>
+                            <input type="password" id="pw1" placeholder="(필수)" name="password" value="" onkeyup="checkPassword(); checkPasswordRealtime()" onfocus="showStrengthBar()" onblur="hideStrengthBar()" required>
                             <button type="button" class="toggle-btn" onclick="togglePassword('pw1', this)">
                                 <i class="fa-solid fa-eye-slash"></i>
                             </button>
+                        </div>
+                        <div class="password-strength" id="password-strength">
+                            <div class="strength-bar-container">
+                                <div class="strength-bar" id="strength-bar"></div>
+                            </div>
+                            <div class="strength-text" id="strength-text"></div>
                         </div>
                     </div>
 
                     <div class="form-field">
                         <label>비밀번호 확인</label>
                         <div class="password-toggle">
-                            <input type="password" id="pw2" placeholder="(필수)" onkeyup="checkPassword()" required>
+                            <input type="password" id="pw2" placeholder="(필수)" value="" onkeyup="checkPassword()" required>
                             <button type="button" class="toggle-btn" onclick="togglePassword('pw2', this)">
                                 <i class="fa-solid fa-eye-slash"></i>
                             </button>
