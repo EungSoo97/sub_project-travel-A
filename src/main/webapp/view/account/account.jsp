@@ -4,6 +4,7 @@
 <html>
 <head>
     <title>Account</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         .search-card {
@@ -30,6 +31,58 @@
 
         .form-field a:hover {
             text-decoration: underline;
+        }
+
+        /* 비밀번호 토글 버튼 */
+        .password-toggle {
+            position: relative;
+        }
+
+        .password-toggle input {
+            padding-right: 40px;
+        }
+
+        .toggle-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #64748b;
+            padding: 4px;
+        }
+
+        .toggle-btn:hover {
+            color: #2563eb;
+        }
+
+        /* 비밀번호 보안 강도 표시 */
+        .password-strength {
+            margin-top: 8px;
+        }
+
+        .strength-bar-container {
+            width: 100%;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            background: #ddd;
+            transition: width 0.3s, background-color 0.3s;
+        }
+
+        .strength-text {
+            font-size: 12px;
+            margin-top: 4px;
+            font-weight: 500;
         }
 
         .email-row,
@@ -59,6 +112,28 @@
             margin: 0 0 16px;
             color: #dc2626;
             font-weight: 700;
+        }
+
+        /* 스낵바 스타일 */
+        .snackbar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .snackbar.show {
+            opacity: 1;
+            visibility: visible;
         }
     </style>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -99,7 +174,7 @@
                     <div class="form-field">
                         <label>Email</label>
                         <div class="email-row">
-                            <input type="text" placeholder="email id" name="email" required>
+                            <input type="text" placeholder="email id" name="email" required onkeyup="checkEmailRealtime()">
                             <span>@</span>
                             <select id="emailDomain">
                                 <option value="naver.com">naver.com</option>
@@ -109,13 +184,13 @@
                                 <option value="direct">직접 입력</option>
                             </select>
                         </div>
-                        <input type="text" id="customDomain" placeholder="도메인 직접 입력" style="display:none; margin-top:6px;">
+                        <input type="text" id="customDomain" placeholder="도메인 직접 입력" style="display:none; margin-top:6px;" onkeyup="checkDomainRealtime()">
                     </div>
 
                     <div class="form-field">
                         <label>ID</label>
                         <div class="id-check-row">
-                            <input type="text" placeholder="(필수)" name="login_id" required>
+                            <input type="text" placeholder="(필수)" name="login_id" value="" required onkeyup="checkIdRealtime()">
                             <button type="button" id="check-btn" class="dup-check">중복확인</button>
                         </div>
                         <div class="result"></div>
@@ -123,12 +198,28 @@
 
                     <div class="form-field">
                         <label>비밀번호</label>
-                        <input type="password" id="pw1" placeholder="(필수)" name="password" onkeyup="checkPassword()" required>
+                        <div class="password-toggle">
+                            <input type="password" id="pw1" placeholder="(필수)" name="password" value="" onkeyup="checkPassword(); checkPasswordRealtime()" onfocus="showStrengthBar()" onblur="hideStrengthBar()" required>
+                            <button type="button" class="toggle-btn" onclick="togglePassword('pw1', this)">
+                                <i class="fa-solid fa-eye-slash"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength" id="password-strength">
+                            <div class="strength-bar-container">
+                                <div class="strength-bar" id="strength-bar"></div>
+                            </div>
+                            <div class="strength-text" id="strength-text"></div>
+                        </div>
                     </div>
 
                     <div class="form-field">
                         <label>비밀번호 확인</label>
-                        <input type="password" id="pw2" placeholder="(필수)" onkeyup="checkPassword()" required>
+                        <div class="password-toggle">
+                            <input type="password" id="pw2" placeholder="(필수)" value="" onkeyup="checkPassword()" required>
+                            <button type="button" class="toggle-btn" onclick="togglePassword('pw2', this)">
+                                <i class="fa-solid fa-eye-slash"></i>
+                            </button>
+                        </div>
                         <span id="pw-msg"></span>
                     </div>
 
@@ -153,5 +244,6 @@
 
 <script src="${pageContext.request.contextPath}/js/idcheck.js"></script>
 <script src="${pageContext.request.contextPath}/js/account.js"></script>
+<div id="snackbar" class="snackbar"></div>
 </body>
 </html>
