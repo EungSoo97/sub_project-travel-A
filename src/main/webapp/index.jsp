@@ -155,19 +155,20 @@
     <script>
     /* ── 실시간 여행 메뉴: 트래킹 중이면 myLive 페이지로 자동 연결 ── */
     (function () {
-        /* 비로그인 상태: localStorage의 stale 트래킹 데이터 즉시 초기화 후 종료 */
+        /* 비로그인 상태에서도 DB의 트래킹 상태는 유지한다. */
         <c:if test="${empty sessionScope.user}">
-        localStorage.removeItem('liveTrackingPlanId');
         return;
         </c:if>
 
-        const trackingPlanId = localStorage.getItem('liveTrackingPlanId');
+        const dbTrackingPlanId = '${empty activeLiveTrackingPlanId ? "" : activeLiveTrackingPlanId}';
+        const trackingPlanId = dbTrackingPlanId || localStorage.getItem('liveTrackingPlanId');
         const liveLink = document.querySelector('.site-nav a[href*="/live"]');
 
         if (!liveLink) return;
 
         if (trackingPlanId) {
             const ctx = '${pageContext.request.contextPath}';
+            localStorage.setItem('liveTrackingPlanId', trackingPlanId);
             liveLink.href = ctx + '/my-live?planId=' + encodeURIComponent(trackingPlanId);
 
             /* 트래킹 중 시각적 표시: 텍스트 앞 빨간 점 (텍스트 위치 밀림 없음) */
@@ -193,6 +194,8 @@
                 style.textContent = '@keyframes livePulse{0%,100%{opacity:1;transform:translateY(-50%) scale(1)}50%{opacity:.4;transform:translateY(-50%) scale(1.4)}}';
                 document.head.appendChild(style);
             }
+        } else {
+            localStorage.removeItem('liveTrackingPlanId');
         }
 
         /* ── 로그아웃 시 트래킹 상태 자동 해제 ── */

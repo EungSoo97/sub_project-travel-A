@@ -37,6 +37,11 @@ public class LiveC extends HttpServlet {
 
         String planIdStr = request.getParameter("planId");
         if (planIdStr == null || planIdStr.trim().isEmpty()) {
+            Integer activePlanId = LiveTrackingDAO.getActivePlanId(loginUser.getUser_id());
+            if (activePlanId != null) {
+                response.sendRedirect(request.getContextPath() + "/my-live?planId=" + activePlanId);
+                return;
+            }
             response.sendRedirect(request.getContextPath() + "/live-select");
             return;
         }
