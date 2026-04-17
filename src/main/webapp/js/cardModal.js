@@ -149,9 +149,9 @@
         <p class="plan-card__title">${escHtml(p.title || '여행 플랜')}</p>
         <p class="plan-card__overview">${escHtml(p.overview || '')}</p>
         <div class="plan-card__meta">
-          ${p.days ? `<span class="meta-chip">📅 ${p.days}일</span>` : ''}
-          ${p.travelers ? `<span class="meta-chip">👥 ${p.travelers}명</span>` : ''}
-          ${p.destination ? `<span class="meta-chip">📍 ${escHtml(p.destination)}</span>` : ''}
+          ${p.days ? `<span class="meta-chip"><i class="fa-regular fa-calendar"></i> ${p.days}일</span>` : ''}
+          ${p.travelers ? `<span class="meta-chip"><i class="fa-solid fa-user-group"></i> ${p.travelers}명</span>` : ''}
+          ${p.destination ? `<span class="meta-chip"><i class="fa-solid fa-location-dot"></i>  ${escHtml(p.destination)}</span>` : ''}
         </div>
         <div class="plan-card__footer">
           <div>

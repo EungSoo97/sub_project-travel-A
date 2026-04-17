@@ -24,13 +24,29 @@
 
                 <div class="form-grid">
                     <div class="form-field form-field--wide">
+                        <label for="departureAirportCode">출발 공항</label>
+                        <button type="button" class="airport-trigger" id="airportTrigger">
+                            <span class="airport-trigger__icon"><i class="fa-solid fa-plane"></i></span>
+                            <span class="airport-trigger__main">
+                                <span class="airport-trigger__label">국내 출발 공항</span>
+                                <span class="airport-trigger__value" id="airportTriggerValue">공항을 선택해 주세요</span>
+                            </span>
+                            <span class="airport-trigger__code" id="airportTriggerCode"></span>
+                        </button>
+                        <input type="hidden" id="departureAirportCode" name="departureAirportCode">
+                        <input type="hidden" id="departureAirportName" name="departureAirportName">
+                        <input type="hidden" id="departureAirportAddress" name="departureAirportAddress">
+                        <input type="hidden" id="departureAirportRoutes" name="departureAirportRoutes">
+                    </div>
+
+                    <div class="form-field form-field--wide">
                         <label for="destination">여행지</label>
                         <input id="destination" name="destination" type="text" placeholder="예: 일본, 시코쿠, 규슈" required>
                     </div>
 
                     <div class="form-field form-field--wide">
                         <label>여행 기간</label>
-                        <div class="date-trigger" id="dateTrigger">
+                        <div class="date-trigger" id="dateTrigger" role="button" tabindex="0">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--primary);flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
                             <div class="trigger-main">
                                 <span class="trigger-label">출발일 · 도착일</span>
@@ -213,14 +229,23 @@
             <div class="image-search-card">
                 <div class="section-head section-head--center">
                     <h2>이미지로 여행지 찾기</h2>
-                    <p>React의 업로드 컴포넌트를 JSP/HTML 구조로 단순화했습니다. 실제 AI 분석은 추후 API 호출로 연결하면 됩니다.</p>
+                    <p>이미지를 업로드하면 미리보기를 보여주고, 이후 AI 분석 결과를 연결할 수 있습니다.</p>
                 </div>
 
                 <div class="upload-box" id="uploadBox">
                     <input type="file" id="imageFile" accept="image/*" hidden>
-                    <button type="button" class="upload-box__button" id="uploadTrigger" onclick = "location.href='image-page'">이미지 업로드</button>
-                    <p class="upload-box__text">클릭하거나 파일을 드래그하여 업로드하세요</p>
+
+                    <button type="button" class="upload-box__button" id="uploadTrigger">
+                        이미지 업로드
+                    </button>
+
+                    <p class="upload-box__text" id="uploadText">클릭하거나 파일을 드래그하여 업로드하세요</p>
+
                     <div class="upload-preview" id="uploadPreview"></div>
+
+                    <button type="button" class="upload-analyze-btn" id="analyzeBtn" style="display:none;">
+                        이 이미지로 여행지 추천받기
+                    </button>
                 </div>
             </div>
         </div>
@@ -230,22 +255,22 @@
         <div class="container">
             <div class="feature-grid">
                 <article class="feature-card">
-                    <div class="feature-card__icon">⚡</div>
+                    <div class="feature-card__icon"><i class="fa-solid fa-bolt"></i></div>
                     <h3>초정밀 AI 분석</h3>
                     <p>취향과 예산을 고려한 일정 추천</p>
                 </article>
                 <article class="feature-card">
-                    <div class="feature-card__icon">📈</div>
+                    <div class="feature-card__icon"><i class="fa-solid fa-chart-line"></i></div>
                     <h3>실시간 최저가</h3>
                     <p>항공편과 숙박을 한눈에 비교</p>
                 </article>
                 <article class="feature-card">
-                    <div class="feature-card__icon">📷</div>
+                    <div class="feature-card__icon"><i class="fa-solid fa-camera"></i></div>
                     <h3>이미지 검색</h3>
                     <p>사진 기반 여행지 추천 확장 가능</p>
                 </article>
                 <article class="feature-card">
-                    <div class="feature-card__icon">🛡️</div>
+                    <div class="feature-card__icon"><i class="fa-solid fa-shield-halved"></i></div>
                     <h3>안전한 예약</h3>
                     <p>검증된 파트너 연동 구조에 적합</p>
                 </article>
@@ -373,6 +398,22 @@
 </div>
 
 
+<div class="sheet-backdrop" id="airportBackdrop"></div>
+<div class="bottom-sheet airport-sheet" id="airportSheet" role="dialog" aria-modal="true" aria-labelledby="airportSheetTitle">
+    <div class="sheet-handle-wrap"><div class="sheet-handle"></div></div>
+    <div class="sheet-head">
+        <span class="sheet-head-title" id="airportSheetTitle">출발 공항 선택</span>
+        <button type="button" class="sheet-close-btn" id="airportSheetClose" aria-label="닫기">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+    </div>
+    <p class="airport-sheet__desc">공항을 누르면 주소와 일본 주요 노선을 확인하고 선택할 수 있어요.</p>
+    <div class="airport-list" id="airportList"></div>
+    <div class="airport-sheet__footer">
+        <button type="button" class="airport-apply-btn" id="airportApplyBtn" disabled>선택 완료</button>
+    </div>
+</div>
+
 <div class="sheet-backdrop" id="dateBackdrop"></div>
 <div class="bottom-sheet" id="dateSheet">
     <div class="sheet-handle-wrap"><div class="sheet-handle"></div></div>
@@ -430,5 +471,49 @@
     </div>
 </div>
 <script src="/js/cardModal.js"></script>
+<script>
+    const imageFile = document.getElementById("imageFile");
+    const uploadTrigger = document.getElementById("uploadTrigger");
+    const uploadPreview = document.getElementById("uploadPreview");
+    const analyzeBtn = document.getElementById("analyzeBtn");
+
+    let selectedFile = null;
+
+    uploadTrigger.addEventListener("click", function () {
+        imageFile.click();
+    });
+
+    imageFile.addEventListener("change", function () {
+        const file = this.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            alert("이미지 파일만 업로드 가능합니다.");
+            this.value = "";
+            return;
+        }
+
+        selectedFile = file;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            uploadPreview.innerHTML =
+                '<div class="upload-preview__card">' +
+                '<img src="' + e.target.result + '" alt="업로드 이미지 미리보기" class="upload-preview__image">' +
+                '<p class="upload-preview__name">' + file.name + '</p>' +
+                '</div>';
+
+            uploadText.style.display = "none";
+            analyzeBtn.style.display = "inline-block";
+        };
+
+        reader.onerror = function () {
+            alert("이미지 미리보기를 불러오지 못했습니다.");
+        };
+
+        reader.readAsDataURL(file);
+    });
+    const uploadText = document.getElementById("uploadText");
+</script>
 </body>
 </html>

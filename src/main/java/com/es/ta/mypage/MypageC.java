@@ -15,7 +15,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @WebServlet(name = "MypageC", value = "/mypage")
 public class MypageC extends HttpServlet {
@@ -29,8 +31,16 @@ public class MypageC extends HttpServlet {
         AccountDTO loginUser = (AccountDTO) session.getAttribute("user");
 
         if (loginUser == null) {
-            response.sendRedirect("login.jsp");
+            request.setAttribute("content", "view/login/login.jsp");
+            request.getRequestDispatcher("index.jsp").forward(request, response);
+
             return;
+        }
+
+        AccountDTO latestUser = SettingsDAO.getUserInfo(request);
+        if (latestUser != null) {
+            loginUser = latestUser;
+            session.setAttribute("user", latestUser);
         }
 
         int userId = loginUser.getUser_id();
@@ -43,19 +53,34 @@ public class MypageC extends HttpServlet {
 
         // 좋아요한 플랜
         List<TravelPlanDTO> likedPlans = userreactionDAO.getLikedPlans(userId);
-        System.out.println("좋아요한 플랜 개수 = " + likedPlans.size());  // ✅ 추가
-
+        System.out.println("좋아요한 플랜 개수 = " + likedPlans.size());
+        request.setAttribute("likedPlans", likedPlans);
         //  내가 쓴 후기
-
-
 
         ArrayList<UserreactionDTO> reviews = UserreactionDAO.getReviewsByUserId(userId);
         request.setAttribute("reviewList", reviews);
+        request.setAttribute("reviewGroups", groupReviewsByPlanId(reviews));
 
+        // 내가 받은 좋아요 수
+        int receivedLikes = UserreactionDAO.getlike(userId);
+        request.setAttribute("receivedLikes", UserreactionDAO.getlike(userId));
 
+        // 플랜 월별 조회
+        int[] monthlyData = UserreactionDAO.getMonthlyPlanCount(userId);
+        request.setAttribute("monthlyData",monthlyData);
 
+        // 여행 트랜드 (지역 랭킹 순위 매기는 메서드)
+        ArrayList<TravelPlanDTO> trendList = TravelPlanDAO.getTrendList(userId);
+        request.setAttribute("trendList",trendList);
+        int maxCount = trendList.isEmpty() ? 0 : trendList.get(0).getPlanId();
+        request.setAttribute("maxCount", maxCount);
 
-        request.setAttribute("likedPlans", likedPlans);
+        // 여행 선호 스타일
+        List<StyleStatDTO> styleStats = UserreactionDAO.getStyleStats(userId);
+        request.setAttribute("styleStats",styleStats);
+        System.out.println(styleStats.size());
+
+        // 어디로?
         request.setAttribute("content", "view/mypage/mypage.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
 
@@ -64,5 +89,17 @@ public class MypageC extends HttpServlet {
 
     @Override
     public void destroy() {
+    }
+
+    private List<Map.Entry<Integer, List<UserreactionDTO>>> groupReviewsByPlanId(List<UserreactionDTO> reviews) {
+        Map<Integer, List<UserreactionDTO>> groupedReviews = new LinkedHashMap<>();
+
+        for (UserreactionDTO review : reviews) {
+            groupedReviews
+                    .computeIfAbsent(review.getPlanId(), key -> new ArrayList<>())
+                    .add(review);
+        }
+
+        return new ArrayList<>(groupedReviews.entrySet());
     }
 }

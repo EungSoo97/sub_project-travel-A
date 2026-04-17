@@ -119,4 +119,49 @@ CREATE TABLE plan_star (
                                UNIQUE (plan_id, user_id)
 );
 
-select *from plan_star
+select *from plan_star;
+
+------------------테스트용
+-- 받은 좋아요 수
+SELECT COUNT(*) AS total_likes
+FROM plan_like pl
+    JOIN travel_plan tp ON pl.plan_id = tp.plan_id
+WHERE tp.user_id =? ;
+
+
+SELECT plan_id, user_id, destination, title, start_date, end_date,
+                days, travelers, travel_style, total_estimated_cost, currency, overview,
+                success, message, response_json, created_at, updated_at
+                FROM travel_plan
+                WHERE user_id = 1
+                ORDER BY created_at DESC;
+
+
+SELECT tp.plan_id, tp.user_id, tp.destination, tp.title,
+    tp.start_date, tp.end_date, tp.days, tp.travelers,
+                tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview
+            FROM travel_plan tp
+                JOIN plan_like pl ON tp.plan_id = pl.plan_id
+                WHERE pl.user_id = 1
+                ORDER BY pl.created_at DESC;
+
+SELECT *
+FROM travel_plan
+WHERE plan_id IN (
+    SELECT plan_id FROM plan_like WHERE user_id = 1
+);
+
+SELECT TO_CHAR(start_date, 'MM') AS month, COUNT(*) AS cnt
+FROM travel_plan
+WHERE user_id = ?
+  AND TO_CHAR(start_date, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY')
+  AND start_date IS NOT NULL
+GROUP BY TO_CHAR(start_date, 'MM')
+ORDER BY month;
+
+SELECT tp.*,
+       (SELECT COUNT(*)
+        FROM plan_like pl
+        WHERE pl.plan_id = tp.plan_id) AS like_cnt
+FROM travel_plan tp
+ORDER BY tp.plan_id DESC;

@@ -6,6 +6,8 @@
   const plusBtn     = document.querySelector("[data-counter-plus]");
   const presets     = document.querySelectorAll(".preset-chip");
   const badge       = document.getElementById("travelerBadge");
+
+
   const MIN = 1, MAX = 20;
   let count = 2;
 
@@ -140,6 +142,154 @@
   syncAll();
 })();
 
+(function initAirportSelector() {
+  const airports = [
+    {
+      code: "ICN",
+      name: "인천국제공항",
+      address: "인천광역시 중구 공항로 272",
+      summary: "가장 많은 일본 노선과 소도시 연결편",
+      routes: ["도쿄", "오사카", "후쿠오카", "삿포로", "나고야", "오키나와", "히로시마", "센다이", "시즈오카"]
+    },
+    {
+      code: "GMP",
+      name: "김포국제공항",
+      address: "서울특별시 강서구 하늘길 112",
+      summary: "서울 도심 접근성이 좋은 비즈니스 중심 공항",
+      routes: ["도쿄 하네다", "오사카 간사이"]
+    },
+    {
+      code: "PUS",
+      name: "김해국제공항",
+      address: "부산광역시 강서구 공항진입로 108",
+      summary: "부산과 영남권에서 일본 주요 도시로 이동",
+      routes: ["도쿄", "오사카", "후쿠오카", "삿포로", "마쓰야마"]
+    },
+    {
+      code: "CJU",
+      name: "제주국제공항",
+      address: "제주특별자치도 제주시 공항로 2",
+      summary: "제주 출발 도쿄, 오사카 중심 노선",
+      routes: ["도쿄", "오사카", "후쿠오카"]
+    },
+    {
+      code: "TAE",
+      name: "대구국제공항",
+      address: "대구광역시 동구 공항로 221",
+      summary: "대구 출발 일본 주요 대도시 직항",
+      routes: ["도쿄", "오사카", "후쿠오카"]
+    },
+    {
+      code: "CJJ",
+      name: "청주국제공항",
+      address: "충청북도 청주시 청원구 내수읍 오창대로 980",
+      summary: "최근 일본 노선 선택지가 넓어진 중부권 공항",
+      routes: ["도쿄", "오사카", "후쿠오카", "삿포로"]
+    }
+  ];
+
+  const trigger = document.getElementById("airportTrigger");
+  const triggerValue = document.getElementById("airportTriggerValue");
+  const triggerCode = document.getElementById("airportTriggerCode");
+  const backdrop = document.getElementById("airportBackdrop");
+  const sheet = document.getElementById("airportSheet");
+  const closeBtn = document.getElementById("airportSheetClose");
+  const list = document.getElementById("airportList");
+  const applyBtn = document.getElementById("airportApplyBtn");
+  const codeInput = document.getElementById("departureAirportCode");
+  const nameInput = document.getElementById("departureAirportName");
+  const addressInput = document.getElementById("departureAirportAddress");
+  const routesInput = document.getElementById("departureAirportRoutes");
+  let previousBodyOverflow = "";
+
+  if (!trigger || !backdrop || !sheet || !list) return;
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function renderAirports() {
+    list.innerHTML = airports.map(function(airport) {
+      const routeChips = airport.routes
+        .map(function(route) {
+          return `<span class="airport-route-chip">${escapeHtml(route)}</span>`;
+        })
+        .join("");
+
+      return `
+        <button type="button" class="airport-option" data-code="${airport.code}">
+          <span class="airport-option__top">
+            <span>
+              <span class="airport-option__name">${escapeHtml(airport.name)}</span>
+              <span class="airport-option__summary">${escapeHtml(airport.summary)}</span>
+            </span>
+            <span class="airport-option__code">${airport.code}</span>
+          </span>
+          <span class="airport-option__details">
+            <span class="airport-option__detail-label">주소</span>
+            <span class="airport-option__detail-text">${escapeHtml(airport.address)}</span>
+            <span class="airport-option__detail-label">갈 수 있는 일본 노선</span>
+            <span class="airport-route-chips">${routeChips}</span>
+          </span>
+        </button>
+      `;
+    }).join("");
+  }
+
+  function openSheet() {
+    if (!list.innerHTML) renderAirports();
+    previousBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    backdrop.classList.add("open");
+    sheet.classList.add("open");
+  }
+
+  function closeSheet() {
+    backdrop.classList.remove("open");
+    sheet.classList.remove("open");
+    document.body.style.overflow = previousBodyOverflow;
+  }
+
+  function selectAirport(airport) {
+    if (!airport) return;
+
+    trigger.classList.add("is-selected");
+    triggerValue.textContent = airport.name;
+    triggerCode.textContent = airport.code;
+    codeInput.value = airport.code;
+    nameInput.value = airport.name;
+    addressInput.value = airport.address;
+    routesInput.value = airport.routes.join(", ");
+    if (applyBtn) applyBtn.disabled = false;
+
+    list.querySelectorAll(".airport-option").forEach(function(option) {
+      option.classList.toggle("is-active", option.dataset.code === airport.code);
+    });
+  }
+
+  trigger.addEventListener("click", openSheet);
+  backdrop.addEventListener("click", closeSheet);
+  closeBtn && closeBtn.addEventListener("click", closeSheet);
+  applyBtn && applyBtn.addEventListener("click", function() {
+    if (!applyBtn.disabled) closeSheet();
+  });
+
+  list.addEventListener("click", function(e) {
+    const option = e.target.closest(".airport-option");
+    if (!option) return;
+
+    const airport = airports.find(function(item) {
+      return item.code === option.dataset.code;
+    });
+    selectAirport(airport);
+  });
+})();
+
 
 lucide.createIcons();
 
@@ -150,6 +300,11 @@ const progressBar = document.getElementById("progressBar");
 const progressText = document.getElementById("progressText");
 const destinationInput = document.querySelector('input[name="destination"]');
 const travelersInput = document.querySelector('input[name="travelers"]');
+const departureAirportInput = document.getElementById("departureAirportCode");
+const startDateInput = document.getElementById("startDate");
+const endDateInput = document.getElementById("endDate");
+const airportTrigger = document.getElementById("airportTrigger");
+const dateTrigger = document.getElementById("dateTrigger");
 const aiMessage = document.getElementById("aiMessage");
 
 let progress = 0;
@@ -218,9 +373,109 @@ function resetLoadingState() {
   lucide.createIcons();
 }
 
+function getFieldWrapper(control) {
+  return control ? control.closest(".form-field") : null;
+}
+
+function setFieldError(control, message) {
+  const wrapper = getFieldWrapper(control);
+  if (!wrapper) return;
+
+  control.classList.add("is-invalid");
+  control.setAttribute("aria-invalid", "true");
+
+  let errorEl = wrapper.querySelector(".field-error");
+  if (!errorEl) {
+    errorEl = document.createElement("p");
+    errorEl.className = "field-error";
+    wrapper.appendChild(errorEl);
+  }
+  errorEl.textContent = message;
+}
+
+function clearFieldError(control) {
+  const wrapper = getFieldWrapper(control);
+  if (!wrapper) return;
+
+  control.classList.remove("is-invalid");
+  control.removeAttribute("aria-invalid");
+
+  const errorEl = wrapper.querySelector(".field-error");
+  if (errorEl) {
+    errorEl.remove();
+  }
+}
+
+function validateRequiredSearchFields() {
+  const checks = [
+    {
+      control: airportTrigger,
+      isValid: departureAirportInput && departureAirportInput.value.trim(),
+      message: "출발 공항을 선택해 주세요."
+    },
+    {
+      control: destinationInput,
+      isValid: destinationInput && destinationInput.value.trim(),
+      message: "여행지를 입력해 주세요."
+    },
+    {
+      control: dateTrigger,
+      isValid: startDateInput && startDateInput.value.trim() && endDateInput && endDateInput.value.trim(),
+      message: "여행 기간을 선택해 주세요."
+    }
+  ];
+
+  let firstInvalid = null;
+  checks.forEach(function(check) {
+    if (!check.control) return;
+
+    if (check.isValid) {
+      clearFieldError(check.control);
+      return;
+    }
+
+    setFieldError(check.control, check.message);
+    if (!firstInvalid) {
+      firstInvalid = check.control;
+    }
+  });
+
+  if (firstInvalid) {
+    firstInvalid.focus();
+    firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+    return false;
+  }
+
+  return true;
+}
+
+if (airportTrigger) {
+  airportTrigger.addEventListener("click", function() {
+    clearFieldError(airportTrigger);
+  });
+}
+
+if (destinationInput) {
+  destinationInput.addEventListener("input", function() {
+    if (destinationInput.value.trim()) {
+      clearFieldError(destinationInput);
+    }
+  });
+}
+
+if (dateTrigger) {
+  dateTrigger.addEventListener("click", function() {
+    clearFieldError(dateTrigger);
+  });
+}
+
 if (form) {
   form.addEventListener("submit", function (e) {
     e.preventDefault();
+
+    if (!validateRequiredSearchFields()) {
+      return;
+    }
 
     resetLoadingState();
 

@@ -29,7 +29,8 @@ public class TravelDao {
 
     public void insertTravelPlan(TravelRequestDto requestDto,
                                  TravelResponseDto responseDto,
-                                 String responseJson) {
+                                 String responseJson,
+                                 Integer userId) {
 
         Connection con = null;
         PreparedStatement ps = null;
@@ -50,7 +51,11 @@ public class TravelDao {
             TravelResponseDto.Summary summary = responseDto != null ? responseDto.getSummary() : null;
 
             // 1. user_id
-            ps.setNull(1, Types.NUMERIC);
+            if (userId != null) {
+                ps.setInt(1, userId);
+            } else {
+                ps.setNull(1, Types.NUMERIC);
+            }
 
             // 2. destination
             ps.setString(2, getDestination(requestDto, summary));
@@ -270,6 +275,10 @@ public class TravelDao {
     private String nullSafe(String value, String defaultValue) {
         return (value != null && !value.isBlank()) ? value : defaultValue;
     }
+
+
+
+
 
 
 }

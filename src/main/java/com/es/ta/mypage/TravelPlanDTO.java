@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -33,10 +34,21 @@ public class TravelPlanDTO {
     private String message;
 
     private String responseJson;
+    private int posted;
+    private int likeCnt;
+    private int liveTracking;
+    private boolean starred;
+    private int originalUserId;
+    private int copiedModified;
+    private String creatorName;
+    private String editorName;
+    private Date postDate;
 
     private Date createdAt;
     private Date updatedAt;
+    private String thumbnailUrl;
 
+   
     // =========================
     // 💡 상태 계산 로직
     // =========================

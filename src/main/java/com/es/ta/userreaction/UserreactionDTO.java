@@ -18,10 +18,12 @@ public class UserreactionDTO {
     private String content;
     private Date createdAt;
     private String userName; // For display purposes
+    private String profileImg;
     private String city;      // rs.getString("destination") 값을 담을 변수
     private int duration;     // rs.getInt("days") 값을 담을 변수
     private String planTitle; // rs.getString("plan_title") 값을 담을 변수
-
+    private String planCreatorName;
+    private int likeCnt;
 
     // Like fields
     private int likeId;
@@ -35,6 +37,11 @@ public class UserreactionDTO {
         this.content = content;
         this.createdAt = createdAt;
         this.userName = userName;
+    }
+
+    public UserreactionDTO(int reviewId, int planId, int userId, String content, Date createdAt, String userName, String profileImg) {
+        this(reviewId, planId, userId, content, createdAt, userName);
+        this.profileImg = profileImg;
     }
     
     // Constructor for like

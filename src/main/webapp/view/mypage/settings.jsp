@@ -6,21 +6,14 @@
 
     String profileImg = request.getContextPath() + "/img/profile/default.png";
     if (u != null && u.getProfileImg() != null && !u.getProfileImg().trim().isEmpty()) {
-        profileImg = request.getContextPath() + "/" + u.getProfileImg().replaceFirst("^/+", "");
+        String savedProfileImg = u.getProfileImg().trim();
+        if (savedProfileImg.startsWith("http://") || savedProfileImg.startsWith("https://")) {
+            profileImg = savedProfileImg;
+        } else {
+            profileImg = request.getContextPath() + "/" + savedProfileImg.replaceFirst("^/+", "");
+        }
     }
 %>
-
-<%
-    String success = request.getParameter("success");
-    if ("1".equals(success)) {
-%>
-<script>
-    alert("회원정보 수정이 완료되었습니다!");
-</script>
-<%
-    }
-%>
-
 <section class="settings-section">
     <div class="settings-container">
         <div class="settings-header">
@@ -28,7 +21,7 @@
             <p>프로필과 계정 정보를 관리할 수 있어요</p>
         </div>
 
-        <form action="settings" method="post" class="settings-form" enctype="multipart/form-data">
+        <form action="settings" method="post" class="settings-form" id="settingsForm" enctype="multipart/form-data">
 
             <div class="profile-image-box">
                 <img id="profilePreview" src="<%= profileImg %>" alt="프로필">
@@ -72,8 +65,7 @@
 
             <div class="form-actions">
                 <button type="submit" name="action" value="update" class="save-btn">저장</button>
-                <button type="submit" name="action" value="delete" class="cancel-btn"
-                        onclick="return confirm('정말 탈퇴하시겠습니까?');">
+                <button type="button" class="cancel-btn" id="openWithdrawConfirm">
                     회원탈퇴
                 </button>
             </div>
@@ -83,6 +75,16 @@
     </div>
 </section>
 
+<div class="settings-confirm-backdrop" id="withdrawConfirm" aria-hidden="true">
+    <div class="settings-confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="withdrawConfirmTitle">
+        <p class="settings-confirm-title" id="withdrawConfirmTitle">회원탈퇴 할까요?</p>
+        <p class="settings-confirm-text">계정 정보와 저장된 여행 기록이 삭제됩니다.</p>
+        <div class="settings-confirm-actions">
+            <button type="button" class="settings-confirm-cancel" id="withdrawCancel">취소</button>
+            <button type="button" class="settings-confirm-delete" id="withdrawSubmit">탈퇴</button>
+        </div>
+    </div>
+</div>
 
 <script>
     document.getElementById('profileFile').addEventListener('change', function (e) {
@@ -94,5 +96,43 @@
             document.getElementById('profilePreview').src = event.target.result;
         };
         reader.readAsDataURL(file);
+    });
+
+    const settingsForm = document.getElementById('settingsForm');
+    const openWithdrawConfirm = document.getElementById('openWithdrawConfirm');
+    const withdrawConfirm = document.getElementById('withdrawConfirm');
+    const withdrawCancel = document.getElementById('withdrawCancel');
+    const withdrawSubmit = document.getElementById('withdrawSubmit');
+
+    function closeWithdrawConfirm() {
+        withdrawConfirm.classList.remove('is-open');
+        withdrawConfirm.setAttribute('aria-hidden', 'true');
+    }
+
+    openWithdrawConfirm.addEventListener('click', function () {
+        withdrawConfirm.classList.add('is-open');
+        withdrawConfirm.setAttribute('aria-hidden', 'false');
+        withdrawSubmit.focus();
+    });
+
+    withdrawCancel.addEventListener('click', closeWithdrawConfirm);
+
+    withdrawConfirm.addEventListener('click', function (event) {
+        if (event.target === withdrawConfirm) {
+            closeWithdrawConfirm();
+        }
+    });
+
+    withdrawSubmit.addEventListener('click', function () {
+        let actionInput = settingsForm.querySelector('input[name="action"][data-withdraw-action]');
+        if (!actionInput) {
+            actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'action';
+            actionInput.dataset.withdrawAction = 'true';
+            settingsForm.appendChild(actionInput);
+        }
+        actionInput.value = 'delete';
+        settingsForm.submit();
     });
 </script>

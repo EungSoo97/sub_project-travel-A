@@ -1,0 +1,322 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #111827;
+}
+
+/* 전체 영역: 좌우 여백 제거해서 흰 박스를 더 넓게 보이게 */
+.live-select-wrap {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* 상단 제목 영역 */
+.live-select-header {
+    text-align: center;
+    padding: 28px 16px 20px;
+    background: #f3f6fb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.live-select-header h1 {
+    margin: 0 0 8px;
+    font-size: 26px;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: -0.3px;
+}
+
+.live-select-header p {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+/* 큰 흰 박스 = 화면 본문 */
+.live-select-box {
+    width: 100%;
+    min-height: calc(100vh - 110px);
+    background: #ffffff;
+    border-radius: 0;
+    padding: 22px 16px 34px;
+    box-sizing: border-box;
+}
+
+/* 제목 */
+.live-select-title {
+    margin: 0 0 6px;
+    font-size: 20px;
+    font-weight: 900;
+    color: #111827;
+    letter-spacing: -0.2px;
+}
+
+.live-select-subtitle {
+    margin: 0 0 16px;
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+/* 검색 영역 */
+.live-select-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.live-select-autocomplete {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+.live-select-input-wrap {
+    position: relative;
+}
+
+.live-select-search-icon {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+}
+
+.live-select-input {
+    width: 100%;
+    height: 44px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    background: #f8fafc;
+    padding: 0 14px 0 40px;
+    font-size: 14px;
+    color: #111827;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.live-select-input::placeholder {
+    color: #9ca3af;
+}
+
+.live-select-input:focus {
+    background: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+.live-select-btn {
+    height: 44px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 13px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 6px 14px rgba(37, 99, 235, 0.18);
+    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.live-select-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
+}
+
+.live-select-btn:active {
+    transform: translateY(0);
+}
+
+/* 결과 리스트 */
+.live-select-result-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* 빈 상태 */
+.live-select-empty {
+    padding: 22px 12px;
+    text-align: center;
+    font-size: 13px;
+    color: #64748b;
+    background: #f8fafc;
+    border: 1px dashed #dbe4ee;
+    border-radius: 16px;
+}
+
+/* 여행 카드 */
+.live-plan-card {
+    background: #ffffff;
+    border: 1px solid #e7edf5;
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+}
+
+.live-plan-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.live-plan-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.live-plan-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: #111827;
+    line-height: 1.35;
+    margin-bottom: 4px;
+    word-break: keep-all;
+}
+
+.live-plan-destination {
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+.live-plan-status {
+    flex-shrink: 0;
+    min-width: 64px;
+    height: 30px;
+    padding: 0 10px;
+    border-radius: 999px;
+    box-sizing: border-box;
+    font-size: 11px;
+    font-weight: 800;
+    text-align: center;
+    line-height: 30px;
+    white-space: nowrap;
+    word-break: keep-all;
+    border: 1px solid transparent;
+}
+
+.live-plan-status.blue {
+    background: #e8f0ff;
+    color: #1d4ed8;
+    border-color: #d6e4ff;
+}
+
+.live-plan-status.green {
+    background: #e9f8ef;
+    color: #15803d;
+    border-color: #d3efdd;
+}
+
+.live-plan-status.yellow {
+    background: #fff4d8;
+    color: #b45309;
+    border-color: #fde6aa;
+}
+
+.live-plan-date {
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.45;
+    margin-bottom: 8px;
+}
+
+.live-plan-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 14px;
+    line-height: 1.4;
+}
+
+.meta-dot {
+    color: #94a3b8;
+}
+
+.live-plan-start-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+    background: #2563eb;
+    color: #ffffff;
+    border-radius: 12px;
+    padding: 12px 0;
+    font-size: 14px;
+    font-weight: 800;
+    box-shadow: 0 6px 14px rgba(37, 99, 235, 0.16);
+    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.live-plan-start-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(29, 78, 216, 0.20);
+}
+
+.live-plan-start-btn:active {
+    transform: translateY(0);
+}
+
+/* 자동완성 */
+.autocomplete-list {
+    display: none;
+    position: absolute;
+    top: 50px;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.autocomplete-item {
+    padding: 12px 13px;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.15s ease;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover {
+    background: #f8fafc;
+}
+
+.autocomplete-item-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.35;
+    margin-bottom: 2px;
+}
+
+.autocomplete-item-sub {
+    font-size: 11px;
+    color: #64748b;
+    line-height: 1.35;
+}

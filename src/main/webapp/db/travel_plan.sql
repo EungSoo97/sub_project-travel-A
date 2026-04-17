@@ -55,7 +55,144 @@ select * from travel_plan;
 -- ALTER TABLE travel_plan ADD (cost_breakdown_json CLOB);
 -- ALTER TABLE travel_plan ADD (partial NUMBER(1) DEFAULT 0);
 -- ALTER TABLE travel_plan ADD (quality_score NUMBER);
+--ALTER TABLE travel_plan ADD (posted NUMBER(1) DEFAULT 0 NOT NULL);
+--ALTER TABLE travel_plan ADD CONSTRAINT chk_travel_plan_posted CHECK (posted IN (0, 1));
+--ALTER TABLE travel_plan ADD (post_date DATE);
+--ALTER TABLE travel_plan ADD (live_tracking NUMBER(1) DEFAULT 0 NOT NULL);
+--ALTER TABLE travel_plan ADD CONSTRAINT chk_travel_plan_live_tracking CHECK (live_tracking IN (0, 1));
 -- ALTER TABLE travel_plan MODIFY (travel_style VARCHAR2(200));
+
+-- Migration for an existing travel_plan table. Run this once if ORA-00904: TP.POSTED occurs.
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM user_tab_columns
+    WHERE table_name = 'TRAVEL_PLAN'
+      AND column_name = 'POSTED';
+
+    IF v_count = 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE travel_plan ADD (posted NUMBER(1) DEFAULT 0 NOT NULL)';
+    END IF;
+END;
+/
+
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM user_tab_columns
+    WHERE table_name = 'TRAVEL_PLAN'
+      AND column_name = 'LIVE_TRACKING';
+
+    IF v_count = 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE travel_plan ADD (live_tracking NUMBER(1) DEFAULT 0 NOT NULL)';
+    END IF;
+END;
+/
+
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM user_indexes
+    WHERE index_name = 'UX_TRAVEL_PLAN_LIVE_USER';
+
+    IF v_count = 0 THEN
+        EXECUTE IMMEDIATE 'CREATE UNIQUE INDEX ux_travel_plan_live_user ON travel_plan (CASE WHEN live_tracking = 1 THEN user_id END)';
+    END IF;
+END;
+/
+
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM user_constraints
+    WHERE table_name = 'TRAVEL_PLAN'
+      AND constraint_name = 'CHK_TRAVEL_PLAN_LIVE_TRACKING';
+
+    IF v_count = 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE travel_plan ADD CONSTRAINT chk_travel_plan_live_tracking CHECK (live_tracking IN (0, 1))';
+    END IF;
+END;
+/
+
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM user_constraints
+    WHERE table_name = 'TRAVEL_PLAN'
+      AND constraint_name = 'CHK_TRAVEL_PLAN_POSTED';
+
+    IF v_count = 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE travel_plan ADD CONSTRAINT chk_travel_plan_posted CHECK (posted IN (0, 1))';
+    END IF;
+END;
+/
+
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM user_tab_columns
+    WHERE table_name = 'TRAVEL_PLAN'
+      AND column_name = 'POST_DATE';
+
+    IF v_count = 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE travel_plan ADD (post_date DATE)';
+    END IF;
+END;
+/
+
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM user_tab_columns
+    WHERE table_name = 'TRAVEL_PLAN'
+      AND column_name = 'ORIGINAL_USER_ID';
+
+    IF v_count = 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE travel_plan ADD (original_user_id NUMBER)';
+    END IF;
+END;
+/
+
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM user_tab_columns
+    WHERE table_name = 'TRAVEL_PLAN'
+      AND column_name = 'COPIED_MODIFIED';
+
+    IF v_count = 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE travel_plan ADD (copied_modified NUMBER(1) DEFAULT 1 NOT NULL)';
+    END IF;
+END;
+/
+
+-- Backfill existing plans so current data appears in Explore.
+UPDATE travel_plan
+SET posted = 1
+WHERE posted = 0;
+
+UPDATE travel_plan
+SET post_date = SYSDATE
+WHERE posted = 1
+  AND post_date IS NULL;
+
+COMMIT;
 
 -- -----------------------------------------------------------------------------
 -- §3) 샘플 (테스트용)
@@ -121,6 +258,7 @@ INSERT INTO travel_plan (
          );
 select * from travel_plan;
 
+<<<<<<< HEAD
 
 
 delete from TRAVEL_PLAN;
@@ -131,6 +269,10 @@ delete from TRAVEL_PLAN;
 
 
 
+=======
+-- delete
+-- from TRAVEL_PLAN;
+>>>>>>> 0c22d3f36315c5cc291e9cdf20d508244ad82abb
 
 UPDATE travel_plan
 SET
@@ -293,3 +435,88 @@ ALTER TABLE travel_plan
     MODIFY user_id NULL;
 
 
+SELECT tp. *, COUNT(pl.plan_id) AS like_cnt
+FROM travel_plan tp
+         LEFT JOIN plan_like pl ON tp.plan_id = pl.plan_id
+GROUP BY tp.plan_id, tp.user_id, tp.destination, tp.title,
+         tp.start_date, tp.end_date, tp.days, tp.travelers,
+         tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview;
+
+SELECT tp.*,
+       (SELECT COUNT(*)
+        FROM plan_like pl
+        WHERE pl.plan_id = tp.plan_id) AS like_cnt
+FROM travel_plan tp
+ORDER BY tp.plan_id DESC;
+
+SELECT tp.*, NVL(pl.like_cnt, 0) AS like_cnt
+FROM travel_plan tp
+         LEFT JOIN (
+    SELECT plan_id, COUNT(*) AS like_cnt
+    FROM plan_like
+    GROUP BY plan_id
+) pl ON tp.plan_id = pl.plan_id;
+
+SELECT travel_style, COUNT(*) AS cnt
+FROM travel_plan
+WHERE user_id = ?
+  AND travel_style IS NOT NULL
+GROUP BY travel_style
+ORDER BY cnt DESC;
+) pl ON tp.plan_id = pl.plan_id
+
+/*탐색페이지 검색용*/
+SELECT plan_id, destination, title, travel_style, request_styles, request_themes, created_at
+FROM travel_plan
+ORDER BY created_at DESC;
+
+/*커스텀태그 조회문*/
+SELECT travel_strategy_json
+FROM travel_plan
+WHERE ROWNUM <= 3;
+SELECT plan_id, response_json
+FROM travel_plan
+WHERE ROWNUM <= 3;
+
+SELECT plan_id
+FROM travel_plan
+WHERE response_json LIKE '%customTags%';
+SELECT plan_id, request_styles, request_themes
+FROM travel_plan
+ORDER BY created_at DESC;
+
+SELECT response_json
+FROM travel_plan
+WHERE plan_id = 322;
+
+ALTER TABLE travel_plan ADD thumbnail_url VARCHAR2(1000);
+
+
+SELECT
+    plan_id,
+    destination,
+    title,
+    start_date,
+    end_date,
+    travel_style,
+    thumbnail_url   -- 🔥 이거 꼭 있어야됨
+FROM travel_plan;
+SELECT plan_id, destination, thumbnail_url
+FROM travel_plan
+ORDER BY plan_id DESC;
+
+UPDATE travel_plan
+SET thumbnail_url = 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?auto=format&fit=crop&w=1200&q=80'
+WHERE plan_id = 434;
+
+COMMIT;
+
+SELECT plan_id, destination, thumbnail_url
+FROM travel_plan
+WHERE plan_id = 434;
+
+UPDATE travel_plan
+SET thumbnail_url = NULL
+WHERE plan_id = 435;
+
+select * from travel_plan;

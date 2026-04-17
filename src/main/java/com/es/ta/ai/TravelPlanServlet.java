@@ -1,20 +1,19 @@
 package com.es.ta.ai;
 
+import com.es.ta.common.GoogleMapsConfig;
+import com.es.ta.resultpage.TravelResultVDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 @WebServlet("/planner/result")
 public class TravelPlanServlet extends HttpServlet {
@@ -48,6 +47,10 @@ public class TravelPlanServlet extends HttpServlet {
             // 1. 요청 DTO 생성 (styles/themes는 폼 파라미터 — 하드코딩 금지)
             TravelRequestDto requestDto = TravelRequestDto.builder()
                     .destination(req.getParameter("destination"))
+                    .departureAirportCode(req.getParameter("departureAirportCode"))
+                    .departureAirportName(req.getParameter("departureAirportName"))
+                    .departureAirportAddress(req.getParameter("departureAirportAddress"))
+                    .departureAirportRoutes(req.getParameter("departureAirportRoutes"))
                     .startDate(req.getParameter("startDate"))
                     .endDate(req.getParameter("endDate"))
                     .travelers(parseInt(req.getParameter("travelers"), 1))
@@ -62,6 +65,7 @@ public class TravelPlanServlet extends HttpServlet {
             System.out.println("[" + traceId + "] requestDto created: destination=" + requestDto.getDestination()
                     + ", startDate=" + requestDto.getStartDate()
                     + ", endDate=" + requestDto.getEndDate()
+                    + ", departureAirport=" + requestDto.getDepartureAirportCode()
                     + ", travelers=" + requestDto.getTravelers()
                     + ", styles=" + requestDto.getStyles()
                     + ", themes=" + requestDto.getThemes());
@@ -80,20 +84,6 @@ public class TravelPlanServlet extends HttpServlet {
             // 4. 응답 JSON 문자열 만들기
             String responseJson = objectMapper.writeValueAsString(result);
             System.out.println("[" + traceId + "] responseJson length=" + responseJson.length());
-
-            // 5. DB 저장
-            if (result != null) {
-                try {
-                    System.out.println("[" + traceId + "] calling TravelDao.insertTravelPlan()");
-                    travelDao.insertTravelPlan(requestDto, result, responseJson);
-                    System.out.println("[" + traceId + "] insertTravelPlan completed");
-                } catch (Exception dbError) {
-                    dbError.printStackTrace();
-                    System.out.println("[" + traceId + "] insertTravelPlan failed: " + dbError.getMessage());
-                    req.setAttribute("dbWarning", "일정 생성은 성공했지만 DB 저장에는 실패했습니다.");
-                }
-            }
-
 
             try {
                 String jsonDir = req.getServletContext().getRealPath("/json/response");
@@ -124,11 +114,14 @@ public class TravelPlanServlet extends HttpServlet {
             if (result == null || !result.isSuccess()) {
                 String errorMsg = (result != null) ? result.getMessage() : "AI 응답 실패";
                 req.setAttribute("error", errorMsg);
+                req.getSession().removeAttribute("latestTravelResult");
             } else {
-                req.setAttribute("result", result);
+                TravelResultVDTO displayResult = objectMapper.convertValue(result, TravelResultVDTO.class);
+                req.getSession().setAttribute("latestTravelResult", displayResult);
+                req.setAttribute("result", displayResult);
             }
 
-            attachGoogleMapsConfig(req);
+            GoogleMapsConfig.attach(req);
             req.setAttribute("content", "view/resultpage/resultpage.jsp");
             System.out.println("[" + traceId + "] forwarding to /index.jsp");
             req.getRequestDispatcher("/index.jsp").forward(req, resp);
@@ -193,24 +186,5 @@ public class TravelPlanServlet extends HttpServlet {
         return Collections.emptyList();
     }
 
-    private void attachGoogleMapsConfig(HttpServletRequest req) {
-        Properties props = loadApplicationProperties(req.getServletContext());
-        req.setAttribute("googleMapsApiKey", props.getProperty("GOOGLE_API_KEY", ""));
-        req.setAttribute("googleMapsMapId", props.getProperty("GOOGLE_MAP_ID", ""));
-    }
 
-    private Properties loadApplicationProperties(ServletContext context) {
-        Properties props = new Properties();
-
-        try (InputStream in = context.getResourceAsStream("/WEB-INF/application.properties")) {
-            if (in == null) {
-                return props;
-            }
-            props.load(in);
-        } catch (IOException e) {
-            System.out.println("[TravelPlanServlet] application.properties load failed: " + e.getMessage());
-        }
-
-        return props;
-    }
 }

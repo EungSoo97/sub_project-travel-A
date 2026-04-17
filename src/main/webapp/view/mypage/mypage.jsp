@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -6,18 +7,59 @@
 <head>
     <title>Mypage</title>
     <link rel="stylesheet" href="/css/mypage.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/mypage-review-stack.css">
 </head>
 <body>
+<c:set var="settingsUpdated" value="${param.settingsSuccess eq '1'}" />
+<c:set var="reviewDeleted" value="${param.reviewDeleted eq 'true'}" />
+<c:url var="defaultPlanImage" value="/img/defaultplan/default.jpg" />
+<div id="mypageSnackbar" class="mypage-snackbar ${settingsUpdated or reviewDeleted ? 'show' : ''}" role="status" aria-live="polite">
+    <c:choose>
+        <c:when test="${reviewDeleted}">후기가 삭제되었습니다.</c:when>
+        <c:otherwise>회원 정보 수정이 완료되었습니다.</c:otherwise>
+    </c:choose>
+</div>
+<div class="review-confirm-backdrop" id="reviewDeleteConfirm" aria-hidden="true">
+    <div class="review-confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="reviewDeleteConfirmTitle">
+        <p class="review-confirm-title" id="reviewDeleteConfirmTitle">후기를 삭제할까요?</p>
+        <p class="review-confirm-text">삭제한 후기는 다시 복구할 수 없습니다.</p>
+        <div class="review-confirm-actions">
+            <button type="button" class="review-confirm-cancel" id="reviewDeleteCancel">취소</button>
+            <button type="button" class="review-confirm-delete" id="reviewDeleteConfirmBtn">삭제</button>
+        </div>
+    </div>
+</div>
+<div class="review-confirm-backdrop" id="planDeleteConfirm" aria-hidden="true">
+    <div class="review-confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="planDeleteConfirmTitle">
+        <p class="review-confirm-title" id="planDeleteConfirmTitle">여행 플랜을 삭제할까요?</p>
+        <p class="review-confirm-text">저장된 일정과 관련 기록이 함께 삭제됩니다.</p>
+        <div class="review-confirm-actions">
+            <button type="button" class="review-confirm-cancel" id="planDeleteCancel">취소</button>
+            <button type="button" class="review-confirm-delete" id="planDeleteConfirmBtn">삭제</button>
+        </div>
+    </div>
+</div>
 <section class="profile-section">
     <div class="profile-inner">
         <div class="profile-header">
             <div class="profile-img-wrap">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+                <c:set var="profileImg" value="${pageContext.request.contextPath}/img/profile/default.png" />
+                <c:if test="${not empty sessionScope.user.profileImg}">
+                    <c:choose>
+                        <c:when test="${fn:startsWith(sessionScope.user.profileImg, 'http://') or fn:startsWith(sessionScope.user.profileImg, 'https://')}">
+                            <c:set var="profileImg" value="${sessionScope.user.profileImg}" />
+                        </c:when>
+                        <c:otherwise>
+                            <c:url var="profileImg" value="/${sessionScope.user.profileImg}" />
+                        </c:otherwise>
+                    </c:choose>
+                </c:if>
+                <img src="${profileImg}"
                      alt="프로필">
             </div>
             <div class="profile-info">
                 <div class="name-row">
-                    <h2>김여행</h2>
+                    <h2><c:out value="${sessionScope.user.name}" /></h2>
                     <div class="action-icons">
                         <button title="설정" onclick="location.href='${pageContext.request.contextPath}/settings'">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -36,30 +78,45 @@
                         </button>
                     </div>
                 </div>
-                <p class="email">travel.lover@email.com</p>
+                <p class="email"><c:out value="${sessionScope.user.email}" /></p>
                 <div class="badges">
-                    <span class="badge" onclick="openTitleModal()">🏅 여행 플랜 마스터</span>
-<%--                    <h2>데이터 확인: ${reviewList}</h2>--%>
-                    <span class="badge">📍 18개 도시 방문</span>
+                    <%--<span class="badge" onclick="openTitleModal()">🏅 여행 플랜 마스터</span>--%>
+                    <span class="badge" onclick="openTitleModal()">
+                    <c:choose>
+                        <c:when test="${receivedLikes >= 500}">🏆 여행 플랜 전설</c:when>
+                        <c:when test="${receivedLikes >= 100}">🏅 여행 플랜 마스터</c:when>
+                        <c:when test="${receivedLikes >= 30}">🧭 여행 플랜 탐험가</c:when>
+                        <c:otherwise>🌱 여행 플랜 새싹</c:otherwise>
+                    </c:choose>
+                </span>
+                    <%-- <h2>데이터 확인: ${reviewList}</h2>--%>
+                    <span class="badge"><i class="fa-solid fa-location-dot"></i> ${fn:length(savedTrips)}개 도시 방문</span>
                 </div>
             </div>
         </div>
         <div class="stats-grid">
-            <div class="stat-box">
-                <span class="stat-num">12</span>
-                <span class="stat-label">총 여행</span>
+            <%-- 1. 총 여행 플랜 -> content-saved --%>
+            <div class="stat-box" onclick="triggerTab('content-saved')" style="cursor: pointer;">
+                <span class="stat-num">${fn:length(savedTrips)}</span>
+                <span class="stat-label">총 여행 플랜</span>
             </div>
-            <div class="stat-box">
-                <span class="stat-num">43</span>
-                <span class="stat-label">여행 일수</span>
+
+            <%-- 2. 좋아요한 플랜 -> content-liked (여기가 'content-saved'였음) --%>
+            <div class="stat-box" onclick="triggerTab('content-liked')" style="cursor: pointer;">
+                <span class="stat-num">${fn:length(likedPlans)}</span>
+                <span class="stat-label">좋아요한 플랜</span>
             </div>
-            <div class="stat-box">
-                <span class="stat-num">5</span>
+
+            <%-- 3. 받은 좋아요 (탭 없음) --%>
+            <div class="stat-box" onclick="triggerTab('content-stats')" style="cursor: pointer;">
+                <span class="stat-num">${receivedLikes}</span>
                 <span class="stat-label">받은 좋아요</span>
             </div>
-            <div class="stat-box">
-                <span class="stat-num">18</span>
-                <span class="stat-label">방문 도시</span>
+
+            <%-- 4. 작성한 후기 -> content-reviews (여기도 'content-saved'였음) --%>
+            <div class="stat-box" onclick="triggerTab('content-reviews')" style="cursor: pointer;">
+                <span class="stat-num">${fn:length(reviewList)}</span>
+                <span class="stat-label">작성한 후기</span>
             </div>
         </div>
     </div>
@@ -70,39 +127,55 @@
     <div class="modal-box">
         <div class="modal-header">
             <h3>칭호 등급표</h3>
-            <button class="modal-close" onclick="closeTitleModal()">✕</button>
+            <button class="modal-close" onclick="closeTitleModal()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="modal-body">
             <ul class="title-list">
-                <li class="title-item">
+
+                <li class="title-item ${receivedLikes >= 0 && receivedLikes < 30 ? 'active-title' : ''}">
                     <span class="title-icon">🌱</span>
                     <div class="title-info">
                         <span class="title-name">여행 플랜 새싹</span>
-                        <span class="title-condition">좋아요 1개 누적</span>
+                        <span class="title-condition">좋아요 0개 누적</span>
                     </div>
+                    <c:if test="${receivedLikes >= 0 && receivedLikes < 30}">
+                        <span class="current-badge">현재</span>
+                    </c:if>
                 </li>
-                <li class="title-item">
+
+                <li class="title-item ${receivedLikes >= 30 && receivedLikes < 100 ? 'active-title' : ''}">
                     <span class="title-icon">🧭</span>
                     <div class="title-info">
                         <span class="title-name">여행 플랜 탐험가</span>
                         <span class="title-condition">좋아요 30개 누적</span>
                     </div>
+                    <c:if test="${receivedLikes >= 30 && receivedLikes < 100}">
+                        <span class="current-badge">현재</span>
+                    </c:if>
                 </li>
-                <li class="title-item active-title">
+
+                <li class="title-item ${receivedLikes >= 100 && receivedLikes < 500 ? 'active-title' : ''}">
                     <span class="title-icon">🏅</span>
                     <div class="title-info">
                         <span class="title-name">여행 플랜 마스터</span>
                         <span class="title-condition">좋아요 100개 누적</span>
                     </div>
-                    <span class="current-badge">현재</span>
+                    <c:if test="${receivedLikes >= 100 && receivedLikes < 500}">
+                        <span class="current-badge">현재</span>
+                    </c:if>
                 </li>
-                <li class="title-item">
+
+                <li class="title-item ${receivedLikes >= 500 ? 'active-title' : ''}">
                     <span class="title-icon">🏆</span>
                     <div class="title-info">
                         <span class="title-name">여행 플랜 전설</span>
                         <span class="title-condition">좋아요 500개 누적</span>
                     </div>
+                    <c:if test="${receivedLikes >= 500}">
+                        <span class="current-badge">현재</span>
+                    </c:if>
                 </li>
+
             </ul>
         </div>
         <div class="modal-footer">
@@ -119,35 +192,48 @@
 </nav>
 
 <section class="mypage-content">
-<%----%>
+    <%-- 저장된 여행--%>
     <div id="content-saved" class="tab-content active">
         <c:choose>
             <c:when test="${not empty savedTrips}">
                 <c:forEach var="trip" items="${savedTrips}">
-                    <article class="trip-card">
+                    <article class="trip-card"
+                             data-plan-id="${trip.planId}"
+                             data-live-tracking="${trip.liveTracking}">
                         <div class="card-img-wrap">
-                            <c:choose>
-                                <c:when test="${trip.destination eq 'Tokyo' || trip.destination eq '도쿄'}">
-                                    <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80" alt="도쿄">
-                                </c:when>
-                                <c:when test="${trip.destination eq 'Osaka' || trip.destination eq '오사카'}">
-                                    <img src="https://images.unsplash.com/photo-1590559899731-a382839e5549?auto=format&fit=crop&w=800&q=80" alt="오사카">
-                                </c:when>
-                                <c:when test="${trip.destination eq 'Seoul' || trip.destination eq '서울'}">
-                                    <img src="https://images.unsplash.com/photo-1538485399081-7c897c8e6b7b?auto=format&fit=crop&w=800&q=80" alt="서울">
-                                </c:when>
-                                <c:otherwise>
-                                    <img src="https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=800&q=80" alt="${trip.destination}">
-                                </c:otherwise>
-                            </c:choose>
+                            <img src="${empty trip.thumbnailUrl ? defaultPlanImage : trip.thumbnailUrl}"
+                                 alt="${empty trip.destination ? '여행 플랜 이미지' : trip.destination}"
+                                 onerror="this.src='${defaultPlanImage}'">
+                            <c:if test="${trip.starred}">
+                                <span class="favorite-badge" aria-label="즐겨찾기"><i class="fa-solid fa-star"></i></span>
+                            </c:if>
                             <span class="status-badge ${trip.statusClass}">${trip.status}</span>
                         </div>
                         <div class="card-body">
                             <h3>${trip.displayTitle}</h3>
+                            <c:if test="${trip.posted == 1}">
+                                <div class="trip-publish-meta">
+                                    <span class="publish-badge">게시됨</span>
+                                    <span class="heart-count"><i class="fa-solid fa-heart"></i> ${trip.likeCnt}</span>
+                                </div>
+                            </c:if>
+                            <div class="trip-publish-meta trip-creator-meta">
+                                <span class="creator-badge"><i class="fa-regular fa-user"></i>
+                                    <c:out value="${empty trip.creatorName ? '여행자' : trip.creatorName}" />
+                                </span>
+                                <c:if test="${not empty trip.editorName and trip.editorName ne trip.creatorName}">
+                                    <span class="editor-badge"><i class="fa-solid fa-pen"></i>
+                                        <c:out value="${trip.editorName}" />
+                                    </span>
+                                </c:if>
+                                <c:if test="${trip.originalUserId != 0 && trip.copiedModified != 1}">
+                                    <span class="publish-badge">수정 후 게시 가능</span>
+                                </c:if>
+                            </div>
                             <div class="trip-details">
-                                <p><span>📍</span><c:out value="${trip.destination}" default="여행지 미정"/></p>
+                                <p><span><i class="fa-solid fa-location-dot"></i></span><c:out value="${trip.destination}" default="여행지 미정"/></p>
                                 <p>
-                                    <span>📅</span>
+                                    <span><i class="fa-regular fa-calendar"></i></span>
                                     <c:choose>
                                         <c:when test="${not empty trip.startDate and not empty trip.endDate}">
                                             <fmt:formatDate value="${trip.startDate}" pattern="yyyy.MM.dd"/>
@@ -157,32 +243,37 @@
                                         <c:otherwise>일정 미정</c:otherwise>
                                     </c:choose>
                                 </p>
-                                <p><span>🗓️</span>
+                                <p><span><i class="fa-solid fa-calendar-days"></i></span>
                                     <c:choose>
                                         <c:when test="${trip.days > 0}">${trip.days}일</c:when>
                                         <c:otherwise>기간 미정</c:otherwise>
                                     </c:choose>
                                 </p>
-                                <p><span>👥</span>
+                                <p><span><i class="fa-solid fa-user-group"></i></span>
                                     <c:choose>
                                         <c:when test="${trip.travelers > 0}">${trip.travelers}명</c:when>
                                         <c:otherwise>인원 미정</c:otherwise>
                                     </c:choose>
                                 </p>
                             </div>
-                            <button type="button" class="btn-detail"
-                                    onclick="location.href='${pageContext.request.contextPath}/myplan-page?id=${trip.planId}'">
-                                자세히 보기
-                            </button>
-                                <%-- 확인용. 정상 동작 확인 후 지워도 됨 --%>
-                            <p>id: ${trip.planId}</p>
+                            <div class="trip-card-actions">
+                                <button type="button" class="btn-detail"
+                                        onclick="location.href='${pageContext.request.contextPath}/myplan-page?id=${trip.planId}'">
+                                    자세히 보기
+                                </button>
+                                <form action="${pageContext.request.contextPath}/delete-plan" method="post"
+                                      data-plan-delete-form>
+                                    <input type="hidden" name="planId" value="${trip.planId}">
+                                    <button type="submit" class="btn-delete-plan">삭제</button>
+                                </form>
+                            </div>
                         </div>
                     </article>
                 </c:forEach>
             </c:when>
             <c:otherwise>
                 <div class="empty-state">
-                    <p>🧳 아직 저장된 여행이 없어요!</p>
+                    <p><i class="fa-solid fa-suitcase"></i> 아직 저장된 여행이 없어요!</p>
                 </div>
             </c:otherwise>
         </c:choose>
@@ -196,28 +287,35 @@
                 <c:forEach var="trip" items="${likedPlans}">
                     <article class="trip-card">
                         <div class="card-img-wrap">
-                            <c:choose>
-                                <c:when test="${trip.destination eq 'Tokyo' || trip.destination eq '도쿄'}">
-                                    <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80" alt="도쿄">
-                                </c:when>
-                                <c:when test="${trip.destination eq 'Osaka' || trip.destination eq '오사카'}">
-                                    <img src="https://images.unsplash.com/photo-1590559899731-a382839e5549?auto=format&fit=crop&w=800&q=80" alt="오사카">
-                                </c:when>
-                                <c:when test="${trip.destination eq 'Seoul' || trip.destination eq '서울'}">
-                                    <img src="https://images.unsplash.com/photo-1538485399081-7c897c8e6b7b?auto=format&fit=crop&w=800&q=80" alt="서울">
-                                </c:when>
-                                <c:otherwise>
-                                    <img src="https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=800&q=80" alt="${trip.destination}">
-                                </c:otherwise>
-                            </c:choose>
-                            <span class="status-badge ${trip.statusClass}">${trip.status}</span>
+                            <img src="${empty trip.thumbnailUrl ? defaultPlanImage : trip.thumbnailUrl}"
+                                 alt="${empty trip.destination ? '여행 플랜 이미지' : trip.destination}"
+                                 onerror="this.src='${defaultPlanImage}'">
+                            <span class="liked-plan-price">
+                                <c:choose>
+                                    <c:when test="${trip.totalEstimatedCost > 0}">
+                                        ₩<fmt:formatNumber value="${trip.totalEstimatedCost}" pattern="#,###" />
+                                    </c:when>
+                                    <c:otherwise>비용 미정</c:otherwise>
+                                </c:choose>
+                            </span>
                         </div>
                         <div class="card-body">
                             <h3>${trip.displayTitle}</h3>
+                            <div class="trip-publish-meta trip-creator-meta">
+                                <span class="creator-badge"><i class="fa-regular fa-user"></i>
+                                    <c:out value="${empty trip.creatorName ? '여행자' : trip.creatorName}" />
+                                </span>
+                                <span class="heart-count">♥ ${trip.likeCnt}</span>
+                                <c:if test="${not empty trip.editorName and trip.editorName ne trip.creatorName}">
+                                    <span class="editor-badge"><i class="fa-solid fa-pen"></i>
+                                        <c:out value="${trip.editorName}" />
+                                    </span>
+                                </c:if>
+                            </div>
                             <div class="trip-details">
-                                <p><span>📍</span><c:out value="${trip.destination}" default="여행지 미정"/></p>
+                                <p><span><i class="fa-solid fa-location-dot"></i></span><c:out value="${trip.destination}" default="여행지 미정"/></p>
                                 <p>
-                                    <span>📅</span>
+                                    <span><i class="fa-regular fa-calendar"></i></span>
                                     <c:choose>
                                         <c:when test="${not empty trip.startDate and not empty trip.endDate}">
                                             <fmt:formatDate value="${trip.startDate}" pattern="yyyy.MM.dd"/> -
@@ -226,232 +324,686 @@
                                         <c:otherwise>일정 미정</c:otherwise>
                                     </c:choose>
                                 </p>
-                                <p><span>🗓️</span><c:choose><c:when test="${trip.days > 0}">${trip.days}일</c:when><c:otherwise>기간 미정</c:otherwise></c:choose></p>
-                                <p><span>👥</span><c:choose><c:when test="${trip.travelers > 0}">${trip.travelers}명</c:when><c:otherwise>인원 미정</c:otherwise></c:choose></p>
+                                <p><span><i class="fa-solid fa-calendar-days"></i></span><c:choose><c:when test="${trip.days > 0}">${trip.days}일</c:when><c:otherwise>기간 미정</c:otherwise></c:choose></p>
+                                <p><span><i class="fa-solid fa-user-group"></i></span><c:choose><c:when test="${trip.travelers > 0}">${trip.travelers}명</c:when><c:otherwise>인원 미정</c:otherwise></c:choose></p>
                             </div>
-                            <button type="button" class="btn-detail"
-                                    onclick="location.href='${pageContext.request.contextPath}/myplan-page?id=${trip.planId}'">
-                                자세히 보기
-                            </button>
+                            <c:choose>
+                                <c:when test="${trip.posted == 1}">
+                                    <button type="button" class="btn-detail"
+                                            onclick="location.href='${pageContext.request.contextPath}/detail-page?id=${trip.planId}'">
+                                        자세히 보기
+                                    </button>
+                                </c:when>
+                                <c:otherwise>
+                                    <button type="button" class="btn-detail btn-detail--disabled" disabled>
+                                        작성자에 의해 게시 중단 된 플랜 입니다
+                                    </button>
+                                    <button type="button"
+                                            class="btn-cancel-like"
+                                            data-cancel-like-plan-id="${trip.planId}">
+                                        좋아요 취소
+                                    </button>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
                     </article>
                 </c:forEach>
             </c:when>
             <c:otherwise>
                 <div class="empty-state">
-                    <p>❤️ 아직 좋아요를 누른 여행이 없어요!</p>
+                    <p><i class="fa-solid fa-heart"></i> 아직 좋아요를 누른 여행이 없어요!</p>
                 </div>
             </c:otherwise>
         </c:choose>
     </div>
 
-<%--    <div id="content-reviews" class="tab-content">--%>
+    <%--    <div id="content-reviews" class="tab-content">--%>
 
 
-<%--리뷰탭--%>
+    <%--리뷰탭--%>
     <%-- ===================== /후기 탭 ===================== --%>
-    <div id="content-reviews" class="tab-content active">
-        <div class="review-timeline">
-            <c:set var="currentYear" value="0" />
+    <div id="content-reviews" class="tab-content">
+        <c:choose>
+            <c:when test="${not empty reviewGroups}">
+                <div class="review-timeline review-stack-list">
+                    <c:set var="currentYear" value="" />
+                    <c:forEach var="reviewGroup" items="${reviewGroups}" varStatus="groupStatus">
+                        <c:set var="groupReviews" value="${reviewGroup.value}" />
+                        <c:set var="mainReview" value="${groupReviews[0]}" />
+                        <c:set var="reviewCount" value="${fn:length(groupReviews)}" />
+                        <fmt:formatDate var="groupYear" value="${mainReview.createdAt}" pattern="yyyy" timeZone="Asia/Seoul" />
 
-            <c:forEach var="review" items="${reviewList}" varStatus="status">
-
-                <%-- 1. 연도 구분 (에러 방지를 위해 단순 비교로 변경) --%>
-                <c:set var="thisYear" value="${fn:substring(review.createdAt, 0, 4)}" />
-                <c:if test="${thisYear != currentYear}">
-                    <div class="review-year-divider">${thisYear}</div>
-                    <c:set var="currentYear" value="${thisYear}" />
-                </c:if>
-
-                <div class="review-tl-wrap">
-                    <div class="review-tl-axis">
-                        <div class="review-tl-dot" style="background: ${status.index % 2 == 0 ? '#378ADD' : '#1BBA53'};"></div>
-                        <c:if test="${not status.last}">
-                            <div class="review-tl-line"></div>
+                        <c:if test="${groupYear ne currentYear}">
+                            <div class="review-year-divider">${groupYear}</div>
+                            <c:set var="currentYear" value="${groupYear}" />
                         </c:if>
-                    </div>
 
-                    <div class="review-card">
-                        <div class="review-card-head">
-                        <span class="review-dest-tag" style="background: ${status.index % 2 == 0 ? '#E6F1FB' : '#E8F8EE'}; color: ${status.index % 2 == 0 ? '#185FA5' : '#12803B'};">
-                            📍 ${review.city}
-                        </span>
-                            <span class="review-meta-date relative-date" data-date="${review.createdAt}">
-                            <fmt:formatDate value="${review.createdAt}" pattern="yyyy.MM.dd"/> · ${review.createdAt}
-                            </span>
+                        <div class="review-tl-wrap">
+                            <div class="review-tl-axis">
+                                <div class="review-tl-dot" style="background: ${groupStatus.index % 2 == 0 ? '#378ADD' : '#1BBA53'};"></div>
+                                <c:if test="${not groupStatus.last}">
+                                    <div class="review-tl-line"></div>
+                                </c:if>
+                            </div>
+
+                            <section class="review-stack-group is-collapsed has-stack"
+                                     data-review-stack>
+                                <button type="button"
+                                        class="review-stack-toggle"
+                                        aria-expanded="false">
+                                    <span class="review-stack-toggle__content">
+                                        <span class="review-stack-toggle__main">
+                                            <span class="review-dest-tag" style="background: ${groupStatus.index % 2 == 0 ? '#E6F1FB' : '#E8F8EE'}; color: ${groupStatus.index % 2 == 0 ? '#185FA5' : '#12803B'};">
+                                                <i class="fa-solid fa-location-dot"></i> <c:out value="${mainReview.city}" />
+                                            </span>
+                                            <span class="review-plan-id">plan #${reviewGroup.key}</span>
+                                        <span class="review-stack-count">${reviewCount}개 후기</span>
+                                        </span>
+                                        <span class="review-stack-title">
+                                            <c:choose>
+                                                <c:when test="${not empty mainReview.planTitle}">
+                                                    <c:out value="${mainReview.planTitle}" />
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <c:out value="${mainReview.city}" />
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </span>
+                                        <span class="review-stack-meta">
+                                           <i class="fa-regular fa-user"></i> <c:out value="${empty mainReview.planCreatorName ? '여행자' : mainReview.planCreatorName}" />
+                                            <span><i class="fa-solid fa-heart"></i> ${mainReview.likeCnt}</span>
+                                        </span>
+                                    </span>
+                                    <span class="review-stack-toggle__hint">
+                                        <c:choose>
+                                            <c:when test="${reviewCount > 0}">펼치기</c:when>
+                                            <c:otherwise>후기 없음</c:otherwise>
+                                        </c:choose>
+                                    </span>
+                                </button>
+
+                                <div class="review-stack-cards">
+                                    <c:forEach var="review" items="${groupReviews}" varStatus="status">
+                                        <article class="review-card review-stack-card">
+                                            <div class="review-card-head">
+                                                <span class="review-plan-id">plan #${review.planId}</span>
+                                                <span class="review-meta-date">
+                                                    <fmt:formatDate value="${review.createdAt}" pattern="yyyy.MM.dd HH:mm" timeZone="Asia/Seoul"/>
+                                                </span>
+                                            </div>
+
+                                            <div class="review-body">
+                                                <c:out value="${review.content}" />
+                                            </div>
+
+                                            <div class="review-card-footer">
+                                                <button type="button" class="review-tag" onclick="location.href='detail-page?id=${review.planId}'">일정 상세보기</button>
+                                                <form class="review-delete-form"
+                                                      action="${pageContext.request.contextPath}/review"
+                                                      method="post"
+                                                      data-review-delete-form>
+                                                    <input type="hidden" name="action" value="delete">
+                                                    <input type="hidden" name="returnTo" value="mypage">
+                                                    <input type="hidden" name="planId" value="${review.planId}">
+                                                    <input type="hidden" name="reviewId" value="${review.reviewId}">
+                                                    <button type="submit" class="review-delete-btn">삭제</button>
+                                                </form>
+                                            </div>
+                                        </article>
+                                    </c:forEach>
+                                </div>
+                            </section>
                         </div>
-
-                        <div class="review-title">${review.city}</div>
-
-                        <div class="review-body">
-                                ${review.content}
-                        </div>
-
-                        <div class="review-tags">
-                            <span class="review-tag">#여행기록</span>
-                            <span class="review-tag">#기록</span>
-                        </div>
-
-                        <div class="review-card-footer">
-
-                            <button class="review-tag" onclick= "location.href ='detail-page?id=${review.reviewId}'">일정 상세보기</button>
-
-                        </div>
-                    </div>
+                    </c:forEach>
                 </div>
-            </c:forEach>
-        </div>
+            </c:when>
+            <c:otherwise>
+                <div class="empty-state">
+                    <p><i class="fa-solid fa-pen-to-square"></i> 아직 작성한 후기가 없어요!</p>
+                </div>
+            </c:otherwise>
+        </c:choose>
     </div>
 
     <%-- ===================== /후기 탭 ===================== --%>
     <%-- 통계 --%>
+    <%-- ===================== 통계 탭 ===================== --%>
     <div id="content-stats" class="tab-content">
-        <div class="stat-grid">
-            <div class="stat-card">
-                <div class="num">${stats.totalTrips}</div>
-                <div class="lbl">총 여행</div>
+
+        <%-- 상단 요약 미니 카드 3열 --%>
+        <div class="stats-summary-row">
+            <div class="stats-sum-card">
+                <span class="stats-sum-icon"><i class="fa-solid fa-plane"></i></span>
+                <span class="stats-sum-num">${fn:length(savedTrips)}</span>
+                <span class="stats-sum-lbl">총 플랜</span>
             </div>
-            <div class="stat-card">
-                <div class="num">${stats.totalDays}</div>
-                <div class="lbl">여행 일수</div>
+            <div class="stats-sum-card">
+                <span class="stats-sum-icon"><i class="fa-solid fa-heart"></i></span>
+                <span class="stats-sum-num">${receivedLikes}</span>
+                <span class="stats-sum-lbl">받은 좋아요</span>
             </div>
-            <div class="stat-card">
-                <div class="num">${stats.totalCountries}</div>
-                <div class="lbl">좋아요 받은 수</div>
-            </div>
-            <div class="stat-card">
-                <div class="num">${stats.totalCities}</div>
-                <div class="lbl">방문 도시</div>
+            <div class="stats-sum-card">
+                <span class="stats-sum-icon"><i class="fa-solid fa-pen-to-square"></i></span>
+                <span class="stats-sum-num">${fn:length(reviewList)}</span>
+                <span class="stats-sum-lbl">작성 후기</span>
             </div>
         </div>
+
+        <%-- 현재 칭호 --%>
         <div class="section">
-            <div class="section-title">현재 칭호</div>
+            <div class="section-title-row">
+                <span class="section-title-text">현재 칭호</span>
+                <span class="section-like-chip"><i class="fa-solid fa-heart"></i> ${receivedLikes}개</span>
+            </div>
             <div class="level-row">
-                <div class="badge">${stats.title}</div>
+                <div class="level-badge level-badge-${receivedLikes >= 500 ? '4' : (receivedLikes >= 100 ? '3' : (receivedLikes >= 30 ? '2' : '1'))}">
+                    <c:choose>
+                        <c:when test="${receivedLikes >= 500}">&#x1F3C6;</c:when>
+                        <c:when test="${receivedLikes >= 100}">&#x1F3C5;</c:when>
+                        <c:when test="${receivedLikes >= 30}">&#x1F9ED;</c:when>
+                        <c:otherwise>&#x1F331;</c:otherwise>
+                    </c:choose>
+                </div>
                 <div class="level-info">
-                    <div class="level-name">${stats.title}</div>
-                    <div class="level-sub">다음 칭호까지 ${stats.tripsToNextLevel}번 더 여행하면 돼요!</div>
+                    <div class="level-name">
+                        <c:choose>
+                            <c:when test="${receivedLikes >= 500}">여행 플랜 전설</c:when>
+                            <c:when test="${receivedLikes >= 100}">여행 플랜 마스터</c:when>
+                            <c:when test="${receivedLikes >= 30}">여행 플랜 탐험가</c:when>
+                            <c:otherwise>여행 플랜 새싹</c:otherwise>
+                        </c:choose>
+                    </div>
+                    <div class="level-sub">
+                        <c:choose>
+                            <c:when test="${receivedLikes >= 500}">최고 칭호를 달성했어요! 🎉</c:when>
+                            <c:when test="${receivedLikes >= 100}">다음 칭호까지 좋아요 ${500 - receivedLikes}개 남았어요</c:when>
+                            <c:when test="${receivedLikes >= 30}">다음 칭호까지 좋아요 ${100 - receivedLikes}개 남았어요</c:when>
+                            <c:otherwise>다음 칭호까지 좋아요 ${30 - receivedLikes}개 남았어요</c:otherwise>
+                        </c:choose>
+                    </div>
                 </div>
             </div>
+            <%-- 진행 바: c:set으로 미리 계산해서 한 줄 style로 렌더링 (줄바꿈 버그 방지) --%>
+            <c:set var="barPct" value="0"/>
+            <c:choose>
+                <c:when test="${receivedLikes >= 500}"><c:set var="barPct" value="100"/></c:when>
+                <c:when test="${receivedLikes >= 100}"><c:set var="barPct" value="${(receivedLikes - 100) * 100 / 400}"/></c:when>
+                <c:when test="${receivedLikes >= 30}"><c:set var="barPct" value="${(receivedLikes - 30) * 100 / 70}"/></c:when>
+                <c:otherwise><c:set var="barPct" value="${receivedLikes * 100 / 30}"/></c:otherwise>
+            </c:choose>
             <div class="bar-track">
-                <div class="bar-fill" style="width: ${stats.levelPercent}%;"></div>
+                <div class="bar-fill" data-pct="${barPct}"></div>
             </div>
             <div class="bar-label">
-                <span>${stats.currentLevelName} (${stats.currentLevelMin}회)</span>
-                <span>${stats.nextLevelName} (${stats.nextLevelMin}회) →</span>
+                <c:choose>
+                    <c:when test="${receivedLikes >= 500}">
+                        <span>전설 (500)</span><span>MAX ✨</span>
+                    </c:when>
+                    <c:when test="${receivedLikes >= 100}">
+                        <span>마스터 (100)</span><span>전설 (500)</span>
+                    </c:when>
+                    <c:when test="${receivedLikes >= 30}">
+                        <span>탐험가 (30)</span><span>마스터 (100)</span>
+                    </c:when>
+                    <c:otherwise>
+                        <span>새싹 (0)</span><span>탐험가 (30)</span>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </div>
+
+        <%-- 월별 차트 --%>
         <div class="section">
-            <div class="section-title">월별 여행 횟수</div>
+            <div class="section-title"><i class="fa-regular fa-calendar"></i> 월별 여행 횟수</div>
             <div style="position: relative; width: 100%; height: 200px;">
                 <canvas id="barChart" role="img" aria-label="월별 여행 횟수 바차트"></canvas>
             </div>
-            <button>가장 많이 간 여행지</button>
-            <button>총 예산 비용</button>
-            <button>내 여행 스타일</button>
         </div>
+
+        <%-- 여행 트렌드 --%>
+        <div class="section stats-trend-section">
+            <div class="section-title"><i class="fa-solid fa-chart-line"></i> 내 여행 트렌드</div>
+            <div class="trend-list">
+                <c:choose>
+                    <c:when test="${not empty trendList}">
+                        <c:forEach var="trend" items="${trendList}" varStatus="status">
+                            <div class="trend-item">
+                                <div class="trend-top">
+                                    <span class="trend-rank">
+                                        <c:choose>
+                                            <c:when test="${status.first}">🥇</c:when>
+                                            <c:when test="${status.index == 1}">🥈</c:when>
+                                            <c:when test="${status.index == 2}">🥉</c:when>
+                                            <c:otherwise><i class="fa-solid fa-location-dot"></i></c:otherwise>
+                                        </c:choose>
+                                    </span>
+                                    <span class="trend-name">${trend.destination}</span>
+                                    <span class="trend-count">${trend.planId}회</span>
+                                </div>
+                                <div class="trend-bar-wrap">
+                                    <div class="trend-bar" data-pct="${maxCount > 0 ? (trend.planId * 100 / maxCount) : 0}"></div>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="empty-state" style="padding: 30px; text-align: center; color: #aaa;">
+                            <p style="font-size: 24px; margin-bottom: 10px;"><i class="fa-solid fa-chart-column"></i></p>
+                            <p>아직 여행 기록이 없어서<br>통계를 불러올 수 없어요!</p>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+
+        <%-- 선호 여행 스타일 --%>
+        <div class="section stats-style-section">
+            <div class="section-title"><i class="fa-solid fa-palette"></i> 선호 여행 스타일</div>
+            <div class="style-list">
+                <c:choose>
+                    <c:when test="${empty styleStats}">
+                        <div class="empty-state">
+                            <p>아직 분석된 여행 스타일이 없습니다.</p>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <c:forEach var="stat" items="${styleStats}" varStatus="status" begin="0" end="4">
+                            <div class="style-item">
+                                <div class="style-icon-wrap style-color-${(status.index % 5) + 1}">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 11l19-9-9 19-2-8-8-2z"/>
+                                    </svg>
+                                </div>
+                                <div class="style-info">
+                                    <span class="style-name">${stat.styleName}</span>
+                                    <div class="style-bar-wrap">
+                                        <div class="style-bar style-bg-${(status.index % 5) + 1}" data-pct="${stat.percentage}"></div>
+                                    </div>
+                                </div>
+                                <span class="style-pct">${stat.percentage}%</span>
+                            </div>
+                        </c:forEach>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+
     </div>
-
-</section>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script>
-    /* 1. 모달 함수를 가장 먼저, 그리고 '바깥'에 선언합니다. */
-    function openTitleModal() {
-        console.log("모달 열기 실행"); // 확인용
-        const modal = document.getElementById('titleModal');
-        if (modal) {
-            modal.classList.add('show');
-        } else {
-            console.error("titleModal 요소를 찾을 수 없습니다.");
+    <%-- ===================== /통계 탭 ===================== --%>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <script>
+        /* ── 진행 바 애니메이션: data-pct 속성 → style.width 적용 ── */
+        function applyBarAnimations() {
+            var bars = document.querySelectorAll('[data-pct]');
+            bars.forEach(function(el) { el.style.width = '0%'; });
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    bars.forEach(function(el) {
+                        var pct = Math.min(parseFloat(el.dataset.pct) || 0, 100);
+                        el.style.width = pct + '%';
+                    });
+                });
+            });
         }
-    }
 
-    function closeTitleModal() {
-        const modal = document.getElementById('titleModal');
-        if (modal) modal.classList.remove('show');
-    }
+        /* 1. 모달 함수를 가장 먼저, 그리고 '바깥'에 선언합니다. */
+        function openTitleModal() {
+            console.log("모달 열기 실행"); // 확인x용
+            const modal = document.getElementById('titleModal');
+            if (modal) {
+                modal.classList.add('show');
+            } else {
+                console.error("titleModal 요소를 찾을 수 없습니다.");
+            }
+        }
 
-    /* 2. 탭 전환과 차트는 페이지 로드 후에 실행되도록 합니다. */
-    document.addEventListener('DOMContentLoaded', function () {
-        // 탭 기능
-        const tabBtns = document.querySelectorAll('.tabs .tab');
-        const tabContents = document.querySelectorAll('.tab-content');
+        function closeTitleModal() {
+            const modal = document.getElementById('titleModal');
+            if (modal) modal.classList.remove('show');
+        }
 
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const targetId = btn.getAttribute('data-target');
+        /* 2. 탭 전환과 차트는 페이지 로드 후에 실행되도록 합니다. */
+        document.addEventListener('DOMContentLoaded', function () {
+            // 탭 기능
+            const tabBtns = document.querySelectorAll('.tabs .tab');
+            const tabContents = document.querySelectorAll('.tab-content');
 
-                // 전부 끄기
-                tabBtns.forEach(t => t.classList.remove('active'));
-                tabContents.forEach(c => c.classList.remove('active'));
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetId = btn.getAttribute('data-target');
 
-                // 누른 것만 켜기
-                btn.classList.add('active');
-                const target = document.getElementById(targetId);
-                if(target) target.classList.add('active');
+                    // 전부 끄기
+                    tabBtns.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+
+                    // 누른 것만 켜기
+                    btn.classList.add('active');
+                    const target = document.getElementById(targetId);
+                    if(target) target.classList.add('active');
+
+                    // 통계 탭 열릴 때 진행 바 애니메이션
+                    if (targetId === 'content-stats') {
+                        setTimeout(applyBarAnimations, 50);
+                    }
+                });
+            });
+
+            // 차트 데이터 및 생성
+            const monthlyData = [
+                ${monthlyData[0]}, ${monthlyData[1]}, ${monthlyData[2]},
+                ${monthlyData[3]}, ${monthlyData[4]}, ${monthlyData[5]},
+                ${monthlyData[6]}, ${monthlyData[7]}, ${monthlyData[8]},
+                ${monthlyData[9]}, ${monthlyData[10]}, ${monthlyData[11]}
+
+            ];
+            const ctx = document.getElementById('barChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                        datasets: [{
+                            data: monthlyData,
+                            backgroundColor: '#378ADD',
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            legend: { display: false }  // undefined 제거
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: {
+                                    callback: function(val, index) {
+                                        // 홀수 인덱스(1월,3월,5월...)만 표시 = 2개월 단위
+                                        return index % 2 === 0 ? this.getLabelForValue(val) : '';
+                                    }
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 },
+                                grid: { color: 'rgba(0,0,0,0.05)' }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateElements = document.querySelectorAll('.relative-date');
+
+            dateElements.forEach(el => {
+                const dateStr = el.getAttribute('data-date'); // "2026-04-10"
+                if(!dateStr) return;
+
+                const postDate = new Date(dateStr);
+                const nowDate = new Date();
+
+                // 1. 차이 계산
+                const diffMS = nowDate - postDate;
+                const diffHours = Math.floor(diffMS / (1000 * 60 * 60));
+                const diffDays = Math.floor(diffMS / (1000 * 60 * 60 * 24));
+
+                // 2. 표시할 시간 텍스트 결정
+                let timeText = "";
+                if (diffDays === 0) {
+                    timeText = diffHours <= 0 ? "방금 전" : diffHours + "시간 전";
+                } else if (diffDays < 7) {
+                    timeText = diffDays + "일 전";
+                } else {
+                    // 7일 이상이면 yyyy.MM 형식
+                    const year = postDate.getFullYear();
+                    const month = ('0' + (postDate.getMonth() + 1)).slice(-2);
+                    timeText = year + "." + month;
+                }
+
+                // 3. 기존의 "2026-04-10" 부분(원본 날짜)만 추출
+                // JSP에서 처음 그려진 텍스트가 "2026-04-10 · 3일" 형태라면 [0]번 인덱스가 날짜입니다.
+                const originalText = el.innerText;
+                const rawDatePart = originalText.includes('·') ? originalText.split('·')[0].trim() : dateStr;
+
+                // 4. 최종 결과 조립: [시간차] · [원본날짜]
+                // 예: 9시간 전 · 2026-04-10
+                el.innerText = timeText + " · " + rawDatePart;
             });
         });
 
-        // 차트 데이터 및 생성
-        const monthlyData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        const ctx = document.getElementById('barChart');
-        if (ctx) {
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-                    datasets: [{
-                        data: monthlyData,
-                        backgroundColor: '#378ADD',
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
+        window.triggerTab = function(targetId) {
+// 모든 버튼과 콘텐츠 가져오기
+            const tabBtns = document.querySelectorAll('.tabs .tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            // 1. 기존 active 클래스 전부 싹 지우기
+            tabBtns.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // 2. targetId에 맞는 버튼 찾아 활성화
+            const targetBtn = document.querySelector(`.tab[data-target="${targetId}"]`);
+            if (targetBtn) {
+                targetBtn.classList.add('active');
+            }
+
+            // 3. targetId에 맞는 콘텐츠 찾아 활성화
+            const targetContent = document.getElementById(targetId);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+
+            // 4. 클릭 후 탭 위치로 자동 스크롤 (화면이 클 때 편리함)
+            const tabsElement = document.querySelector('.tabs');
+            if(tabsElement) {
+                tabsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            // 5. 통계 탭 진행 바 애니메이션
+            if (targetId === 'content-stats') {
+                setTimeout(applyBarAnimations, 80);
+            }
+        };
+
+        var mypageSnackbar = document.getElementById('mypageSnackbar');
+        if (mypageSnackbar && mypageSnackbar.classList.contains('show')) {
+            setTimeout(() => {
+                mypageSnackbar.classList.remove('show');
+            }, 5000);
+        }
+
+    const initialTab = new URLSearchParams(window.location.search).get('tab');
+    if (initialTab === 'reviews') {
+        window.addEventListener('load', function () {
+            if (typeof window.triggerTab === 'function') {
+                window.triggerTab('content-reviews');
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const reviewConfirm = document.getElementById('reviewDeleteConfirm');
+        const reviewCancel = document.getElementById('reviewDeleteCancel');
+        const reviewConfirmBtn = document.getElementById('reviewDeleteConfirmBtn');
+        let pendingReviewDeleteForm = null;
+        const planConfirm = document.getElementById('planDeleteConfirm');
+        const planCancel = document.getElementById('planDeleteCancel');
+        const planConfirmBtn = document.getElementById('planDeleteConfirmBtn');
+        let pendingPlanDeleteForm = null;
+
+        function openConfirm(confirmEl, focusEl) {
+            if (!confirmEl) return;
+            confirmEl.classList.add('is-open');
+            confirmEl.setAttribute('aria-hidden', 'false');
+            if (focusEl) focusEl.focus();
+        }
+
+        function closeConfirm(confirmEl) {
+            if (!confirmEl) return;
+            confirmEl.classList.remove('is-open');
+            confirmEl.setAttribute('aria-hidden', 'true');
+        }
+
+        function closeReviewConfirm() {
+            pendingReviewDeleteForm = null;
+            closeConfirm(reviewConfirm);
+        }
+
+        function closePlanConfirm() {
+            pendingPlanDeleteForm = null;
+            closeConfirm(planConfirm);
+        }
+
+        document.querySelectorAll('[data-review-delete-form]').forEach(form => {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                pendingReviewDeleteForm = form;
+                if (!reviewConfirm) {
+                    form.submit();
+                    return;
+                }
+                openConfirm(reviewConfirm, reviewConfirmBtn);
+            });
+        });
+
+        document.querySelectorAll('[data-plan-delete-form]').forEach(form => {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                pendingPlanDeleteForm = form;
+                if (!planConfirm) {
+                    form.submit();
+                    return;
+                }
+                openConfirm(planConfirm, planConfirmBtn);
+            });
+        });
+
+        document.querySelectorAll('[data-cancel-like-plan-id]').forEach(button => {
+            button.addEventListener('click', function () {
+                const planId = this.dataset.cancelLikePlanId;
+                if (!planId || this.disabled) return;
+
+                this.disabled = true;
+                this.textContent = '취소 중...';
+
+                fetch('${pageContext.request.contextPath}/like', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ planId: Number(planId) })
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('like request failed');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!data.success || data.liked) {
+                            throw new Error('unexpected like state');
+                        }
+
+                        const card = this.closest('.trip-card');
+                        if (card) {
+                            card.remove();
+                        }
+
+                        const likedCount = document.querySelector('.stat-box[onclick*="content-liked"] .stat-num');
+                        if (likedCount) {
+                            const nextCount = Math.max((parseInt(likedCount.textContent, 10) || 1) - 1, 0);
+                            likedCount.textContent = nextCount;
+                        }
+
+                        const likedTab = document.getElementById('content-liked');
+                        if (likedTab && !likedTab.querySelector('.trip-card')) {
+                            likedTab.innerHTML = '<div class="empty-state"><p>❤️ 아직 좋아요를 누른 여행이 없어요!</p></div>';
+                        }
+                    })
+                    .catch(() => {
+                        this.disabled = false;
+                        this.textContent = '좋아요 취소';
+                        alert('좋아요 취소에 실패했습니다. 잠시 후 다시 시도해주세요.');
+                    });
+            });
+        });
+
+        if (reviewCancel) {
+            reviewCancel.addEventListener('click', closeReviewConfirm);
+        }
+
+        if (reviewConfirmBtn) {
+            reviewConfirmBtn.addEventListener('click', function () {
+                const form = pendingReviewDeleteForm;
+                closeReviewConfirm();
+                if (form) form.submit();
+            });
+        }
+
+        if (planCancel) {
+            planCancel.addEventListener('click', closePlanConfirm);
+        }
+
+        if (planConfirmBtn) {
+            planConfirmBtn.addEventListener('click', function () {
+                const form = pendingPlanDeleteForm;
+                closePlanConfirm();
+                if (form) form.submit();
+            });
+        }
+
+        if (reviewConfirm) {
+            reviewConfirm.addEventListener('click', function (event) {
+                if (event.target === reviewConfirm) {
+                    closeReviewConfirm();
                 }
             });
         }
-    });
-    document.addEventListener('DOMContentLoaded', function() {
-        const dateElements = document.querySelectorAll('.relative-date');
 
-        dateElements.forEach(el => {
-            const dateStr = el.getAttribute('data-date'); // "2026-04-10"
-            if(!dateStr) return;
+        if (planConfirm) {
+            planConfirm.addEventListener('click', function (event) {
+                if (event.target === planConfirm) {
+                    closePlanConfirm();
+                }
+            });
+        }
 
-            const postDate = new Date(dateStr);
-            const nowDate = new Date();
+        document.querySelectorAll('[data-review-stack]').forEach(stack => {
+            const toggle = stack.querySelector('.review-stack-toggle');
+            const cards = stack.querySelector('.review-stack-cards');
+            if (!toggle || toggle.disabled) return;
 
-            // 1. 차이 계산
-            const diffMS = nowDate - postDate;
-            const diffHours = Math.floor(diffMS / (1000 * 60 * 60));
-            const diffDays = Math.floor(diffMS / (1000 * 60 * 60 * 24));
+            const toggleStack = function () {
+                const isExpanded = stack.classList.toggle('is-expanded');
+                stack.classList.toggle('is-collapsed', !isExpanded);
+                toggle.setAttribute('aria-expanded', String(isExpanded));
 
-            // 2. 표시할 시간 텍스트 결정
-            let timeText = "";
-            if (diffDays === 0) {
-                timeText = diffHours <= 0 ? "방금 전" : diffHours + "시간 전";
-            } else if (diffDays < 7) {
-                timeText = diffDays + "일 전";
-            } else {
-                // 7일 이상이면 yyyy.MM 형식
-                const year = postDate.getFullYear();
-                const month = ('0' + (postDate.getMonth() + 1)).slice(-2);
-                timeText = year + "." + month;
+                const hint = toggle.querySelector('.review-stack-toggle__hint');
+                if (hint) {
+                    hint.textContent = isExpanded ? '접기' : '펼치기';
+                }
+
+                if (isExpanded) {
+                    setTimeout(function () {
+                        stack.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 80);
+                }
+            };
+
+            toggle.addEventListener('click', toggleStack);
+            if (cards) {
+                cards.addEventListener('click', function () {
+                    if (stack.classList.contains('is-collapsed')) {
+                        toggleStack();
+                    }
+                });
             }
-
-            // 3. 기존의 "2026-04-10" 부분(원본 날짜)만 추출
-            // JSP에서 처음 그려진 텍스트가 "2026-04-10 · 3일" 형태라면 [0]번 인덱스가 날짜입니다.
-            const originalText = el.innerText;
-            const rawDatePart = originalText.includes('·') ? originalText.split('·')[0].trim() : dateStr;
-
-            // 4. 최종 결과 조립: [시간차] · [원본날짜]
-            // 예: 9시간 전 · 2026-04-10
-            el.innerText = timeText + " · " + rawDatePart;
         });
     });
-
 </script>
+<script src="${pageContext.request.contextPath}/js/mypageBridge.js"></script>
 </body>
 </html>

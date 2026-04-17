@@ -96,6 +96,7 @@ public class LikeC extends HttpServlet {
 
             int likeCount = userreactionDAO.countLikeByPlan(planId);
 
+            result.addProperty("success", true);
             result.addProperty("liked", liked);
             result.addProperty("likeCount", likeCount);
 

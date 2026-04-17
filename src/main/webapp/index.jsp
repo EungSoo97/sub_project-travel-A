@@ -7,10 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Travel-A(AI) | AI 여행 플래너</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/edit-schedule.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/settings.css">
-      <link rel="stylesheet" href="${pageContext.request.contextPath}/css/detail-page.css" />
-      <link rel="stylesheet" href="${pageContext.request.contextPath}/css/myplan-page.css" />
+      <link rel="stylesheet" href="${pageContext.request.contextPath}/css/result-page.css" />
+      <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- 푸터 하단 고정 -->
     <style>
@@ -30,10 +30,10 @@
         <div class="container site-header__inner">
           <a href="${pageContext.request.contextPath}/" class="site-logo">✈ Travel-A(AI)</a>
           <div class="site-actions">
-            <div class="login-register" id="headerLoginBtns">
+            <div class="login-register ${not empty sessionScope.user ? 'is-login' : ''}" id="headerLoginBtns">
                 <c:choose>
                     <c:when test="${not empty sessionScope.user}">
-                        <div class="drawer-user-name">👤 ${sessionScope.user.name}님</div>
+                        <div class="drawer-user-name"><i class="fa-regular fa-user"></i> ${sessionScope.user.name}님</div>
                         <a href="${pageContext.request.contextPath}/logout" class="drawer-logout" style="color:#1d4ed8; font-weight:600">로그아웃</a>
                     </c:when>
                     <c:otherwise>
@@ -54,6 +54,18 @@
           </div>
 
           <nav class="site-nav" id="siteNav">
+              <div class="site-nav__auth">
+                  <c:choose>
+                      <c:when test="${not empty sessionScope.user}">
+                          <span class="nav-auth-name"><i class="fa-regular fa-user"></i>  ${sessionScope.user.name}님</span>
+                          <a href="${pageContext.request.contextPath}/logout" class="btn--login">로그아웃</a>
+                      </c:when>
+                      <c:otherwise>
+                          <a href="${pageContext.request.contextPath}/login" class="btn--login">로그인</a>
+                          <a href="${pageContext.request.contextPath}/account" class="btn--register">회원가입</a>
+                      </c:otherwise>
+                  </c:choose>
+              </div>
             <a href="${pageContext.request.contextPath}/">여행 계획</a>
             <a href="${pageContext.request.contextPath}/explore">탐색</a>
             <a href="${pageContext.request.contextPath}/live">실시간 여행</a>
@@ -63,13 +75,14 @@
                       <a href="${pageContext.request.contextPath}/mypage">마이페이지</a>
                   </c:when>
                   <c:otherwise>
-                          <a href="login" onclick="loginAlert()">마이페이지</a>
+                          <a href="login" onclick="loginAlert(event)">마이페이지</a>
                   </c:otherwise>
               </c:choose>
           </nav>
         </div>
       </header>
       <div class="drawer-overlay" id="drawerOverlay"></div>
+      <div id="globalSnackbar" class="global-snackbar"></div>
 
       <div class="content">
         <jsp:include page="${content}"></jsp:include>
@@ -79,17 +92,31 @@
         <div class="container site-footer__inner">
           <p>© 2026 Travel-A(AI). 여행의 모든 순간을 스마트하게.</p>
         </div>
-          <form action="result-page-?id=213">
-              <button >backdoor</button></form>
       </footer>
-        <form action="result-page-?id=213" method="post">
-            <button>back door</button></form>
-
     </div>
-    <script src="${pageContext.request.contextPath}/js/main.js"></script>
+    <c:if test="${content ne 'view/explore/explore.jsp'}">
+        <script src="${pageContext.request.contextPath}/js/main.js"></script>
+    </c:if>
     <script>
-        function loginAlert () {
-            alert("로그인이 필요한 기능 입니다.");
+        function loginAlert (event) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            const snackbar = document.getElementById("globalSnackbar");
+            if (!snackbar) {
+                window.location.href = "${pageContext.request.contextPath}/login";
+                return;
+            }
+
+            snackbar.textContent = "로그인이 필요한 기능입니다.";
+            snackbar.classList.add("show");
+
+            clearTimeout(snackbar._timer);
+            snackbar._timer = setTimeout(function () {
+                snackbar.classList.remove("show");
+                window.location.href = "${pageContext.request.contextPath}/login";
+            }, 900);
         }
     </script>
     <script>
@@ -125,6 +152,64 @@
         });
     })();
     </script>
+
+    <script>
+    /* ── 실시간 여행 메뉴: 트래킹 중이면 myLive 페이지로 자동 연결 ── */
+    (function () {
+        /* 비로그인 상태에서도 DB의 트래킹 상태는 유지한다. */
+        <c:if test="${empty sessionScope.user}">
+        return;
+        </c:if>
+
+        const dbTrackingPlanId = '${empty activeLiveTrackingPlanId ? "" : activeLiveTrackingPlanId}';
+        const trackingPlanId = dbTrackingPlanId || localStorage.getItem('liveTrackingPlanId');
+        const liveLink = document.querySelector('.site-nav a[href*="/live"]');
+
+        if (!liveLink) return;
+
+        if (trackingPlanId) {
+            const ctx = '${pageContext.request.contextPath}';
+            localStorage.setItem('liveTrackingPlanId', trackingPlanId);
+            liveLink.href = ctx + '/my-live?planId=' + encodeURIComponent(trackingPlanId);
+
+            /* 트래킹 중 시각적 표시: 텍스트 앞 빨간 점 (텍스트 위치 밀림 없음) */
+            liveLink.style.position = 'relative';
+
+            const dot = document.createElement('span');
+            dot.style.cssText = [
+                'position:absolute',
+                'left:-4px',
+                'top:50%',
+                'transform:translateY(-50%)',
+                'width:9px', 'height:9px', 'border-radius:50%',
+                'background:#ef4444',
+                'animation:livePulse 1.4s ease-in-out infinite',
+                'pointer-events:none'
+            ].join(';');
+            liveLink.appendChild(dot);
+
+            /* 펄스 키프레임 (중복 삽입 방지) */
+            if (!document.getElementById('livePulseStyle')) {
+                const style = document.createElement('style');
+                style.id = 'livePulseStyle';
+                style.textContent = '@keyframes livePulse{0%,100%{opacity:1;transform:translateY(-50%) scale(1)}50%{opacity:.4;transform:translateY(-50%) scale(1.4)}}';
+                document.head.appendChild(style);
+            }
+        } else {
+            localStorage.removeItem('liveTrackingPlanId');
+        }
+
+        /* ── 로그아웃 시 트래킹 상태 자동 해제 ── */
+        document.querySelectorAll('a[href*="/logout"]').forEach(function (logoutLink) {
+            logoutLink.addEventListener('click', function () {
+                localStorage.removeItem('liveTrackingPlanId');
+            });
+        });
+    })();
+    </script>
+
+
   </body>
 
 </html>
+

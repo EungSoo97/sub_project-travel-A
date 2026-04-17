@@ -25,13 +25,7 @@ document.querySelectorAll('.activity-list').forEach(list => {
     function createPlaceholder(item) {
         const ph = document.createElement('div');
         ph.className = 'drag-placeholder';
-        ph.style.cssText = `
-            height: ${item.offsetHeight}px;
-            background: #eff6ff;
-            border: 2px dashed #2563eb;
-            border-radius: 12px;
-            margin: 4px 0;
-        `;
+        ph.style.height = item.offsetHeight + 'px';
         return ph;
     }
 
@@ -49,6 +43,7 @@ document.querySelectorAll('.activity-list').forEach(list => {
 
         clone = item.cloneNode(true);
         clone.classList.add('drag-clone');
+        clone.classList.add('is-floating');
         clone.style.cssText = `
             position: fixed;
             left: ${item.getBoundingClientRect().left}px;
@@ -56,15 +51,13 @@ document.querySelectorAll('.activity-list').forEach(list => {
             width: ${item.offsetWidth}px;
             z-index: 9999;
             pointer-events: none;
-            opacity: 0.92;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-            border-radius: 12px;
-            background: white;
         `;
-        document.body.appendChild(clone);
+        const dragRoot = item.closest('.schedule-edit-page') || document.body;
+        dragRoot.appendChild(clone);
 
         placeholder = createPlaceholder(item);
         item.parentNode.insertBefore(placeholder, item);
+        item.classList.add('dragging');
         item.style.display = 'none';
     }
 
@@ -83,9 +76,10 @@ document.querySelectorAll('.activity-list').forEach(list => {
     function onMoveEnd() {
         if (!dragged) return;
         dragged.style.display = '';
+        dragged.classList.remove('dragging');
         list.insertBefore(dragged, placeholder);
-        placeholder.remove();
-        clone.remove();
+        placeholder && placeholder.remove();
+        clone && clone.remove();
         dragged = null;
         placeholder = null;
         clone = null;
@@ -145,8 +139,11 @@ document.addEventListener('click', e => {
     if (!btn) return;
 
     const item = btn.closest('.activity-item');
+    const dayBlock = item.closest('.day-block');
+    const itemCost = getActivityCost(item);
     if (confirm('이 일정을 삭제할까요?')) {
         item.remove();
+        adjustDayEstimatedCost(dayBlock, -itemCost);
     }
 });
 
@@ -207,20 +204,93 @@ document.addEventListener('click', e => {
     const modal = document.getElementById('activityModal');
     modal.dataset.targetListId = btn.dataset.listId;
     modal.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
 });
 
 
 // ── 모달 닫기 ──
 document.getElementById('closeModalBtn').addEventListener('click', () => {
-    document.getElementById('activityModal').classList.remove('show');
+    closeActivityModal();
 });
+
+document.getElementById('activityModal').addEventListener('click', e => {
+    if (e.target.id === 'activityModal') {
+        closeActivityModal();
+    }
+});
+
+document.addEventListener('keydown', e => {
+    const modal = document.getElementById('activityModal');
+    if (e.key === 'Escape' && modal.classList.contains('show')) {
+        closeActivityModal();
+    }
+});
+
+function closeActivityModal() {
+    const modal = document.getElementById('activityModal');
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+}
 
 
 // ── 활동 추가 ──
+function normalizeActivityCategory(value) {
+    const normalized = String(value || '').trim().toUpperCase();
+    if (normalized === 'TRANSPORT' || normalized === 'MOVE') return 'transport';
+    if (normalized === 'DINING' || normalized === 'FOOD' || normalized === 'RESTAURANT') return 'dining';
+    if (normalized === 'ACCOMMODATION' || normalized === 'HOTEL') return 'accommodation';
+    return 'spot';
+}
+
+function toActivityCategoryCode(type) {
+    const normalized = normalizeActivityCategory(type);
+    if (normalized === 'transport') return 'TRANSPORT';
+    if (normalized === 'dining') return 'DINING';
+    if (normalized === 'accommodation') return 'ACCOMMODATION';
+    return 'ATTRACTION';
+}
+
+function getActivityCost(item) {
+    return parseInt(item && item.dataset.cost, 10) || 0;
+}
+
+function getDayEstimatedCost(dayBlock) {
+    if (!dayBlock) return 0;
+    const costEl = dayBlock.querySelector('.day-block__cost');
+    return parseInt((costEl && costEl.dataset.cost) || dayBlock.dataset.estimatedCost, 10) || 0;
+}
+
+function setDayEstimatedCost(dayBlock, cost, currency) {
+    if (!dayBlock) return;
+    const costEl = dayBlock.querySelector('.day-block__cost');
+    const nextCost = Math.max(0, parseInt(cost, 10) || 0);
+    const nextCurrency = currency || dayBlock.dataset.currency || (costEl && costEl.dataset.currency) || 'KRW';
+
+    dayBlock.dataset.estimatedCost = String(nextCost);
+    dayBlock.dataset.currency = nextCurrency;
+
+    if (costEl) {
+        costEl.dataset.cost = String(nextCost);
+        costEl.dataset.currency = nextCurrency;
+        costEl.textContent = `예상 비용: ${nextCost.toLocaleString('ko-KR')} ${nextCurrency}`;
+    }
+}
+
+function adjustDayEstimatedCost(dayBlock, deltaCost) {
+    if (!dayBlock) return;
+    setDayEstimatedCost(dayBlock, getDayEstimatedCost(dayBlock) + (parseInt(deltaCost, 10) || 0));
+}
+
 document.getElementById('addActivityBtn').addEventListener('click', () => {
     const time = document.getElementById('newTime').value;
     const title = document.getElementById('newTitle').value;
     const desc = document.getElementById('newDesc').value;
+    const type = normalizeActivityCategory(document.getElementById('newType').value || 'SPOT');
+    const durationMinutes = parseInt(document.getElementById('newDuration').value) || 0;
+    const cost = parseInt(document.getElementById('newCost').value) || 0;
+    const currency = document.getElementById('newCurrency').value || 'KRW';
 
     if (!time || !title) {
         alert('시간과 제목은 필수!');
@@ -231,28 +301,76 @@ document.getElementById('addActivityBtn').addEventListener('click', () => {
     const listId = modal.dataset.targetListId;
     const list = document.getElementById(listId);
 
+
+    // 타입에 따른 아이콘 결정
+    const iconMap = {
+        'transport': '<i class="fa-solid fa-train"></i>',
+        'dining': '<i class="fa-solid fa-utensils"></i>',
+        'accommodation': ' <i class="fa-solid fa-hotel"></i>',
+        'spot': '<i class="fa-solid fa-location-dot"></i>'
+    };
+    const icon = iconMap[type] || '<i class="fa-solid fa-location-dot"></i>';
+
+    // 타입에 따른 CSS 클래스 결정
+    const classMap = {
+        'transport': 'activity-item--move',
+        'dining': 'activity-item--food',
+        'accommodation': 'activity-item--hotel',
+        'spot': 'activity-item--spot'
+    };
+    const itemClass = classMap[type] || 'activity-item--spot';
+
+    // 메타 태그 HTML (비용 태그는 항상 표시)
+    let metaTagsHTML = '';
+    if (durationMinutes > 0) {
+        metaTagsHTML += `<span class="meta-tag meta-tag--time">⏱ ${durationMinutes}분</span>`;
+    }
+    if (cost === 0) {
+        metaTagsHTML += `<span class="meta-tag meta-tag--cost">무료</span>`;
+    } else {
+        metaTagsHTML += `<span class="meta-tag meta-tag--cost">${cost} ${currency}</span>`;
+    }
+
     // 새 아이템 생성
     const item = document.createElement('div');
-    item.className = 'activity-item activity-item--spot';
+    item.className = `activity-item ${itemClass}`;
+    item.draggable = true;
+    item.dataset.type = toActivityCategoryCode(type);
+    item.dataset.category = type;
+    item.dataset.categoryCode = toActivityCategoryCode(type);
+    item.dataset.isNew = "true"; // ── 새로 추가된 활동 표시 ──
     item.innerHTML = `
         <div class="activity-item__drag">⋮⋮</div>
-        <div class="activity-item__icon">✏️</div>
+        <div class="activity-item__icon">${icon}</div>
         <div class="activity-item__body">
             <div class="activity-item__top">
                 <span class="activity-item__time">${time}</span>
                 <span class="activity-item__title">${title}</span>
             </div>
             <div class="activity-item__desc">${desc}</div>
+            <div class="activity-item__meta">
+                ${metaTagsHTML}
+            </div>
         </div>
-        <button class="activity-item__delete">🗑</button>
+        <button class="activity-item__delete" type="button" title="삭제">🗑</button>
     `;
 
+    // 데이터 속성 저장
+    item.dataset.durationMinutes = durationMinutes;
+    item.dataset.cost = cost;
+    item.dataset.currency = currency;
+
     list.appendChild(item);
+    adjustDayEstimatedCost(list.closest('.day-block'), cost);
 
     // 입력값 초기화
     document.getElementById('newTime').value = '';
     document.getElementById('newTitle').value = '';
     document.getElementById('newDesc').value = '';
+    document.getElementById('newDuration').value = '';
+    document.getElementById('newCost').value = '';
+    document.getElementById('newCurrency').value = 'KRW';
+    document.getElementById('newType').value = 'spot';
 
-    modal.classList.remove('show');
+    closeActivityModal();
 });
