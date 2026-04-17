@@ -59,6 +59,32 @@ function checkPassword() {
     }
 }
 
+function checkIdRealtime() {
+    const loginId = document.querySelector('input[name="login_id"]').value.trim();
+    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+
+    if (loginId && !alphanumericRegex.test(loginId)) {
+        showSnackbar("ID는 영어와 숫자만 입력 가능합니다.");
+    }
+}
+
+function checkPasswordRealtime() {
+    const password = document.getElementById("pw1").value.trim();
+    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+
+    if (password && !alphanumericRegex.test(password)) {
+        showSnackbar("비밀번호는 영어와 숫자만 입력 가능합니다.");
+    }
+}
+
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const isPassword = input.type === "password";
+
+    input.type = isPassword ? "text" : "password";
+    btn.textContent = isPassword ? "👁️" : "🔒️";
+}
+
 function checkAgree() {
     const agree = document.getElementById("agree");
 
@@ -73,6 +99,36 @@ function checkAgree() {
 function validateForm() {
     if (!checkAgree()) return false;
     if (!setEmail()) return false;
+    if (!checkAlphanumeric()) return false;
 
     return true;
+}
+
+function checkAlphanumeric() {
+    const loginId = document.querySelector('input[name="login_id"]').value.trim();
+    const password = document.getElementById("pw1").value.trim();
+
+    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+
+    if (!alphanumericRegex.test(loginId)) {
+        showSnackbar("ID는 영어와 숫자만 입력 가능합니다.");
+        return false;
+    }
+
+    if (!alphanumericRegex.test(password)) {
+        showSnackbar("비밀번호는 영어와 숫자만 입력 가능합니다.");
+        return false;
+    }
+
+    return true;
+}
+
+function showSnackbar(message) {
+    const snackbar = document.getElementById("snackbar");
+    snackbar.textContent = message;
+    snackbar.classList.add("show");
+
+    setTimeout(() => {
+        snackbar.classList.remove("show");
+    }, 3000);
 }
