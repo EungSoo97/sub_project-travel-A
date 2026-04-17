@@ -34,7 +34,7 @@
 
         <div class="time-box">
             <div class="time-top">
-                <span class="time-label">🕒 현재 시각</span>
+                <span class="time-label"><i class="fa-regular fa-clock"></i> 현재 시각</span>
                 <span class="time-display" id="currentTime">—</span>
             </div>
             <div class="time-bottom">
@@ -59,7 +59,7 @@
                         ${selectedPlan.overview}
                     </c:when>
                     <c:otherwise>
-                        📍 ${selectedPlan.destination}
+                        <i class="fa-solid fa-location-dot"></i> ] ${selectedPlan.destination}
                     </c:otherwise>
                 </c:choose>
             </p>
@@ -90,7 +90,7 @@
             </div>
 
             <div class="congestion-banner">
-                <div class="banner-icon">👥</div>
+                <div class="banner-icon"><i class="fa-solid fa-user-group"></i></div>
                 <div class="banner-text">
                     <strong id="liveCrowdSectionTitle">실시간 혼잡도</strong>
                     <p id="liveCrowdMessage">${selectedPlan.destination} 기준 정보를 불러오는 중입니다.</p>
@@ -146,7 +146,7 @@
 
         <div class="traffic-box card-box">
             <div class="section-title">
-                교통 상황
+                <i class="fa-solid fa-car"></i>교통 상황
             </div>
 
             <div class="info-list" id="liveTraffic">
@@ -156,7 +156,7 @@
 
         <div class="emergency-box card-box">
             <div class="section-title">
-                긴급 연락처
+                <i class="fa-solid fa-phone"></i>긴급 연락처
             </div>
 
             <div class="info-list" id="liveEmergency">
