@@ -68,7 +68,7 @@
                             </div>
 
                             <a class="live-plan-start-btn"
-                               href="${pageContext.request.contextPath}/live?planId=${plan.planId}">
+                               href="${pageContext.request.contextPath}/my-live?planId=${plan.planId}&destination=${plan.destination}">
                                 이 플랜으로 시작
                             </a>
                         </div>
