@@ -199,7 +199,9 @@
                 <c:forEach var="trip" items="${savedTrips}">
                     <article class="trip-card"
                              data-plan-id="${trip.planId}"
-                             data-live-tracking="${trip.liveTracking}">
+                             data-live-tracking="${trip.liveTracking}"
+                             data-starred="${trip.starred}"
+                             data-created-time="${empty trip.createdAt ? 0 : trip.createdAt.time}">
                         <div class="card-img-wrap">
                             <img src="${empty trip.thumbnailUrl ? defaultPlanImage : trip.thumbnailUrl}"
                                  alt="${empty trip.destination ? '여행 플랜 이미지' : trip.destination}"

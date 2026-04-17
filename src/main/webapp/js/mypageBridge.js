@@ -1,4 +1,34 @@
 (function () {
+    const LIVE_IDLE_LABEL = '\ud83d\ude80 \uc2e4\uc2dc\uac04 \ud2b8\ub798\ud0b9 \ud558\uae30';
+    const LIVE_ACTIVE_LABEL = '\ud83d\udd34\uc2e4\uc2dc\uac04 \ud2b8\ub798\ud0b9\uc911';
+
+    function toNumber(value) {
+        const number = Number(value);
+        return Number.isFinite(number) ? number : 0;
+    }
+
+    function compareSavedCards(a, b) {
+        const liveDiff = toNumber(b.dataset.liveTracking) - toNumber(a.dataset.liveTracking);
+        if (liveDiff !== 0) return liveDiff;
+
+        const starredDiff = (b.dataset.starred === 'true' ? 1 : 0) - (a.dataset.starred === 'true' ? 1 : 0);
+        if (starredDiff !== 0) return starredDiff;
+
+        const createdDiff = toNumber(b.dataset.createdTime) - toNumber(a.dataset.createdTime);
+        if (createdDiff !== 0) return createdDiff;
+
+        return toNumber(b.dataset.planId) - toNumber(a.dataset.planId);
+    }
+
+    function sortSavedCards() {
+        const container = document.getElementById('content-saved');
+        if (!container) return;
+
+        Array.from(container.querySelectorAll('.trip-card'))
+            .sort(compareSavedCards)
+            .forEach(card => container.appendChild(card));
+    }
+
     function activateTab(targetId) {
         const tabBtns = document.querySelectorAll('.tabs .tab');
         const tabContents = document.querySelectorAll('.tab-content');
@@ -38,13 +68,16 @@
             // Reset all tracking buttons to initial state
             const allCards = document.querySelectorAll('#content-saved .trip-card');
             allCards.forEach(card => {
+                card.dataset.liveTracking = '0';
                 const liveBtn = card.querySelector('.live-track-btn');
                 if (liveBtn) {
                     liveBtn.innerHTML = 'ð\x9f\x9a\x80 \uc2e4\uc2dc\uac04 \ud2b8\ub798\ud0b9 \ud558\uae30';
+                    liveBtn.textContent = LIVE_IDLE_LABEL;
                     liveBtn.disabled = false;
                     card.classList.remove('active-card');
                 }
             });
+            sortSavedCards();
 
             // Remove the stopTracking parameter from URL
             const newUrl = window.location.pathname;
@@ -85,6 +118,7 @@
             liveBtn.className = 'live-track-btn';
             liveBtn.dataset.planId = planId;
             liveBtn.dataset.destination = extractDestination(card);
+            liveBtn.textContent = LIVE_IDLE_LABEL;
             liveBtn.innerHTML = '🚀 실시간 트래킹 하기';
             liveBtn.style.position = 'absolute';
             liveBtn.style.top = '10px';
@@ -98,21 +132,25 @@
             liveBtn.style.transition = 'all 0.2s ease';
             liveBtn.style.backgroundColor = '#1d4ed8ab';
             liveBtn.style.color = 'white';
+            liveBtn.textContent = LIVE_IDLE_LABEL;
 
             // 카드 전체에 relative 위치 설정 후 상단에 버튼 추가
             card.style.position = 'relative';
             card.appendChild(liveBtn);
 
             // localStorage에 저장된 트래킹 상태 복원
-            if (trackingPlanId && trackingPlanId === planId) {
+            if ((trackingPlanId && trackingPlanId === planId) || card.dataset.liveTracking === '1') {
+                card.dataset.liveTracking = '1';
                 liveBtn.innerHTML = '🔴실시간 트래킹중';
                 liveBtn.style.backgroundColor = '#ef444480';
+                liveBtn.textContent = LIVE_ACTIVE_LABEL;
+                card.dataset.liveTracking = '1';
                 card.classList.add('active-card');
             }
 
             // 3. 클릭 이벤트 처리 (토글: 트래킹 시작 / 중지)
             liveBtn.addEventListener('click', function () {
-                const isTracking = localStorage.getItem('liveTrackingPlanId') === planId;
+                const isTracking = localStorage.getItem('liveTrackingPlanId') === planId || card.dataset.liveTracking === '1';
 
                 if (isTracking) {
                     // ── 트래킹 중지 ──
@@ -131,7 +169,10 @@
                         // 버튼 초기 상태로 복원
                         this.innerHTML = '🚀 실시간 트래킹 하기';
                         this.style.backgroundColor = '#1d4ed8ab';
+                        this.textContent = LIVE_IDLE_LABEL;
+                        card.dataset.liveTracking = '0';
                         card.classList.remove('active-card');
+                        sortSavedCards();
 
                         // 내비게이션 빨간 점 제거 및 링크 원복
                         const liveNavLink = document.querySelector('.site-nav a[href*="/my-live"]');
@@ -147,6 +188,8 @@
                 // ── 트래킹 시작 ──
                 this.innerHTML = '🔴실시간 트래킹중';
                 this.style.backgroundColor = '#ef444480';
+                this.textContent = LIVE_ACTIVE_LABEL;
+                card.dataset.liveTracking = '1';
                 card.classList.add('active-card');
 
                 // 다른 카드의 트래킹 상태 초기화
@@ -156,10 +199,13 @@
                         if (otherBtn) {
                             otherBtn.innerHTML = '🚀 실시간 트래킹 하기';
                             otherBtn.style.backgroundColor = '#1d4ed8ab';
+                            otherBtn.textContent = LIVE_IDLE_LABEL;
                         }
+                        otherCard.dataset.liveTracking = '0';
                         otherCard.classList.remove('active-card');
                     }
                 });
+                sortSavedCards();
 
                 // localStorage에 현재 트래킹 상태 저장
                 localStorage.setItem('liveTrackingPlanId', planId);
@@ -172,6 +218,7 @@
                 window.location.href = url;
             });
         });
+        sortSavedCards();
     }
 
     window.triggerTab = function (targetId) {
