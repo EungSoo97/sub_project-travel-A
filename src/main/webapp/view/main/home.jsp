@@ -26,7 +26,7 @@
                     <div class="form-field form-field--wide">
                         <label for="departureAirportCode">출발 공항</label>
                         <button type="button" class="airport-trigger" id="airportTrigger">
-                            <span class="airport-trigger__icon">✈</span>
+                            <span class="airport-trigger__icon"><i class="fa-solid fa-plane"></i></span>
                             <span class="airport-trigger__main">
                                 <span class="airport-trigger__label">국내 출발 공항</span>
                                 <span class="airport-trigger__value" id="airportTriggerValue">공항을 선택해 주세요</span>

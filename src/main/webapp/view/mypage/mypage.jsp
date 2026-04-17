@@ -90,7 +90,7 @@
                     </c:choose>
                 </span>
                     <%-- <h2>데이터 확인: ${reviewList}</h2>--%>
-                    <span class="badge">📍 ${fn:length(savedTrips)}개 도시 방문</span>
+                    <span class="badge"><i class="fa-solid fa-location-dot"></i> ${fn:length(savedTrips)}개 도시 방문</span>
                 </div>
             </div>
         </div>
@@ -127,7 +127,7 @@
     <div class="modal-box">
         <div class="modal-header">
             <h3>칭호 등급표</h3>
-            <button class="modal-close" onclick="closeTitleModal()">✕</button>
+            <button class="modal-close" onclick="closeTitleModal()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="modal-body">
             <ul class="title-list">
@@ -205,7 +205,7 @@
                                  alt="${empty trip.destination ? '여행 플랜 이미지' : trip.destination}"
                                  onerror="this.src='${defaultPlanImage}'">
                             <c:if test="${trip.starred}">
-                                <span class="favorite-badge" aria-label="즐겨찾기">★</span>
+                                <span class="favorite-badge" aria-label="즐겨찾기"><i class="fa-solid fa-star"></i></span>
                             </c:if>
                             <span class="status-badge ${trip.statusClass}">${trip.status}</span>
                         </div>
@@ -214,15 +214,15 @@
                             <c:if test="${trip.posted == 1}">
                                 <div class="trip-publish-meta">
                                     <span class="publish-badge">게시됨</span>
-                                    <span class="heart-count">♥ ${trip.likeCnt}</span>
+                                    <span class="heart-count"><i class="fa-solid fa-heart"></i> ${trip.likeCnt}</span>
                                 </div>
                             </c:if>
                             <div class="trip-publish-meta trip-creator-meta">
-                                <span class="creator-badge">👤
+                                <span class="creator-badge"><i class="fa-regular fa-user"></i>
                                     <c:out value="${empty trip.creatorName ? '여행자' : trip.creatorName}" />
                                 </span>
                                 <c:if test="${not empty trip.editorName and trip.editorName ne trip.creatorName}">
-                                    <span class="editor-badge">✏️
+                                    <span class="editor-badge"><i class="fa-solid fa-pen"></i>
                                         <c:out value="${trip.editorName}" />
                                     </span>
                                 </c:if>
@@ -231,9 +231,9 @@
                                 </c:if>
                             </div>
                             <div class="trip-details">
-                                <p><span>📍</span><c:out value="${trip.destination}" default="여행지 미정"/></p>
+                                <p><span><i class="fa-solid fa-location-dot"></i></span><c:out value="${trip.destination}" default="여행지 미정"/></p>
                                 <p>
-                                    <span>📅</span>
+                                    <span><i class="fa-regular fa-calendar"></i></span>
                                     <c:choose>
                                         <c:when test="${not empty trip.startDate and not empty trip.endDate}">
                                             <fmt:formatDate value="${trip.startDate}" pattern="yyyy.MM.dd"/>
@@ -243,13 +243,13 @@
                                         <c:otherwise>일정 미정</c:otherwise>
                                     </c:choose>
                                 </p>
-                                <p><span>🗓️</span>
+                                <p><span><i class="fa-solid fa-calendar-days"></i></span>
                                     <c:choose>
                                         <c:when test="${trip.days > 0}">${trip.days}일</c:when>
                                         <c:otherwise>기간 미정</c:otherwise>
                                     </c:choose>
                                 </p>
-                                <p><span>👥</span>
+                                <p><span><i class="fa-solid fa-user-group"></i></span>
                                     <c:choose>
                                         <c:when test="${trip.travelers > 0}">${trip.travelers}명</c:when>
                                         <c:otherwise>인원 미정</c:otherwise>
@@ -273,7 +273,7 @@
             </c:when>
             <c:otherwise>
                 <div class="empty-state">
-                    <p>🧳 아직 저장된 여행이 없어요!</p>
+                    <p><i class="fa-solid fa-suitcase"></i> 아직 저장된 여행이 없어요!</p>
                 </div>
             </c:otherwise>
         </c:choose>
@@ -302,20 +302,20 @@
                         <div class="card-body">
                             <h3>${trip.displayTitle}</h3>
                             <div class="trip-publish-meta trip-creator-meta">
-                                <span class="creator-badge">👤
+                                <span class="creator-badge"><i class="fa-regular fa-user"></i>
                                     <c:out value="${empty trip.creatorName ? '여행자' : trip.creatorName}" />
                                 </span>
                                 <span class="heart-count">♥ ${trip.likeCnt}</span>
                                 <c:if test="${not empty trip.editorName and trip.editorName ne trip.creatorName}">
-                                    <span class="editor-badge">✏️
+                                    <span class="editor-badge"><i class="fa-solid fa-pen"></i>
                                         <c:out value="${trip.editorName}" />
                                     </span>
                                 </c:if>
                             </div>
                             <div class="trip-details">
-                                <p><span>📍</span><c:out value="${trip.destination}" default="여행지 미정"/></p>
+                                <p><span><i class="fa-solid fa-location-dot"></i></span><c:out value="${trip.destination}" default="여행지 미정"/></p>
                                 <p>
-                                    <span>📅</span>
+                                    <span><i class="fa-regular fa-calendar"></i></span>
                                     <c:choose>
                                         <c:when test="${not empty trip.startDate and not empty trip.endDate}">
                                             <fmt:formatDate value="${trip.startDate}" pattern="yyyy.MM.dd"/> -
@@ -324,8 +324,8 @@
                                         <c:otherwise>일정 미정</c:otherwise>
                                     </c:choose>
                                 </p>
-                                <p><span>🗓️</span><c:choose><c:when test="${trip.days > 0}">${trip.days}일</c:when><c:otherwise>기간 미정</c:otherwise></c:choose></p>
-                                <p><span>👥</span><c:choose><c:when test="${trip.travelers > 0}">${trip.travelers}명</c:when><c:otherwise>인원 미정</c:otherwise></c:choose></p>
+                                <p><span><i class="fa-solid fa-calendar-days"></i></span><c:choose><c:when test="${trip.days > 0}">${trip.days}일</c:when><c:otherwise>기간 미정</c:otherwise></c:choose></p>
+                                <p><span><i class="fa-solid fa-user-group"></i></span><c:choose><c:when test="${trip.travelers > 0}">${trip.travelers}명</c:when><c:otherwise>인원 미정</c:otherwise></c:choose></p>
                             </div>
                             <c:choose>
                                 <c:when test="${trip.posted == 1}">
@@ -351,7 +351,7 @@
             </c:when>
             <c:otherwise>
                 <div class="empty-state">
-                    <p>❤️ 아직 좋아요를 누른 여행이 없어요!</p>
+                    <p><i class="fa-solid fa-heart"></i> 아직 좋아요를 누른 여행이 없어요!</p>
                 </div>
             </c:otherwise>
         </c:choose>
@@ -394,7 +394,7 @@
                                     <span class="review-stack-toggle__content">
                                         <span class="review-stack-toggle__main">
                                             <span class="review-dest-tag" style="background: ${groupStatus.index % 2 == 0 ? '#E6F1FB' : '#E8F8EE'}; color: ${groupStatus.index % 2 == 0 ? '#185FA5' : '#12803B'};">
-                                                📍 <c:out value="${mainReview.city}" />
+                                                <i class="fa-solid fa-location-dot"></i> <c:out value="${mainReview.city}" />
                                             </span>
                                             <span class="review-plan-id">plan #${reviewGroup.key}</span>
                                         <span class="review-stack-count">${reviewCount}개 후기</span>
@@ -410,8 +410,8 @@
                                             </c:choose>
                                         </span>
                                         <span class="review-stack-meta">
-                                            👤 <c:out value="${empty mainReview.planCreatorName ? '여행자' : mainReview.planCreatorName}" />
-                                            <span>♥ ${mainReview.likeCnt}</span>
+                                           <i class="fa-regular fa-user"></i> <c:out value="${empty mainReview.planCreatorName ? '여행자' : mainReview.planCreatorName}" />
+                                            <span><i class="fa-solid fa-heart"></i> ${mainReview.likeCnt}</span>
                                         </span>
                                     </span>
                                     <span class="review-stack-toggle__hint">
@@ -459,7 +459,7 @@
             </c:when>
             <c:otherwise>
                 <div class="empty-state">
-                    <p>📝 아직 작성한 후기가 없어요!</p>
+                    <p><i class="fa-solid fa-pen-to-square"></i> 아직 작성한 후기가 없어요!</p>
                 </div>
             </c:otherwise>
         </c:choose>
@@ -473,17 +473,17 @@
         <%-- 상단 요약 미니 카드 3열 --%>
         <div class="stats-summary-row">
             <div class="stats-sum-card">
-                <span class="stats-sum-icon">✈️</span>
+                <span class="stats-sum-icon"><i class="fa-solid fa-plane"></i></span>
                 <span class="stats-sum-num">${fn:length(savedTrips)}</span>
                 <span class="stats-sum-lbl">총 플랜</span>
             </div>
             <div class="stats-sum-card">
-                <span class="stats-sum-icon">❤️</span>
+                <span class="stats-sum-icon"><i class="fa-solid fa-heart"></i></span>
                 <span class="stats-sum-num">${receivedLikes}</span>
                 <span class="stats-sum-lbl">받은 좋아요</span>
             </div>
             <div class="stats-sum-card">
-                <span class="stats-sum-icon">📝</span>
+                <span class="stats-sum-icon"><i class="fa-solid fa-pen-to-square"></i></span>
                 <span class="stats-sum-num">${fn:length(reviewList)}</span>
                 <span class="stats-sum-lbl">작성 후기</span>
             </div>
@@ -493,7 +493,7 @@
         <div class="section">
             <div class="section-title-row">
                 <span class="section-title-text">현재 칭호</span>
-                <span class="section-like-chip">❤️ ${receivedLikes}개</span>
+                <span class="section-like-chip"><i class="fa-solid fa-heart"></i> ${receivedLikes}개</span>
             </div>
             <div class="level-row">
                 <div class="level-badge level-badge-${receivedLikes >= 500 ? '4' : (receivedLikes >= 100 ? '3' : (receivedLikes >= 30 ? '2' : '1'))}">
@@ -554,7 +554,7 @@
 
         <%-- 월별 차트 --%>
         <div class="section">
-            <div class="section-title">📅 월별 여행 횟수</div>
+            <div class="section-title"><i class="fa-regular fa-calendar"></i> 월별 여행 횟수</div>
             <div style="position: relative; width: 100%; height: 200px;">
                 <canvas id="barChart" role="img" aria-label="월별 여행 횟수 바차트"></canvas>
             </div>
@@ -562,7 +562,7 @@
 
         <%-- 여행 트렌드 --%>
         <div class="section stats-trend-section">
-            <div class="section-title">📈 내 여행 트렌드</div>
+            <div class="section-title"><i class="fa-solid fa-chart-line"></i> 내 여행 트렌드</div>
             <div class="trend-list">
                 <c:choose>
                     <c:when test="${not empty trendList}">
@@ -574,7 +574,7 @@
                                             <c:when test="${status.first}">🥇</c:when>
                                             <c:when test="${status.index == 1}">🥈</c:when>
                                             <c:when test="${status.index == 2}">🥉</c:when>
-                                            <c:otherwise>📍</c:otherwise>
+                                            <c:otherwise><i class="fa-solid fa-location-dot"></i></c:otherwise>
                                         </c:choose>
                                     </span>
                                     <span class="trend-name">${trend.destination}</span>
@@ -588,7 +588,7 @@
                     </c:when>
                     <c:otherwise>
                         <div class="empty-state" style="padding: 30px; text-align: center; color: #aaa;">
-                            <p style="font-size: 24px; margin-bottom: 10px;">📊</p>
+                            <p style="font-size: 24px; margin-bottom: 10px;"><i class="fa-solid fa-chart-column"></i></p>
                             <p>아직 여행 기록이 없어서<br>통계를 불러올 수 없어요!</p>
                         </div>
                     </c:otherwise>
@@ -598,7 +598,7 @@
 
         <%-- 선호 여행 스타일 --%>
         <div class="section stats-style-section">
-            <div class="section-title">🎨 선호 여행 스타일</div>
+            <div class="section-title"><i class="fa-solid fa-palette"></i> 선호 여행 스타일</div>
             <div class="style-list">
                 <c:choose>
                     <c:when test="${empty styleStats}">
