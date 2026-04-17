@@ -255,22 +255,22 @@
         <div class="container">
             <div class="feature-grid">
                 <article class="feature-card">
-                    <div class="feature-card__icon">⚡</div>
+                    <div class="feature-card__icon"><i class="fa-solid fa-bolt"></i></div>
                     <h3>초정밀 AI 분석</h3>
                     <p>취향과 예산을 고려한 일정 추천</p>
                 </article>
                 <article class="feature-card">
-                    <div class="feature-card__icon">📈</div>
+                    <div class="feature-card__icon"><i class="fa-solid fa-chart-line"></i></div>
                     <h3>실시간 최저가</h3>
                     <p>항공편과 숙박을 한눈에 비교</p>
                 </article>
                 <article class="feature-card">
-                    <div class="feature-card__icon">📷</div>
+                    <div class="feature-card__icon"><i class="fa-solid fa-camera"></i></div>
                     <h3>이미지 검색</h3>
                     <p>사진 기반 여행지 추천 확장 가능</p>
                 </article>
                 <article class="feature-card">
-                    <div class="feature-card__icon">🛡️</div>
+                    <div class="feature-card__icon"><i class="fa-solid fa-shield-halved"></i></div>
                     <h3>안전한 예약</h3>
                     <p>검증된 파트너 연동 구조에 적합</p>
                 </article>

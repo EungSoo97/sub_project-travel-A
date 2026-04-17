@@ -959,21 +959,39 @@ let fsAllExpanded  = false;
 /* 카테고리별 아이콘 매핑 */
 function _fsCategoryIcon(cat) {
     const map = {
-        TRANSPORT: '🚌', MOVE: '🚌', FLIGHT: '✈️',
-        HOTEL: '🏨', ACCOMMODATION: '🏨',
-        DINING: '🍽️', FOOD: '🍽️', RESTAURANT: '🍽️',
-        SHOPPING: '🛍️', CULTURE: '🏛️', MUSEUM: '🏛️',
-        NATURE: '🌿', ACTIVITY: '🎡', TOUR: '🗺️',
-        CAFE: '☕', SPA: '♨️'
+        TRANSPORT: '<i class="fa-solid fa-bus"></i>',
+        MOVE: '<i class="fa-solid fa-bus"></i>',
+        FLIGHT: '<i class="fa-solid fa-plane"></i>',
+
+        HOTEL: '<i class="fa-solid fa-hotel"></i>',
+        ACCOMMODATION: '<i class="fa-solid fa-hotel"></i>',
+
+        DINING: '<i class="fa-solid fa-utensils"></i>',
+        FOOD: '<i class="fa-solid fa-utensils"></i>',
+        RESTAURANT: '<i class="fa-solid fa-utensils"></i>',
+
+        SHOPPING: '<i class="fa-solid fa-bag-shopping"></i>',
+        CULTURE: '<i class="fa-solid fa-landmark"></i>',
+        MUSEUM: '<i class="fa-solid fa-landmark"></i>',
+
+        NATURE: '<i class="fa-solid fa-leaf"></i>',
+        ACTIVITY: '<i class="fa-solid fa-person-running"></i>',
+        TOUR: '<i class="fa-regular fa-map"></i>',
+
+        CAFE: '<i class="fa-solid fa-mug-saucer"></i>',
+        SPA: '<i class="fa-solid fa-spa"></i>'
     };
-    if (!cat) return '📍';
+
+    if (!cat) return '<i class="fa-solid fa-location-dot"></i>';
+
     const key = cat.toString().toUpperCase();
+
     for (const [k, v] of Object.entries(map)) {
         if (key.includes(k)) return v;
     }
-    return '📍';
-}
 
+    return '<i class="fa-solid fa-location-dot"></i>';
+}
 /* 비용 포맷 */
 function _fsFmtCost(cost, currency) {
     if (!cost || cost === '0' || cost === 0) return '무료';
