@@ -1,6 +1,8 @@
 package com.es.ta.ai;
 
 import com.es.ta.main.DBManager_new;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,6 +11,9 @@ import java.sql.Types;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -17,6 +22,7 @@ import java.util.Map;
 public class TravelDao {
 
     public static final TravelDao MDAO = new TravelDao();
+    private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
     public TravelResponseDto fetchTravelPlan(TravelRequestDto dto) {
         System.out.println("[TravelDao] fetchTravelPlan START destination=" + dto.getDestination()
@@ -291,10 +297,10 @@ public class TravelDao {
         List<Map<String, Object>> list = new ArrayList<>();
 
         String sql = "SELECT plan_id, title, overview, days, travelers, " +
-                "       travel_style, total_estimated_cost, currency, " +
+                "       travel_style, request_styles, total_estimated_cost, currency, " +
                 "       destination, quality_score, start_date, end_date " +
                 "FROM travel_plan " +
-                "WHERE UPPER(destination) = UPPER(?) AND success = 1 " +
+                "WHERE UPPER(destination) = UPPER(?) AND success = 1 AND posted = 1 " +
                 "ORDER BY plan_id DESC";
 
         try {
@@ -304,24 +310,7 @@ public class TravelDao {
             rs = ps.executeQuery();
 
             while (rs.next()) {
-                Map<String, Object> row = new LinkedHashMap<>();
-                row.put("planId",             rs.getInt("plan_id"));
-                row.put("title",              nullSafe(rs.getString("title")));
-                row.put("overview",           nullSafe(rs.getString("overview")));
-                row.put("days",               rs.getInt("days"));
-                row.put("travelers",          rs.getInt("travelers"));
-                row.put("travelStyle",        nullSafe(rs.getString("travel_style")));
-                row.put("totalEstimatedCost", rs.getInt("total_estimated_cost"));
-                row.put("currency",           nullSafe(rs.getString("currency"), "KRW"));
-                row.put("destination",        nullSafe(rs.getString("destination")));
-                row.put("qualityScore",       rs.getInt("quality_score"));
-
-                java.sql.Date startDate = rs.getDate("start_date");
-                java.sql.Date endDate   = rs.getDate("end_date");
-                row.put("startDate", startDate != null ? startDate.toString() : "");
-                row.put("endDate",   endDate   != null ? endDate.toString()   : "");
-
-                list.add(row);
+                list.add(mapPlanRow(rs));
             }
 
         } catch (Exception e) {
@@ -330,6 +319,262 @@ public class TravelDao {
             DBManager_new.close(con, ps, rs);
         }
         return list;
+    }
+
+    public List<Map<String, Object>> getPlansByRequestStyle(String requestStyle) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        List<Map<String, Object>> list = new ArrayList<>();
+
+        String sql = "SELECT plan_id, title, overview, days, travelers, " +
+                "       travel_style, request_styles, total_estimated_cost, currency, " +
+                "       destination, quality_score, start_date, end_date " +
+                "FROM travel_plan " +
+                "WHERE posted = 1 AND success = 1 AND request_styles IS NOT NULL " +
+                "  AND LOWER(request_styles) LIKE LOWER(?) " +
+                "ORDER BY plan_id DESC";
+
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+            ps.setString(1, "%" + requestStyle + "%");
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapPlanRow(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager_new.close(con, ps, rs);
+        }
+
+        return list;
+    }
+
+    public List<Map<String, Object>> getTopRequestStyleTags(int limit) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Map<String, Integer> counts = new HashMap<>();
+
+        String sql = "SELECT request_styles FROM travel_plan " +
+                "WHERE posted = 1 AND success = 1 AND request_styles IS NOT NULL";
+
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                for (String tag : splitTags(rs.getString("request_styles"))) {
+                    counts.put(tag, counts.getOrDefault(tag, 0) + 1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager_new.close(con, ps, rs);
+        }
+
+        List<Map.Entry<String, Integer>> entries = new ArrayList<>(counts.entrySet());
+        entries.sort(Comparator
+                .<Map.Entry<String, Integer>>comparingInt(Map.Entry::getValue)
+                .reversed()
+                .thenComparing(Map.Entry::getKey));
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        int max = Math.max(0, limit);
+        for (int i = 0; i < entries.size() && i < max; i++) {
+            Map.Entry<String, Integer> entry = entries.get(i);
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("rank", i + 1);
+            row.put("tag", entry.getKey());
+            row.put("count", entry.getValue());
+            result.add(row);
+        }
+
+        return result;
+    }
+
+    public List<Map<String, Object>> getTopDestinations(int limit) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        String sql = "SELECT destination, COUNT(*) AS cnt " +
+                "FROM travel_plan " +
+                "WHERE posted = 1 AND success = 1 AND destination IS NOT NULL " +
+                "GROUP BY destination " +
+                "ORDER BY cnt DESC, destination ASC";
+
+        try {
+            con = DBManager_new.connect();
+            ps = con.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            int rank = 1;
+            int max = Math.max(0, limit);
+            while (rs.next() && result.size() < max) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                row.put("rank", rank++);
+                row.put("destination", nullSafe(rs.getString("destination")));
+                row.put("count", rs.getInt("cnt"));
+                row.put("imageUrl", findRepresentativeImageUrl(con, rs.getString("destination")));
+                result.add(row);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager_new.close(con, ps, rs);
+        }
+
+        return result;
+    }
+
+    private String findRepresentativeImageUrl(Connection con, String destination) {
+        PreparedStatement imagePs = null;
+        ResultSet imageRs = null;
+
+        String sql = "SELECT tp.thumbnail_url, tp.response_json, NVL(pl.like_cnt, 0) AS like_cnt " +
+                "FROM travel_plan tp " +
+                "LEFT JOIN ( " +
+                "    SELECT plan_id, COUNT(*) AS like_cnt " +
+                "    FROM plan_like " +
+                "    GROUP BY plan_id " +
+                ") pl ON tp.plan_id = pl.plan_id " +
+                "WHERE UPPER(tp.destination) = UPPER(?) AND tp.success = 1 AND tp.posted = 1 " +
+                "ORDER BY NVL(pl.like_cnt, 0) DESC, tp.plan_id DESC";
+
+        try {
+            imagePs = con.prepareStatement(sql);
+            imagePs.setString(1, destination);
+            imageRs = imagePs.executeQuery();
+
+            while (imageRs.next()) {
+                String thumbnailUrl = nullSafe(imageRs.getString("thumbnail_url")).trim();
+                if (isUsableImageUrl(thumbnailUrl)) {
+                    return thumbnailUrl;
+                }
+
+                String imageUrl = extractFirstImageUrl(imageRs.getString("response_json"));
+                if (!imageUrl.isBlank()) {
+                    return imageUrl;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBManager_new.close(null, imagePs, imageRs);
+        }
+
+        return "";
+    }
+
+    private String extractFirstImageUrl(String responseJson) {
+        if (responseJson == null || responseJson.isBlank()) {
+            return "";
+        }
+
+        try {
+            return findImageUrl(JSON_MAPPER.readTree(responseJson), "");
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private String findImageUrl(JsonNode node, String fieldName) {
+        if (node == null || node.isNull()) {
+            return "";
+        }
+
+        if (node.isTextual()) {
+            String value = node.asText("").trim();
+            if (isImageField(fieldName) && isUsableImageUrl(value)) {
+                return value;
+            }
+            return "";
+        }
+
+        if (node.isArray()) {
+            for (JsonNode child : node) {
+                String found = findImageUrl(child, fieldName);
+                if (!found.isBlank()) {
+                    return found;
+                }
+            }
+            return "";
+        }
+
+        if (node.isObject()) {
+            Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> field = fields.next();
+                String found = findImageUrl(field.getValue(), field.getKey());
+                if (!found.isBlank()) {
+                    return found;
+                }
+            }
+        }
+
+        return "";
+    }
+
+    private boolean isImageField(String fieldName) {
+        String key = nullSafe(fieldName).toLowerCase();
+        return key.contains("image")
+                || key.contains("photo")
+                || key.contains("thumbnail")
+                || key.contains("cover");
+    }
+
+    private boolean isUsableImageUrl(String value) {
+        String url = nullSafe(value).trim().toLowerCase();
+        return url.startsWith("http://") || url.startsWith("https://");
+    }
+
+    private Map<String, Object> mapPlanRow(ResultSet rs) throws Exception {
+        Map<String, Object> row = new LinkedHashMap<>();
+        String requestStyles = rs.getString("request_styles");
+        String travelStyle = nullSafe(requestStyles).isBlank()
+                ? nullSafe(rs.getString("travel_style"))
+                : requestStyles.trim();
+
+        row.put("planId",             rs.getInt("plan_id"));
+        row.put("title",              nullSafe(rs.getString("title")));
+        row.put("overview",           nullSafe(rs.getString("overview")));
+        row.put("days",               rs.getInt("days"));
+        row.put("travelers",          rs.getInt("travelers"));
+        row.put("travelStyle",        travelStyle);
+        row.put("totalEstimatedCost", rs.getInt("total_estimated_cost"));
+        row.put("currency",           nullSafe(rs.getString("currency"), "KRW"));
+        row.put("destination",        nullSafe(rs.getString("destination")));
+        row.put("qualityScore",       rs.getInt("quality_score"));
+
+        java.sql.Date startDate = rs.getDate("start_date");
+        java.sql.Date endDate   = rs.getDate("end_date");
+        row.put("startDate", startDate != null ? startDate.toString() : "");
+        row.put("endDate",   endDate   != null ? endDate.toString()   : "");
+
+        return row;
+    }
+
+    private List<String> splitTags(String value) {
+        List<String> tags = new ArrayList<>();
+        if (value == null || value.trim().isEmpty()) {
+            return tags;
+        }
+
+        for (String part : value.split(",")) {
+            String tag = part.trim().replace("#", "");
+            if (!tag.isEmpty() && !tags.contains(tag)) {
+                tags.add(tag);
+            }
+        }
+
+        return tags;
     }
 
     private String nullSafe(String value) {
