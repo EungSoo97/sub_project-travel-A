@@ -4,6 +4,7 @@
 <html>
 <head>
   <title>${result.summary.title}</title>
+  <link rel="icon" type="image/svg+xml" href="${pageContext.request.contextPath}/favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Pretendard', sans-serif; background-color: #f8f9fa; color: #333; line-height: 1.6; margin: 0; padding: 20px; }

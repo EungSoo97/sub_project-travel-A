@@ -5,6 +5,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="${pageContext.request.contextPath}/favicon.svg" />
     <title>Travel-A(AI) | AI 여행 플래너</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/settings.css">
