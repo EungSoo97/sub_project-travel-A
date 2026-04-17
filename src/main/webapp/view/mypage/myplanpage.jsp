@@ -17,7 +17,7 @@
             <div class="container-result">
                 <div class="header">
                     <div class="header-topbar">
-                        <a href="${pageContext.request.contextPath}/mypage">←마이페이지로 돌아가기</a>
+                        <a href="${pageContext.request.contextPath}/mypage"><i class="fa-solid fa-arrow-left"></i> 마이페이지로 돌아가기</a>
                         <button type="button" class="header-collapse-toggle" aria-expanded="true" aria-label="상단 정보 접기">
                             <span class="header-collapse-symbol">−</span>
                         </button>
@@ -31,11 +31,11 @@
                                 <c:out value="${empty savedPlan.creatorName ? '여행자' : savedPlan.creatorName}" />
                             </span>
                             <c:if test="${not empty savedPlan.editorName and savedPlan.editorName ne savedPlan.creatorName}">
-                                <span class="plan-editor-pill">✏️
+                                <span class="plan-editor-pill"><i class="fa-solid fa-pen"></i>
                                     <c:out value="${savedPlan.editorName}" />
                                 </span>
                             </c:if>
-                            <span class="plan-like-pill">♥ ${savedPlan.likeCnt}</span>
+                            <span class="plan-like-pill"><i class="fa-solid fa-heart"></i> ${savedPlan.likeCnt}</span>
                         </p>
                     </div>
 
@@ -51,7 +51,7 @@
                                     data-plan-id="${savedPlan.planId}"
                                     onclick="toggleStar(this)"
                                     class="action-btn icon-btn ${liked ? 'is-liked' : ''}">
-                                ${liked ? '★' : '☆'}
+                                    ${liked ? '★' : '☆'}
                             </button>
                         </form>
                         <form action="edit-plan">
@@ -81,19 +81,19 @@
                 <!-- 여행 정보 -->
                 <div class="mp-summary-grid">
                     <div class="mp-summary-card mp-summary-card--full">
-                        <p class="mp-summary-label">📅 여행 기간</p>
+                        <p class="mp-summary-label"><i class="fa-regular fa-calendar"></i> 여행 기간</p>
                         <p class="mp-summary-value">
                             ${result.summary.startDate} ~ ${result.summary.endDate}
                         </p>
                     </div>
 
                     <div class="mp-summary-card">
-                        <p class="mp-summary-label">👥 여행 인원</p>
+                        <p class="mp-summary-label"><i class="fa-solid fa-user-group"></i> 여행 인원</p></p>
                         <p class="mp-summary-value">${result.summary.travelers}명</p>
                     </div>
 
                     <div class="mp-summary-card">
-                        <p class="mp-summary-label">🎯 여행 스타일</p>
+                        <p class="mp-summary-label"><i class="fa-solid fa-bullseye"></i> 여행 스타일</p>
                         <p class="mp-summary-value">${result.summary.travelStyle}</p>
                     </div>
                 </div>
@@ -102,7 +102,7 @@
                     <!-- 지도 영역 -->
                     <div class="map-section">
                         <div class="map-header" role="button" tabindex="0" aria-expanded="true">
-                            <span>🗺 여행 동선 지도</span>
+                            <span><i class="fa-regular fa-map"></i> 여행 동선 지도</span>
                             <span class="map-toggle-indicator map-toggle-label">지도 접기</span>
                             <div class="legend">
                                 <span class="dot blue"></span> 관광지
@@ -206,16 +206,16 @@
 
                                             <c:choose>
                                                 <c:when test="${activityCategory == 'TRANSPORT' or activityCategory == 'MOVE'}">
-                                                    <div class="icon move">🚗</div>
+                                                    <div class="icon move"><i class="fa-solid fa-car"></i></div>
                                                 </c:when>
                                                 <c:when test="${activityCategory == 'DINING' or activityCategory == 'FOOD' or activityCategory == 'RESTAURANT'}">
-                                                    <div class="icon food">🍽</div>
+                                                    <div class="icon food"><i class="fa-solid fa-utensils"></i></div>
                                                 </c:when>
                                                 <c:when test="${activityCategory == 'ACCOMMODATION' or activityCategory == 'HOTEL'}">
-                                                    <div class="icon hotel">🏨</div>
+                                                    <div class="icon hotel"><i class="fa-solid fa-hotel"></i></div>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <div class="icon spot">📍</div>
+                                                    <div class="icon spot"><i class="fa-solid fa-location-dot"></i></div>
                                                 </c:otherwise>
                                             </c:choose>
 
@@ -255,7 +255,7 @@
 
                     <div class="recommend-grid">
                         <div class="recommend-card">
-                            <h3>✈ 항공권 최저가</h3>
+                            <h3><i class="fa-solid fa-plane"></i> 항공권 최저가</h3>
                             <c:choose>
                                 <c:when test="${empty result.flights}">
                                     <p>항공권 정보를 불러오지 못했습니다.</p>
@@ -278,7 +278,7 @@
                         </div>
 
                         <div class="recommend-card">
-                            <h3>🏨 숙박 추천</h3>
+                            <h3><i class="fa-solid fa-hotel"></i> 숙박 추천</h3>
                             <c:choose>
                                 <c:when test="${empty result.hotels}">
                                     <p>숙박 정보를 불러오지 못했습니다.</p>
