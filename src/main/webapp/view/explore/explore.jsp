@@ -9,7 +9,8 @@
 <head>
     <title>Explore</title>
     <link rel="stylesheet" href="/css/explore.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body class="explore-body">
@@ -25,15 +26,21 @@
 </div>
 <div class="search-box">
     <form id="searchForm" action="${pageContext.request.contextPath}/explore" method="get">
-        <div class="search-input-wrap">
-            <input
-                    type="text"
-                    id="searchInput"
-                    name="q"
-                    placeholder="여행지, 태그, 키워드 검색"
-                    value="${param.q}"
-            />
-            <button type="button" id="searchBtn" class="search-btn" aria-label="검색">🔍</button>
+        <div class="search-box">
+            <form action="/explore" method="get">
+                <div class="search-input-wrap">
+                    <input
+                            type="text"
+                            id="searchInput"
+                            name="q"
+                            placeholder="여행지, 태그, 키워드 검색"
+                    >
+                    <button type="submit" class="search-icon-btn">
+
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </form>
         </div>
 
         <input type="hidden" id="selectedTagsInput" name="selectedTags" value="${param.selectedTags}" />
@@ -64,12 +71,29 @@
     </div>
     <div class="filter-content" id="filterContent">
     <div class="filter-items">
-        <button type="button" class="filter-item" data-value="전체">🌍 전체</button>
-        <button type="button" class="filter-item" data-value="식도락">🍽 식도락</button>
-        <button type="button" class="filter-item" data-value="힐링">🧘 힐링</button>
-        <button type="button" class="filter-item" data-value="액티브">🏃 액티브</button>
-        <button type="button" class="filter-item" data-value="문화">🏛 문화</button>
-        <button type="button" class="filter-item" data-value="쇼핑">🛍 쇼핑</button>
+        <button class="filter-item" data-value="전체">
+            <i class="fa-solid fa-earth-asia"></i> 전체
+        </button>
+
+        <button class="filter-item" data-value="식도락">
+            <i class="fa-solid fa-utensils"></i> 식도락
+        </button>
+
+        <button class="filter-item" data-value="힐링">
+            <i class="fa-solid fa-spa"></i> 힐링
+        </button>
+
+        <button class="filter-item" data-value="액티브">
+            <i class="fa-solid fa-person-running"></i> 액티브
+        </button>
+
+        <button class="filter-item" data-value="문화">
+            <i class="fa-solid fa-landmark"></i> 문화
+        </button>
+
+        <button class="filter-item" data-value="쇼핑">
+            <i class="fa-solid fa-bag-shopping"></i> 쇼핑
+        </button>
     </div>
     </div>
 </div>

@@ -748,78 +748,44 @@
 }
 
 
-/* input + 버튼 한 줄 */
 .search-input-wrap {
-    display: flex;
-    align-items: center;
-    background: #fff;
-    border-radius: 999px;
-    padding: 4px 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
-/* input */
-.search-input-wrap input {
-    flex: 1;
-    border: none;
-    outline: none;
-    padding: 12px 16px;
-    font-size: 14px;
-    background: transparent;
-    box-sizing: border-box;
-}
-
-/* 버튼 */
-.search-btn {
-    border: none;
-    background: #2563eb;
-    color: white;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-}
-
-.search-form input {
-    height: 46px;
-    padding: 0 16px;
-    border-radius: 14px;
-    border: 1px solid #ddd;
-}
-
-.search-form input:focus {
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 2px rgba(79,70,229,0.2);
-}
-.search-box {
     position: relative;
-    width: 92%;
-    margin: 15px auto;
-    box-sizing: border-box;
+    width: 100%;
 }
 
-
-
-.search-wrap input {
+.search-input-wrap input {
     width: 100%;
-    height: 46px;
-    padding: 0 16px;
+    padding: 12px 40px 12px 16px; /* 오른쪽 공간 확보 */
+    border-radius: 999px;
     border: 1px solid #ddd;
-    border-radius: 14px;
-    box-sizing: border-box;
     font-size: 14px;
     outline: none;
+    background: #fff;
+    height: 50px;
 }
 
-.search-wrap input:focus {
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.12);
+/* 🔥 핵심 */
+.search-icon-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 6px;
 }
 
+/* 아이콘 */
+.search-icon-btn i {
+    font-size: 16px;
+    color: #666;
+}
+
+.search-icon-btn:hover i {
+    color: #1d4ed8;
+}
 .autocomplete-list {
     position: absolute;
     top: calc(100% + 8px);
@@ -962,4 +928,13 @@
 .pagination .page-nav:hover {
     background: #eff6ff;
     border-color: #bfdbfe;
+}
+.filter-item i {
+    margin-right: 8px;
+    font-size: 14px;
+}
+.filter-item.active {
+    background-color: #2563eb;
+    color: #fff;
+
 }
