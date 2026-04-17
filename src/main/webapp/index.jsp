@@ -33,7 +33,7 @@
             <div class="login-register ${not empty sessionScope.user ? 'is-login' : ''}" id="headerLoginBtns">
                 <c:choose>
                     <c:when test="${not empty sessionScope.user}">
-                        <div class="drawer-user-name">👤 ${sessionScope.user.name}님</div>
+                        <div class="drawer-user-name"><i class="fa-regular fa-user"></i> ${sessionScope.user.name}님</div>
                         <a href="${pageContext.request.contextPath}/logout" class="drawer-logout" style="color:#1d4ed8; font-weight:600">로그아웃</a>
                     </c:when>
                     <c:otherwise>
@@ -57,7 +57,7 @@
               <div class="site-nav__auth">
                   <c:choose>
                       <c:when test="${not empty sessionScope.user}">
-                          <span class="nav-auth-name">👤 ${sessionScope.user.name}님</span>
+                          <span class="nav-auth-name"><i class="fa-regular fa-user"></i>  ${sessionScope.user.name}님</span>
                           <a href="${pageContext.request.contextPath}/logout" class="btn--login">로그아웃</a>
                       </c:when>
                       <c:otherwise>
