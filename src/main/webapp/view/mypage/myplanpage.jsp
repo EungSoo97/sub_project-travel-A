@@ -27,7 +27,7 @@
                         <h1 class="result-h1">${result.summary.title}</h1>
                         <p class="sub">${result.summary.destination} · ${result.summary.days}일 여행</p>
                         <p class="sub plan-creator-meta">
-                            <span class="plan-creator-pill">👤
+                            <span class="plan-creator-pill"><i class="fa-regular fa-user"></i>
                                 <c:out value="${empty savedPlan.creatorName ? '여행자' : savedPlan.creatorName}" />
                             </span>
                             <c:if test="${not empty savedPlan.editorName and savedPlan.editorName ne savedPlan.creatorName}">

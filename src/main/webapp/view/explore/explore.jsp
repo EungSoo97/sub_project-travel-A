@@ -61,7 +61,7 @@
 
 <div class="filter-box card-box" id="filterBox">
     <div class="filter-header">
-        <h3>🔎 필터</h3>
+        <i class="fa-solid fa-sliders"></i> 필터
         <div class="filter-header-actions">
             <div class="filter-summary" id="filterSummary" aria-live="polite"></div>
             <button type="button" class="filter-toggle" id="filterToggle" aria-expanded="true" aria-controls="filterContent" aria-label="필터 접기">
@@ -143,11 +143,11 @@
                             <div class="explore-author-list">
                                 <c:choose>
                                     <c:when test="${not empty plan.editorUserName and not empty plan.originalUserName and plan.editorUserName ne plan.originalUserName}">
-                                        <span class="explore-author-pill">👤 원본 <c:out value="${plan.originalUserName}" /></span>
-                                        <span class="explore-author-pill explore-author-pill--editor">✏️ 수정 <c:out value="${plan.editorUserName}" /></span>
+                                        <span class="explore-author-pill"><i class="fa-regular fa-user"></i> 원본 <c:out value="${plan.originalUserName}" /></span>
+                                        <span class="explore-author-pill explore-author-pill--editor"><i class="fa-solid fa-pen"></i> 수정 <c:out value="${plan.editorUserName}" /></span>
                                     </c:when>
                                     <c:otherwise>
-                                        <span class="explore-author-pill">👤 <c:out value="${empty plan.userName ? '여행자' : plan.userName}" /></span>
+                                        <span class="explore-author-pill"><i class="fa-solid fa-user"></i> <c:out value="${empty plan.userName ? '여행자' : plan.userName}" /></span>
                                     </c:otherwise>
                                 </c:choose>
                             </div>
@@ -157,8 +157,8 @@
                         </div>
                         <h3>${plan.summary.destination}</h3>
                         <div class="info">
-                            <span>📅 ${plan.summary.days}일</span>
-                            <span>👥 ${plan.summary.travelers}명</span>
+                            <span><i class="fa-regular fa-calendar"></i> ${plan.summary.days}일</span>
+                            <span><i class="fa-solid fa-user-group"></i> ${plan.summary.travelers}명</span>
 <%--                            체크 필요--%>
 <%--                            <c:set var="currentPlanId" value="${plan.planId}" scope="page"/>--%>
 <%--                            <c:set var="currentPlanId" value="${plan.planId}" />--%>
@@ -179,7 +179,7 @@
 <%--                                }--%>
 <%--                            %>--%>
 <%--                            <span><%= likeCount %>❤ </span>--%>
-                            <span>${plan.likeCnt}❤</span>
+                            <span>${plan.likeCnt}<i class="fa-regular fa-heart"></i></span>
                         </div>
                         <div class="tags">
                             <c:forEach var="style" items="${plan.summary.requestStyles}">

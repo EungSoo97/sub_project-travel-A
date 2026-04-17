@@ -938,3 +938,8 @@
     color: #fff;
 
 }
+.filter-header h3 i {
+    margin-right: 6px;
+    font-size: 14px;
+    color: #555;
+}
