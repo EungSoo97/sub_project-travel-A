@@ -68,6 +68,24 @@ function checkIdRealtime() {
     }
 }
 
+function checkEmailRealtime() {
+    const emailId = document.querySelector('input[name="email"]').value.trim();
+    const emailIdRegex = /^[A-Za-z0-9._%+-]+$/;
+
+    if (emailId && !emailIdRegex.test(emailId)) {
+        showSnackbar("이메일 아이디는 영어, 숫자, ._ %+- 만 입력 가능합니다.");
+    }
+}
+
+function checkDomainRealtime() {
+    const customDomain = document.getElementById("customDomain").value.trim();
+    const domainRegex = /^(?!-)([A-Za-z0-9-]+\.)+[A-Za-z]{2,}$/;
+
+    if (customDomain && !domainRegex.test(customDomain)) {
+        showSnackbar("도메인 형식이 올바르지 않습니다. (예: example.com)");
+    }
+}
+
 function checkPasswordRealtime() {
     const password = document.getElementById("pw1").value.trim();
     const alphanumericRegex = /^[a-zA-Z0-9]+$/;
@@ -82,7 +100,7 @@ function togglePassword(inputId, btn) {
     const isPassword = input.type === "password";
 
     input.type = isPassword ? "text" : "password";
-    btn.textContent = isPassword ? "👁️" : "🔒️";
+    btn.innerHTML = isPassword ? '<i class="fa-solid fa-eye"></i>' : '<i class="fa-solid fa-eye-slash"></i>';
 }
 
 function checkAgree() {
