@@ -77,7 +77,7 @@
     .g-recaptcha {
         transform: scale(0.85);
         transform-origin: left center;
-        margin: 10px 0;
+        margin: 10px 0 10px -4px;
     }
 
     @media (max-width: 400px) {
