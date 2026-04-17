@@ -20,7 +20,14 @@
             </div>
 
             <div class="title-area">
-                <h1>AI 맞춤 여행 일정</h1>
+                <h1>
+                    <c:choose>
+                        <c:when test="${not empty result.summary.title}">
+                            ${result.summary.title}
+                        </c:when>
+                        <c:otherwise>AI 맞춤 여행 일정</c:otherwise>
+                    </c:choose>
+                </h1>
                 <p class="sub">${result.summary.destination} · ${result.summary.days}일 여행</p>
             </div>
 

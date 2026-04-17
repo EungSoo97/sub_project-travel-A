@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -38,9 +39,9 @@ public class TravelDao {
         String sql =
                 "INSERT INTO travel_plan ( " +
                         "plan_id, user_id, destination, title, start_date, end_date, days, travelers, " +
-                        "travel_style, total_estimated_cost, currency, overview, success, message, response_json " +
+                        "travel_style, request_styles, total_estimated_cost, currency, overview, success, message, response_json " +
                         ") VALUES ( " +
-                        "travel_plan_seq.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? " +
+                        "travel_plan_seq.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? " +
                         ")";
 
         try {
@@ -78,23 +79,26 @@ public class TravelDao {
             // 8. travel_style
             ps.setString(8, getTravelStyle(requestDto, summary));
 
-            // 9. total_estimated_cost
-            ps.setInt(9, summary != null ? summary.getTotalEstimatedCost() : 0);
+            // 9. request_styles
+            ps.setString(9, getRequestStyles(requestDto, summary));
 
-            // 10. currency
-            ps.setString(10, getSafeString(summary != null ? summary.getCurrency() : null, "KRW"));
+            // 10. total_estimated_cost
+            ps.setInt(10, summary != null ? summary.getTotalEstimatedCost() : 0);
 
-            // 11. overview
-            ps.setString(11, getSafeString(summary != null ? summary.getOverview() : null));
+            // 11. currency
+            ps.setString(11, getSafeString(summary != null ? summary.getCurrency() : null, "KRW"));
 
-            // 12. success
-            ps.setInt(12, (responseDto != null && responseDto.isSuccess()) ? 1 : 0);
+            // 12. overview
+            ps.setString(12, getSafeString(summary != null ? summary.getOverview() : null));
 
-            // 13. message
-            ps.setString(13, getSafeString(responseDto != null ? responseDto.getMessage() : null));
+            // 13. success
+            ps.setInt(13, (responseDto != null && responseDto.isSuccess()) ? 1 : 0);
 
-            // 14. response_json
-            ps.setString(14, getSafeString(responseJson, "{}"));
+            // 14. message
+            ps.setString(14, getSafeString(responseDto != null ? responseDto.getMessage() : null));
+
+            // 15. response_json
+            ps.setString(15, getSafeString(responseJson, "{}"));
 
             System.out.println("[TravelDao] executing insert. destination=" + getDestination(requestDto, summary)
                     + ", title=" + getSafeString(summary != null ? summary.getTitle() : null)
@@ -177,6 +181,66 @@ public class TravelDao {
         }
 
         return "";
+    }
+
+    private String getRequestStyles(TravelRequestDto requestDto, TravelResponseDto.Summary summary) {
+        LinkedHashSet<String> values = new LinkedHashSet<>();
+
+        if (requestDto != null) {
+            addAll(values, requestDto.getStyles());
+            addAll(values, requestDto.getThemes());
+            addAll(values, requestDto.getCustomTag());
+        }
+
+        if (summary != null) {
+            addAll(values, summary.getRequestStyles());
+            addAll(values, summary.getRequestThemes());
+            addCustomTagsFromStrategy(values, summary.getTravelStrategy());
+        }
+
+        if (values.isEmpty()) {
+            addCsv(values, getTravelStyle(requestDto, summary));
+        }
+
+        return String.join(", ", values);
+    }
+
+    private void addAll(LinkedHashSet<String> values, List<String> source) {
+        if (source == null) {
+            return;
+        }
+
+        for (String value : source) {
+            addCsv(values, value);
+        }
+    }
+
+    private void addCustomTagsFromStrategy(LinkedHashSet<String> values, Map<String, Object> strategy) {
+        if (strategy == null) {
+            return;
+        }
+
+        Object tags = strategy.get("customTags");
+        if (tags instanceof List<?>) {
+            for (Object tag : (List<?>) tags) {
+                addCsv(values, tag != null ? String.valueOf(tag) : null);
+            }
+        } else if (tags != null) {
+            addCsv(values, String.valueOf(tags));
+        }
+    }
+
+    private void addCsv(LinkedHashSet<String> values, String value) {
+        if (value == null) {
+            return;
+        }
+
+        for (String part : value.split(",")) {
+            String trimmed = part.trim();
+            if (!trimmed.isEmpty()) {
+                values.add(trimmed);
+            }
+        }
     }
 
     private String getSafeString(String value) {

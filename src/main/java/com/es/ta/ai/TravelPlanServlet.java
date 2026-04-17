@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @WebServlet("/planner/result")
@@ -117,6 +118,7 @@ public class TravelPlanServlet extends HttpServlet {
                 req.getSession().removeAttribute("latestTravelResult");
             } else {
                 TravelResultVDTO displayResult = objectMapper.convertValue(result, TravelResultVDTO.class);
+                attachRequestStyles(displayResult, styles, themes, customTags);
                 req.getSession().setAttribute("latestTravelResult", displayResult);
                 req.setAttribute("result", displayResult);
             }
@@ -186,5 +188,51 @@ public class TravelPlanServlet extends HttpServlet {
         return Collections.emptyList();
     }
 
+    private static void attachRequestStyles(TravelResultVDTO result,
+                                            List<String> styles,
+                                            List<String> themes,
+                                            List<String> customTags) {
+        if (result == null || result.getSummary() == null) {
+            return;
+        }
+
+        result.getSummary().setRequestStyles(styles);
+        result.getSummary().setRequestThemes(themes);
+        result.getSummary().setCustomTags(customTags);
+
+        String displayStyle = buildDisplayStyle(styles, themes, customTags);
+        if (!displayStyle.isBlank()) {
+            result.getSummary().setTravelStyle(displayStyle);
+        }
+    }
+
+    private static String buildDisplayStyle(List<String> styles,
+                                            List<String> themes,
+                                            List<String> customTags) {
+        LinkedHashSet<String> values = new LinkedHashSet<>();
+        addAll(values, styles);
+        addAll(values, themes);
+        addAll(values, customTags);
+        return String.join(", ", values);
+    }
+
+    private static void addAll(LinkedHashSet<String> values, List<String> source) {
+        if (source == null) {
+            return;
+        }
+
+        for (String value : source) {
+            if (value == null) {
+                continue;
+            }
+
+            for (String part : value.split(",")) {
+                String trimmed = part.trim();
+                if (!trimmed.isEmpty()) {
+                    values.add(trimmed);
+                }
+            }
+        }
+    }
 
 }

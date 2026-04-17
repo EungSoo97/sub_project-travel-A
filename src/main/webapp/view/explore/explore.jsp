@@ -160,12 +160,6 @@
                             <c:forEach var="style" items="${plan.summary.requestStyles}">
                                 <span>#${style}</span>
                             </c:forEach>
-                            <c:forEach var="theme" items="${plan.summary.requestThemes}">
-                                <span>#${theme}</span>
-                            </c:forEach>
-                            <c:forEach var="tag" items="${plan.summary.customTags}">
-                                <span>#${tag}</span>
-                            </c:forEach>
                             <span>#${plan.summary.destination}</span>
                         </div>
                         <div>

@@ -55,6 +55,7 @@ public class MyPlanPageC extends HttpServlet {
         }
         result.setLikeCnt(savedPlan.getLikeCnt());
         result.setUserName(savedPlan.getCreatorName());
+        applySavedTravelStyle(result, savedPlan);
 
         GoogleMapsConfig.attach(request);
 
@@ -73,6 +74,18 @@ public class MyPlanPageC extends HttpServlet {
             return Integer.parseInt(value);
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    private void applySavedTravelStyle(TravelResultVDTO result, TravelPlanDTO savedPlan) {
+        if (result == null || savedPlan == null) {
+            return;
+        }
+        if (result.getSummary() == null) {
+            result.setSummary(new TravelResultVDTO.Summary());
+        }
+        if (savedPlan.getTravelStyle() != null && !savedPlan.getTravelStyle().trim().isEmpty()) {
+            result.getSummary().setTravelStyle(savedPlan.getTravelStyle().trim());
         }
     }
 }
