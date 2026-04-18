@@ -7,11 +7,16 @@
 <body>
 <main>
 
-    <section class="hero section">
-        <div class="container hero__inner">
-            <span class="hero__badge">AI Travel Planner</span>
-            <h1 class="hero__title">AI가 만드는 완벽한 여행</h1>
-            <p class="hero__desc">당신의 취향과 예산에 맞춘 맞춤형 여행 일정을 몇 초 만에 완성하세요.</p>
+    <section class="hm-hero">
+        <p class="hm-hero__badge">Travel planner with AI</p>
+        <h1 class="hm-hero__title">생각만 하면,<br>여행이 완성됩니다</h1>
+        <p class="hm-hero__text">
+            출발지, 여행지, 인원, 예산, 여행 스타일을 입력하면
+            AI가 맞춤 여행 일정과 추천 경로를 만들어드려요.
+        </p>
+        <div class="hm-hero__btns">
+            <button class="hm-hero__btn" onclick="document.getElementById('searchContainer').scrollIntoView({behavior:'smooth'})">여행 플랜 만들기</button>
+            <button class="hm-hero__btn hm-hero__btn--sub" onclick="location.href='${pageContext.request.contextPath}/explore'">다른 플랜 둘러보기</button>
         </div>
     </section>
     <form id="planForm" action="planner/result" method="get" class="space-y-5">
@@ -19,7 +24,6 @@
         <div class="container">
                 <div class="search-card__header">
                     <h2>여행 조건 입력</h2>    <!--       -->
-                    <p>JSP에서는 form submit 기반으로 서버에 조건을 넘기고, 이후 결과 페이지에서 itinerary를 렌더링하면 됩니다.</p>
                 </div>
 
                 <div class="form-grid">
@@ -224,7 +228,7 @@
     </div>
 
 
-    <section class="section">
+    <section class="section" id="sec-image">
         <div class="container">
             <div class="image-search-card">
                 <div class="section-head section-head--center">
@@ -251,82 +255,63 @@
         </div>
     </section>
 
-    <section class="features section section--soft">
-        <div class="container">
-            <div class="feature-grid">
-                <article class="feature-card">
-                    <div class="feature-card__icon">⚡</div>
-                    <h3>초정밀 AI 분석</h3>
-                    <p>취향과 예산을 고려한 일정 추천</p>
-                </article>
-                <article class="feature-card">
-                    <div class="feature-card__icon">📈</div>
-                    <h3>실시간 최저가</h3>
-                    <p>항공편과 숙박을 한눈에 비교</p>
-                </article>
-                <article class="feature-card">
-                    <div class="feature-card__icon">📷</div>
-                    <h3>이미지 검색</h3>
-                    <p>사진 기반 여행지 추천 확장 가능</p>
-                </article>
-                <article class="feature-card">
-                    <div class="feature-card__icon">🛡️</div>
-                    <h3>안전한 예약</h3>
-                    <p>검증된 파트너 연동 구조에 적합</p>
-                </article>
-            </div>
-        </div>
+    <section class="hm-features" id="sec-features">
+        <article class="hm-feature">
+            <h2 class="hm-feature__title">🗓️ 맞춤 일정 생성</h2>
+            <p class="hm-feature__desc">취향·예산·일정에 맞춘 여행 플랜을 AI가 즉시 만들어드려요.</p>
+        </article>
+        <article class="hm-feature">
+            <h2 class="hm-feature__title">🗺️ 추천 경로 안내</h2>
+            <p class="hm-feature__desc">이동 거리와 혼잡도를 고려해 가장 효율적인 동선을 제안해요.</p>
+        </article>
+        <article class="hm-feature">
+            <h2 class="hm-feature__title">✏️ 플랜 편집 가능</h2>
+            <p class="hm-feature__desc">생성된 일정을 언제든 수정하고 나만의 여행으로 완성하세요.</p>
+        </article>
+        <article class="hm-feature">
+            <h2 class="hm-feature__title">💬 공유와 소통</h2>
+            <p class="hm-feature__desc">플랜을 공개하고 다른 여행자의 후기와 아이디어를 나눠보세요.</p>
+        </article>
     </section>
 
-    <section class="section">
+    <section class="section" id="sec-ranking">
         <div class="container">
             <div class="section-head">
                 <h2>인기 여행지 플랜 TOP 3</h2>
                 <p>많은 여행자들이 고른 도시에서 다음 여행의 힌트를 찾아보세요.</p>
             </div>
 
-            <div class="destination-grid" id="destinationRankGrid">
-                <article class="destination-card"
-                         onclick="openPlanSheet(this)"
-                         data-category="교토"
-                         data-label="교토 · 일본">
-                    <div class="destination-card__image">
-                        <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80" alt="교토">
-                        <div class="destination-card__overlay">
-                            <strong>교토</strong>
-                            <span>일본</span>
-                        </div>
+            <div class="rank-carousel">
+                <div class="rank-carousel__viewport">
+                    <div class="rank-carousel__track" id="destinationRankGrid">
+                        <article class="destination-card" onclick="openPlanSheet(this)" data-category="교토" data-label="교토 · 일본">
+                            <div class="destination-card__image">
+                                <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80" alt="교토">
+                                <div class="destination-card__overlay"><strong>교토</strong><span>일본</span></div>
+                            </div>
+                            <div class="destination-card__body"><p>벚꽃과 전통 문화의 도시</p></div>
+                        </article>
+                        <article class="destination-card" onclick="openPlanSheet(this)" data-category="도쿄" data-label="도쿄 · 일본">
+                            <div class="destination-card__image">
+                                <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80" alt="도쿄">
+                                <div class="destination-card__overlay"><strong>도쿄</strong><span>일본</span></div>
+                            </div>
+                            <div class="destination-card__body"><p>현대와 전통이 공존하는 도시</p></div>
+                        </article>
+                        <article class="destination-card" onclick="openPlanSheet(this)" data-category="오사카" data-label="오사카 · 일본">
+                            <div class="destination-card__image">
+                                <img src="https://images.unsplash.com/photo-1590559899731-a382839e5549?auto=format&fit=crop&w=1200&q=80" alt="오사카">
+                                <div class="destination-card__overlay"><strong>오사카</strong><span>일본</span></div>
+                            </div>
+                            <div class="destination-card__body"><p>맛과 활기가 살아있는 도시</p></div>
+                        </article>
                     </div>
-                    <div class="destination-card__body"><p>벚꽃과 전통 문화의 도시</p></div>
-                </article>
-
-                <article class="destination-card"
-                         onclick="openPlanSheet(this)"
-                         data-category="도쿄"
-                         data-label="도쿄 · 일본">
-                    <div class="destination-card__image">
-                        <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80" alt="도쿄">
-                        <div class="destination-card__overlay">
-                            <strong>도쿄</strong>
-                            <span>일본</span>
-                        </div>
-                    </div>
-                    <div class="destination-card__body"><p>현대와 전통이 공존하는 도시</p></div>
-                </article>
-
-                <article class="destination-card"
-                         onclick="openPlanSheet(this)"
-                         data-category="오사카"
-                         data-label="오사카 · 일본">
-                    <div class="destination-card__image">
-                        <img src="https://images.unsplash.com/photo-1590559899731-a382839e5549?auto=format&fit=crop&w=1200&q=80" alt="오사카">
-                        <div class="destination-card__overlay">
-                            <strong>오사카</strong>
-                            <span>일본</span>
-                        </div>
-                    </div>
-                    <div class="destination-card__body"><p>맛과 활기가 살아있는 도시</p></div>
-                </article>
+                </div>
+                <div class="rank-carousel__nav">
+                    <button class="rank-carousel__prev" aria-label="이전">‹</button>
+                    <div class="rank-carousel__dots"></div>
+                    <button class="rank-carousel__next" aria-label="다음">›</button>
+                </div>
             </div>
 
             <div class="section-head section-head--sub">
@@ -334,56 +319,42 @@
                 <p>요즘 많이 찾는 여행 무드로 취향에 맞는 플랜을 골라보세요.</p>
             </div>
 
-            <div class="destination-grid" id="themeRankGrid">
-                <article class="destination-card"
-                         onclick="openPlanSheet(this)"
-                         data-category="자연"
-                         data-label="자연 여행 · 테마"
-                         data-type="theme">  <!-- 테마 구분용 -->
-                    <div class="destination-card__image">
-                        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80" alt="자연 여행">
-                        <div class="destination-card__overlay">
-                            <strong>자연 여행</strong>
-                            <span>테마</span>
-                        </div>
+            <div class="rank-carousel">
+                <div class="rank-carousel__viewport">
+                    <div class="rank-carousel__track" id="themeRankGrid">
+                        <article class="destination-card" onclick="openPlanSheet(this)" data-category="자연" data-label="자연 여행 · 테마" data-type="theme">
+                            <div class="destination-card__image">
+                                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80" alt="자연 여행">
+                                <div class="destination-card__overlay"><strong>자연 여행</strong><span>테마</span></div>
+                            </div>
+                            <div class="destination-card__body"><p>자연 속 휴식과 힐링 중심 코스</p></div>
+                        </article>
+                        <article class="destination-card" onclick="openPlanSheet(this)" data-category="식도락" data-label="맛집 탐방 · 테마" data-type="theme">
+                            <div class="destination-card__image">
+                                <img src="https://images.unsplash.com/photo-1468413253725-0d5181091126?auto=format&fit=crop&w=1200&q=80" alt="맛집 탐방">
+                                <div class="destination-card__overlay"><strong>맛집 탐방</strong><span>테마</span></div>
+                            </div>
+                            <div class="destination-card__body"><p>입이 즐거운 미식 코스 여행</p></div>
+                        </article>
+                        <article class="destination-card" onclick="openPlanSheet(this)" data-category="문화" data-label="문화 투어 · 테마" data-type="theme">
+                            <div class="destination-card__image">
+                                <img src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=1200&q=80" alt="문화 투어">
+                                <div class="destination-card__overlay"><strong>문화 투어</strong><span>테마</span></div>
+                            </div>
+                            <div class="destination-card__body"><p>문화를 직접 느낄 수 있는 여행</p></div>
+                        </article>
                     </div>
-                    <div class="destination-card__body"><p>자연 속 휴식과 힐링 중심 코스</p></div>
-                </article>
-
-                <article class="destination-card"
-                         onclick="openPlanSheet(this)"
-                         data-category="식도락"
-                         data-label="맛집 탐방 · 테마"
-                         data-type="theme">
-                    <div class="destination-card__image">
-                        <img src="https://images.unsplash.com/photo-1468413253725-0d5181091126?auto=format&fit=crop&w=1200&q=80" alt="해안 드라이브">
-                        <div class="destination-card__overlay">
-                            <strong>맛집 탐방</strong>
-                            <span>테마</span>
-                        </div>
-                    </div>
-                    <div class="destination-card__body"><p>입이 즐거운 미식 코스 여행</p></div>
-                </article>
-
-                <article class="destination-card"
-                         onclick="openPlanSheet(this)"
-                         data-category="문화"
-                         data-label="문화 투어 · 테마"
-                         data-type="theme">
-                    <div class="destination-card__image">
-                        <img src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=1200&q=80" alt="역사 투어">
-                        <div class="destination-card__overlay">
-                            <strong>문화 투어</strong>
-                            <span>테마</span>
-                        </div>
-                    </div>
-                    <div class="destination-card__body"><p>문화를 직접 느낄 수있는 여행</p></div>
-                </article>
+                </div>
+                <div class="rank-carousel__nav">
+                    <button class="rank-carousel__prev" aria-label="이전">‹</button>
+                    <div class="rank-carousel__dots"></div>
+                    <button class="rank-carousel__next" aria-label="다음">›</button>
+                </div>
             </div>
         </div>
     </section>
 
-    <section class="cta section">
+    <section class="cta section" id="sec-cta">
         <div class="container cta__inner">
             <h2>지금 바로 떠날 준비되셨나요?</h2>
             <p>AI가 추천하는 최적 동선과 가격 비교를 한 번에 확인해보세요.</p>
@@ -392,6 +363,44 @@
     </section>
 </main>
 
+<div class="float-nav" id="floatNav">
+    <div class="float-nav__panel" id="floatNavMenu">
+        <button class="float-nav__item" onclick="window.scrollTo({top:0,behavior:'smooth'});document.getElementById('floatNav').classList.remove('is-open')"><span class="float-nav__icon">⬆</span><span class="float-nav__label">맨 위로</span></button>
+        <button class="float-nav__item" onclick="floatScrollTo('searchContainer')"><span class="float-nav__icon">🗓️</span><span class="float-nav__label">플랜 만들기</span></button>
+        <button class="float-nav__item" onclick="floatScrollTo('sec-image')">      <span class="float-nav__icon">📷</span><span class="float-nav__label">이미지 검색</span></button>
+        <button class="float-nav__item" onclick="floatScrollTo('sec-features')">   <span class="float-nav__icon">💡</span><span class="float-nav__label">서비스 소개</span></button>
+        <button class="float-nav__item" onclick="floatScrollTo('sec-ranking')">    <span class="float-nav__icon">🏆</span><span class="float-nav__label">인기 플랜</span></button>
+        <button class="float-nav__item" onclick="floatScrollTo('sec-cta')">        <span class="float-nav__icon">✈️</span><span class="float-nav__label">바로 떠나기</span></button>
+    </div>
+    <div class="float-nav__divider"></div>
+    <button class="float-nav__toggle" id="floatNavToggle" aria-label="메뉴 열기">
+        <svg class="float-nav__icon-open"  width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6"  x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <svg class="float-nav__icon-close" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+</div>
+
+<script>
+    (function () {
+        var nav    = document.getElementById('floatNav');
+        var toggle = document.getElementById('floatNavToggle');
+        var menu   = document.getElementById('floatNavMenu');
+
+        toggle.addEventListener('click', function () {
+            var open = nav.classList.toggle('is-open');
+            toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!nav.contains(e.target)) nav.classList.remove('is-open');
+        });
+    })();
+
+    function floatScrollTo(id) {
+        var el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById('floatNav').classList.remove('is-open');
+    }
+</script>
 
 <div class="input-sheet-backdrop" id="backdrop"></div>
 <div class="input-sheet" id="inputSheet">
@@ -478,6 +487,81 @@
     </div>
 </div>
 <script src="/js/cardModal.js"></script>
+<script>
+    function initRankCarousel(track) {
+        if (!track) return;
+        var wrapper = track.closest('.rank-carousel');
+        if (!wrapper) return;
+
+        var cards    = Array.from(track.children);
+        var dotsWrap = wrapper.querySelector('.rank-carousel__dots');
+        var prevBtn  = wrapper.querySelector('.rank-carousel__prev');
+        var nextBtn  = wrapper.querySelector('.rank-carousel__next');
+        var current  = 0;
+
+        // 순위 뱃지 삽입
+        cards.forEach(function (card, i) {
+            var imgWrap = card.querySelector('.destination-card__image');
+            if (imgWrap && !imgWrap.querySelector('.rank-badge')) {
+                var badge = document.createElement('span');
+                badge.className = 'rank-badge';
+                badge.textContent = (i + 1) + '위';
+                imgWrap.appendChild(badge);
+            }
+        });
+
+        // 도트 생성
+        dotsWrap.innerHTML = '';
+        cards.forEach(function (_, i) {
+            var dot = document.createElement('button');
+            dot.className = 'rank-carousel__dot' + (i === 0 ? ' is-active' : '');
+            dot.setAttribute('aria-label', (i + 1) + '위');
+            dot.addEventListener('click', function () { goTo(i); });
+            dotsWrap.appendChild(dot);
+        });
+
+        function goTo(idx) {
+            current = Math.max(0, Math.min(idx, cards.length - 1));
+            track.style.transform = 'translateX(-' + (current * 100) + '%)';
+            prevBtn.disabled = current === 0;
+            nextBtn.disabled = current === cards.length - 1;
+            Array.from(dotsWrap.children).forEach(function (d, i) {
+                d.classList.toggle('is-active', i === current);
+            });
+        }
+
+        prevBtn.addEventListener('click', function () { goTo(current - 1); });
+        nextBtn.addEventListener('click', function () { goTo(current + 1); });
+
+        // 터치 스와이프
+        var tx = 0, dx = 0, dragging = false;
+        track.addEventListener('touchstart', function (e) {
+            tx = e.touches[0].clientX; dx = 0; dragging = true;
+            track.style.transition = 'none';
+        }, { passive: true });
+        track.addEventListener('touchmove', function (e) {
+            if (!dragging) return;
+            dx = e.touches[0].clientX - tx;
+            track.style.transform = 'translateX(calc(-' + (current * 100) + '% + ' + dx + 'px))';
+        }, { passive: true });
+        track.addEventListener('touchend', function () {
+            if (!dragging) return;
+            dragging = false;
+            track.style.transition = '';
+            if (dx < -50) goTo(current + 1);
+            else if (dx > 50) goTo(current - 1);
+            else goTo(current);
+        });
+
+        goTo(0);
+    }
+
+    // 페이지 로드 시 정적 fallback 카드로 초기화
+    document.addEventListener('DOMContentLoaded', function () {
+        initRankCarousel(document.getElementById('destinationRankGrid'));
+        initRankCarousel(document.getElementById('themeRankGrid'));
+    });
+</script>
 <script>
     (function loadTopHomeCards() {
         const destinationGrid = document.getElementById("destinationRankGrid");
@@ -893,6 +977,7 @@
 
                     if (destinationGrid) destinationGrid.appendChild(card);
                 });
+                initRankCarousel(destinationGrid);
             })
             .catch(function (err) {
                 console.error("top destinations error:", err);
@@ -942,6 +1027,7 @@
 
                             themeGrid.appendChild(card);
                         });
+                        initRankCarousel(themeGrid);
                     })
                     .catch(function (err) {
                         console.error("top request styles error:", err);
