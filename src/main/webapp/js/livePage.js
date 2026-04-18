@@ -134,22 +134,26 @@
             host.innerHTML = "<p class='live-muted'>추천 장소 없음</p>";
             return;
         }
-        var h = "";
+        // 🔑 버그 수정: 이전에는 outer `var h = ""`(HTML 누적) 와 inner highlights 루프의
+        //    `var h = 0` 이 JS `var` 함수 스코프 때문에 같은 변수였음. 결과적으로 highlights 있는
+        //    추천 한 개만 처리해도 HTML 누적값이 숫자로 덮여 카드 1개 + 숫자만 남음.
+        //    outer 는 `html`, inner 카운터는 `hi` 로 분리.
+        var html = "";
         for (var k = 0; k < items.length; k++) {
             var it = items[k];
             var badge = esc(it.category || it.type || "spot");
             var dist = esc(it.distanceText || "");
             var highlights = "";
             if (Array.isArray(it.highlights) && it.highlights.length) {
-                for (var h = 0; h < it.highlights.length; h++) {
-                    highlights += (h ? " &nbsp; " : "") + esc(it.highlights[h]);
+                for (var hi = 0; hi < it.highlights.length; hi++) {
+                    highlights += (hi ? " &nbsp; " : "") + esc(it.highlights[hi]);
                 }
             } else {
                 highlights = esc(it.subtitle || "");
             }
             var lat = it.lat != null ? it.lat : "";
             var lng = it.lng != null ? it.lng : "";
-            h +=
+            html +=
                 "<div class='booking-item' data-lat='" +
                 esc(lat) +
                 "' data-lng='" +
@@ -172,7 +176,7 @@
                 esc(it.actionLabel || "위치 보기") +
                 "</button></div>";
         }
-        host.innerHTML = h;
+        host.innerHTML = html;
     }
 
     function renderDashboard(d) {
