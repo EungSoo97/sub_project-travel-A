@@ -18,10 +18,142 @@
 
         .form-field select {
             height: 48px;
-            border: 1px solid var(--line);
-            border-radius: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
             padding: 0 10px;
-            background: #fbfdff;
+            background: #ffffff;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .form-field select:hover {
+            border-color: #9ca3af;
+        }
+
+        .form-field select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* 커스텀 드롭다운 스타일 */
+        .custom-select {
+            position: relative;
+            width: 140px;
+            flex: 0 0 auto;
+        }
+
+        .select-trigger {
+            height: 48px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 0 36px 0 12px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+
+        .select-trigger:hover {
+            border-color: #9ca3af;
+        }
+
+        .custom-select.active .select-trigger {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 8px;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            list-style: none;
+            padding: 8px 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
+            z-index: 100;
+        }
+
+        .custom-select.active .options {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .options li {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .options li:hover {
+            background: #f1f5f9;
+        }
+
+        .options li.selected {
+            background: #eff6ff;
+            color: #2563eb;
+            font-weight: 500;
+        }
+
+        .form-field input[type="text"],
+        .form-field input[type="password"],
+        .form-field input[type="date"],
+        .form-field input[type="email"] {
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-field input[type="text"]:focus,
+        .form-field input[type="password"]:focus,
+        .form-field input[type="date"]:focus,
+        .form-field input[type="email"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* 반응형 레이아웃 개선 */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .form-field input[type="text"],
+            .form-field input[type="password"],
+            .form-field input[type="date"],
+            .form-field select {
+                padding: 12px;
+                font-size: 16px; /* 모바일에서 자동 확대 방지 */
+            }
+
+            .toggle-btn {
+                padding: 8px;
+                font-size: 18px;
+            }
+
+            .dup-check {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+
+            .btn--block {
+                padding: 14px;
+                font-size: 16px;
+            }
         }
 
         .form-field a {
@@ -31,6 +163,18 @@
 
         .form-field a:hover {
             text-decoration: underline;
+        }
+
+        /* 인라인 에러 메시지 */
+        .inline-error {
+            font-size: 12px;
+            color: #dc2626;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .inline-error.show {
+            display: block;
         }
 
         /* 비밀번호 토글 버튼 */
@@ -76,7 +220,19 @@
             height: 100%;
             width: 0%;
             background: #ddd;
-            transition: width 0.3s, background-color 0.3s;
+            transition: width 0.3s, background 0.3s;
+        }
+
+        .strength-bar.weak {
+            background: linear-gradient(90deg, #dc2626, #ef4444);
+        }
+
+        .strength-bar.medium {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        }
+
+        .strength-bar.strong {
+            background: linear-gradient(90deg, #16a34a, #22c55e);
         }
 
         .strength-text {
@@ -175,15 +331,20 @@
                         <label>Email</label>
                         <div class="email-row">
                             <input type="text" placeholder="email id" name="email" required onkeyup="checkEmailRealtime()">
-                            <select id="emailDomain">
-                                <option value="@naver.com">@naver.com</option>
-                                <option value="@gmail.com">@gmail.com</option>
-                                <option value="@daum.net">@daum.net</option>
-                                <option value="@kakao.com">@kakao.com</option>
-                                <option value="direct">직접 입력</option>
-                            </select>
+                            <div class="custom-select" id="emailDomainSelect">
+                                <div class="select-trigger" data-value="@naver.com">@naver.com</div>
+                                <ul class="options">
+                                    <li data-value="@naver.com" class="selected">@naver.com</li>
+                                    <li data-value="@gmail.com">@gmail.com</li>
+                                    <li data-value="@daum.net">@daum.net</li>
+                                    <li data-value="@kakao.com">@kakao.com</li>
+                                    <li data-value="direct">직접 입력</li>
+                                </ul>
+                            </div>
+                            <input type="hidden" id="emailDomain" value="@naver.com">
                         </div>
                         <input type="text" id="customDomain" placeholder="@example.com" style="display:none; margin-top:6px;" onkeyup="checkDomainRealtime()">
+                        <div class="inline-error" id="email-error"></div>
                     </div>
 
                     <div class="form-field">
@@ -193,6 +354,7 @@
                             <button type="button" id="check-btn" class="dup-check">중복확인</button>
                         </div>
                         <div class="result"></div>
+                        <div class="inline-error" id="id-error"></div>
                     </div>
 
                     <div class="form-field">
@@ -235,7 +397,7 @@
                     </div>
                 </div>
 
-                <button class="btn btn--primary btn--block">회원가입</button>
+                <button class="btn btn--primary btn--block" type="submit">회원가입</button>
             </div>
         </div>
     </div>

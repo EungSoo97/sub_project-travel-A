@@ -75,9 +75,11 @@
 
     /* 캡챠 스타일 - 모바일 최적화 */
     .g-recaptcha {
-        transform: scale(0.85);
-        transform-origin: left center;
-        margin: 10px 0 10px -4px;
+        transform: scale(0.95);
+        transform-origin: center center;
+        margin: 5px 0;
+        display: flex;
+        justify-content: center;
     }
 
     @media (max-width: 400px) {
@@ -86,8 +88,8 @@
         }
 
         .g-recaptcha {
-            transform: scale(0.75);
-            transform-origin: left center;
+            transform: scale(0.85);
+            transform-origin: center center;
         }
     }
 
@@ -96,26 +98,26 @@
 <body>
 <div class="login-wrap">
     <a href="${pageContext.request.contextPath}/" class="site-logo__login">✈ Travel-A(AI)</a>
-<c:if test="${not empty loginError}">
-<div class="login-error">${loginError}</div>
-</c:if >
+    <c:if test="${not empty loginError}">
+        <div class="login-error">${loginError}</div>
+    </c:if >
 
-<form class="login-box" method="post" action="${pageContext.request.contextPath}/login">
-    <input type="hidden" name="returnUrl" value="${returnUrl}">
-    <input type="text"     name="loginId"  placeholder="아이디" required  value="yw">
-    <input type="password" name="password" placeholder="비밀번호" required value="yw">
-    <button type="submit">로그인</button>
-    <%--   캡챠--%>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <form class="login-box" method="post" action="${pageContext.request.contextPath}/login">
+        <input type="hidden" name="returnUrl" value="${returnUrl}">
+        <input type="text"     name="loginId"  placeholder="아이디" required  value="yw">
+        <input type="password" name="password" placeholder="비밀번호" required value="yw">
+        <button type="submit">로그인</button>
+        <%--   캡챠--%>
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
-    <c:if test="${sessionScope.loginFailCount >= 3 || true}">
-        <div class="g-recaptcha" data-sitekey="6LcYR7osAAAAANhJOfK_4cUSe0H8pDfz99ZxrdKg"></div>
-    </c:if>
-</form>
+        <c:if test="${sessionScope.loginFailCount >= 3 || true}">
+            <div class="g-recaptcha" data-sitekey="6LcYR7osAAAAANhJOfK_4cUSe0H8pDfz99ZxrdKg"></div>
+        </c:if>
+    </form>
 
-<div class="login-footer">
-    아직 계정이 없으신가요? <a href="${pageContext.request.contextPath}/account">회원가입</a>
-</div>
+    <div class="login-footer">
+        아직 계정이 없으신가요? <a href="${pageContext.request.contextPath}/account">회원가입</a>
+    </div>
 
 </div>
 </body>
