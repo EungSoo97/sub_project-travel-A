@@ -134,22 +134,26 @@
             host.innerHTML = "<p class='live-muted'>추천 장소 없음</p>";
             return;
         }
-        var h = "";
+        // 🔑 버그 수정: 이전에는 outer `var h = ""`(HTML 누적) 와 inner highlights 루프의
+        //    `var h = 0` 이 JS `var` 함수 스코프 때문에 같은 변수였음. 결과적으로 highlights 있는
+        //    추천 한 개만 처리해도 HTML 누적값이 숫자로 덮여 카드 1개 + 숫자만 남음.
+        //    outer 는 `html`, inner 카운터는 `hi` 로 분리.
+        var html = "";
         for (var k = 0; k < items.length; k++) {
             var it = items[k];
             var badge = esc(it.category || it.type || "spot");
             var dist = esc(it.distanceText || "");
             var highlights = "";
             if (Array.isArray(it.highlights) && it.highlights.length) {
-                for (var h = 0; h < it.highlights.length; h++) {
-                    highlights += (h ? " &nbsp; " : "") + esc(it.highlights[h]);
+                for (var hi = 0; hi < it.highlights.length; hi++) {
+                    highlights += (hi ? " &nbsp; " : "") + esc(it.highlights[hi]);
                 }
             } else {
                 highlights = esc(it.subtitle || "");
             }
             var lat = it.lat != null ? it.lat : "";
             var lng = it.lng != null ? it.lng : "";
-            h +=
+            html +=
                 "<div class='booking-item' data-lat='" +
                 esc(lat) +
                 "' data-lng='" +
@@ -172,7 +176,7 @@
                 esc(it.actionLabel || "위치 보기") +
                 "</button></div>";
         }
-        host.innerHTML = h;
+        host.innerHTML = html;
     }
 
     function renderDashboard(d) {
@@ -256,10 +260,29 @@
         renderEmergency(d.emergencyContacts);
     }
 
-    function loadDashboard() {
+    // focus: { id?, lat?, lng?, dayIndex? } — 선택된 activity 있으면 해당 좌표·id 기준으로 재요청.
+    // 없으면 기존처럼 목적지 전체 기준. 인자 없이 호출되는 주기적 polling 도 전역에 저장된
+    // window._liveSelectedActivity 를 자동 반영한다 (live-modal.js 에서 설정).
+    function loadDashboard(focus) {
         var url = ctx + "/live/dashboard-data?planId=" + encodeURIComponent(planId);
         if (destHint) {
             url += "&destination=" + encodeURIComponent(destHint);
+        }
+        var selected = focus || window._liveSelectedActivity || null;
+        if (selected) {
+            if (selected.id) {
+                url += "&activityId=" + encodeURIComponent(selected.id);
+            }
+            if (selected.dayIndex != null && !isNaN(selected.dayIndex)) {
+                // dayIndex 는 0-기반, 서버 계약은 1-기반(day=1,2,3,...) 이므로 +1
+                url += "&day=" + encodeURIComponent(Number(selected.dayIndex) + 1);
+            }
+            if (selected.lat != null && selected.lat !== "") {
+                url += "&lat=" + encodeURIComponent(selected.lat);
+            }
+            if (selected.lng != null && selected.lng !== "") {
+                url += "&lng=" + encodeURIComponent(selected.lng);
+            }
         }
         fetch(url, { headers: { Accept: "application/json" } })
             .then(function (r) {
@@ -278,6 +301,27 @@
                         "JVM 옵션 fastapi.url(또는 환경변수 FAST_API_URL)이 올바른지 확인하세요."
                 );
             });
+    }
+
+    // live-modal.js 의 showLocationRealtimeData 가 활동 클릭 시 호출할 수 있도록 노출.
+    window.liveLoadDashboard = loadDashboard;
+
+    // 추천 여행지 카드의 "위치 보기" 버튼 → Google Maps 새 탭 오픈.
+    // 기존에는 data-lat/lng 가 렌더링되어도 클릭 핸들러가 없어 dormant 상태였다.
+    var recHost = document.getElementById("liveRecommendations");
+    if (recHost) {
+        recHost.addEventListener("click", function (ev) {
+            var btn = ev.target.closest("[data-action='map']");
+            if (!btn) return;
+            var card = btn.closest(".booking-item");
+            if (!card) return;
+            var lat = card.getAttribute("data-lat");
+            var lng = card.getAttribute("data-lng");
+            if (!lat || !lng) return;
+            var mapsUrl = "https://www.google.com/maps/search/?api=1&query=" +
+                encodeURIComponent(lat + "," + lng);
+            window.open(mapsUrl, "_blank", "noopener");
+        });
     }
 
     loadDashboard();
