@@ -18,11 +18,11 @@ function setEmail() {
     let domain = "";
 
     if (domainSelect === "direct") {
-        if (!customDomain) {
+        if (!customDomain || customDomain === "@") {
             alert("\ub3c4\uba54\uc778\uc744 \uc785\ub825\ud574\uc8fc\uc138\uc694.");
             return false;
         }
-        domain = customDomain.replace("@", "");
+        domain = customDomain;
     } else {
         domain = domainSelect;
     }
@@ -36,7 +36,7 @@ function setEmail() {
         id = id.split("@")[0];
     }
 
-    emailInput.value = id + "@" + domain;
+    emailInput.value = id + domain;
     return true;
 }
 
@@ -181,7 +181,17 @@ function validateForm() {
     if (!checkAgree()) return false;
     if (!setEmail()) return false;
     if (!checkAlphanumeric()) return false;
+    if (!checkGender()) return false;
 
+    return true;
+}
+
+function checkGender() {
+    const gender = document.querySelector('input[name="gender"]:checked');
+    if (!gender) {
+        showSnackbar("성별을 선택해주세요.");
+        return false;
+    }
     return true;
 }
 
