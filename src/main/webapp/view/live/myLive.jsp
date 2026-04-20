@@ -121,7 +121,7 @@
 
         <div class="time-box">
             <div class="time-top">
-                <span class="time-label"><i class="fa-solid fa-sack-dollar"></i> 현재 시각</span>
+                <span class="time-label"><i class="fa-regular fa-clock"></i> 현재 시각</span>
                 <span class="time-display" id="currentTime">-</span>
             </div>
             <div class="time-bottom">
