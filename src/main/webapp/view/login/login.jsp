@@ -143,9 +143,9 @@
 
     <form class="login-box" method="post" action="${pageContext.request.contextPath}/login">
         <input type="hidden" name="returnUrl" value="${returnUrl}">
-        <input type="text" name="loginId" placeholder="아이디" required value="yw">
+        <input type="text" name="loginId" placeholder="아이디" required>
         <div class="password-toggle">
-            <input type="password" id="loginPassword" name="password" placeholder="비밀번호" required value="yw">
+            <input type="password" id="loginPassword" name="password" placeholder="비밀번호" required>
             <button type="button" class="toggle-btn" onclick="togglePassword()">
                 <i class="fa-solid fa-eye-slash"></i>
             </button>

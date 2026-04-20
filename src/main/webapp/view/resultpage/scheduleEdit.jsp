@@ -18,9 +18,9 @@
             <p>${result.summary.destination} · ${result.summary.days}일 여행</p>
         </div>
         <div class="edit-header__actions">
-            <button class="btn-recalc" type="button">
-                <span class="btn-icon"><i class="fa-solid fa-rotate"></i></span> 경로 재계산
-            </button>
+<%--            <button class="btn-recalc" type="button">--%>
+<%--                <span class="btn-icon"><i class="fa-solid fa-rotate"></i></span> 경로 재계산--%>
+<%--            </button>--%>
             <button type="button" class="btn-save" onclick="handleSave()">
                 <span class="btn-icon"><i class="fa-solid fa-floppy-disk"></i></span> 저장
             </button>
@@ -66,6 +66,17 @@
     </div>
 
     <!-- ── Day 블록 반복 ── -->
+    <div class="schedule-confirm-backdrop" id="deleteActivityConfirm" aria-hidden="true">
+        <div class="schedule-confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="deleteActivityConfirmTitle">
+            <p class="schedule-confirm-title" id="deleteActivityConfirmTitle">이 일정을 삭제할까요?</p>
+            <p class="schedule-confirm-text">삭제한 뒤 저장하면 상세 일정에서 최종 반영됩니다.</p>
+            <div class="schedule-confirm-actions">
+                <button type="button" class="schedule-confirm-cancel" id="deleteActivityCancel">취소</button>
+                <button type="button" class="schedule-confirm-delete" id="deleteActivitySubmit">삭제</button>
+            </div>
+        </div>
+    </div>
+
     <c:forEach var="item" items="${result.itinerary}" varStatus="dayStatus">
 
         <div class="day-block"
@@ -74,7 +85,13 @@
 
             <!-- Day 헤더 -->
             <div class="day-block__header">
-                <span class="day-block__title">Day ${item.day} · ${item.date}</span>
+                <div class="day-block__heading">
+                    <span class="day-block__badge">D${item.day}</span>
+                    <div class="day-block__title-wrap">
+                        <span class="day-block__eyebrow">Day ${item.day}</span>
+                        <span class="day-block__title">${item.date}</span>
+                    </div>
+                </div>
                 <button class="btn-add-activity" type="button"
                         data-list-id="day${item.day}-list">
                     <span><i class="fa-solid fa-plus"></i></span> 활동 추가

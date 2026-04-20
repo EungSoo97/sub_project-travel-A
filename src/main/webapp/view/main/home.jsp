@@ -490,25 +490,25 @@
 
       <section class="hm-features" id="sec-features">
         <article class="hm-feature">
-          <h2 class="hm-feature__title">🗓️ 맞춤 일정 생성</h2>
+          <h2 class="hm-feature__title"><i class="fa-regular fa-calendar"></i> 맞춤 일정 생성</h2>
           <p class="hm-feature__desc">
             취향·예산·일정에 맞춘 여행 플랜을 AI가 즉시 만들어드려요.
           </p>
         </article>
         <article class="hm-feature">
-          <h2 class="hm-feature__title">🗺️ 추천 경로 안내</h2>
+          <h2 class="hm-feature__title"><i class="fa-regular fa-map"></i> 추천 경로 안내</h2>
           <p class="hm-feature__desc">
             이동 거리와 혼잡도를 고려해 가장 효율적인 동선을 제안해요.
           </p>
         </article>
         <article class="hm-feature">
-          <h2 class="hm-feature__title">✏️ 플랜 편집 가능</h2>
+          <h2 class="hm-feature__title"><i class="fa-solid fa-pen"></i> 플랜 편집 가능</h2>
           <p class="hm-feature__desc">
             생성된 일정을 언제든 수정하고 나만의 여행으로 완성하세요.
           </p>
         </article>
         <article class="hm-feature">
-          <h2 class="hm-feature__title">💬 공유와 소통</h2>
+          <h2 class="hm-feature__title"><i class="fa-solid fa-comment"></i> 공유와 소통</h2>
           <p class="hm-feature__desc">
             플랜을 공개하고 다른 여행자의 후기와 아이디어를 나눠보세요.
           </p>
@@ -699,23 +699,23 @@
           class="float-nav__item"
           onclick="floatScrollTo('searchContainer')"
         >
-          <span class="float-nav__icon">🗓️</span
+          <span class="float-nav__icon"><i class="fa-regular fa-calendar"></i></span
           ><span class="float-nav__label">플랜 만들기</span>
         </button>
         <button class="float-nav__item" onclick="floatScrollTo('sec-image')">
-          <span class="float-nav__icon">📷</span
+          <span class="float-nav__icon"><i class="fa-solid fa-camera"></i></span
           ><span class="float-nav__label">이미지 검색</span>
         </button>
         <button class="float-nav__item" onclick="floatScrollTo('sec-features')">
-          <span class="float-nav__icon">💡</span
+          <span class="float-nav__icon"><i class="fa-solid fa-lightbulb"></i></span
           ><span class="float-nav__label">서비스 소개</span>
         </button>
         <button class="float-nav__item" onclick="floatScrollTo('sec-ranking')">
-          <span class="float-nav__icon">🏆</span
+          <span class="float-nav__icon"><i class="fa-solid fa-trophy"></i></span
           ><span class="float-nav__label">인기 플랜</span>
         </button>
         <button class="float-nav__item" onclick="floatScrollTo('sec-cta')">
-          <span class="float-nav__icon">✈️</span
+          <span class="float-nav__icon"><i class="fa-solid fa-plane"></i></span
           ><span class="float-nav__label">바로 떠나기</span>
         </button>
       </div>
@@ -1571,6 +1571,76 @@
             .replace(/\s+/g, "")
             .toLowerCase();
         }
+      })();
+    </script>
+    <script>
+      (function initFeatureScrollFocus() {
+        const featureCards = Array.from(
+          document.querySelectorAll(".hm-features .hm-feature"),
+        );
+
+        if (!featureCards.length) return;
+
+        const reduceMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        );
+        let activeCard = null;
+        let frameId = null;
+
+        function applyFeatureFocus() {
+          frameId = null;
+
+          if (reduceMotion.matches) {
+            if (activeCard) {
+              activeCard.classList.remove("is-in-focus");
+              activeCard = null;
+            }
+            return;
+          }
+
+          const viewportCenter = window.innerHeight * 0.5;
+          let nextCard = null;
+          let minDistance = Infinity;
+
+          featureCards.forEach(function (card) {
+            const rect = card.getBoundingClientRect();
+            const cardCenter = rect.top + rect.height / 2;
+            const distance = Math.abs(cardCenter - viewportCenter);
+
+            if (distance < minDistance) {
+              minDistance = distance;
+              nextCard = card;
+            }
+          });
+
+          if (activeCard && activeCard !== nextCard) {
+            activeCard.classList.remove("is-in-focus");
+          }
+
+          if (nextCard) {
+            nextCard.classList.add("is-in-focus");
+          }
+
+          activeCard = nextCard;
+        }
+
+        function requestFeatureFocusUpdate() {
+          if (frameId !== null) return;
+          frameId = window.requestAnimationFrame(applyFeatureFocus);
+        }
+
+        window.addEventListener("scroll", requestFeatureFocusUpdate, {
+          passive: true,
+        });
+        window.addEventListener("resize", requestFeatureFocusUpdate);
+
+        if (typeof reduceMotion.addEventListener === "function") {
+          reduceMotion.addEventListener("change", requestFeatureFocusUpdate);
+        } else if (typeof reduceMotion.addListener === "function") {
+          reduceMotion.addListener(requestFeatureFocusUpdate);
+        }
+
+        requestFeatureFocusUpdate();
       })();
     </script>
     <script>

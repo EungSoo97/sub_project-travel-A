@@ -2306,6 +2306,21 @@ input {
   border-radius: 20px;
   padding: 18px 16px;
   box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+  transform: scale(1);
+  transform-origin: center center;
+  transition:
+    transform 0.32s ease,
+    box-shadow 0.32s ease,
+    border-color 0.32s ease,
+    background-color 0.32s ease;
+  border: 1px solid rgba(37, 99, 235, 0.08);
+  will-change: transform;
+}
+.hm-feature.is-in-focus {
+  transform: scale(1.04);
+  box-shadow: 0 20px 38px rgba(37, 99, 235, 0.16);
+  border-color: rgba(37, 99, 235, 0.22);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
 }
 .hm-feature__title {
   margin: 0 0 8px;
@@ -2318,6 +2333,16 @@ input {
   font-size: 14px;
   line-height: 1.6;
   color: var(--muted, #6b7280);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hm-feature {
+    transition: none;
+  }
+
+  .hm-feature.is-in-focus {
+    transform: none;
+  }
 }
 
 /* ── Rank Carousel (지역·테마 TOP 3) ── */
