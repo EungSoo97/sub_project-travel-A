@@ -10,6 +10,31 @@
     document.head.prepend(style);
 })();
 
+let pendingDeleteItem = null;
+
+const deleteActivityConfirm = document.getElementById('deleteActivityConfirm');
+const deleteActivityCancel = document.getElementById('deleteActivityCancel');
+const deleteActivitySubmit = document.getElementById('deleteActivitySubmit');
+
+function openDeleteActivityConfirm(item) {
+    if (!deleteActivityConfirm || !item) return;
+    pendingDeleteItem = item;
+    deleteActivityConfirm.classList.add('is-open');
+    deleteActivityConfirm.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    if (deleteActivitySubmit) {
+        deleteActivitySubmit.focus();
+    }
+}
+
+function closeDeleteActivityConfirm() {
+    if (!deleteActivityConfirm) return;
+    deleteActivityConfirm.classList.remove('is-open');
+    deleteActivityConfirm.setAttribute('aria-hidden', 'true');
+    pendingDeleteItem = null;
+    document.body.style.overflow = '';
+}
+
 
 // ── 드래그 앤 드롭 ──
 document.querySelectorAll('.activity-list').forEach(list => {
@@ -17,6 +42,10 @@ document.querySelectorAll('.activity-list').forEach(list => {
     let placeholder = null;
     let offsetY = 0;
     let clone = null;
+
+    function getDragHandleTarget(target) {
+        return target.closest('.activity-item__drag');
+    }
 
     function getItems() {
         return [...list.querySelectorAll('.activity-item:not(.drag-clone)')];
@@ -87,7 +116,9 @@ document.querySelectorAll('.activity-list').forEach(list => {
 
     // ── 터치 (모바일 핵심 수정) ──
     list.addEventListener('touchstart', e => {
-        const item = e.target.closest('.activity-item');
+        const handle = getDragHandleTarget(e.target);
+        if (!handle) return;
+        const item = handle.closest('.activity-item');
         if (!item) return;
         // 삭제 버튼, 시간 편집 클릭은 드래그 제외
         if (e.target.closest('.activity-item__delete')) return;
@@ -110,7 +141,9 @@ document.querySelectorAll('.activity-list').forEach(list => {
 
     // ── 마우스 (PC) ──
     list.addEventListener('mousedown', e => {
-        const item = e.target.closest('.activity-item');
+        const handle = getDragHandleTarget(e.target);
+        if (!handle) return;
+        const item = handle.closest('.activity-item');
         if (!item) return;
 
         if (e.target.closest('.activity-item__delete')) return;
@@ -139,12 +172,7 @@ document.addEventListener('click', e => {
     if (!btn) return;
 
     const item = btn.closest('.activity-item');
-    const dayBlock = item.closest('.day-block');
-    const itemCost = getActivityCost(item);
-    if (confirm('이 일정을 삭제할까요?')) {
-        item.remove();
-        adjustDayEstimatedCost(dayBlock, -itemCost);
-    }
+    openDeleteActivityConfirm(item);
 });
 
 
@@ -225,6 +253,9 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && modal.classList.contains('show')) {
         closeActivityModal();
     }
+    if (e.key === 'Escape' && deleteActivityConfirm && deleteActivityConfirm.classList.contains('is-open')) {
+        closeDeleteActivityConfirm();
+    }
 });
 
 function closeActivityModal() {
@@ -232,6 +263,33 @@ function closeActivityModal() {
     modal.classList.remove('show');
     modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+}
+
+if (deleteActivityCancel) {
+    deleteActivityCancel.addEventListener('click', closeDeleteActivityConfirm);
+}
+
+if (deleteActivityConfirm) {
+    deleteActivityConfirm.addEventListener('click', e => {
+        if (e.target === deleteActivityConfirm) {
+            closeDeleteActivityConfirm();
+        }
+    });
+}
+
+if (deleteActivitySubmit) {
+    deleteActivitySubmit.addEventListener('click', () => {
+        if (!pendingDeleteItem) {
+            closeDeleteActivityConfirm();
+            return;
+        }
+
+        const dayBlock = pendingDeleteItem.closest('.day-block');
+        const itemCost = getActivityCost(pendingDeleteItem);
+        pendingDeleteItem.remove();
+        adjustDayEstimatedCost(dayBlock, -itemCost);
+        closeDeleteActivityConfirm();
+    });
 }
 
 
