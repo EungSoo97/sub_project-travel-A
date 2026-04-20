@@ -7,6 +7,8 @@
   const presets     = document.querySelectorAll(".preset-chip");
   const badge       = document.getElementById("travelerBadge");
 
+  if (!hiddenInput || !countEl || !minusBtn || !plusBtn) return;
+
 
   const MIN = 1, MAX = 20;
   let count = 2;
@@ -290,8 +292,13 @@
   });
 })();
 
+function renderLucideIcons() {
+  if (window.lucide && typeof window.lucide.createIcons === "function") {
+    window.lucide.createIcons();
+  }
+}
 
-lucide.createIcons();
+renderLucideIcons();
 
 const form = document.getElementById("planForm");
 const searchContainer = document.getElementById("searchContainer");
@@ -370,7 +377,7 @@ function resetLoadingState() {
   }
 
   updateAIMessage();
-  lucide.createIcons();
+  renderLucideIcons();
 }
 
 function getFieldWrapper(control) {
@@ -513,7 +520,7 @@ if (form) {
         markStepActive(currentStepEl);
 
         updateAIMessage();
-        lucide.createIcons();
+        renderLucideIcons();
       } else {
         clearInterval(stepInterval);
       }
