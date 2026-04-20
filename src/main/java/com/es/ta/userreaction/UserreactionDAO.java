@@ -366,7 +366,7 @@ public class UserreactionDAO {
 
         String sql = "SELECT tp.plan_id, tp.user_id, tp.destination, tp.title, tp.thumbnail_url, " +
                 "tp.start_date, tp.end_date, tp.days, tp.travelers, " +
-                "tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview, tp.posted, " +
+                "tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview, tp.posted, tp.post_date, tp.created_at, " +
                 "NVL(tp.original_user_id, 0) AS original_user_id, NVL(tp.copied_modified, 1) AS copied_modified, " +
                 "NVL(like_counts.like_cnt, 0) AS like_cnt, " +
                 "NVL(creator.u_name, '') AS creator_name, NVL(editor.u_name, '') AS editor_name " +
@@ -404,6 +404,8 @@ public class UserreactionDAO {
                 dto.setCurrency(rs.getString("currency"));
                 dto.setOverview(rs.getString("overview"));
                 dto.setPosted(rs.getInt("posted"));
+                dto.setPostDate(rs.getTimestamp("post_date"));
+                dto.setCreatedAt(rs.getTimestamp("created_at"));
                 dto.setOriginalUserId(rs.getInt("original_user_id"));
                 dto.setCopiedModified(rs.getInt("copied_modified"));
                 dto.setLikeCnt(rs.getInt("like_cnt"));

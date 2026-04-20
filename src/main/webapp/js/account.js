@@ -3,6 +3,15 @@ const custom = document.getElementById("customDomain");
 const customSelect = document.getElementById("emailDomainSelect");
 const selectTrigger = customSelect.querySelector(".select-trigger");
 const optionsList = customSelect.querySelector(".options");
+const birthDateInput = document.getElementById("birthDate");
+const birthDateTrigger = document.getElementById("birthDateTrigger");
+const birthDateDisplay = document.getElementById("birthDateDisplay");
+const birthDateModalBackdrop = document.getElementById("birthDateModalBackdrop");
+const birthYearSelect = document.getElementById("birthYearSelect");
+const birthMonthSelect = document.getElementById("birthMonthSelect");
+const birthDaySelect = document.getElementById("birthDaySelect");
+const birthDateCancelBtn = document.getElementById("birthDateCancelBtn");
+const birthDateConfirmBtn = document.getElementById("birthDateConfirmBtn");
 
 // 커스텀 드롭다운 토글
 selectTrigger.addEventListener("click", function() {
@@ -46,6 +55,150 @@ document.addEventListener("click", function(e) {
         customSelect.classList.remove("active");
     }
 });
+
+if (
+    birthDateInput &&
+    birthDateTrigger &&
+    birthDateDisplay &&
+    birthDateModalBackdrop &&
+    birthYearSelect &&
+    birthMonthSelect &&
+    birthDaySelect &&
+    birthDateCancelBtn &&
+    birthDateConfirmBtn
+) {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    let previousBodyOverflow = "";
+
+    function padBirthValue(value) {
+        return String(value).padStart(2, "0");
+    }
+
+    function formatBirthDate(value) {
+        if (!value) {
+            return "";
+        }
+
+        const parts = value.split("-");
+        if (parts.length !== 3) {
+            return value;
+        }
+
+        return parts[0] + "." + parts[1] + "." + parts[2];
+    }
+
+    function setBirthDisplay(value) {
+        birthDateDisplay.textContent = formatBirthDate(value || "2010-01-01");
+    }
+
+    function populateBirthYears() {
+        const fragment = document.createDocumentFragment();
+        for (let year = currentYear; year >= 1900; year -= 1) {
+            const option = document.createElement("option");
+            option.value = String(year);
+            option.textContent = year + "년";
+            fragment.appendChild(option);
+        }
+        birthYearSelect.innerHTML = "";
+        birthYearSelect.appendChild(fragment);
+    }
+
+    function populateBirthMonths() {
+        const fragment = document.createDocumentFragment();
+        for (let month = 1; month <= 12; month += 1) {
+            const option = document.createElement("option");
+            option.value = String(month);
+            option.textContent = month + "월";
+            fragment.appendChild(option);
+        }
+        birthMonthSelect.innerHTML = "";
+        birthMonthSelect.appendChild(fragment);
+    }
+
+    function populateBirthDays(year, month, selectedDay) {
+        const maxDay = new Date(year, month, 0).getDate();
+        const fragment = document.createDocumentFragment();
+        for (let day = 1; day <= maxDay; day += 1) {
+            const option = document.createElement("option");
+            option.value = String(day);
+            option.textContent = day + "일";
+            fragment.appendChild(option);
+        }
+        birthDaySelect.innerHTML = "";
+        birthDaySelect.appendChild(fragment);
+        birthDaySelect.value = String(Math.min(selectedDay, maxDay));
+    }
+
+    function syncBirthPickerFromValue() {
+        const value = birthDateInput.value || "2010-01-01";
+        const parts = value.split("-");
+        const year = Number(parts[0]) || 2010;
+        const month = Number(parts[1]) || 1;
+        const day = Number(parts[2]) || 1;
+
+        birthYearSelect.value = String(year);
+        birthMonthSelect.value = String(month);
+        populateBirthDays(year, month, day);
+    }
+
+    function openBirthModal() {
+        syncBirthPickerFromValue();
+        previousBodyOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        birthDateModalBackdrop.classList.add("is-open");
+        birthDateModalBackdrop.setAttribute("aria-hidden", "false");
+    }
+
+    function closeBirthModal() {
+        birthDateModalBackdrop.classList.remove("is-open");
+        birthDateModalBackdrop.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = previousBodyOverflow;
+    }
+
+    function applyBirthDate() {
+        const year = Number(birthYearSelect.value);
+        const month = Number(birthMonthSelect.value);
+        const day = Number(birthDaySelect.value);
+
+        if (!year || !month || !day) {
+            showSnackbar("생년월일을 모두 선택해주세요.");
+            return;
+        }
+
+        const nextValue = year + "-" + padBirthValue(month) + "-" + padBirthValue(day);
+        birthDateInput.value = nextValue;
+        setBirthDisplay(nextValue);
+        closeBirthModal();
+    }
+
+    populateBirthYears();
+    populateBirthMonths();
+    setBirthDisplay(birthDateInput.value);
+
+    birthDateTrigger.addEventListener("click", openBirthModal);
+    birthDateCancelBtn.addEventListener("click", closeBirthModal);
+    birthDateConfirmBtn.addEventListener("click", applyBirthDate);
+    birthDateModalBackdrop.addEventListener("click", function (event) {
+        if (event.target === birthDateModalBackdrop) {
+            closeBirthModal();
+        }
+    });
+
+    birthYearSelect.addEventListener("change", function () {
+        populateBirthDays(Number(birthYearSelect.value), Number(birthMonthSelect.value), Number(birthDaySelect.value) || 1);
+    });
+
+    birthMonthSelect.addEventListener("change", function () {
+        populateBirthDays(Number(birthYearSelect.value), Number(birthMonthSelect.value), Number(birthDaySelect.value) || 1);
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && birthDateModalBackdrop.classList.contains("is-open")) {
+            closeBirthModal();
+        }
+    });
+}
 
 // 기존 select change 이벤트 유지 (하위 호환성)
 select.addEventListener("change", function () {

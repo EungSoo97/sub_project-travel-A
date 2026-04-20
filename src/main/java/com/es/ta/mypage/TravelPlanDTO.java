@@ -25,6 +25,7 @@ public class TravelPlanDTO {
     private int travelers;
 
     private String travelStyle;
+    private String requestStyles;
     private int totalEstimatedCost;
     private String currency;
 
