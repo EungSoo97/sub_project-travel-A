@@ -18,9 +18,9 @@
             <p>${result.summary.destination} · ${result.summary.days}일 여행</p>
         </div>
         <div class="edit-header__actions">
-            <button class="btn-recalc" type="button">
-                <span class="btn-icon"><i class="fa-solid fa-rotate"></i></span> 경로 재계산
-            </button>
+<%--            <button class="btn-recalc" type="button">--%>
+<%--                <span class="btn-icon"><i class="fa-solid fa-rotate"></i></span> 경로 재계산--%>
+<%--            </button>--%>
             <button type="button" class="btn-save" onclick="handleSave()">
                 <span class="btn-icon"><i class="fa-solid fa-floppy-disk"></i></span> 저장
             </button>

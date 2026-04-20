@@ -237,7 +237,7 @@
                                 </div>
                             </c:if>
                             <div class="trip-publish-meta trip-creator-meta">
-                                <span class="creator-badge">👤
+                                <span class="creator-badge"><i class="fa-regular fa-user"></i>
                                     <c:out value="${empty trip.creatorName ? '여행자' : trip.creatorName}" />
                                 </span>
                                 <c:if test="${not empty trip.editorName and trip.editorName ne trip.creatorName}">
@@ -250,9 +250,9 @@
                                 </c:if>
                             </div>
                             <div class="trip-details">
-                                <p><span>📍</span><c:out value="${trip.destination}" default="여행지 미정"/></p>
+                                <p><span><i class="fa-solid fa-location-dot"></i></span><c:out value="${trip.destination}" default="여행지 미정"/></p>
                                 <p>
-                                    <span>📅</span>
+                                    <span><i class="fa-regular fa-calendar"></i></span>
                                     <c:choose>
                                         <c:when test="${not empty trip.startDate and not empty trip.endDate}">
                                             <fmt:formatDate value="${trip.startDate}" pattern="yyyy.MM.dd"/>
@@ -262,13 +262,13 @@
                                         <c:otherwise>일정 미정</c:otherwise>
                                     </c:choose>
                                 </p>
-                                <p><span>🗓️</span>
+                                <p><span><i class="fa-regular fa-calendar"></i></span>
                                     <c:choose>
                                         <c:when test="${trip.days > 0}">${trip.days}일</c:when>
                                         <c:otherwise>기간 미정</c:otherwise>
                                     </c:choose>
                                 </p>
-                                <p><span>👥</span>
+                                <p><span><i class="fa-solid fa-user-group"></i></span>
                                     <c:choose>
                                         <c:when test="${trip.travelers > 0}">${trip.travelers}명</c:when>
                                         <c:otherwise>인원 미정</c:otherwise>
@@ -344,7 +344,7 @@
                         <div class="card-body">
                             <h3>${trip.displayTitle}</h3>
                             <div class="trip-publish-meta trip-creator-meta">
-                                <span class="creator-badge">👤
+                                <span class="creator-badge"><i class="fa-regular fa-user"></i>
                                     <c:out value="${empty trip.creatorName ? '여행자' : trip.creatorName}" />
                                 </span>
                                 <span class="heart-count">♥ ${trip.likeCnt}</span>
@@ -355,9 +355,9 @@
                                 </c:if>
                             </div>
                             <div class="trip-details">
-                                <p><span>📍</span><c:out value="${trip.destination}" default="여행지 미정"/></p>
+                                <p><span><i class="fa-solid fa-location-dot"></i></span><c:out value="${trip.destination}" default="여행지 미정"/></p>
                                 <p>
-                                    <span>📅</span>
+                                    <span><i class="fa-regular fa-calendar"></i></span>
                                     <c:choose>
                                         <c:when test="${not empty trip.startDate and not empty trip.endDate}">
                                             <fmt:formatDate value="${trip.startDate}" pattern="yyyy.MM.dd"/> -
@@ -366,8 +366,8 @@
                                         <c:otherwise>일정 미정</c:otherwise>
                                     </c:choose>
                                 </p>
-                                <p><span>🗓️</span><c:choose><c:when test="${trip.days > 0}">${trip.days}일</c:when><c:otherwise>기간 미정</c:otherwise></c:choose></p>
-                                <p><span>👥</span><c:choose><c:when test="${trip.travelers > 0}">${trip.travelers}명</c:when><c:otherwise>인원 미정</c:otherwise></c:choose></p>
+                                <p><span><i class="fa-regular fa-calendar"></i></span><c:choose><c:when test="${trip.days > 0}">${trip.days}일</c:when><c:otherwise>기간 미정</c:otherwise></c:choose></p>
+                                <p><span><i class="fa-solid fa-user-group"></i></span><c:choose><c:when test="${trip.travelers > 0}">${trip.travelers}명</c:when><c:otherwise>인원 미정</c:otherwise></c:choose></p>
                             </div>
                             <c:choose>
                                 <c:when test="${trip.posted == 1}">
@@ -448,7 +448,7 @@
                                     <span class="review-stack-toggle__content">
                                         <span class="review-stack-toggle__main">
                                             <span class="review-dest-tag" style="background: ${groupStatus.index % 2 == 0 ? '#E6F1FB' : '#E8F8EE'}; color: ${groupStatus.index % 2 == 0 ? '#185FA5' : '#12803B'};">
-                                                📍 <c:out value="${mainReview.city}" />
+                                                <i class="fa-solid fa-location-dot"></i> <c:out value="${mainReview.city}" />
                                             </span>
                                             <span class="review-plan-id">plan #${reviewGroup.key}</span>
                                         <span class="review-stack-count">${reviewCount}개 후기</span>
@@ -464,7 +464,7 @@
                                             </c:choose>
                                         </span>
                                         <span class="review-stack-meta">
-                                            👤 <c:out value="${mainReview.planCreatorName}" default="여행자" />
+                                            <i class="fa-regular fa-user"></i> <c:out value="${mainReview.planCreatorName}" default="여행자" />
                                             <span>♥ ${mainReview.likeCnt}</span>
                                         </span>
                                     </span>
@@ -1078,7 +1078,12 @@
         function cleanDetailText(card, index) {
             const row = card.querySelectorAll('.trip-details p')[index];
             if (!row) return '';
-            return row.textContent.replace(/\s+/g, ' ').trim().replace(/^[^\s]+\s*/, '').trim();
+            const clonedRow = row.cloneNode(true);
+            const iconWrap = clonedRow.querySelector('span');
+            if (iconWrap) {
+                iconWrap.remove();
+            }
+            return clonedRow.textContent.replace(/\s+/g, ' ').trim();
         }
 
         function formatCreatedLabel(time) {
@@ -1360,7 +1365,7 @@
         function createMiniCard(plan) {
             const safeTitle = escapeHtml(plan.title);
             const safeDestination = escapeHtml(plan.destination);
-            const safeDateRange = escapeHtml(plan.dateRange);
+            const safeDuration = escapeHtml(plan.duration);
             const safeTravelers = escapeHtml(plan.travelers);
             const styleTags = String(plan.travelStyle || '')
                 .split(/[#,/|]/)
@@ -1377,12 +1382,12 @@
                     '<div class="plan-mini-card__top">',
                         '<h4 class="plan-mini-card__title">' + safeTitle + '</h4>',
                         '<div class="plan-mini-card__badges">',
-                            (plan.starred ? '<span class="plan-mini-flag star" aria-label="즐겨찾기">⭐</span>' : ''),
+                            (plan.starred ? '<span class="plan-mini-flag star" aria-label="즐겨찾기">★</span>' : ''),
                             (plan.liveTracking ? '<span class="plan-mini-flag live" aria-label="실시간"><span class="plan-live-dot"></span></span>' : ''),
                         '</div>',
                     '</div>',
                     '<div class="plan-mini-card__subline">',
-                        '<span class="plan-mini-card__destination">📍 ' + safeDestination + '</span>',
+                        '<span class="plan-mini-card__destination"><i class="fa-solid fa-location-dot"></i> ' + safeDestination + '</span>',
                         '<span class="plan-mini-card__plan-id">plan #' + plan.planId + '</span>',
                     '</div>',
                     '<div class="plan-mini-tags" data-mini-tags>',
@@ -1392,8 +1397,8 @@
                         '<span class="plan-mini-tags__toggle" data-mini-tags-toggle aria-expanded="false" hidden>...</span>',
                     '</div>',
                     '<div class="plan-mini-info">',
-                        '<span>📅 ' + safeDateRange + '</span>',
-                        '<span>👥 ' + safeTravelers + '</span>',
+                        '<span><i class="fa-regular fa-calendar"></i> ' + safeDuration + '</span>',
+                        '<span><i class="fa-solid fa-user-group"></i> ' + safeTravelers + '</span>',
                     '</div>',
                 '</button>'
             ].join('');
@@ -1403,7 +1408,7 @@
             const safeTitle = escapeHtml(plan.title);
             const safeDestination = escapeHtml(plan.destination);
             const safeStyle = escapeHtml(plan.travelStyle);
-            const starFlag = plan.starred ? '<span class="plan-folder-stack-badge star" aria-label="즐겨찾기">⭐</span>' : '';
+            const starFlag = plan.starred ? '<span class="plan-folder-stack-badge star" aria-label="즐겨찾기">★</span>' : '';
             const liveFlag = plan.liveTracking ? '<span class="plan-folder-stack-badge live" aria-label="실시간"><span class="plan-live-dot"></span></span>' : '';
 
             return [
@@ -1412,7 +1417,7 @@
                         '<span class="plan-folder-stack-card__title">' + safeTitle + '</span>',
                         '<span class="plan-folder-stack-card__badges">' + starFlag + liveFlag + '</span>',
                     '</span>',
-                    '<span class="plan-folder-stack-card__meta">📍 ' + safeDestination + '</span>',
+                    '<span class="plan-folder-stack-card__meta"><i class="fa-solid fa-location-dot"></i> ' + safeDestination + '</span>',
                     '<span class="plan-folder-stack-card__style">' + safeStyle + '</span>',
                 '</span>'
             ].join('');

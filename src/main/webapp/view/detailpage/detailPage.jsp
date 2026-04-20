@@ -392,7 +392,7 @@
                         <c:otherwise>
                             <div class="dp-review-compose-login">
                                 <span>로그인 후 후기를 남길 수 있습니다.</span>
-                                <button type="button" onclick="goLoginWithReturn()">로그인 안내</button>
+                                <button type="button" onclick="goLoginWithReturn()">로그인</button>
                             </div>
                         </c:otherwise>
                     </c:choose>
