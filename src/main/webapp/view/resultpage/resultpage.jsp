@@ -13,7 +13,7 @@
 
         <div class="header">
             <div class="header-topbar">
-                <a href="hello-servlet"><i class="fa-solid fa-arrow-left"></i> 검색으로 돌아가기</a>
+                <a href="main"><i class="fa-solid fa-arrow-left"></i> 검색으로 돌아가기</a>
                 <button type="button" class="header-collapse-toggle" aria-expanded="true" aria-label="상단 정보 접기">
                     <span class="header-collapse-symbol">−</span>
                 </button>

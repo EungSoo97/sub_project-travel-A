@@ -41,9 +41,8 @@ public class MyLiveC extends HttpServlet {
             try {
                 int planIdInt = Integer.parseInt(planId);
                 if (MyPlanPageDAO.getPlanByPlanIdAndUserId(planIdInt, loginUser.getUser_id()) == null) {
-                    request.setAttribute("error", "Cannot find your active travel plan.");
-                    request.setAttribute("content","view/live/myLive.jsp");
-                    request.getRequestDispatcher("index.jsp").forward(request,response);
+                    LiveTrackingDAO.stopAllTracking(loginUser.getUser_id());
+                    response.sendRedirect(request.getContextPath() + "/live-select");
                     return;
                 }
 

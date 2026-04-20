@@ -171,14 +171,14 @@
         return;
         </c:if>
 
+        const ctx = '${pageContext.request.contextPath}';
         const dbTrackingPlanId = '${empty activeLiveTrackingPlanId ? "" : activeLiveTrackingPlanId}';
-        const trackingPlanId = dbTrackingPlanId || localStorage.getItem('liveTrackingPlanId');
+        const trackingPlanId = dbTrackingPlanId;
         const liveLink = document.querySelector('.site-nav a[href*="/live"]');
 
         if (!liveLink) return;
 
         if (trackingPlanId) {
-            const ctx = '${pageContext.request.contextPath}';
             localStorage.setItem('liveTrackingPlanId', trackingPlanId);
             liveLink.href = ctx + '/my-live?planId=' + encodeURIComponent(trackingPlanId);
 
@@ -207,6 +207,7 @@
             }
         } else {
             localStorage.removeItem('liveTrackingPlanId');
+            liveLink.href = ctx + '/live';
         }
 
         /* ── 로그아웃 시 트래킹 상태 자동 해제 ── */

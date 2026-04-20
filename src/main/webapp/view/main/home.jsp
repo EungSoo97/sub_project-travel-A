@@ -49,7 +49,7 @@
 
             <div class="form-grid">
               <div class="form-field form-field--wide">
-                <label for="departureAirportCode">출발 공항</label>
+                <label for="airportTrigger">출발 공항</label>
                 <button
                   type="button"
                   class="airport-trigger"
