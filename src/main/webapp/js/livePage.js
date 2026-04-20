@@ -103,6 +103,96 @@
         host.innerHTML = html;
     }
 
+    function selectedDayIndexFromActivity(activity) {
+        if (activity && activity.dayIndex !== undefined && activity.dayIndex !== null && !isNaN(activity.dayIndex)) {
+            return Number(activity.dayIndex);
+        }
+        if (activity && activity.day !== undefined && activity.day !== null && !isNaN(activity.day)) {
+            return Number(activity.day) - 1;
+        }
+        return null;
+    }
+
+    function getSelectedDayData(activity) {
+        var dayIdx = selectedDayIndexFromActivity(activity);
+        if (dayIdx === null || isNaN(dayIdx)) return null;
+        if (!window.PLAN_DETAIL || !Array.isArray(window.PLAN_DETAIL.itinerary)) return null;
+        return window.PLAN_DETAIL.itinerary[dayIdx] || null;
+    }
+
+    function findActivityIndexInDay(activity, day) {
+        var acts = day && Array.isArray(day.activities) ? day.activities : [];
+        if (!activity || !acts.length) return -1;
+        for (var i = 0; i < acts.length; i++) {
+            var act = acts[i] || {};
+            if (activity.id && act.id === activity.id) return i;
+            if (activity.googlePlaceId && act.googlePlaceId === activity.googlePlaceId) return i;
+            if (activity.time && act.time === activity.time && act.name === activity.name) return i;
+        }
+        return -1;
+    }
+
+    function activeSelectedActivity() {
+        return window._liveSelectedActivity || null;
+    }
+
+    function selectedActivityBlock(activity) {
+        if (!activity) return null;
+        return {
+            status: activity.status || "진행 중",
+            remainingMinutes: activity.remainingMinutes != null ? activity.remainingMinutes : activity.durationMinutes,
+            name: activity.name || "",
+            location: activity.location || activity.address || "",
+            startTime: activity.startTime || activity.time || "-",
+            endTime: activity.endTime || activity.end || "-"
+        };
+    }
+
+    function selectedNextActivityBlock(activity) {
+        var day = getSelectedDayData(activity);
+        var acts = day && Array.isArray(day.activities) ? day.activities : [];
+        var idx = findActivityIndexInDay(activity, day);
+        if (idx < 0 || idx >= acts.length - 1) return null;
+        var next = acts[idx + 1] || {};
+        var leg = day && day.dayRoute && Array.isArray(day.dayRoute.legs) ? day.dayRoute.legs[idx] : null;
+        var parts = [];
+        if (next.time) parts.push(next.time + " 예정");
+        if (leg && leg.distanceMeters != null) parts.push((Number(leg.distanceMeters) / 1000).toFixed(1) + "km");
+        if (leg && leg.durationMinutes != null) parts.push(String(leg.durationMinutes) + "분");
+        return {
+            name: next.name || "",
+            startTime: next.time || "",
+            distanceText: leg && leg.distanceMeters != null ? (Number(leg.distanceMeters) / 1000).toFixed(1) + "km" : "",
+            travelTimeText: leg && leg.durationMinutes != null ? String(leg.durationMinutes) + "분" : "",
+            summaryText: parts.join(" · "),
+            routeActionLabel: "경로 보기"
+        };
+    }
+
+    function selectedTrafficRows(activity) {
+        var day = getSelectedDayData(activity);
+        var idx = findActivityIndexInDay(activity, day);
+        var leg = day && day.dayRoute && Array.isArray(day.dayRoute.legs) && idx >= 0 ? day.dayRoute.legs[idx] : null;
+        if (leg) {
+            var line = leg.travelModesLabelKo || (Array.isArray(leg.travelModes) ? leg.travelModes.join(", ") : "교통");
+            if (Array.isArray(leg.lineNames) && leg.lineNames.length) {
+                line += " · " + leg.lineNames.join(", ");
+            }
+            var msgParts = [];
+            if (leg.distanceMeters != null) msgParts.push((Number(leg.distanceMeters) / 1000).toFixed(1) + "km");
+            if (leg.durationMinutes != null) msgParts.push(String(leg.durationMinutes) + "분");
+            if (leg.stepsSummary) msgParts.push(leg.stepsSummary);
+            return [{ line: line, status: "normal", message: msgParts.join(" · ") }];
+        }
+        if (activity && activity.transport) {
+            return [{
+                line: activity.transport.line || activity.transport.mode || "교통",
+                status: "normal",
+                message: activity.transport.mode ? String(activity.transport.mode) : "선택 일정 교통 정보"
+            }];
+        }
+        return [];
+    }
     function renderEmergency(list) {
         var host = document.getElementById("liveEmergency");
         if (!host) return;
@@ -207,7 +297,8 @@
             if (cd) cd.textContent = d.currentDateText;
         }
 
-        var cur = d.currentActivity;
+        var selected = activeSelectedActivity();
+        var cur = selectedActivityBlock(selected) || d.currentActivity;
         if (cur) {
             var st = document.getElementById("liveActivityStatus");
             if (st) st.textContent = cur.status || "진행 중";
@@ -236,7 +327,7 @@
             if (cm) cm.textContent = crowd.message || "";
         }
 
-        var next = d.nextActivity;
+        var next = selectedNextActivityBlock(selected) || d.nextActivity;
         if (next) {
             var nt = document.getElementById("liveNextTitle");
             if (nt) nt.textContent = next.name || "";
@@ -256,7 +347,7 @@
         }
         renderRecommendations(d.instantRecommendations, walkLabel);
         renderWeather(d.weather);
-        renderTraffic(d.traffic);
+        renderTraffic(selected ? selectedTrafficRows(selected) : d.traffic);
         renderEmergency(d.emergencyContacts);
     }
 
