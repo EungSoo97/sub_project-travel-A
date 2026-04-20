@@ -8,6 +8,7 @@
     .info-value.status-bad { color: #dc2626; }
 </style>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/live-unified.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <%
     String planParam = request.getParameter("planId");
     int livePlanId = 1;
@@ -50,8 +51,8 @@
                 <span class="live-card-dest">${planDetail.summary.destination}</span>
                 <!-- 접혔을 때만 표시되는 간략 정보 -->
                 <div class="live-card-mini-info">
-                    <span>📅 ${planDetail.summary.days}</span>
-                    <span>👥 ${planDetail.summary.travelers}</span>
+                    <span><i class="fa-regular fa-calendar"></i> ${planDetail.summary.days}</span>
+                    <span><i class="fa-solid fa-user-group"></i> ${planDetail.summary.travelers}</span>
                 </div>
                 <div class="live-card-chevron">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -63,9 +64,9 @@
             <!-- 바디: 접기/펼치기 -->
             <div class="live-card-body">
                 <div class="live-plan-meta">
-                    <span class="live-meta-chip">📅 ${planDetail.summary.days}일</span>
-                    <span class="live-meta-chip">👥 ${planDetail.summary.travelers}명</span>
-                    <span class="live-meta-chip">💰 ${planDetail.summary.totalEstimatedCost} KRW</span>
+                    <span class="live-meta-chip"><i class="fa-regular fa-calendar"></i> ${planDetail.summary.days}일</span>
+                    <span class="live-meta-chip"><i class="fa-solid fa-user-group"></i> ${planDetail.summary.travelers}명</span>
+                    <span class="live-meta-chip"><i class="fa-solid fa-sack-dollar"></i> ${planDetail.summary.totalEstimatedCost} KRW</span>
                 </div>
                 <button class="btn-stop-tracking" onclick="event.stopPropagation(); stopTracking();">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
@@ -120,7 +121,7 @@
 
         <div class="time-box">
             <div class="time-top">
-                <span class="time-label">🕒 현재 시각</span>
+                <span class="time-label"><i class="fa-solid fa-sack-dollar"></i> 현재 시각</span>
                 <span class="time-display" id="currentTime">-</span>
             </div>
             <div class="time-bottom">
@@ -153,7 +154,7 @@
             </div>
 
             <div class="congestion-banner">
-                <div class="banner-icon">👥</div>
+                <div class="banner-icon"><i class="fa-solid fa-user-group"></i></div>
                 <div class="banner-text">
                     <strong id="liveCrowdSectionTitle">실시간 혼잡도</strong>
                     <p id="liveCrowdMessage">-</p>
@@ -177,7 +178,7 @@
         <div class="nearby-booking-box card-box">
             <div class="section-header">
                 <div class="section-title">
-                    📷 주변 인생샷 스폿
+                    <i class="fa-solid fa-location-dot"></i> 주변 추천 장소
                 </div>
                 <span class="subtitle" id="liveSpotSubtitle">도보 10분 이내</span>
             </div>
@@ -188,14 +189,14 @@
         </div>
         <div class="weather-box card-box">
             <div class="section-title">
-                실시간 날씨
+                <i class="fa-solid fa-cloud"></i> 실시간 날씨
             </div>
             <div id="weatherArea">날씨 로딩중...</div>
         </div>
 
         <div class="traffic-box card-box">
             <div class="section-title">
-                교통 상황
+                <i class="fa-solid fa-car"></i> 교통 상황
             </div>
 
             <div class="info-list" id="liveTraffic">
@@ -205,7 +206,7 @@
 
         <div class="emergency-box card-box">
             <div class="section-title">
-                긴급 연락처
+                <i class="fa-solid fa-phone"></i>   긴급 연락처
             </div>
 
             <div class="info-list" id="liveEmergency">

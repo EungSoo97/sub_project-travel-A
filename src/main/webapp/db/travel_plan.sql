@@ -36,25 +36,15 @@ CREATE TABLE travel_plan (
                              message             VARCHAR2(500),
                              partial             NUMBER(1)      DEFAULT 0,
                              quality_score       NUMBER,
-                             posted              NUMBER(1)      DEFAULT 0 NOT NULL,
-                             post_date           DATE,
-                             live_tracking        NUMBER(1)      DEFAULT 0 NOT NULL,
-                             original_user_id     NUMBER,
-                             copied_modified      NUMBER(1)      DEFAULT 1 NOT NULL,
 
                              response_json     CLOB           NOT NULL,
 
                              created_at        DATE           DEFAULT SYSDATE,
-                             updated_at        DATE           DEFAULT SYSDATE,
-
-                             CONSTRAINT chk_travel_plan_posted CHECK (posted IN (0, 1)),
-                             CONSTRAINT chk_travel_plan_live_tracking CHECK (live_tracking IN (0, 1))
+                             updated_at        DATE           DEFAULT SYSDATE
 );
 
 
 select * from travel_plan;
-
-
 
 -- -----------------------------------------------------------------------------
 -- §2) 기존 travel_plan 이 이미 있을 때 — 아래 한 줄씩 실행 (ORA-01430 이미 존재 → 스킵)
@@ -268,8 +258,21 @@ INSERT INTO travel_plan (
          );
 select * from travel_plan;
 
+<<<<<<< HEAD
+
+
+delete from TRAVEL_PLAN;
+
+
+
+
+
+
+
+=======
 -- delete
 -- from TRAVEL_PLAN;
+>>>>>>> 0c22d3f36315c5cc291e9cdf20d508244ad82abb
 
 UPDATE travel_plan
 SET
