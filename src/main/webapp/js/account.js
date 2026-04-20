@@ -1,6 +1,53 @@
 const select = document.getElementById("emailDomain");
 const custom = document.getElementById("customDomain");
+const customSelect = document.getElementById("emailDomainSelect");
+const selectTrigger = customSelect.querySelector(".select-trigger");
+const optionsList = customSelect.querySelector(".options");
 
+// 커스텀 드롭다운 토글
+selectTrigger.addEventListener("click", function() {
+    customSelect.classList.toggle("active");
+});
+
+// 옵션 선택
+optionsList.addEventListener("click", function(e) {
+    if (e.target.tagName === "LI") {
+        const value = e.target.getAttribute("data-value");
+        const text = e.target.textContent;
+
+        // 선택된 옵션 하이라이트 업데이트
+        optionsList.querySelectorAll("li").forEach(li => li.classList.remove("selected"));
+        e.target.classList.add("selected");
+
+        // 트리거 텍스트 업데이트
+        selectTrigger.textContent = text;
+        selectTrigger.setAttribute("data-value", value);
+
+        // 히든 인풋 값 업데이트
+        select.value = value;
+
+        // 드롭다운 닫기
+        customSelect.classList.remove("active");
+
+        // 직접 입력 처리
+        if (value === "direct") {
+            custom.style.display = "inline";
+            custom.value = "@";
+            custom.focus();
+        } else {
+            custom.style.display = "none";
+        }
+    }
+});
+
+// 외부 클릭 시 드롭다운 닫기
+document.addEventListener("click", function(e) {
+    if (!customSelect.contains(e.target)) {
+        customSelect.classList.remove("active");
+    }
+});
+
+// 기존 select change 이벤트 유지 (하위 호환성)
 select.addEventListener("change", function () {
     if (this.value === "direct") {
         custom.style.display = "inline";
@@ -18,11 +65,11 @@ function setEmail() {
     let domain = "";
 
     if (domainSelect === "direct") {
-        if (!customDomain) {
+        if (!customDomain || customDomain === "@") {
             alert("\ub3c4\uba54\uc778\uc744 \uc785\ub825\ud574\uc8fc\uc138\uc694.");
             return false;
         }
-        domain = customDomain.replace("@", "");
+        domain = customDomain;
     } else {
         domain = domainSelect;
     }
@@ -36,7 +83,7 @@ function setEmail() {
         id = id.split("@")[0];
     }
 
-    emailInput.value = id + "@" + domain;
+    emailInput.value = id + domain;
     return true;
 }
 
@@ -59,6 +106,123 @@ function checkPassword() {
     }
 }
 
+function checkIdRealtime() {
+    const loginId = document.querySelector('input[name="login_id"]').value.trim();
+    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+
+    if (loginId && !alphanumericRegex.test(loginId)) {
+        showSnackbar("ID는 영어와 숫자만 입력 가능합니다.");
+        showInlineError("id-error", "ID는 영어와 숫자만 입력 가능합니다.");
+    } else {
+        hideInlineError("id-error");
+    }
+}
+
+function checkEmailRealtime() {
+    const emailId = document.querySelector('input[name="email"]').value.trim();
+    const emailIdRegex = /^[A-Za-z0-9._%+-]+$/;
+
+    if (emailId && !emailIdRegex.test(emailId)) {
+        showSnackbar("이메일 아이디는 영어, 숫자, ._ %+- 만 입력 가능합니다.");
+    }
+}
+
+function checkDomainRealtime() {
+    const customDomain = document.getElementById("customDomain").value.trim();
+    const domainRegex = /^(?!-)([A-Za-z0-9-]+\.)+[A-Za-z]{2,}$/;
+
+    if (customDomain && !domainRegex.test(customDomain)) {
+        showSnackbar("도메인 형식이 올바르지 않습니다. (예: example.com)");
+    }
+}
+
+function checkPasswordRealtime() {
+    const password = document.getElementById("pw1").value.trim();
+    const passwordRegex = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/;
+
+    if (password && !passwordRegex.test(password)) {
+        showSnackbar("비밀번호는 영어, 숫자, 특수문자만 입력 가능합니다.");
+        showInlineError("password-error", "비밀번호는 영어, 숫자, 특수문자만 입력 가능합니다.");
+    } else {
+        hideInlineError("password-error");
+    }
+
+    updatePasswordStrength(password);
+}
+
+function showStrengthBar() {
+    const strengthDiv = document.getElementById("password-strength");
+    strengthDiv.classList.add("show");
+}
+
+function hideStrengthBar() {
+    const strengthDiv = document.getElementById("password-strength");
+    const password = document.getElementById("pw1").value.trim();
+    if (!password) {
+        strengthDiv.classList.remove("show");
+    }
+}
+
+function updatePasswordStrength(password) {
+    const strengthBar = document.getElementById("strength-bar");
+    const strengthText = document.getElementById("strength-text");
+
+    if (!password) {
+        strengthBar.style.width = "0%";
+        strengthBar.className = "strength-bar";
+        strengthText.textContent = "";
+        return;
+    }
+
+    let score = 0;
+
+    // 길이 점수
+    if (password.length >= 8) score++;
+    if (password.length >= 12) score++;
+
+    // 문자 조합 점수
+    if (/[a-z]/.test(password)) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) score++;
+
+    // 강도 설정
+    let strength = "";
+    let color = "";
+    let width = "";
+    let strengthClass = "";
+
+    if (score <= 2) {
+        strength = "약함";
+        color = "#dc2626";
+        width = "33%";
+        strengthClass = "weak";
+    } else if (score <= 4) {
+        strength = "보통";
+        color = "#f59e0b";
+        width = "66%";
+        strengthClass = "medium";
+    } else {
+        strength = "강함";
+        color = "#16a34a";
+        width = "100%";
+        strengthClass = "strong";
+    }
+
+    strengthBar.style.width = width;
+    strengthBar.className = "strength-bar " + strengthClass;
+    strengthText.textContent = strength;
+    strengthText.style.color = color;
+}
+
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const isPassword = input.type === "password";
+
+    input.type = isPassword ? "text" : "password";
+    btn.innerHTML = isPassword ? '<i class="fa-solid fa-eye"></i>' : '<i class="fa-solid fa-eye-slash"></i>';
+}
+
 function checkAgree() {
     const agree = document.getElementById("agree");
 
@@ -73,6 +237,63 @@ function checkAgree() {
 function validateForm() {
     if (!checkAgree()) return false;
     if (!setEmail()) return false;
+    if (!checkAlphanumeric()) return false;
+    if (!checkGender()) return false;
 
     return true;
+}
+
+function checkGender() {
+    const gender = document.querySelector('input[name="gender"]:checked');
+    if (!gender) {
+        showSnackbar("성별을 선택해주세요.");
+        return false;
+    }
+    return true;
+}
+
+function checkAlphanumeric() {
+    const loginId = document.querySelector('input[name="login_id"]').value.trim();
+    const password = document.getElementById("pw1").value.trim();
+
+    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+    const passwordRegex = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/;
+
+    if (!alphanumericRegex.test(loginId)) {
+        showSnackbar("ID는 영어와 숫자만 입력 가능합니다.");
+        return false;
+    }
+
+    if (!passwordRegex.test(password)) {
+        showSnackbar("비밀번호는 영어, 숫자, 특수문자만 입력 가능합니다.");
+        return false;
+    }
+
+    return true;
+}
+
+function showSnackbar(message) {
+    const snackbar = document.getElementById("snackbar");
+    snackbar.textContent = message;
+    snackbar.classList.add("show");
+
+    setTimeout(() => {
+        snackbar.classList.remove("show");
+    }, 3000);
+}
+
+function showInlineError(elementId, message) {
+    const errorElement = document.getElementById(elementId);
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.classList.add("show");
+    }
+}
+
+function hideInlineError(elementId) {
+    const errorElement = document.getElementById(elementId);
+    if (errorElement) {
+        errorElement.textContent = "";
+        errorElement.classList.remove("show");
+    }
 }

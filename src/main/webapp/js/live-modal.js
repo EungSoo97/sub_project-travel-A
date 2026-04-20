@@ -871,6 +871,17 @@ function showLocationRealtimeData(activity) {
     // Update next schedule information
     updateNextScheduleInfo(activity);
 
+    // 🔑 선택된 장소·시간 기준으로 실시간 데이터(추천 여행지·교통·혼잡도 등)를 즉시 재조회.
+    // livePage.js 가 window.liveLoadDashboard 를 노출하며, 내부적으로 activity.lat/lng/id/dayIndex 를
+    // 쿼리에 실어 LiveDashboardC → FastAPI 로 프록시한다.
+    if (typeof window.liveLoadDashboard === "function") {
+        try {
+            window.liveLoadDashboard(activity);
+        } catch (e) {
+            console.error("liveLoadDashboard failed:", e);
+        }
+    }
+
     // Close modal after selection
     closeFullScheduleModal();
     closeModal();
@@ -959,21 +970,39 @@ let fsAllExpanded  = false;
 /* 카테고리별 아이콘 매핑 */
 function _fsCategoryIcon(cat) {
     const map = {
-        TRANSPORT: '🚌', MOVE: '🚌', FLIGHT: '✈️',
-        HOTEL: '🏨', ACCOMMODATION: '🏨',
-        DINING: '🍽️', FOOD: '🍽️', RESTAURANT: '🍽️',
-        SHOPPING: '🛍️', CULTURE: '🏛️', MUSEUM: '🏛️',
-        NATURE: '🌿', ACTIVITY: '🎡', TOUR: '🗺️',
-        CAFE: '☕', SPA: '♨️'
+        TRANSPORT: '<i class="fa-solid fa-bus"></i>',
+        MOVE: '<i class="fa-solid fa-bus"></i>',
+        FLIGHT: '<i class="fa-solid fa-plane"></i>',
+
+        HOTEL: '<i class="fa-solid fa-hotel"></i>',
+        ACCOMMODATION: '<i class="fa-solid fa-hotel"></i>',
+
+        DINING: '<i class="fa-solid fa-utensils"></i>',
+        FOOD: '<i class="fa-solid fa-utensils"></i>',
+        RESTAURANT: '<i class="fa-solid fa-utensils"></i>',
+
+        SHOPPING: '<i class="fa-solid fa-bag-shopping"></i>',
+        CULTURE: '<i class="fa-solid fa-landmark"></i>',
+        MUSEUM: '<i class="fa-solid fa-landmark"></i>',
+
+        NATURE: '<i class="fa-solid fa-leaf"></i>',
+        ACTIVITY: '<i class="fa-solid fa-person-running"></i>',
+        TOUR: '<i class="fa-regular fa-map"></i>',
+
+        CAFE: '<i class="fa-solid fa-mug-saucer"></i>',
+        SPA: '<i class="fa-solid fa-spa"></i>'
     };
-    if (!cat) return '📍';
+
+    if (!cat) return '<i class="fa-solid fa-location-dot"></i>';
+
     const key = cat.toString().toUpperCase();
+
     for (const [k, v] of Object.entries(map)) {
         if (key.includes(k)) return v;
     }
-    return '📍';
-}
 
+    return '<i class="fa-solid fa-location-dot"></i>';
+}
 /* 비용 포맷 */
 function _fsFmtCost(cost, currency) {
     if (!cost || cost === '0' || cost === 0) return '무료';
@@ -1040,10 +1069,10 @@ function openFullScheduleModal() {
     const header = document.createElement('div');
     Object.assign(header.style, {
         display:'flex', alignItems:'center', justifyContent:'space-between',
-        padding:'12px 18px 14px', background:'#fff',
+        padding:'16px 20px', background:'#fff',
         borderBottom:'1px solid #e2e8f0', flexShrink:'0'
     });
-    header.innerHTML = `<h3 style="margin:0;font-size:16px;font-weight:700;color:#0f172a;">상세 일정</h3>`;
+    header.innerHTML = `<h3 style="margin:0;font-size:17px;font-weight:700;color:#0f172a;">상세 일정</h3>`;
 
     const rightGrp = document.createElement('div');
     Object.assign(rightGrp.style, { display:'flex', alignItems:'center', gap:'8px' });
@@ -1111,32 +1140,37 @@ function openFullScheduleModal() {
         const badge = document.createElement('div');
         Object.assign(badge.style, {
             background:'#3b82f6', color:'#fff',
-            width:'38px', height:'38px', borderRadius:'10px',
-            display:'flex', flexDirection:'column',
-            alignItems:'center', justifyContent:'center',
-            fontSize:'9px', fontWeight:'800', lineHeight:'1.2',
-            flexShrink:'0', letterSpacing:'0.5px'
+            width:'42px', height:'42px', borderRadius:'12px',
+            display:'flex', alignItems:'center', justifyContent:'center',
+            fontSize:'16px', fontWeight:'800',
+            flexShrink:'0', letterSpacing:'0.5px',
+            boxShadow:'0 2px 8px rgba(59,130,246,0.3)'
         });
-        badge.innerHTML = `<span style="font-size:8px;opacity:0.85;">D${dayNum}</span><span style="font-size:13px;">${dayNum}일차</span>`;
+        badge.innerHTML = `D${dayNum}`;
 
         // 날짜 + 이동정보 텍스트
         const dayInfoWrap = document.createElement('div');
         Object.assign(dayInfoWrap.style, { flex:'1', minWidth:'0' });
+
+        // summary에서 첫 번째 단어(목적지)만 추출
+        const summaryText = dayData.summary || '';
+        const destinationName = summaryText.split(' ')[0] || summaryText;
+
         dayInfoWrap.innerHTML = `
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                <span style="font-size:14px;font-weight:700;color:#0f172a;">${dayNum}일차</span>
-                <span style="font-size:11px;color:#64748b;">${dayData.date || ''}</span>
+                <span style="font-size:15px;font-weight:700;color:#0f172a;">${dayData.date || ''}</span>
             </div>
-            <div style="font-size:11px;color:#94a3b8;margin-top:2px;">
-                ${dayData.summary || ''}
+            <div style="font-size:12px;color:#64748b;margin-top:3px;">
+                ${destinationName}
             </div>
         `;
 
         const toggleIcon = document.createElement('span');
         toggleIcon.className = 'fs-toggle-icon';
         Object.assign(toggleIcon.style, {
-            color:'#94a3b8', fontSize:'18px',
-            transition:'transform 0.2s', marginTop:'8px', flexShrink:'0'
+            color:'#3b82f6', fontSize:'20px',
+            transition:'transform 0.2s', marginTop:'4px', flexShrink:'0',
+            fontWeight:'bold'
         });
         toggleIcon.innerHTML = '&#8250;';
 
@@ -1162,13 +1196,19 @@ function openFullScheduleModal() {
                 const actRow = document.createElement('div');
                 Object.assign(actRow.style, {
                     display:'flex', gap:'12px', alignItems:'flex-start',
-                    padding:'12px 16px',
+                    padding:'14px 18px',
                     borderBottom: isLast ? 'none' : '1px solid #f1f5f9',
                     background:'#fff', cursor:'pointer',
-                    transition:'background 0.15s'
+                    transition:'background 0.2s, transform 0.1s'
                 });
-                actRow.onmouseenter = () => actRow.style.background = '#f0f9ff';
-                actRow.onmouseleave = () => actRow.style.background = '#fff';
+                actRow.onmouseenter = () => {
+                    actRow.style.background = '#f0f9ff';
+                    actRow.style.transform = 'translateX(2px)';
+                };
+                actRow.onmouseleave = () => {
+                    actRow.style.background = '#fff';
+                    actRow.style.transform = 'translateX(0)';
+                };
                 actRow.onclick = () => showLocationRealtimeData({ ...act, dayIndex: index });
 
                 // 시간
@@ -1186,11 +1226,11 @@ function openFullScheduleModal() {
                     flexShrink:'0', width:'28px'
                 });
                 timelineCol.innerHTML = `
-                    <div style="width:28px;height:28px;border-radius:50%;background:#eff6ff;
-                                border:2px solid #bfdbfe;display:flex;
+                    <div style="width:30px;height:30px;border-radius:50%;background:#eff6ff;
+                                border:2px solid #3b82f6;display:flex;
                                 align-items:center;justify-content:center;
-                                font-size:14px;flex-shrink:0;">${icon}</div>
-                    ${!isLast ? `<div style="width:2px;flex:1;min-height:12px;background:#e2e8f0;margin-top:4px;"></div>` : ''}
+                                font-size:15px;flex-shrink:0;box-shadow:0 2px 4px rgba(59,130,246,0.15);">${icon}</div>
+                    ${!isLast ? `<div style="width:2px;flex:1;min-height:16px;background:#e2e8f0;margin-top:6px;"></div>` : ''}
                 `;
 
                 // 내용
@@ -1229,13 +1269,14 @@ function openFullScheduleModal() {
             const footer = document.createElement('div');
             Object.assign(footer.style, {
                 display:'flex', justifyContent:'space-between', alignItems:'center',
-                padding:'10px 16px',
-                background:'#eff6ff', borderTop:'1px solid #dbeafe'
+                padding:'12px 18px',
+                background:'#eff6ff', borderTop:'1px solid #dbeafe',
+                borderRadius:'0 0 12px 12px'
             });
             footer.innerHTML = `
-                <span style="font-size:12px;color:#3b82f6;font-weight:600;">${dayNum}일차 예상 일정</span>
-                <span style="font-size:13px;font-weight:700;color:#1d4ed8;">
-                    예상 비용: ${totalCost > 0 ? totalCost.toLocaleString() + ' ' + currency : '무료'}
+                <span style="font-size:13px;color:#3b82f6;font-weight:600;">예상 일정 비용</span>
+                <span style="font-size:14px;font-weight:700;color:#1d4ed8;">
+                    ${totalCost > 0 ? totalCost.toLocaleString() + ' ' + currency : '무료'}
                 </span>
             `;
             dayContent.appendChild(footer);

@@ -9,6 +9,8 @@
 <head>
     <title>Explore</title>
     <link rel="stylesheet" href="/css/explore.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body class="explore-body">
@@ -24,15 +26,21 @@
 </div>
 <div class="search-box">
     <form id="searchForm" action="${pageContext.request.contextPath}/explore" method="get">
-        <div class="search-input-wrap">
-            <input
-                    type="text"
-                    id="searchInput"
-                    name="q"
-                    placeholder="여행지, 태그, 키워드 검색"
-                    value="${param.q}"
-            />
-            <button type="button" id="searchBtn" class="search-btn" aria-label="검색">🔍</button>
+        <div class="search-box">
+            <form action="/explore" method="get">
+                <div class="search-input-wrap">
+                    <input
+                            type="text"
+                            id="searchInput"
+                            name="q"
+                            placeholder="여행지, 태그, 키워드 검색"
+                    >
+                    <button type="submit" class="search-icon-btn">
+
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </form>
         </div>
 
         <input type="hidden" id="selectedTagsInput" name="selectedTags" value="${param.selectedTags}" />
@@ -53,7 +61,7 @@
 
 <div class="filter-box card-box" id="filterBox">
     <div class="filter-header">
-        <h3>🔎 필터</h3>
+        <i class="fa-solid fa-sliders"></i> 필터
         <div class="filter-header-actions">
             <div class="filter-summary" id="filterSummary" aria-live="polite"></div>
             <button type="button" class="filter-toggle" id="filterToggle" aria-expanded="true" aria-controls="filterContent" aria-label="필터 접기">
@@ -63,12 +71,29 @@
     </div>
     <div class="filter-content" id="filterContent">
     <div class="filter-items">
-        <button type="button" class="filter-item" data-value="전체">🌍 전체</button>
-        <button type="button" class="filter-item" data-value="식도락">🍽 식도락</button>
-        <button type="button" class="filter-item" data-value="힐링">🧘 힐링</button>
-        <button type="button" class="filter-item" data-value="액티브">🏃 액티브</button>
-        <button type="button" class="filter-item" data-value="문화">🏛 문화</button>
-        <button type="button" class="filter-item" data-value="쇼핑">🛍 쇼핑</button>
+        <button class="filter-item" data-value="전체">
+            <i class="fa-solid fa-earth-asia"></i> 전체
+        </button>
+
+        <button class="filter-item" data-value="식도락">
+            <i class="fa-solid fa-utensils"></i> 식도락
+        </button>
+
+        <button class="filter-item" data-value="힐링">
+            <i class="fa-solid fa-spa"></i> 힐링
+        </button>
+
+        <button class="filter-item" data-value="액티브">
+            <i class="fa-solid fa-person-running"></i> 액티브
+        </button>
+
+        <button class="filter-item" data-value="문화">
+            <i class="fa-solid fa-landmark"></i> 문화
+        </button>
+
+        <button class="filter-item" data-value="쇼핑">
+            <i class="fa-solid fa-bag-shopping"></i> 쇼핑
+        </button>
     </div>
     </div>
 </div>
@@ -118,11 +143,11 @@
                             <div class="explore-author-list">
                                 <c:choose>
                                     <c:when test="${not empty plan.editorUserName and not empty plan.originalUserName and plan.editorUserName ne plan.originalUserName}">
-                                        <span class="explore-author-pill">👤 원본 <c:out value="${plan.originalUserName}" /></span>
-                                        <span class="explore-author-pill explore-author-pill--editor">✏️ 수정 <c:out value="${plan.editorUserName}" /></span>
+                                        <span class="explore-author-pill"><i class="fa-regular fa-user"></i> 원본 <c:out value="${plan.originalUserName}" /></span>
+                                        <span class="explore-author-pill explore-author-pill--editor"><i class="fa-solid fa-pen"></i> 수정 <c:out value="${plan.editorUserName}" /></span>
                                     </c:when>
                                     <c:otherwise>
-                                        <span class="explore-author-pill">👤 <c:out value="${empty plan.userName ? '여행자' : plan.userName}" /></span>
+                                        <span class="explore-author-pill"><i class="fa-solid fa-user"></i> <c:out value="${empty plan.userName ? '여행자' : plan.userName}" /></span>
                                     </c:otherwise>
                                 </c:choose>
                             </div>
@@ -132,8 +157,8 @@
                         </div>
                         <h3>${plan.summary.destination}</h3>
                         <div class="info">
-                            <span>📅 ${plan.summary.days}일</span>
-                            <span>👥 ${plan.summary.travelers}명</span>
+                            <span><i class="fa-regular fa-calendar"></i> ${plan.summary.days}일</span>
+                            <span><i class="fa-solid fa-user-group"></i> ${plan.summary.travelers}명</span>
 <%--                            체크 필요--%>
 <%--                            <c:set var="currentPlanId" value="${plan.planId}" scope="page"/>--%>
 <%--                            <c:set var="currentPlanId" value="${plan.planId}" />--%>
@@ -154,7 +179,7 @@
 <%--                                }--%>
 <%--                            %>--%>
 <%--                            <span><%= likeCount %>❤ </span>--%>
-                            <span>${plan.likeCnt}❤</span>
+                            <span>${plan.likeCnt}<i class="fa-regular fa-heart"></i></span>
                         </div>
                         <div class="tags">
                             <c:forEach var="style" items="${plan.summary.requestStyles}">

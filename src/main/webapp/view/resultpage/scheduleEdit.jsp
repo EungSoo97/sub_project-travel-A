@@ -19,10 +19,10 @@
         </div>
         <div class="edit-header__actions">
             <button class="btn-recalc" type="button">
-                <span class="btn-icon">↺</span> 경로 재계산
+                <span class="btn-icon"><i class="fa-solid fa-rotate"></i></span> 경로 재계산
             </button>
             <button type="button" class="btn-save" onclick="handleSave()">
-                <span class="btn-icon">💾</span> 저장
+                <span class="btn-icon"><i class="fa-solid fa-floppy-disk"></i></span> 저장
             </button>
         </div>
     </div>
@@ -77,7 +77,7 @@
                 <span class="day-block__title">Day ${item.day} · ${item.date}</span>
                 <button class="btn-add-activity" type="button"
                         data-list-id="day${item.day}-list">
-                    <span>+</span> 활동 추가
+                    <span><i class="fa-solid fa-plus"></i></span> 활동 추가
                 </button>
             </div>
 
@@ -91,19 +91,19 @@
                     <c:choose>
                         <c:when test="${activityCategory == 'TRANSPORT'}">
                             <c:set var="itemClass" value="activity-item--move"/>
-                            <c:set var="iconEmoji" value="🚆"/>
+                            <c:set var="iconEmoji" value="<i class='fa-solid fa-train'></i>"/>
                         </c:when>
                         <c:when test="${activityCategory == 'DINING' or activityCategory == 'FOOD' or activityCategory == 'RESTAURANT'}">
                             <c:set var="itemClass" value="activity-item--food"/>
-                            <c:set var="iconEmoji" value="🍽"/>
+                            <c:set var="iconEmoji" value="<i class='fa-solid fa-utensils'></i>"/>
                         </c:when>
                         <c:when test="${activityCategory == 'ACCOMMODATION' or activityCategory == 'HOTEL'}">
                             <c:set var="itemClass" value="activity-item--hotel"/>
-                            <c:set var="iconEmoji" value="🏨"/>
+                            <c:set var="iconEmoji" value="<i class='fa-solid fa-hotel'></i>"/>
                         </c:when>
                         <c:otherwise>
                             <c:set var="itemClass" value="activity-item--spot"/>
-                            <c:set var="iconEmoji" value="📍"/>
+                            <c:set var="iconEmoji" value="<i class='fa-solid fa-location-dot'></i>"/>
                         </c:otherwise>
                     </c:choose>
 
@@ -119,9 +119,9 @@
                          data-currency="${act.currency}"
                          data-location="${act.location}">
 
-                        <div class="activity-item__drag">⋮⋮</div>
+                        <div class="activity-item__drag"><i class="fa-solid fa-grip-vertical"></i></div>
 
-                        <div class="activity-item__icon">${iconEmoji}</div>
+                        <div class="activity-item__icon"><c:out value="${iconEmoji}" escapeXml="false"/></div>
 
                         <div class="activity-item__body">
                             <div class="activity-item__top">
@@ -136,18 +136,18 @@
                             <div class="activity-item__meta">
                                 <c:if test="${not empty act.location}">
                                     <span class="meta-tag meta-tag--location">
-                                        📍 ${fn:escapeXml(act.location)}
+                                        <i class="fa-solid fa-location-dot"></i> ${fn:escapeXml(act.location)}
                                     </span>
                                 </c:if>
                                 <c:choose>
                                     <c:when test="${act.durationMinutes > 0}">
                                         <span class="meta-tag meta-tag--time">
-                                            ⏱ ${act.durationMinutes}분
+                                            <i class="fa-regular fa-clock"></i> ${act.durationMinutes}분
                                         </span>
                                     </c:when>
                                     <c:otherwise>
                                         <span class="meta-tag meta-tag--time">
-                                            ⏱ 미정
+                                            <i class="fa-regular fa-clock"></i> 미정
                                         </span>
                                     </c:otherwise>
                                 </c:choose>
@@ -164,7 +164,7 @@
                             </div>
                         </div>
 
-                        <button class="activity-item__delete" type="button" title="삭제">🗑</button>
+                        <button class="activity-item__delete" type="button" title="삭제"><i class="fa-solid fa-trash"></i></button>
                     </div>
 
                 </c:forEach>
@@ -250,7 +250,7 @@
             .then(function(data) {
                 console.log('서버 응답:', data);
                 if (data.success) {
-                    showToast('💾 저장 완료! 이동합니다.');
+                    showToast('저장 완료! 이동합니다.');
                     setTimeout(function() {
                         window.location.href =
                             '${pageContext.request.contextPath}/myplan-page?id=' + PLAN_ID;

@@ -34,7 +34,7 @@
 
         <div class="time-box">
             <div class="time-top">
-                <span class="time-label">🕒 현재 시각</span>
+                <span class="time-label"><i class="fa-regular fa-clock"></i> 현재 시각</span>
                 <span class="time-display" id="currentTime">—</span>
             </div>
             <div class="time-bottom">
@@ -59,7 +59,7 @@
                         ${selectedPlan.overview}
                     </c:when>
                     <c:otherwise>
-                        📍 ${selectedPlan.destination}
+                        <i class="fa-solid fa-location-dot"></i> ] ${selectedPlan.destination}
                     </c:otherwise>
                 </c:choose>
             </p>
@@ -90,7 +90,7 @@
             </div>
 
             <div class="congestion-banner">
-                <div class="banner-icon">👥</div>
+                <div class="banner-icon"><i class="fa-solid fa-user-group"></i></div>
                 <div class="banner-text">
                     <strong id="liveCrowdSectionTitle">실시간 혼잡도</strong>
                     <p id="liveCrowdMessage">${selectedPlan.destination} 기준 정보를 불러오는 중입니다.</p>
@@ -125,8 +125,8 @@
         <div class="nearby-booking-box card-box">
             <div class="section-header">
                 <div class="section-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                    주변 인생샷 스폿
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    주변 추천 장소
                 </div>
                 <span class="subtitle" id="liveSpotSubtitle">${selectedPlan.destination}</span>
             </div>
@@ -146,7 +146,7 @@
 
         <div class="traffic-box card-box">
             <div class="section-title">
-                교통 상황
+                <i class="fa-solid fa-car"></i>교통 상황
             </div>
 
             <div class="info-list" id="liveTraffic">
@@ -156,7 +156,7 @@
 
         <div class="emergency-box card-box">
             <div class="section-title">
-                긴급 연락처
+                <i class="fa-solid fa-phone"></i>긴급 연락처
             </div>
 
             <div class="info-list" id="liveEmergency">

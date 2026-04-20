@@ -35,6 +35,9 @@ public class LiveDashboardC extends HttpServlet {
         String day = request.getParameter("day");
         String activityId = request.getParameter("activityId");
         String destination = request.getParameter("destination");
+        // 선택된 activity 의 좌표 — FastAPI 가 위치 기반 추천·교통을 산출할 때 사용.
+        String lat = request.getParameter("lat");
+        String lng = request.getParameter("lng");
 
         StringBuilder url = new StringBuilder(FastApiService.resolveFastApiBaseUrl());
         if (!url.toString().endsWith("/")) {
@@ -49,6 +52,12 @@ public class LiveDashboardC extends HttpServlet {
         }
         if (destination != null && !destination.isBlank()) {
             url.append("&destination=").append(URLEncoder.encode(destination.trim(), StandardCharsets.UTF_8));
+        }
+        if (lat != null && !lat.isBlank()) {
+            url.append("&lat=").append(URLEncoder.encode(lat.trim(), StandardCharsets.UTF_8));
+        }
+        if (lng != null && !lng.isBlank()) {
+            url.append("&lng=").append(URLEncoder.encode(lng.trim(), StandardCharsets.UTF_8));
         }
 
         try {

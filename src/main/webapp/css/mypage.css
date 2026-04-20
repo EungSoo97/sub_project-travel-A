@@ -298,16 +298,9 @@
     align-items: center;
     justify-content: center;
     color: #facc15;
-    text-shadow:
-        0 0 5px rgba(250, 204, 21, 0.95),
-        0 0 14px rgba(250, 204, 21, 0.72),
-        0 3px 8px rgba(113, 63, 18, 0.38);
-    font-size: 26px;
-    font-weight: 900;
-    transform-origin: center;
-    animation: favoriteGlow 1.8s ease-in-out infinite;
+    font-size: 22px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
-
 @keyframes favoriteGlow {
     0%, 100% {
         transform: scale(1);

@@ -13,7 +13,7 @@
 
         <div class="header">
             <div class="header-topbar">
-                <a href="hello-servlet">← 검색으로 돌아가기</a>
+                <a href="hello-servlet"><i class="fa-solid fa-arrow-left"></i> 검색으로 돌아가기</a>
                 <button type="button" class="header-collapse-toggle" aria-expanded="true" aria-label="상단 정보 접기">
                     <span class="header-collapse-symbol">−</span>
                 </button>
@@ -37,10 +37,10 @@
                         <c:when test="${not empty sessionScope.user}">
                             <form action="${pageContext.request.contextPath}/save-plan" method="post">
                                 <input type="hidden" name="title" value="${result.summary.title}">
-                                <button type="submit" class="action-btn result-choice-btn save-btn" title="저장하기" aria-label="저장하기">💾</button>
+                                <button type="submit" class="action-btn result-choice-btn save-btn" title="저장하기" aria-label="저장하기"><i class="fa-solid fa-floppy-disk"></i></button>
                             </form>
                             <form action="${pageContext.request.contextPath}/discard-plan" method="post">
-                                <button type="submit" class="action-btn result-choice-btn discard-btn" title="저장하지 않기" aria-label="저장하지 않기">🗑</button>
+                                <button type="submit" class="action-btn result-choice-btn discard-btn" title="저장하지 않기" aria-label="저장하지 않기"><i class="fa-solid fa-trash"></i></button>
                             </form>
                         </c:when>
                         <c:otherwise>
@@ -54,17 +54,17 @@
         <!-- 여행 정보 -->
         <div class="mp-summary-grid">
             <div class="mp-summary-card mp-summary-card--full">
-                <p class="mp-summary-label">📅 여행 기간</p>
+                <p class="mp-summary-label"><i class="fa-regular fa-calendar"></i> 여행 기간</p>
                 <p class="mp-summary-value">${result.summary.startDate} ~ ${result.summary.endDate}</p>
             </div>
 
             <div class="mp-summary-card">
-                <p class="mp-summary-label">👥 여행 인원</p>
+                <p class="mp-summary-label"><i class="fa-solid fa-user-group"></i> 여행 인원</p>
                 <p class="mp-summary-value">${result.summary.travelers}명</p>
             </div>
 
             <div class="mp-summary-card">
-                <p class="mp-summary-label">🎯 여행 스타일</p>
+                <p class="mp-summary-label"><i class="fa-solid fa-bullseye"></i> 여행 스타일</p>
                 <p class="mp-summary-value">${result.summary.travelStyle}</p>
             </div>
         </div>
@@ -72,7 +72,7 @@
         <!-- 지도 영역 -->
         <div class="map-section">
             <div class="map-header" role="button" tabindex="0" aria-expanded="true">
-                <span>🗺 여행 동선 지도</span>
+                <span><i class="fa-regular fa-map"></i> 여행 동선 지도</span>
                 <span class="map-toggle-indicator map-toggle-label">지도 접기</span>
                 <div class="legend">
                     <span class="dot blue"></span> 관광지
@@ -178,16 +178,16 @@
                                     data-is-new="${(empty act.lat || empty act.lng) ? 'true' : 'false'}">
                                 <c:choose>
                                     <c:when test="${activityCategory == 'TRANSPORT' or activityCategory == 'MOVE'}">
-                                        <div class="icon move">🚗</div>
+                                        <div class="icon move"><i class="fa-solid fa-car"></i></div>
                                     </c:when>
                                     <c:when test="${activityCategory == 'DINING' or activityCategory == 'FOOD' or activityCategory == 'RESTAURANT'}">
-                                        <div class="icon food">🍽</div>
+                                        <div class="icon food"><i class="fa-solid fa-utensils"></i></div>
                                     </c:when>
                                     <c:when test="${activityCategory == 'ACCOMMODATION' or activityCategory == 'HOTEL'}">
-                                        <div class="icon hotel">🏨</div>
+                                        <div class="icon hotel"><i class="fa-solid fa-hotel"></i></div>
                                     </c:when>
                                     <c:otherwise>
-                                        <div class="icon spot">📍</div>
+                                        <div class="icon spot"><i class="fa-solid fa-location-dot"></i></div>
                                     </c:otherwise>
                                 </c:choose>
 
@@ -233,7 +233,7 @@
 
                 <!-- 항공 -->
                 <div class="recommend-card">
-                    <h3>✈ 항공권 최저가</h3>
+                    <h3><i class="fa-solid fa-plane"></i> 항공권 최저가</h3>
                     <c:choose>
                         <c:when test="${empty result.flights}">
                             <p>항공권 정보를 불러오지 못했습니다.</p>
@@ -257,7 +257,7 @@
 
                 <!-- 숙박 -->
                 <div class="recommend-card">
-                    <h3>🏨 숙박 추천</h3>
+                    <h3><i class="fa-solid fa-hotel"></i> 숙박 추천</h3>
                     <c:forEach var="hotel" items="${result.hotels}">
                         <div class="recommend-item">
                             <div class="left">

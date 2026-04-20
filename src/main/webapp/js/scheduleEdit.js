@@ -304,12 +304,12 @@ document.getElementById('addActivityBtn').addEventListener('click', () => {
 
     // 타입에 따른 아이콘 결정
     const iconMap = {
-        'transport': '🚆',
-        'dining': '🍽',
-        'accommodation': '🏨',
-        'spot': '📍'
+        'transport': '<i class="fa-solid fa-train"></i>',
+        'dining': '<i class="fa-solid fa-utensils"></i>',
+        'accommodation': ' <i class="fa-solid fa-hotel"></i>',
+        'spot': '<i class="fa-solid fa-location-dot"></i>'
     };
-    const icon = iconMap[type] || '📍';
+    const icon = iconMap[type] || '<i class="fa-solid fa-location-dot"></i>';
 
     // 타입에 따른 CSS 클래스 결정
     const classMap = {

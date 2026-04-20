@@ -54,7 +54,7 @@ public class SettingsC extends HttpServlet {
             boolean result = SettingsDAO.deleteUser(request);
 
             if (result) {
-                response.sendRedirect("home");
+                response.sendRedirect(request.getContextPath() + "/");
             } else {
                 request.setAttribute("error", "회원 탈퇴 실패");
                 request.setAttribute("content", "view/mypage/settings.jsp");

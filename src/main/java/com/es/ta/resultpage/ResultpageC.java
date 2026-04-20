@@ -25,6 +25,7 @@ public class ResultpageC extends HttpServlet {
         HttpSession session = request.getSession();
         AccountDTO loginUser = (AccountDTO) session.getAttribute("user");
 
+
         if (loginUser == null) {
             request.setAttribute("content", "view/login/login.jsp");
             request.getRequestDispatcher("index.jsp").forward(request, response);
