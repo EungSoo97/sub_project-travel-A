@@ -263,37 +263,52 @@
     // focus: { id?, lat?, lng?, dayIndex? } — 선택된 activity 있으면 해당 좌표·id 기준으로 재요청.
     // 없으면 기존처럼 목적지 전체 기준. 인자 없이 호출되는 주기적 polling 도 전역에 저장된
     // window._liveSelectedActivity 를 자동 반영한다 (live-modal.js 에서 설정).
+    function selectedDay(selected) {
+        if (selected && selected.dayIndex !== undefined && selected.dayIndex !== null && !isNaN(selected.dayIndex)) {
+            return Number(selected.dayIndex) + 1;
+        }
+        if (selected && selected.day !== undefined && selected.day !== null && !isNaN(selected.day)) {
+            return Number(selected.day);
+        }
+        return null;
+    }
+
+    function selectedLocation(selected) {
+        if (!selected || selected.lat === undefined || selected.lng === undefined || selected.lat === null || selected.lng === null || selected.lat === "" || selected.lng === "") {
+            return null;
+        }
+        var lat = Number(selected.lat);
+        var lng = Number(selected.lng);
+        if (isNaN(lat) || isNaN(lng)) {
+            return null;
+        }
+        return { lat: lat, lng: lng };
+    }
+
     function loadDashboard(focus) {
-        var url = ctx + "/live/dashboard-data?planId=" + encodeURIComponent(planId);
-        if (destHint) {
-            url += "&destination=" + encodeURIComponent(destHint);
-        }
         var selected = focus || window._liveSelectedActivity || null;
-        if (selected) {
-            if (selected.id) {
-                url += "&activityId=" + encodeURIComponent(selected.id);
-            }
-            if (selected.dayIndex != null && !isNaN(selected.dayIndex)) {
-                // dayIndex 는 0-기반, 서버 계약은 1-기반(day=1,2,3,...) 이므로 +1
-                url += "&day=" + encodeURIComponent(Number(selected.dayIndex) + 1);
-            }
-            if (selected.lat != null && selected.lat !== "") {
-                url += "&lat=" + encodeURIComponent(selected.lat);
-            }
-            if (selected.lng != null && selected.lng !== "") {
-                url += "&lng=" + encodeURIComponent(selected.lng);
-            }
+        var body = {
+            planId: Number(planId) || 1,
+            planDetail: window.PLAN_DETAIL || null,
+            day: selectedDay(selected)
+        };
+        var loc = selectedLocation(selected);
+        if (loc) {
+            body.lastLocation = loc;
         }
-        fetch(url, { headers: { Accept: "application/json" } })
-            .then(function (r) {
-                if (!r.ok) {
-                    return r.text().then(function (t) {
-                        throw new Error("HTTP " + r.status + " " + t);
-                    });
-                }
-                return r.json();
+
+        fetch(ctx + "/live/dashboard-data", {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json; charset=UTF-8"
+            },
+            body: JSON.stringify(body)
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                renderDashboard(data || {});
             })
-            .then(renderDashboard)
             .catch(function (e) {
                 console.error(e);
                 showError(
@@ -322,6 +337,62 @@
                 encodeURIComponent(lat + "," + lng);
             window.open(mapsUrl, "_blank", "noopener");
         });
+    }
+
+    function liveHasLatLng(activity) {
+        return !!(activity && activity.lat !== undefined && activity.lng !== undefined && activity.lat !== null && activity.lng !== null && activity.lat !== "" && activity.lng !== "" && !isNaN(Number(activity.lat)) && !isNaN(Number(activity.lng)));
+    }
+
+    function liveCoord(activity) {
+        return Number(activity.lat) + "," + Number(activity.lng);
+    }
+
+    function openLiveRouteFromSelection() {
+        var selected = window._liveSelectedActivity || null;
+        var routeActivities = [];
+
+        if (selected && window.PLAN_DETAIL && Array.isArray(window.PLAN_DETAIL.itinerary)) {
+            var dayIdx = selected.dayIndex !== undefined && selected.dayIndex !== null ? Number(selected.dayIndex) : null;
+            if ((dayIdx === null || isNaN(dayIdx)) && selected.day !== undefined && selected.day !== null) {
+                dayIdx = Number(selected.day) - 1;
+            }
+            var day = !isNaN(dayIdx) && window.PLAN_DETAIL.itinerary[dayIdx] ? window.PLAN_DETAIL.itinerary[dayIdx] : null;
+            var acts = day && Array.isArray(day.activities) ? day.activities : [];
+            var startIdx = acts.findIndex(function (act) {
+                return (selected.id && act.id === selected.id) ||
+                    (selected.googlePlaceId && act.googlePlaceId === selected.googlePlaceId) ||
+                    (selected.time && act.time === selected.time && act.name === selected.name);
+            });
+            if (startIdx < 0) {
+                startIdx = 0;
+            }
+            routeActivities = acts.slice(startIdx).filter(liveHasLatLng);
+        }
+
+        if (routeActivities.length >= 2) {
+            var origin = liveCoord(routeActivities[0]);
+            var destination = liveCoord(routeActivities[routeActivities.length - 1]);
+            var url = "https://www.google.com/maps/dir/?api=1&origin=" + encodeURIComponent(origin) + "&destination=" + encodeURIComponent(destination);
+            var waypoints = routeActivities.slice(1, -1).map(liveCoord);
+            if (waypoints.length) {
+                url += "&waypoints=" + encodeURIComponent(waypoints.join("|"));
+            }
+            window.open(url, "_blank", "noopener");
+            return;
+        }
+
+        if (selected && selected.googleMapsUrl) {
+            window.open(selected.googleMapsUrl, "_blank", "noopener");
+            return;
+        }
+
+        if (liveHasLatLng(selected)) {
+            window.open("https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(liveCoord(selected)), "_blank", "noopener");
+        }
+    }
+    var nextRouteBtn = document.getElementById("liveNextRouteBtn");
+    if (nextRouteBtn) {
+        nextRouteBtn.addEventListener("click", openLiveRouteFromSelection);
     }
 
     loadDashboard();
