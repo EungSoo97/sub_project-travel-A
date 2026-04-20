@@ -23,7 +23,7 @@ public class ResultDraftC extends HttpServlet {
                 : null;
 
         if (result == null) {
-            response.sendRedirect(request.getContextPath() + "/hello-servlet");
+            response.sendRedirect(request.getContextPath() + "/main");
             return;
         }
 

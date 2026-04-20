@@ -20,6 +20,6 @@ public class DiscardPlanC extends HttpServlet {
             session.removeAttribute("latestTravelResult");
         }
 
-        response.sendRedirect(request.getContextPath() + "/hello-servlet");
+        response.sendRedirect(request.getContextPath() + "/main");
     }
 }

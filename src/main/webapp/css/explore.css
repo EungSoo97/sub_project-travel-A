@@ -296,6 +296,10 @@
 }
 .search-box input:focus { border-color: #333; }
 
+.search-box {
+    position: relative;
+}
+
 /* 필터 및 트렌드 헤딩 */
 .filter-box h3, .trending-box h3 {
     margin-top: 0;
