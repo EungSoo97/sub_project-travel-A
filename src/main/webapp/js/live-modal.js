@@ -871,6 +871,17 @@ function showLocationRealtimeData(activity) {
     // Update next schedule information
     updateNextScheduleInfo(activity);
 
+    // 🔑 선택된 장소·시간 기준으로 실시간 데이터(추천 여행지·교통·혼잡도 등)를 즉시 재조회.
+    // livePage.js 가 window.liveLoadDashboard 를 노출하며, 내부적으로 activity.lat/lng/id/dayIndex 를
+    // 쿼리에 실어 LiveDashboardC → FastAPI 로 프록시한다.
+    if (typeof window.liveLoadDashboard === "function") {
+        try {
+            window.liveLoadDashboard(activity);
+        } catch (e) {
+            console.error("liveLoadDashboard failed:", e);
+        }
+    }
+
     // Close modal after selection
     closeFullScheduleModal();
     closeModal();

@@ -178,7 +178,7 @@
         <div class="nearby-booking-box card-box">
             <div class="section-header">
                 <div class="section-title">
-                    <i class="fa-solid fa-camera"></i> 주변 인생샷 스폿
+                    <i class="fa-solid fa-location-dot"></i> 주변 추천 장소
                 </div>
                 <span class="subtitle" id="liveSpotSubtitle">도보 10분 이내</span>
             </div>
