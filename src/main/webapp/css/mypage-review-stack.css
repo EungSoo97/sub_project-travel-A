@@ -104,6 +104,15 @@
     margin-bottom: 0;
 }
 
+.review-stack-group.has-stack.is-collapsed .review-body {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+}
+
 .review-stack-group.has-stack.is-collapsed .review-stack-card:nth-child(n + 2) {
     position: absolute;
     inset: 34px 0 auto 0;

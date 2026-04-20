@@ -1,6 +1,7 @@
 package com.es.ta.mypage;
 
 import com.es.ta.main.DBManager_new;
+import com.es.ta.util.PlanImageResolver;
 
 import java.sql.*;
 
@@ -15,7 +16,7 @@ public class MyPlanPageDAO {
         ResultSet rs = null;
 
         String sql = "SELECT tp.plan_id, tp.user_id, tp.destination, tp.title, tp.start_date, tp.end_date, " +
-                "tp.days, tp.travelers, tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview, " +
+                "tp.days, tp.travelers, tp.travel_style, tp.request_styles, tp.total_estimated_cost, tp.currency, tp.overview, " +
                 "tp.success, tp.message, tp.response_json, tp.thumbnail_url, tp.posted, NVL(tp.live_tracking, 0) AS live_tracking, tp.post_date, tp.created_at, tp.updated_at, " +
                 "NVL(tp.original_user_id, 0) AS original_user_id, NVL(tp.copied_modified, 1) AS copied_modified, " +
                 "NVL(pl.like_cnt, 0) AS like_cnt, NVL(creator.u_name, '') AS creator_name, NVL(editor.u_name, '') AS editor_name " +
@@ -55,7 +56,7 @@ public class MyPlanPageDAO {
         ResultSet rs = null;
 
         String sql = "SELECT tp.plan_id, tp.user_id, tp.destination, tp.title, tp.start_date, tp.end_date, " +
-                "tp.days, tp.travelers, tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview, " +
+                "tp.days, tp.travelers, tp.travel_style, tp.request_styles, tp.total_estimated_cost, tp.currency, tp.overview, " +
                 "tp.success, tp.message, tp.response_json, tp.thumbnail_url, tp.posted, NVL(tp.live_tracking, 0) AS live_tracking, tp.post_date, tp.created_at, tp.updated_at, " +
                 "NVL(tp.original_user_id, 0) AS original_user_id, NVL(tp.copied_modified, 1) AS copied_modified, " +
                 "NVL(pl.like_cnt, 0) AS like_cnt, NVL(creator.u_name, '') AS creator_name, NVL(editor.u_name, '') AS editor_name " +
@@ -100,11 +101,11 @@ public class MyPlanPageDAO {
 
         String sql = "INSERT INTO travel_plan (" +
                 "plan_id, user_id, destination, title, start_date, end_date, days, travelers, " +
-                "travel_style, total_estimated_cost, currency, overview, success, message, " +
+                "travel_style, request_styles, total_estimated_cost, currency, overview, success, message, " +
                 "response_json, thumbnail_url, posted, post_date, original_user_id, copied_modified, created_at, updated_at" +
                 ") " +
                 "SELECT travel_plan_seq.NEXTVAL, ?, destination, title, start_date, end_date, days, travelers, " +
-                "travel_style, total_estimated_cost, currency, overview, success, message, " +
+                "travel_style, request_styles, total_estimated_cost, currency, overview, success, message, " +
                 "response_json, thumbnail_url, 0, NULL, NVL(original_user_id, user_id), 0, SYSDATE, SYSDATE " +
                 "FROM travel_plan " +
                 "WHERE plan_id = ? AND posted = 1 AND user_id <> ?";
@@ -159,7 +160,7 @@ public class MyPlanPageDAO {
 
         String sql = "UPDATE travel_plan " +
                 "SET destination = ?, title = ?, start_date = ?, end_date = ?, days = ?, travelers = ?, " +
-                "travel_style = ?, total_estimated_cost = ?, currency = ?, overview = ?, response_json = ?, copied_modified = 1, updated_at = SYSDATE " +
+                "travel_style = ?, total_estimated_cost = ?, currency = ?, overview = ?, response_json = ?, thumbnail_url = ?, copied_modified = 1, updated_at = SYSDATE " +
                 "WHERE plan_id = ? AND user_id = ?";
 
         try {
@@ -176,8 +177,9 @@ public class MyPlanPageDAO {
             pstmt.setString(9, plan.getCurrency());
             pstmt.setString(10, plan.getOverview());
             pstmt.setString(11, plan.getResponseJson());
-            pstmt.setInt(12, plan.getPlanId());
-            pstmt.setInt(13, plan.getUserId());
+            pstmt.setString(12, PlanImageResolver.resolveThumbnailUrl(plan.getResponseJson(), plan.getDestination()));
+            pstmt.setInt(13, plan.getPlanId());
+            pstmt.setInt(14, plan.getUserId());
 
             return pstmt.executeUpdate() == 1;
         } catch (Exception e) {
@@ -210,7 +212,8 @@ public class MyPlanPageDAO {
         plan.setEndDate(rs.getDate("end_date"));
         plan.setDays(rs.getInt("days"));
         plan.setTravelers(rs.getInt("travelers"));
-        plan.setTravelStyle(rs.getString("travel_style"));
+        plan.setRequestStyles(rs.getString("request_styles"));
+        plan.setTravelStyle(displayTravelStyle(rs.getString("request_styles"), rs.getString("travel_style")));
         plan.setTotalEstimatedCost(rs.getInt("total_estimated_cost"));
         plan.setCurrency(rs.getString("currency"));
         plan.setOverview(rs.getString("overview"));
@@ -230,6 +233,13 @@ public class MyPlanPageDAO {
         plan.setThumbnailUrl(rs.getString("thumbnail_url"));
 
         return plan;
+    }
+
+    private static String displayTravelStyle(String requestStyles, String travelStyle) {
+        if (requestStyles != null && !requestStyles.trim().isEmpty()) {
+            return requestStyles.trim();
+        }
+        return travelStyle;
     }
 
     // 기존 MyPlanPageDAO 에 메서드 추가
@@ -268,6 +278,7 @@ public class MyPlanPageDAO {
         String sql =
         "UPDATE travel_plan " +
         "SET response_json = ?, "+
+        "   thumbnail_url = ?, " +
         "   copied_modified = 1, "+
         "   updated_at    = sysdate "+
         "WHERE plan_id = ? "+
@@ -276,8 +287,11 @@ public class MyPlanPageDAO {
             con = DBManager_new.connect();
             ps = con.prepareStatement(sql);
             ps.setString(1, responseJson);
-            ps.setInt(2, planId);
-            ps.setInt(3, userId);
+            TravelPlanDTO plan = getPlanByPlanIdAndUserId(planId, userId);
+            String destination = plan != null ? plan.getDestination() : "";
+            ps.setString(2, PlanImageResolver.resolveThumbnailUrl(responseJson, destination));
+            ps.setInt(3, planId);
+            ps.setInt(4, userId);
 
             int rows = ps.executeUpdate();
             return rows > 0;

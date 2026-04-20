@@ -2,12 +2,15 @@ package com.es.ta.mypage;
 
 import com.es.ta.resultpage.TravelResultVDTO;
 import com.es.ta.main.DBManager_new;
+import com.es.ta.util.PlanImageResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 
 public class TravelPlanDAO {
@@ -17,9 +20,9 @@ public class TravelPlanDAO {
 
         String sql = "INSERT INTO travel_plan (" +
                 "plan_id, user_id, destination, title, start_date, end_date, days, travelers, " +
-                "travel_style, total_estimated_cost, currency, overview, success, message, response_json, created_at, updated_at" +
+                "travel_style, request_styles, total_estimated_cost, currency, overview, success, message, response_json, thumbnail_url, created_at, updated_at" +
                 ") VALUES (" +
-                "travel_plan_seq.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE, SYSDATE" +
+                "travel_plan_seq.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE, SYSDATE" +
                 ")";
 
         try {
@@ -48,12 +51,14 @@ public class TravelPlanDAO {
             pstmt.setInt(6, result.getSummary().getDays());
             pstmt.setInt(7, result.getSummary().getTravelers());
             pstmt.setString(8, result.getSummary().getTravelStyle());
-            pstmt.setInt(9, result.getSummary().getTotalEstimatedCost());
-            pstmt.setString(10, result.getSummary().getCurrency());
-            pstmt.setString(11, result.getSummary().getOverview());
-            pstmt.setInt(12, result.isSuccess() ? 1 : 0);
-            pstmt.setString(13, result.getMessage());
-            pstmt.setString(14, responseJson);
+            pstmt.setString(9, buildRequestStyles(result));
+            pstmt.setInt(10, result.getSummary().getTotalEstimatedCost());
+            pstmt.setString(11, result.getSummary().getCurrency());
+            pstmt.setString(12, result.getSummary().getOverview());
+            pstmt.setInt(13, result.isSuccess() ? 1 : 0);
+            pstmt.setString(14, result.getMessage());
+            pstmt.setString(15, responseJson);
+            pstmt.setString(16, PlanImageResolver.resolveThumbnailUrl(result));
 
             return pstmt.executeUpdate() == 1;
 
@@ -70,6 +75,48 @@ public class TravelPlanDAO {
         }
     }
 
+    private static String buildRequestStyles(TravelResultVDTO result) {
+        if (result == null || result.getSummary() == null) {
+            return "";
+        }
+
+        LinkedHashSet<String> values = new LinkedHashSet<>();
+        TravelResultVDTO.Summary summary = result.getSummary();
+
+        addAll(values, summary.getRequestStyles());
+        addAll(values, summary.getRequestThemes());
+        addAll(values, summary.getCustomTags());
+
+        if (values.isEmpty() && summary.getTravelStyle() != null && !summary.getTravelStyle().isBlank()) {
+            addCsv(values, summary.getTravelStyle());
+        }
+
+        return String.join(", ", values);
+    }
+
+    private static void addAll(LinkedHashSet<String> values, List<String> source) {
+        if (source == null) {
+            return;
+        }
+
+        for (String value : source) {
+            addCsv(values, value);
+        }
+    }
+
+    private static void addCsv(LinkedHashSet<String> values, String value) {
+        if (value == null) {
+            return;
+        }
+
+        for (String part : value.split(",")) {
+            String trimmed = part.trim();
+            if (!trimmed.isEmpty()) {
+                values.add(trimmed);
+            }
+        }
+    }
+
     public static ArrayList<TravelPlanDTO> getPlansByUserId(int userId) {
         ArrayList<TravelPlanDTO> plans = new ArrayList<>();
 
@@ -78,7 +125,7 @@ public class TravelPlanDAO {
         ResultSet rs = null;
 
         String sql = "SELECT tp.plan_id, tp.user_id, tp.destination, tp.title, tp.start_date, tp.end_date, " +
-                "tp.days, tp.travelers, tp.travel_style, tp.total_estimated_cost, tp.currency, tp.overview, " +
+                "tp.days, tp.travelers, tp.travel_style, tp.request_styles, tp.total_estimated_cost, tp.currency, tp.overview, " +
                 "tp.success, tp.message, tp.response_json, " +
                 "NVL(tp.thumbnail_url, ( " +
                 "    SELECT src.thumbnail_url " +
@@ -123,7 +170,8 @@ public class TravelPlanDAO {
                 plan.setEndDate(rs.getDate("end_date"));
                 plan.setDays(rs.getInt("days"));
                 plan.setTravelers(rs.getInt("travelers"));
-                plan.setTravelStyle(rs.getString("travel_style"));
+                plan.setRequestStyles(rs.getString("request_styles"));
+                plan.setTravelStyle(displayTravelStyle(rs.getString("request_styles"), rs.getString("travel_style")));
                 plan.setTotalEstimatedCost(rs.getInt("total_estimated_cost"));
                 plan.setCurrency(rs.getString("currency"));
                 plan.setOverview(rs.getString("overview"));
@@ -167,7 +215,7 @@ public class TravelPlanDAO {
         ResultSet rs = null;
 
         String sql = "SELECT plan_id, user_id, destination, title, start_date, end_date, " +
-                "days, travelers, travel_style, total_estimated_cost, currency, overview, " +
+                "days, travelers, travel_style, request_styles, total_estimated_cost, currency, overview, " +
                 "success, message, response_json, created_at, updated_at " +
                 "FROM travel_plan " +
                 "WHERE plan_id = ? AND user_id = ?";
@@ -189,7 +237,8 @@ public class TravelPlanDAO {
                 plan.setEndDate(rs.getDate("end_date"));
                 plan.setDays(rs.getInt("days"));
                 plan.setTravelers(rs.getInt("travelers"));
-                plan.setTravelStyle(rs.getString("travel_style"));
+                plan.setRequestStyles(rs.getString("request_styles"));
+                plan.setTravelStyle(displayTravelStyle(rs.getString("request_styles"), rs.getString("travel_style")));
                 plan.setTotalEstimatedCost(rs.getInt("total_estimated_cost"));
                 plan.setCurrency(rs.getString("currency"));
                 plan.setOverview(rs.getString("overview"));
@@ -333,8 +382,8 @@ public class TravelPlanDAO {
         ResultSet rs = null;
 
         String sql =
-                "SELECT plan_id, user_id, destination, title, start_date, end_date, " +
-                        "days, travelers, travel_style, total_estimated_cost, currency, overview, " +
+                        "SELECT plan_id, user_id, destination, title, start_date, end_date, " +
+                        "days, travelers, travel_style, request_styles, total_estimated_cost, currency, overview, " +
                         "success, message, response_json, created_at, updated_at " +
                         "FROM travel_plan " +
                         "WHERE user_id = ? " +
@@ -359,7 +408,8 @@ public class TravelPlanDAO {
                 plan.setEndDate(rs.getDate("end_date"));
                 plan.setDays(rs.getInt("days"));
                 plan.setTravelers(rs.getInt("travelers"));
-                plan.setTravelStyle(rs.getString("travel_style"));
+                plan.setRequestStyles(rs.getString("request_styles"));
+                plan.setTravelStyle(displayTravelStyle(rs.getString("request_styles"), rs.getString("travel_style")));
                 plan.setTotalEstimatedCost(rs.getInt("total_estimated_cost"));
                 plan.setCurrency(rs.getString("currency"));
                 plan.setOverview(rs.getString("overview"));
@@ -417,6 +467,13 @@ public class TravelPlanDAO {
         }
 
         return plans;
+    }
+
+    private static String displayTravelStyle(String requestStyles, String travelStyle) {
+        if (requestStyles != null && !requestStyles.trim().isEmpty()) {
+            return requestStyles.trim();
+        }
+        return travelStyle;
     }
 
 

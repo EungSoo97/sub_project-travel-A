@@ -44,8 +44,7 @@
                                     ${empty plan.summary.title ? plan.summary.destination : plan.summary.title}
                                 </h1>
                                 <p class="mp-sub">
-                                    ${plan.summary.startDate} ~ ${plan.summary.endDate}
-                                    · 총 ${plan.summary.days}일 여행
+                                    ${plan.summary.destination} · ${plan.summary.days}일 여행
                                 </p>
                             </div>
 

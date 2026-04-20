@@ -22,7 +22,7 @@ public class ResultpageDAO {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
-        String sql = "SELECT response_json FROM travel_plan WHERE plan_id = ?";
+        String sql = "SELECT response_json, travel_style, request_styles FROM travel_plan WHERE plan_id = ?";
         System.out.println("조회 planId = " + planId);
 
         try {
@@ -37,6 +37,7 @@ public class ResultpageDAO {
 
                 if (result != null) {
                     result.setPlanId(planId);
+                    applyDisplayTravelStyle(result, rs.getString("request_styles"), rs.getString("travel_style"));
                 }
                 return result;
             }
@@ -55,12 +56,44 @@ public class ResultpageDAO {
         return null;
     }
 
+    private static void applyDisplayTravelStyle(TravelResultVDTO result, String requestStyles, String travelStyle) {
+        if (result == null) {
+            return;
+        }
+        if (result.getSummary() == null) {
+            result.setSummary(new TravelResultVDTO.Summary());
+        }
+
+        if (requestStyles != null && !requestStyles.trim().isEmpty()) {
+            result.getSummary().setTravelStyle(requestStyles.trim());
+            List<String> tags = splitTags(requestStyles);
+            result.getSummary().setRequestStyles(tags);
+        } else if (travelStyle != null && !travelStyle.trim().isEmpty()) {
+            result.getSummary().setTravelStyle(travelStyle.trim());
+        }
+    }
+
+    private static List<String> splitTags(String value) {
+        List<String> tags = new ArrayList<>();
+        if (value == null || value.trim().isEmpty()) {
+            return tags;
+        }
+
+        for (String part : value.split(",")) {
+            String tag = part.trim();
+            if (!tag.isEmpty() && !tags.contains(tag)) {
+                tags.add(tag);
+            }
+        }
+        return tags;
+    }
+
     public static List<TravelResultVDTO> getPlanList(String googleApiKey) {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
 
-        String sql = "SELECT tp.plan_id, tp.response_json, tp.thumbnail_url, NVL(pl.like_cnt, 0) AS like_cnt, " +
+        String sql = "SELECT tp.plan_id, tp.response_json, tp.travel_style, tp.request_styles, tp.thumbnail_url, NVL(pl.like_cnt, 0) AS like_cnt, " +
                 "NVL(creator.u_name, '') AS original_user_name, NVL(editor.u_name, '') AS editor_user_name, " +
                 "TO_CHAR(tp.post_date, 'YYYY-MM-DD HH24:MI') AS post_date\n" +
                 "FROM travel_plan tp\n" +
@@ -90,6 +123,7 @@ public class ResultpageDAO {
 
                 dto.setPlanId(rs.getInt("plan_id"));
                 dto.setLikeCnt(rs.getInt("like_cnt"));
+                applyDisplayTravelStyle(dto, rs.getString("request_styles"), rs.getString("travel_style"));
                 dto.setOriginalUserName(rs.getString("original_user_name"));
                 dto.setEditorUserName(rs.getString("editor_user_name"));
                 dto.setUserName(rs.getString("original_user_name"));
@@ -128,7 +162,7 @@ public class ResultpageDAO {
                 ? "tp.post_date DESC NULLS LAST, tp.plan_id DESC"
                 : "NVL(pl.like_cnt, 0) DESC, tp.plan_id DESC";
 
-        String sql = "SELECT tp.plan_id, tp.response_json, tp.thumbnail_url, NVL(pl.like_cnt, 0) AS like_cnt, " +
+        String sql = "SELECT tp.plan_id, tp.response_json, tp.travel_style, tp.request_styles, tp.thumbnail_url, NVL(pl.like_cnt, 0) AS like_cnt, " +
                 "NVL(creator.u_name, '') AS original_user_name, NVL(editor.u_name, '') AS editor_user_name, " +
                 "TO_CHAR(tp.post_date, 'YYYY-MM-DD HH24:MI') AS post_date\n" +
                 "FROM travel_plan tp\n" +
@@ -161,6 +195,7 @@ public class ResultpageDAO {
 
                 dto.setPlanId(rs.getInt("plan_id"));
                 dto.setLikeCnt(rs.getInt("like_cnt"));
+                applyDisplayTravelStyle(dto, rs.getString("request_styles"), rs.getString("travel_style"));
                 dto.setOriginalUserName(rs.getString("original_user_name"));
                 dto.setEditorUserName(rs.getString("editor_user_name"));
                 dto.setUserName(rs.getString("original_user_name"));

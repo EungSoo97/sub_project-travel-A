@@ -291,6 +291,157 @@
             opacity: 1;
             visibility: visible;
         }
+
+        .birth-trigger {
+            width: 100%;
+            height: 48px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #ffffff;
+            padding: 0 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+            color: #111827;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .birth-trigger:hover {
+            border-color: #9ca3af;
+        }
+
+        .birth-trigger:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .birth-trigger__value {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .birth-trigger__icon {
+            color: #64748b;
+            flex-shrink: 0;
+        }
+
+        .birth-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.56);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1200;
+        }
+
+        .birth-modal-backdrop.is-open {
+            display: flex;
+        }
+
+        .birth-modal {
+            width: min(100%, 360px);
+            border-radius: 20px;
+            background: #ffffff;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.26);
+            overflow: hidden;
+        }
+
+        .birth-modal__head {
+            padding: 20px 20px 10px;
+        }
+
+        .birth-modal__title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .birth-modal__sub {
+            margin: 6px 0 0;
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.45;
+        }
+
+        .birth-modal__body {
+            padding: 16px 20px 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .birth-picker {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .birth-picker label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #6b7280;
+        }
+
+        .birth-picker select {
+            width: 100%;
+            height: 48px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            padding: 0 10px;
+            background: #ffffff;
+            font-size: 15px;
+        }
+
+        .birth-modal__actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 0 20px 20px;
+        }
+
+        .birth-modal__btn {
+            height: 46px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .birth-modal__btn--cancel {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .birth-modal__btn--confirm {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+        @media (max-width: 480px) {
+            .birth-modal-backdrop {
+                padding: 16px;
+            }
+
+            .birth-modal {
+                width: 100%;
+                border-radius: 18px;
+            }
+
+            .birth-modal__body {
+                gap: 8px;
+            }
+
+            .birth-picker select {
+                font-size: 16px;
+            }
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
@@ -324,7 +475,11 @@
 
                     <div class="form-field">
                         <label>생년월일</label>
-                        <input type="date" name="birth_date" value="2010-01-01" required>
+                        <input type="hidden" name="birth_date" id="birthDate" value="2010-01-01" required>
+                        <button type="button" class="birth-trigger" id="birthDateTrigger" aria-haspopup="dialog" aria-controls="birthDateModal">
+                            <span class="birth-trigger__value" id="birthDateDisplay">2010.01.01</span>
+                            <span class="birth-trigger__icon"><i class="fa-regular fa-calendar"></i></span>
+                        </button>
                     </div>
 
                     <div class="form-field">
@@ -402,6 +557,32 @@
         </div>
     </div>
 </form>
+
+<div class="birth-modal-backdrop" id="birthDateModalBackdrop" aria-hidden="true">
+    <div class="birth-modal" id="birthDateModal" role="dialog" aria-modal="true" aria-labelledby="birthDateModalTitle">
+        <div class="birth-modal__head">
+            <h3 class="birth-modal__title" id="birthDateModalTitle">생년월일 선택</h3>
+        </div>
+        <div class="birth-modal__body">
+            <div class="birth-picker">
+                <label for="birthYearSelect">연도</label>
+                <select id="birthYearSelect"></select>
+            </div>
+            <div class="birth-picker">
+                <label for="birthMonthSelect">월</label>
+                <select id="birthMonthSelect"></select>
+            </div>
+            <div class="birth-picker">
+                <label for="birthDaySelect">일</label>
+                <select id="birthDaySelect"></select>
+            </div>
+        </div>
+        <div class="birth-modal__actions">
+            <button type="button" class="birth-modal__btn birth-modal__btn--cancel" id="birthDateCancelBtn">취소</button>
+            <button type="button" class="birth-modal__btn birth-modal__btn--confirm" id="birthDateConfirmBtn">확인</button>
+        </div>
+    </div>
+</div>
 
 <script src="${pageContext.request.contextPath}/js/idcheck.js"></script>
 <script src="${pageContext.request.contextPath}/js/account.js"></script>

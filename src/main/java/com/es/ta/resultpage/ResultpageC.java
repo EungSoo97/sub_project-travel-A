@@ -49,6 +49,8 @@ public class ResultpageC extends HttpServlet {
                     request.setAttribute("errorMsg", "해당 여행 플랜을 찾을 수 없습니다.");
                 } else {
                     TravelResultVDTO result = TravelJsonParser.parse(savedPlan.getResponseJson());
+                    applySavedTitle(result, savedPlan);
+                    applySavedTravelStyle(result, savedPlan);
 
                     session.setAttribute("latestTravelResult", result);
                     request.setAttribute("savedPlan", savedPlan);
@@ -72,6 +74,30 @@ public class ResultpageC extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setAttribute("content", "view/resultpage/resultpage.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+
+    private void applySavedTitle(TravelResultVDTO result, TravelPlanDTO savedPlan) {
+        if (result == null || savedPlan == null) {
+            return;
+        }
+        if (result.getSummary() == null) {
+            result.setSummary(new TravelResultVDTO.Summary());
+        }
+        if (savedPlan.getTitle() != null && !savedPlan.getTitle().trim().isEmpty()) {
+            result.getSummary().setTitle(savedPlan.getTitle().trim());
+        }
+    }
+
+    private void applySavedTravelStyle(TravelResultVDTO result, TravelPlanDTO savedPlan) {
+        if (result == null || savedPlan == null) {
+            return;
+        }
+        if (result.getSummary() == null) {
+            result.setSummary(new TravelResultVDTO.Summary());
+        }
+        if (savedPlan.getTravelStyle() != null && !savedPlan.getTravelStyle().trim().isEmpty()) {
+            result.getSummary().setTravelStyle(savedPlan.getTravelStyle().trim());
+        }
     }
 
 

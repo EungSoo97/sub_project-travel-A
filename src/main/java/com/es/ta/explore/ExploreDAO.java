@@ -25,7 +25,7 @@ public class ExploreDAO {
         List<ExploreDTO> result = new ArrayList<>();
 
         String sql =
-                "SELECT plan_id, destination, title, travel_style, response_json " +
+                "SELECT plan_id, destination, title, travel_style, request_styles, response_json " +
                         "FROM travel_plan " +
                         "WHERE posted = 1 " +
                         "  AND (destination LIKE ? " +
@@ -67,10 +67,12 @@ public class ExploreDAO {
                 dto.setPlanId(rs.getInt("plan_id"));
                 dto.setDestination(rs.getString("destination"));
                 dto.setTitle(rs.getString("title"));
-                dto.setTravelStyle(rs.getString("travel_style"));
+                dto.setTravelStyle(displayTravelStyle(rs.getString("request_styles"), rs.getString("travel_style")));
 
                 String responseJson = rs.getString("response_json");
-                dto.setCustomTags(parseCustomTags(responseJson));
+                List<String> tags = parseCustomTags(responseJson);
+                addCsvTags(tags, rs.getString("request_styles"));
+                dto.setCustomTags(tags);
 
                 result.add(dto);
             }
@@ -88,10 +90,10 @@ public class ExploreDAO {
         List<String> result = new ArrayList<>();
 
         String sql =
-                "SELECT plan_id, response_json " +
+                "SELECT plan_id, response_json, request_styles " +
                         "FROM travel_plan " +
                         "WHERE posted = 1 " +
-                        "  AND response_json LIKE '%customTags%' " +
+                        "  AND (response_json LIKE '%customTags%' OR request_styles IS NOT NULL) " +
                         "ORDER BY created_at DESC";
 
         Connection con = null;
@@ -110,6 +112,7 @@ public class ExploreDAO {
                 String responseJson = rs.getString("response_json");
 
                 List<String> tags = parseCustomTags(responseJson);
+                addCsvTags(tags, rs.getString("request_styles"));
                 System.out.println("planId=" + planId + ", parsedTags=" + tags);
 
                 for (String tag : tags) {
@@ -361,25 +364,11 @@ public class ExploreDAO {
                         ? plan.getSummary().getDestination().toLowerCase()
                         : "";
 
-                matchKeyword = title.contains(keyword) || destination.contains(keyword);
+                matchKeyword = matchesKeyword(plan, keyword, title, destination);
             }
 
             if (!tagList.isEmpty()) {
-                List<String> planTags = (plan.getSummary() != null && plan.getSummary().getCustomTags() != null)
-                        ? plan.getSummary().getCustomTags()
-                        : new ArrayList<>();
-
-                matchTag = false;
-
-                for (String tag : tagList) {
-                    for (String planTag : planTags) {
-                        if (planTag != null && planTag.toLowerCase().contains(tag)) {
-                            matchTag = true;
-                            break;
-                        }
-                    }
-                    if (matchTag) break;
-                }
+                matchTag = matchesSelectedTags(plan, tagList);
             }
 
             if (matchKeyword && matchTag) {
@@ -388,6 +377,69 @@ public class ExploreDAO {
         }
 
         return result;
+    }
+
+    private static boolean matchesKeyword(TravelResultVDTO plan, String keyword, String title, String destination) {
+        if (keyword == null || keyword.isBlank()) {
+            return true;
+        }
+
+        String token = normalizeSearchToken(keyword);
+        if (safeLower(title).contains(token) || safeLower(destination).contains(token)) {
+            return true;
+        }
+
+        if (plan == null || plan.getSummary() == null) {
+            return false;
+        }
+
+        TravelResultVDTO.Summary summary = plan.getSummary();
+        if (safeLower(summary.getTravelStyle()).contains(token)) {
+            return true;
+        }
+
+        List<String> tags = new ArrayList<>();
+        tags.addAll(summary.getCustomTags());
+        if (summary.getRequestStyles() != null) {
+            tags.addAll(summary.getRequestStyles());
+        }
+        if (summary.getRequestThemes() != null) {
+            tags.addAll(summary.getRequestThemes());
+        }
+
+        return containsInList(tags, token);
+    }
+
+    private static boolean matchesSelectedTags(TravelResultVDTO plan, List<String> tagList) {
+        if (plan == null || plan.getSummary() == null || tagList == null || tagList.isEmpty()) {
+            return true;
+        }
+
+        TravelResultVDTO.Summary summary = plan.getSummary();
+        List<String> planTags = new ArrayList<>();
+
+        planTags.addAll(summary.getCustomTags());
+        if (summary.getRequestStyles() != null) {
+            planTags.addAll(summary.getRequestStyles());
+        }
+        if (summary.getRequestThemes() != null) {
+            planTags.addAll(summary.getRequestThemes());
+        }
+
+        String travelStyle = safeLower(summary.getTravelStyle());
+
+        for (String rawTag : tagList) {
+            String tag = normalizeSearchToken(rawTag);
+            if (tag.isEmpty()) {
+                continue;
+            }
+
+            if (containsInList(planTags, tag) || travelStyle.contains(tag)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 
@@ -422,4 +474,25 @@ public class ExploreDAO {
         }
 
         return false;
-    }}
+    }
+
+    private static String displayTravelStyle(String requestStyles, String travelStyle) {
+        if (requestStyles != null && !requestStyles.trim().isEmpty()) {
+            return requestStyles.trim();
+        }
+        return travelStyle;
+    }
+
+    private static void addCsvTags(List<String> tags, String csv) {
+        if (tags == null || csv == null || csv.trim().isEmpty()) {
+            return;
+        }
+
+        for (String part : csv.split(",")) {
+            String tag = normalizeTag(part);
+            if (!tag.isEmpty() && !tags.contains(tag)) {
+                tags.add(tag);
+            }
+        }
+    }
+}

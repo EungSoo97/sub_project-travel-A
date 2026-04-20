@@ -4,6 +4,7 @@
 <html>
 <head>
   <title>${result.summary.title}</title>
+  <link rel="icon" type="image/svg+xml" href="${pageContext.request.contextPath}/favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>

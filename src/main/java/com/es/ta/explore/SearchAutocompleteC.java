@@ -1,9 +1,14 @@
 package com.es.ta.explore;
 
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @WebServlet("/search-autocomplete")
 public class SearchAutocompleteC extends HttpServlet {
@@ -29,7 +34,6 @@ public class SearchAutocompleteC extends HttpServlet {
 
         for (int i = 0; i < list.size(); i++) {
             ExploreDTO dto = list.get(i);
-
             String text = buildText(dto);
 
             sb.append("{")
@@ -43,47 +47,114 @@ public class SearchAutocompleteC extends HttpServlet {
         }
 
         sb.append("]");
-
         response.getWriter().write(sb.toString());
     }
 
     private String buildText(ExploreDTO dto) {
-        StringBuilder text = new StringBuilder();
+        List<String> parts = new ArrayList<>();
+        Set<String> seen = new LinkedHashSet<>();
 
-        if (dto.getDestination() != null && !dto.getDestination().isEmpty()) {
-            text.append(dto.getDestination());
-        }
+        addPart(parts, seen, dto.getDestination());
+        addPart(parts, seen, cleanTitle(dto.getTitle()));
 
-        if (dto.getTitle() != null && !dto.getTitle().isEmpty()) {
-            String cleanTitle = dto.getTitle();
+        List<String> tags = new ArrayList<>();
+        addCsvTags(tags, dto.getTravelStyle());
+        addListTags(tags, dto.getCustomTags());
 
-            if (cleanTitle.contains(" ")) {
-                int lastSpace = cleanTitle.lastIndexOf(" ");
-                cleanTitle = cleanTitle.substring(0, lastSpace);
+        int count = 0;
+        for (String tag : tags) {
+            if (addPart(parts, seen, "#" + tag)) {
+                count++;
             }
-
-            if (text.length() > 0) text.append(" · ");
-            text.append(cleanTitle.trim());
-        }
-        if (dto.getTravelStyle() != null && !dto.getTravelStyle().isEmpty()) {
-            if (!"ROUND_TRIP".equalsIgnoreCase(dto.getTravelStyle().trim())) {
-                if (text.length() > 0) text.append(" · ");
-                text.append(dto.getTravelStyle());
-            }
-        }
-        if (dto.getCustomTags() != null && !dto.getCustomTags().isEmpty()) {
-            int count = 0;
-            for (String tag : dto.getCustomTags()) {
-                if (tag != null && !tag.trim().isEmpty()) {
-                    if (text.length() > 0) text.append(" · ");
-                    text.append("#").append(tag.trim());
-                    count++;
-                    if (count == 2) break;
-                }
+            if (count == 3) {
+                break;
             }
         }
 
-        return text.toString();
+        return String.join(" · ", parts);
+    }
+
+    private String cleanTitle(String title) {
+        if (title == null || title.trim().isEmpty()) {
+            return "";
+        }
+
+        String cleanTitle = title.trim();
+        if (cleanTitle.contains(" ")) {
+            int lastSpace = cleanTitle.lastIndexOf(" ");
+            cleanTitle = cleanTitle.substring(0, lastSpace).trim();
+        }
+        return cleanTitle;
+    }
+
+    private boolean addPart(List<String> parts, Set<String> seen, String value) {
+        if (value == null) {
+            return false;
+        }
+
+        String display = value.trim();
+        String normalized = normalize(value);
+        if (display.isEmpty() || normalized.isEmpty() || "round_trip".equals(normalized)) {
+            return false;
+        }
+        if (seen.contains(normalized)) {
+            return false;
+        }
+
+        parts.add(display);
+        seen.add(normalized);
+        return true;
+    }
+
+    private void addCsvTags(List<String> tags, String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return;
+        }
+
+        for (String part : value.split(",")) {
+            addTag(tags, part);
+        }
+    }
+
+    private void addListTags(List<String> tags, List<String> values) {
+        if (values == null) {
+            return;
+        }
+
+        for (String value : values) {
+            addTag(tags, value);
+        }
+    }
+
+    private void addTag(List<String> tags, String value) {
+        if (value == null) {
+            return;
+        }
+
+        String tag = value.trim().replace("#", "");
+        String normalized = normalize(tag);
+        if (tag.isEmpty() || normalized.isEmpty() || "round_trip".equals(normalized)) {
+            return;
+        }
+
+        for (String existing : tags) {
+            if (normalize(existing).equals(normalized)) {
+                return;
+            }
+        }
+
+        tags.add(tag);
+    }
+
+    private String normalize(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.trim()
+                .replace("#", "")
+                .replace("\"", "")
+                .replace("'", "")
+                .toLowerCase();
     }
 
     private String escapeJson(String s) {
