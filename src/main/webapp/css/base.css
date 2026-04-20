@@ -976,7 +976,7 @@ input {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.35);
-  z-index: 200;
+  z-index: 1200;
 }
 .input-sheet-backdrop.is-open {
   display: block;
@@ -990,7 +990,7 @@ input {
   background: #fff;
   border-radius: 20px 20px 0 0;
   padding: 16px 20px 32px;
-  z-index: 201;
+  z-index: 1210;
   transform: translateY(100%);
   transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
 }
@@ -1252,7 +1252,7 @@ input {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.5);
-  z-index: 650;
+  z-index: 1200;
   opacity: 0;
   transition: opacity 0.25s;
 }
@@ -1265,7 +1265,7 @@ input {
   bottom: 0; left: 0; right: 0;
   background: #fff;
   border-radius: 24px 24px 0 0;
-  z-index: 700;
+  z-index: 1210;
   transform: translateY(100%);
   transition: transform 0.32s cubic-bezier(0.32, 1, 0.46, 1);
   max-height: 88vh;
@@ -2001,7 +2001,7 @@ input {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.45);
-  z-index: 500;
+  z-index: 1200;
   opacity: 0;
   transition: opacity 0.3s;
 }
@@ -2017,7 +2017,7 @@ input {
   right: 0;
   background: #fff;
   border-radius: 24px 24px 0 0;
-  z-index: 600;
+  z-index: 1210;
   transform: translateY(100%);
   transition: transform 0.32s cubic-bezier(0.32, 1, 0.46, 1);
   max-height: 92vh;

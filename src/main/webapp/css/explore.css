@@ -943,3 +943,52 @@
     font-size: 14px;
     color: #555;
 }
+
+.explore-top-nav {
+    position: fixed;
+    right: 20px;
+    bottom: 24px;
+    z-index: 900;
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 24px;
+    background: #4d8ef0;
+    color: #fff;
+    box-shadow: 4px 6px 18px rgba(77, 142, 240, 0.38), 1px 2px 4px rgba(0, 0, 0, 0.1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.explore-top-nav:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(77, 142, 240, 0.34), 0 4px 10px rgba(15, 23, 42, 0.12);
+}
+
+.explore-top-nav__icon {
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+}
+
+.explore-top-nav__icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.explore-top-nav__label {
+    display: none;
+}
+
+@media (max-width: 767px) {
+    .explore-top-nav {
+        right: 16px;
+        bottom: 18px;
+    }
+}

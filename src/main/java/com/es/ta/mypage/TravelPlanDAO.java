@@ -2,6 +2,7 @@ package com.es.ta.mypage;
 
 import com.es.ta.resultpage.TravelResultVDTO;
 import com.es.ta.main.DBManager_new;
+import com.es.ta.util.PlanImageResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.sql.Connection;
@@ -19,9 +20,9 @@ public class TravelPlanDAO {
 
         String sql = "INSERT INTO travel_plan (" +
                 "plan_id, user_id, destination, title, start_date, end_date, days, travelers, " +
-                "travel_style, request_styles, total_estimated_cost, currency, overview, success, message, response_json, created_at, updated_at" +
+                "travel_style, request_styles, total_estimated_cost, currency, overview, success, message, response_json, thumbnail_url, created_at, updated_at" +
                 ") VALUES (" +
-                "travel_plan_seq.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE, SYSDATE" +
+                "travel_plan_seq.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE, SYSDATE" +
                 ")";
 
         try {
@@ -57,6 +58,7 @@ public class TravelPlanDAO {
             pstmt.setInt(13, result.isSuccess() ? 1 : 0);
             pstmt.setString(14, result.getMessage());
             pstmt.setString(15, responseJson);
+            pstmt.setString(16, PlanImageResolver.resolveThumbnailUrl(result));
 
             return pstmt.executeUpdate() == 1;
 

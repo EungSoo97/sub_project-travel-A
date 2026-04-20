@@ -1035,6 +1035,18 @@
     box-shadow: 0 8px 18px rgba(17, 24, 39, 0.08);
 }
 
+.plan-folder-group.has-stack.is-collapsed .plan-folder-cover__main,
+.plan-folder-group.has-stack.is-collapsed .plan-folder-stack-card__top {
+    min-width: 0;
+}
+
+.plan-folder-group.has-stack.is-collapsed .plan-folder-cover__title,
+.plan-folder-group.has-stack.is-collapsed .plan-folder-stack-card__title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .plan-folder-group.has-stack.is-collapsed .plan-folder-stack-card {
     margin-bottom: 0;
 }

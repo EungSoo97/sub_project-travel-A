@@ -240,8 +240,16 @@
             <a href="${nextUrl}" class="page-nav next">›</a>
         </c:if>
     </div>
+    <button type="button" class="explore-top-nav" id="exploreTopNav" aria-label="맨 위로 이동">
+        <span class="explore-top-nav__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 19V5"></path>
+                <path d="M6.5 10.5L12 5l5.5 5.5"></path>
+            </svg>
+        </span>
+        <span class="explore-top-nav__label">맨 위로</span>
+    </button>
 <script>
-    const searchBtn = document.getElementById("searchBtn");
     const searchForm = document.getElementById("searchForm");
     const searchInput = document.getElementById("searchInput");
     const selectedTagsInput = document.getElementById("selectedTagsInput");
@@ -251,6 +259,7 @@
     const cardList = document.getElementById("cardList");
     const pagination = document.getElementById("pagination");
     const popularTravelBlock = document.getElementById("popularTravelBlock");
+    const exploreTopNav = document.getElementById("exploreTopNav");
     const contextPath = "${pageContext.request.contextPath}";
     const focusPopularBlockAfterSearchKey = "focusPopularBlockAfterExploreSearch";
     let isLoadingPlans = false;
@@ -626,30 +635,35 @@
         }
     });
 
-    searchBtn.addEventListener("click", function () {
-        updateActiveStateFromInput();
-        updateHiddenInput();
-        clearAutocomplete();
-        setFilterCollapsed(true);
-        sessionStorage.setItem(focusPopularBlockAfterSearchKey, "true");
-        searchForm.submit();
-    });
+    if (searchForm) {
+        searchForm.addEventListener("submit", function () {
+            updateActiveStateFromInput();
+            updateHiddenInput();
+            clearAutocomplete();
+            setFilterCollapsed(true);
+            sessionStorage.setItem(focusPopularBlockAfterSearchKey, "true");
+        });
+    }
 
-    sortOrder.addEventListener("change", function () {
-        sortInput.value = this.value;
-        loadExploreSection({sort: this.value, page: 1, pushState: true});
-    });
+    if (sortOrder) {
+        sortOrder.addEventListener("change", function () {
+            sortInput.value = this.value;
+            loadExploreSection({sort: this.value, page: 1, pushState: true});
+        });
+    }
 
-    pagination.addEventListener("click", function (e) {
-        const link = e.target.closest("a");
-        if (!link) return;
+    if (pagination) {
+        pagination.addEventListener("click", function (e) {
+            const link = e.target.closest("a");
+            if (!link) return;
 
-        e.preventDefault();
-        const url = new URL(link.href, window.location.origin);
-        const page = Number(url.searchParams.get("page") || 1);
-        const sort = url.searchParams.get("sort") || sortOrder.value || "popular";
-        loadExploreSection({sort, page, pushState: true});
-    });
+            e.preventDefault();
+            const url = new URL(link.href, window.location.origin);
+            const page = Number(url.searchParams.get("page") || 1);
+            const sort = url.searchParams.get("sort") || (sortOrder ? sortOrder.value : "popular");
+            loadExploreSection({sort, page, pushState: true});
+        });
+    }
 
     window.addEventListener("popstate", function () {
         const params = new URLSearchParams(window.location.search);
@@ -719,6 +733,11 @@
                 cardList.style.opacity = "1";
                 pagination.style.opacity = "1";
             });
+    }
+    if (exploreTopNav) {
+        exploreTopNav.addEventListener("click", function () {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
     }
 </script>
 </body>

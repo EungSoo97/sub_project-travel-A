@@ -1,8 +1,7 @@
 package com.es.ta.ai;
 
 import com.es.ta.main.DBManager_new;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.es.ta.util.PlanImageResolver;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,7 +12,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -22,7 +20,6 @@ import java.util.Map;
 public class TravelDao {
 
     public static final TravelDao MDAO = new TravelDao();
-    private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
     public TravelResponseDto fetchTravelPlan(TravelRequestDto dto) {
         System.out.println("[TravelDao] fetchTravelPlan START destination=" + dto.getDestination()
@@ -45,9 +42,9 @@ public class TravelDao {
         String sql =
                 "INSERT INTO travel_plan ( " +
                         "plan_id, user_id, destination, title, start_date, end_date, days, travelers, " +
-                        "travel_style, request_styles, total_estimated_cost, currency, overview, success, message, response_json " +
+                        "travel_style, request_styles, total_estimated_cost, currency, overview, success, message, response_json, thumbnail_url " +
                         ") VALUES ( " +
-                        "travel_plan_seq.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? " +
+                        "travel_plan_seq.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? " +
                         ")";
 
         try {
@@ -105,6 +102,13 @@ public class TravelDao {
 
             // 15. response_json
             ps.setString(15, getSafeString(responseJson, "{}"));
+
+            // 16. thumbnail_url
+            ps.setString(16, PlanImageResolver.resolveThumbnailUrl(
+                    responseDto,
+                    responseJson,
+                    getDestination(requestDto, summary)
+            ));
 
             System.out.println("[TravelDao] executing insert. destination=" + getDestination(requestDto, summary)
                     + ", title=" + getSafeString(summary != null ? summary.getTitle() : null)
@@ -455,11 +459,11 @@ public class TravelDao {
 
             while (imageRs.next()) {
                 String thumbnailUrl = nullSafe(imageRs.getString("thumbnail_url")).trim();
-                if (isUsableImageUrl(thumbnailUrl)) {
+                if (!thumbnailUrl.isBlank() && (thumbnailUrl.startsWith("http://") || thumbnailUrl.startsWith("https://"))) {
                     return thumbnailUrl;
                 }
 
-                String imageUrl = extractFirstImageUrl(imageRs.getString("response_json"));
+                String imageUrl = PlanImageResolver.extractFirstImageUrl(imageRs.getString("response_json"));
                 if (!imageUrl.isBlank()) {
                     return imageUrl;
                 }
@@ -471,68 +475,6 @@ public class TravelDao {
         }
 
         return "";
-    }
-
-    private String extractFirstImageUrl(String responseJson) {
-        if (responseJson == null || responseJson.isBlank()) {
-            return "";
-        }
-
-        try {
-            return findImageUrl(JSON_MAPPER.readTree(responseJson), "");
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    private String findImageUrl(JsonNode node, String fieldName) {
-        if (node == null || node.isNull()) {
-            return "";
-        }
-
-        if (node.isTextual()) {
-            String value = node.asText("").trim();
-            if (isImageField(fieldName) && isUsableImageUrl(value)) {
-                return value;
-            }
-            return "";
-        }
-
-        if (node.isArray()) {
-            for (JsonNode child : node) {
-                String found = findImageUrl(child, fieldName);
-                if (!found.isBlank()) {
-                    return found;
-                }
-            }
-            return "";
-        }
-
-        if (node.isObject()) {
-            Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
-            while (fields.hasNext()) {
-                Map.Entry<String, JsonNode> field = fields.next();
-                String found = findImageUrl(field.getValue(), field.getKey());
-                if (!found.isBlank()) {
-                    return found;
-                }
-            }
-        }
-
-        return "";
-    }
-
-    private boolean isImageField(String fieldName) {
-        String key = nullSafe(fieldName).toLowerCase();
-        return key.contains("image")
-                || key.contains("photo")
-                || key.contains("thumbnail")
-                || key.contains("cover");
-    }
-
-    private boolean isUsableImageUrl(String value) {
-        String url = nullSafe(value).trim().toLowerCase();
-        return url.startsWith("http://") || url.startsWith("https://");
     }
 
     private Map<String, Object> mapPlanRow(ResultSet rs) throws Exception {

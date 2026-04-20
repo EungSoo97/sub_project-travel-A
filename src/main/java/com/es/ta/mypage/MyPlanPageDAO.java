@@ -1,6 +1,7 @@
 package com.es.ta.mypage;
 
 import com.es.ta.main.DBManager_new;
+import com.es.ta.util.PlanImageResolver;
 
 import java.sql.*;
 
@@ -159,7 +160,7 @@ public class MyPlanPageDAO {
 
         String sql = "UPDATE travel_plan " +
                 "SET destination = ?, title = ?, start_date = ?, end_date = ?, days = ?, travelers = ?, " +
-                "travel_style = ?, total_estimated_cost = ?, currency = ?, overview = ?, response_json = ?, copied_modified = 1, updated_at = SYSDATE " +
+                "travel_style = ?, total_estimated_cost = ?, currency = ?, overview = ?, response_json = ?, thumbnail_url = ?, copied_modified = 1, updated_at = SYSDATE " +
                 "WHERE plan_id = ? AND user_id = ?";
 
         try {
@@ -176,8 +177,9 @@ public class MyPlanPageDAO {
             pstmt.setString(9, plan.getCurrency());
             pstmt.setString(10, plan.getOverview());
             pstmt.setString(11, plan.getResponseJson());
-            pstmt.setInt(12, plan.getPlanId());
-            pstmt.setInt(13, plan.getUserId());
+            pstmt.setString(12, PlanImageResolver.resolveThumbnailUrl(plan.getResponseJson(), plan.getDestination()));
+            pstmt.setInt(13, plan.getPlanId());
+            pstmt.setInt(14, plan.getUserId());
 
             return pstmt.executeUpdate() == 1;
         } catch (Exception e) {
@@ -276,6 +278,7 @@ public class MyPlanPageDAO {
         String sql =
         "UPDATE travel_plan " +
         "SET response_json = ?, "+
+        "   thumbnail_url = ?, " +
         "   copied_modified = 1, "+
         "   updated_at    = sysdate "+
         "WHERE plan_id = ? "+
@@ -284,8 +287,11 @@ public class MyPlanPageDAO {
             con = DBManager_new.connect();
             ps = con.prepareStatement(sql);
             ps.setString(1, responseJson);
-            ps.setInt(2, planId);
-            ps.setInt(3, userId);
+            TravelPlanDTO plan = getPlanByPlanIdAndUserId(planId, userId);
+            String destination = plan != null ? plan.getDestination() : "";
+            ps.setString(2, PlanImageResolver.resolveThumbnailUrl(responseJson, destination));
+            ps.setInt(3, planId);
+            ps.setInt(4, userId);
 
             int rows = ps.executeUpdate();
             return rows > 0;
