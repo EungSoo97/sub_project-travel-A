@@ -768,6 +768,16 @@
     top: 0;
 }
 
+.plan-folder-tl-wrap.is-sky .plan-folder-tl-dot {
+    background: #378add;
+    box-shadow: 0 0 0 4px #eef6ff;
+}
+
+.plan-folder-tl-wrap.is-lime .plan-folder-tl-dot {
+    background: #84cc16;
+    box-shadow: 0 0 0 4px #f3fbe8;
+}
+
 .plan-folder-tl-month {
     font-size: 12px;
     font-weight: 700;
@@ -782,12 +792,28 @@
     transform: translateY(-50%);
 }
 
+.plan-folder-tl-wrap.is-sky .plan-folder-tl-month {
+    color: #2d6fb3;
+}
+
+.plan-folder-tl-wrap.is-lime .plan-folder-tl-month {
+    color: #5f8d14;
+}
+
 .plan-folder-tl-line {
     width: 1.5px;
     background: #dbe7f4;
     flex: 1;
     margin: 4px 0 0 10px;
     min-height: 36px;
+}
+
+.plan-folder-tl-axis.is-sky .plan-folder-tl-line {
+    background: #dbeafe;
+}
+
+.plan-folder-tl-axis.is-lime .plan-folder-tl-line {
+    background: #dcf5b8;
 }
 
 .plan-folder-tl-content {

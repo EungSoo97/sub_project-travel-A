@@ -1448,6 +1448,8 @@
             if (empty) empty.hidden = true;
 
             let lastYearKey = null;
+            let lastColorMonthKey = null;
+            let dateToneIndex = -1;
             view.innerHTML = groups.map(function (group, groupIndex) {
                 const expanded = state.expandedKey === group.key;
                 const liveCount = group.items.filter(function (item) { return item.liveTracking; }).length;
@@ -1461,6 +1463,16 @@
                 const showYearDivider = group.yearKey !== lastYearKey;
                 const connectMonthLine = nextGroup && nextGroup.yearMonthKey === group.yearMonthKey && group.yearMonthKey !== 'unknown';
                 const showMonthLabel = state.mode === 'date' && (!previousGroup || previousGroup.yearMonthKey !== group.yearMonthKey);
+                let toneClass = 'is-sky';
+                if (state.mode === 'date') {
+                    if (group.yearMonthKey !== lastColorMonthKey) {
+                        dateToneIndex += 1;
+                        lastColorMonthKey = group.yearMonthKey;
+                    }
+                    toneClass = dateToneIndex % 2 === 0 ? 'is-sky' : 'is-lime';
+                } else {
+                    toneClass = groupIndex % 2 === 0 ? 'is-sky' : 'is-lime';
+                }
                 const folderBody = [
                     '<section class="plan-folder-group has-stack ' + (expanded ? 'is-expanded' : 'is-collapsed') + (liveCount ? ' has-live-plan' : '') + '" data-folder-group data-folder-key="' + group.key + '">',
                         '<button type="button" class="plan-folder-cover" data-folder-toggle aria-expanded="' + expanded + '">',
@@ -1498,8 +1510,8 @@
                     lastYearKey = group.yearKey;
                 }
                 parts.push([
-                    '<div class="plan-folder-tl-wrap">',
-                        '<div class="plan-folder-tl-axis">',
+                    '<div class="plan-folder-tl-wrap ' + toneClass + '">',
+                        '<div class="plan-folder-tl-axis ' + toneClass + '">',
                             '<div class="plan-folder-tl-head">',
                                 (showMonthLabel ? '<div class="plan-folder-tl-month">' + escapeHtml(group.monthLabel) + '</div>' : ''),
                                 '<div class="plan-folder-tl-dot"></div>',
