@@ -286,9 +286,10 @@
                 " &nbsp;" +
                 highlights +
                 "</p></div>" +
+                "<div class='place-action'>" +
                 "<button type='button' class='btn-outline' data-action='map'>" +
                 esc(it.actionLabel || "위치 보기") +
-                "</button></div>";
+                "</button></div></div>";
         }
         host.innerHTML = html;
     }

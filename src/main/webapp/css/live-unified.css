@@ -415,22 +415,30 @@ body {
     border-radius: 12px;
     padding: 14px 16px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    gap: 12px;
+    align-items: stretch;
     border: 1px solid #f0f0f0;
+}
+
+.place-info {
+    flex: 1;
+    min-width: 0;
 }
 
 .place-title-row {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
     gap: 6px;
     margin-bottom: 4px;
 }
 .place-title-row h4 {
     margin: 0;
+    flex: 1 1 180px;
+    min-width: 0;
     font-size: 15px;
     color: #111;
-    word-break: keep-all;
+    overflow-wrap: anywhere;
 }
 
 .badge-gray {
@@ -448,22 +456,32 @@ body {
     margin: 0;
     font-size: 12px;
     color: #888;
-    word-break: keep-all;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.place-action {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+    border-left: 1px solid #e5e7eb;
 }
 
 .btn-outline {
     background-color: #ffffff;
     border: 1px solid #333;
     color: #333;
-    padding: 8px 14px;
+    min-width: 78px;
+    padding: 6px 10px;
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
-    font-size: 13px;
+    font-size: 12px;
     transition: 0.2s;
     white-space: nowrap;
     flex-shrink: 0;
-    margin-left: 10px;
+    line-height: 1.2;
 }
 
 .btn-outline:hover {
@@ -1136,6 +1154,24 @@ body {
     color: #64748b;
 }
 @media (max-width: 768px) {
+    .booking-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .place-action {
+        justify-content: flex-end;
+        padding-left: 0;
+        padding-top: 10px;
+        border-left: 0;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn-outline {
+        width: auto;
+        align-self: flex-end;
+    }
+
     .live-plan-card {
         padding: 10px 12px;
         margin: 8px auto;
