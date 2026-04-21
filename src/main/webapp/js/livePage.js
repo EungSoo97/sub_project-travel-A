@@ -86,19 +86,40 @@
         for (var i = 0; i < list.length; i++) {
             var row = list[i];
             var isNormal = (row.status || "").toLowerCase() === "normal";
-            var statusClass = isNormal ? "good" : "warning";
             var textClass = isNormal ? "status-text good" : "status-text warning";
+            var metaParts = [];
+            if (row.operator) metaParts.push(esc(row.operator));
+            if (row.departureStop || row.arrivalStop) metaParts.push(esc((row.departureStop || "-") + " → " + (row.arrivalStop || "-")));
+            var detailParts = [];
+            if (row.departureInMinutes != null) {
+                detailParts.push("약 " + esc(row.departureInMinutes) + "분 후 출발");
+            } else if (row.departureTimeText) {
+                detailParts.push(esc(row.departureTimeText) + " 출발");
+            }
+            if (row.delayMinutes != null) {
+                detailParts.push("현재 " + esc(row.delayMinutes) + "분 지연");
+            } else if (row.statusLabel) {
+                detailParts.push(esc(row.statusLabel));
+            }
+            if (row.durationMinutes != null) {
+                detailParts.push(esc(row.durationMinutes) + "분 소요");
+            }
             html +=
-                "<div class='info-row'>" +
-                "<span class='info-name'>" +
-                esc(row.line || "") +
+                "<div class='info-row traffic-row'>" +
+                "<div class='traffic-main'>" +
+                "<span class='info-name traffic-line'>" +
+                esc(row.line || "교통") +
                 "</span>" +
-                "<span class='" +
+                (metaParts.length ? "<div class='traffic-meta'>" + metaParts.join(" · ") + "</div>" : "") +
+                "<span class='traffic-message " +
                 textClass +
                 "'>" +
                 trafficRowSvg(isNormal) +
                 esc(row.message || "") +
-                "</span></div>";
+                "</span>" +
+                (detailParts.length ? "<div class='traffic-subdetail'>" + detailParts.join(" · ") + "</div>" : "") +
+                "</div>" +
+                "</div>";
         }
         host.innerHTML = html;
     }
@@ -174,6 +195,12 @@
         var idx = findActivityIndexInDay(activity, day);
         var leg = day && day.dayRoute && Array.isArray(day.dayRoute.legs) && idx >= 0 ? day.dayRoute.legs[idx] : null;
         if (leg) {
+            var travelLabel = String(leg.travelModesLabelKo || "");
+            var travelModes = Array.isArray(leg.travelModes) ? leg.travelModes.map(function (mode) { return String(mode).toUpperCase(); }) : [];
+            var isCarLeg = /차|자동차/.test(travelLabel) || travelModes.indexOf("CAR") >= 0 || travelModes.indexOf("DRIVE") >= 0 || travelModes.indexOf("TAXI") >= 0;
+            if (isCarLeg) {
+                return [];
+            }
             var line = leg.travelModesLabelKo || (Array.isArray(leg.travelModes) ? leg.travelModes.join(", ") : "교통");
             if (Array.isArray(leg.lineNames) && leg.lineNames.length) {
                 line += " · " + leg.lineNames.join(", ");
@@ -193,6 +220,7 @@
         }
         return [];
     }
+
     function renderEmergency(list) {
         var host = document.getElementById("liveEmergency");
         if (!host) return;
@@ -224,10 +252,6 @@
             host.innerHTML = "<p class='live-muted'>추천 장소 없음</p>";
             return;
         }
-        // 🔑 버그 수정: 이전에는 outer `var h = ""`(HTML 누적) 와 inner highlights 루프의
-        //    `var h = 0` 이 JS `var` 함수 스코프 때문에 같은 변수였음. 결과적으로 highlights 있는
-        //    추천 한 개만 처리해도 HTML 누적값이 숫자로 덮여 카드 1개 + 숫자만 남음.
-        //    outer 는 `html`, inner 카운터는 `hi` 로 분리.
         var html = "";
         for (var k = 0; k < items.length; k++) {
             var it = items[k];
@@ -347,13 +371,12 @@
         }
         renderRecommendations(d.instantRecommendations, walkLabel);
         renderWeather(d.weather);
-        renderTraffic(selected ? selectedTrafficRows(selected) : d.traffic);
+        var hasDetailedTraffic = !!(d.traffic && d.traffic.length && (d.traffic[0].departureStop || d.traffic[0].delayMinutes != null || d.traffic[0].departureInMinutes != null || d.traffic[0].operator));
+        var trafficRows = (!hasDetailedTraffic && selected) ? selectedTrafficRows(selected) : null;
+        renderTraffic(hasDetailedTraffic ? d.traffic : (trafficRows && trafficRows.length ? trafficRows : d.traffic));
         renderEmergency(d.emergencyContacts);
     }
 
-    // focus: { id?, lat?, lng?, dayIndex? } — 선택된 activity 있으면 해당 좌표·id 기준으로 재요청.
-    // 없으면 기존처럼 목적지 전체 기준. 인자 없이 호출되는 주기적 polling 도 전역에 저장된
-    // window._liveSelectedActivity 를 자동 반영한다 (live-modal.js 에서 설정).
     function selectedDay(selected) {
         if (selected && selected.dayIndex !== undefined && selected.dayIndex !== null && !isNaN(selected.dayIndex)) {
             return Number(selected.dayIndex) + 1;
@@ -409,11 +432,8 @@
             });
     }
 
-    // live-modal.js 의 showLocationRealtimeData 가 활동 클릭 시 호출할 수 있도록 노출.
     window.liveLoadDashboard = loadDashboard;
 
-    // 추천 여행지 카드의 "위치 보기" 버튼 → Google Maps 새 탭 오픈.
-    // 기존에는 data-lat/lng 가 렌더링되어도 클릭 핸들러가 없어 dormant 상태였다.
     var recHost = document.getElementById("liveRecommendations");
     if (recHost) {
         recHost.addEventListener("click", function (ev) {
@@ -424,8 +444,7 @@
             var lat = card.getAttribute("data-lat");
             var lng = card.getAttribute("data-lng");
             if (!lat || !lng) return;
-            var mapsUrl = "https://www.google.com/maps/search/?api=1&query=" +
-                encodeURIComponent(lat + "," + lng);
+            var mapsUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(lat + "," + lng);
             window.open(mapsUrl, "_blank", "noopener");
         });
     }
@@ -481,6 +500,7 @@
             window.open("https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(liveCoord(selected)), "_blank", "noopener");
         }
     }
+
     var nextRouteBtn = document.getElementById("liveNextRouteBtn");
     if (nextRouteBtn) {
         nextRouteBtn.addEventListener("click", openLiveRouteFromSelection);

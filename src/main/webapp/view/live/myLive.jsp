@@ -274,6 +274,6 @@
         }
     });
 </script>
-<script src="${pageContext.request.contextPath}/js/live-itinerary-mobile.js"></script>
-<script src="${pageContext.request.contextPath}/js/live-modal.js"></script>
-<script src="${pageContext.request.contextPath}/js/livePage.js"></script>
+<script src="${pageContext.request.contextPath}/js/live-itinerary-mobile.js?v=20260421-1"></script>
+<script src="${pageContext.request.contextPath}/js/live-modal.js?v=20260421-1"></script>
+<script src="${pageContext.request.contextPath}/js/livePage.js?v=20260421-1"></script>
