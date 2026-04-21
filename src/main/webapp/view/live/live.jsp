@@ -166,9 +166,25 @@
     </div>
 </div>
 
+<c:if test="${not empty planDetailJson}">
+    <textarea id="livePlanDetailJson" hidden><c:out value="${planDetailJson}" escapeXml="false" /></textarea>
+</c:if>
+
 <script type="text/javascript">
     window.LIVE_PLAN_ID = ${selectedPlan.planId};
     window.LIVE_CTX = '${pageContext.request.contextPath}';
     window.LIVE_DESTINATION = '${selectedPlan.destination}';
+    window.PLAN_DETAIL = null;
+    (function () {
+        var planDetailNode = document.getElementById('livePlanDetailJson');
+        if (!planDetailNode) {
+            return;
+        }
+        try {
+            window.PLAN_DETAIL = JSON.parse(planDetailNode.textContent);
+        } catch (e) {
+            console.error('Failed to parse live planDetail JSON', e);
+        }
+    })();
 </script>
-<script src="${pageContext.request.contextPath}/js/livePage.js"></script>
+<script src="${pageContext.request.contextPath}/js/livePage.js?v=20260421-1"></script>

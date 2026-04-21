@@ -14,6 +14,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.stream.Collectors;
 
 /**
  * 브라우저 → 동일 출처 GET → FastAPI {@code GET /api/v1/live-travel/dashboard} 프록시.
@@ -87,6 +88,50 @@ public class LiveDashboardC extends HttpServlet {
         }
     }
 
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json; charset=UTF-8");
+
+        String body = request.getReader().lines().collect(Collectors.joining("\n"));
+        if (body == null || body.trim().isEmpty()) {
+            writeError(response, 400, "EMPTY_REQUEST_BODY: 실시간 여행 요청 본문이 비어 있습니다.");
+            return;
+        }
+
+        try {
+            StringBuilder url = new StringBuilder(FastApiService.resolveFastApiBaseUrl());
+            if (!url.toString().endsWith("/")) {
+                url.append('/');
+            }
+            url.append("live-travel/dashboard");
+
+            HttpRequest fastApiRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(url.toString()))
+                    .timeout(TIMEOUT)
+                    .header("Accept", "application/json")
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
+                    .build();
+
+            HttpClient client = HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_1_1)
+                    .connectTimeout(Duration.ofSeconds(10))
+                    .build();
+
+            HttpResponse<String> fastApiResponse = client.send(fastApiRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            response.setStatus(fastApiResponse.statusCode());
+            response.getWriter().write(fastApiResponse.body());
+        } catch (IllegalStateException e) {
+            writeError(response, 500, "FASTAPI_URL_NOT_CONFIGURED: " + e.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            writeError(response, 504, "FASTAPI_REQUEST_INTERRUPTED: FastAPI 실시간 여행 요청이 중단되었습니다.");
+        } catch (Exception e) {
+            writeError(response, 502, "FASTAPI_DASHBOARD_POST_FAILED: " + e.getMessage());
+        }
+    }
     private static void writeError(HttpServletResponse response, int status, String message) throws IOException {
         response.setStatus(status);
         response.setContentType("application/json;charset=UTF-8");

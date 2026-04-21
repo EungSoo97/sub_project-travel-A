@@ -3,6 +3,9 @@ package com.es.ta.live;
 import com.es.ta.account.AccountDTO;
 import com.es.ta.mypage.TravelPlanDAO;
 import com.es.ta.mypage.TravelPlanDTO;
+import com.es.ta.resultpage.ResultpageDAO;
+import com.es.ta.resultpage.TravelResultVDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,6 +17,8 @@ import java.io.IOException;
 
 @WebServlet(name = "LiveC", value = "/live")
 public class LiveC extends HttpServlet {
+
+    private static final ObjectMapper JSON = new ObjectMapper();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -60,6 +65,12 @@ public class LiveC extends HttpServlet {
         if (selectedPlan == null) {
             response.sendRedirect(request.getContextPath() + "/live-select");
             return;
+        }
+
+        TravelResultVDTO planDetail = ResultpageDAO.detailpage(planId);
+        if (planDetail != null) {
+            request.setAttribute("planDetail", planDetail);
+            request.setAttribute("planDetailJson", JSON.writeValueAsString(planDetail).replace("</", "<\\/"));
         }
 
         request.setAttribute("selectedPlan", selectedPlan);
