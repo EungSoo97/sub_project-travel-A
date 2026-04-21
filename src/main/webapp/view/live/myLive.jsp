@@ -220,46 +220,11 @@
     window.LIVE_PLAN_ID = <%= livePlanId %>;
     window.LIVE_CTX = '${pageContext.request.contextPath}';
     window.LIVE_DESTINATION = <%= destJson %>;
-
-    // Add planDetail data for modal use
-    <c:if test="${not empty planDetail}">
-    window.PLAN_DETAIL = {
-        summary: {
-            destination: '${planDetail.summary.destination}',
-            days: '${planDetail.summary.days}',
-            travelers: '${planDetail.summary.travelers}',
-            totalEstimatedCost: '${planDetail.summary.totalEstimatedCost}',
-            currency: '${planDetail.summary.currency}'
-        },
-        itinerary: [
-            <c:forEach var="item" items="${planDetail.itinerary}" varStatus="status">
-            {
-                day: ${item.day},
-                date: '${item.date}',
-                summary: '${item.summary}',
-                estimatedCost: '${item.estimatedCost}',
-                currency: '${item.currency}',
-                activities: [
-                    <c:forEach var="act" items="${item.activities}" varStatus="actStatus">
-                    {
-                        time: '${act.time}',
-                        name: '${fn:escapeXml(act.name)}',
-                        description: '${fn:escapeXml(act.description)}',
-                        durationMinutes: '${act.durationMinutes}',
-                        cost: '${act.cost}',
-                        currency: '${act.currency}',
-                        lat: '${act.lat}',
-                        lng: '${act.lng}',
-                        category: '${fn:escapeXml(empty act.categoryCode ? act.category : act.categoryCode)}'
-                    }<c:if test="${not actStatus.last}">,</c:if>
-                    </c:forEach>
-                ]
-            }<c:if test="${not status.last}">,</c:if>
-            </c:forEach>
-        ]
-    };
+    // Add planDetail data for modal and real-time dashboard use
+    window.PLAN_DETAIL = null;
+    <c:if test="${not empty planDetailJson}">
+    window.PLAN_DETAIL = ${planDetailJson};
     </c:if>
-
     function toggleLivePlanCard() {
         document.getElementById('livePlanCard').classList.toggle('expanded');
     }
@@ -309,6 +274,6 @@
         }
     });
 </script>
-<script src="${pageContext.request.contextPath}/js/live-itinerary-mobile.js"></script>
-<script src="${pageContext.request.contextPath}/js/live-modal.js"></script>
-<script src="${pageContext.request.contextPath}/js/livePage.js"></script>
+<script src="${pageContext.request.contextPath}/js/live-itinerary-mobile.js?v=20260421-1"></script>
+<script src="${pageContext.request.contextPath}/js/live-modal.js?v=20260421-1"></script>
+<script src="${pageContext.request.contextPath}/js/livePage.js?v=20260421-1"></script>

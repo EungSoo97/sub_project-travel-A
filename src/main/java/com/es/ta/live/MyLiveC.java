@@ -1,6 +1,7 @@
 package com.es.ta.live;
 
 import com.es.ta.account.AccountDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.es.ta.mypage.MyPlanPageDAO;
 import com.es.ta.resultpage.ResultpageDAO;
@@ -16,6 +17,8 @@ import java.io.IOException;
 
 @WebServlet(name = "MyLiveC", value = "/my-live")
 public class MyLiveC extends HttpServlet {
+    private static final ObjectMapper JSON = new ObjectMapper();
+
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 // 비로그인 상태 접근 차단: 세션에 user 없으면 로그인 페이지로
@@ -52,7 +55,10 @@ public class MyLiveC extends HttpServlet {
                 if (planDetail != null) {
                     request.setAttribute("planDetail", planDetail);
                     request.setAttribute("planId", planId);
-                    System.out.println("planDetail found: " + planDetail.getSummary().getDestination());
+                    String planDetailJson = JSON.writeValueAsString(planDetail).replace("</", "<\\/");
+                    request.setAttribute("planDetailJson", planDetailJson);
+                    String destination = planDetail.getSummary() != null ? planDetail.getSummary().getDestination() : "";
+                    System.out.println("planDetail found: " + destination);
                 } else {
                     System.out.println("planDetail is null");
                     request.setAttribute("error", "Cannot find travel plan.");

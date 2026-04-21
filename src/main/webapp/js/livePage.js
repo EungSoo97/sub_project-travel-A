@@ -86,21 +86,139 @@
         for (var i = 0; i < list.length; i++) {
             var row = list[i];
             var isNormal = (row.status || "").toLowerCase() === "normal";
-            var statusClass = isNormal ? "good" : "warning";
             var textClass = isNormal ? "status-text good" : "status-text warning";
+            var metaParts = [];
+            if (row.operator) metaParts.push(esc(row.operator));
+            if (row.departureStop || row.arrivalStop) metaParts.push(esc((row.departureStop || "-") + " → " + (row.arrivalStop || "-")));
+            var detailParts = [];
+            if (row.departureInMinutes != null) {
+                detailParts.push("약 " + esc(row.departureInMinutes) + "분 후 출발");
+            } else if (row.departureTimeText) {
+                detailParts.push(esc(row.departureTimeText) + " 출발");
+            }
+            if (row.delayMinutes != null) {
+                detailParts.push("현재 " + esc(row.delayMinutes) + "분 지연");
+            } else if (row.statusLabel) {
+                detailParts.push(esc(row.statusLabel));
+            }
+            if (row.durationMinutes != null) {
+                detailParts.push(esc(row.durationMinutes) + "분 소요");
+            }
             html +=
-                "<div class='info-row'>" +
-                "<span class='info-name'>" +
-                esc(row.line || "") +
+                "<div class='info-row traffic-row'>" +
+                "<div class='traffic-main'>" +
+                "<span class='info-name traffic-line'>" +
+                esc(row.line || "교통") +
                 "</span>" +
-                "<span class='" +
+                (metaParts.length ? "<div class='traffic-meta'>" + metaParts.join(" · ") + "</div>" : "") +
+                "<span class='traffic-message " +
                 textClass +
                 "'>" +
                 trafficRowSvg(isNormal) +
                 esc(row.message || "") +
-                "</span></div>";
+                "</span>" +
+                (detailParts.length ? "<div class='traffic-subdetail'>" + detailParts.join(" · ") + "</div>" : "") +
+                "</div>" +
+                "</div>";
         }
         host.innerHTML = html;
+    }
+
+    function selectedDayIndexFromActivity(activity) {
+        if (activity && activity.dayIndex !== undefined && activity.dayIndex !== null && !isNaN(activity.dayIndex)) {
+            return Number(activity.dayIndex);
+        }
+        if (activity && activity.day !== undefined && activity.day !== null && !isNaN(activity.day)) {
+            return Number(activity.day) - 1;
+        }
+        return null;
+    }
+
+    function getSelectedDayData(activity) {
+        var dayIdx = selectedDayIndexFromActivity(activity);
+        if (dayIdx === null || isNaN(dayIdx)) return null;
+        if (!window.PLAN_DETAIL || !Array.isArray(window.PLAN_DETAIL.itinerary)) return null;
+        return window.PLAN_DETAIL.itinerary[dayIdx] || null;
+    }
+
+    function findActivityIndexInDay(activity, day) {
+        var acts = day && Array.isArray(day.activities) ? day.activities : [];
+        if (!activity || !acts.length) return -1;
+        for (var i = 0; i < acts.length; i++) {
+            var act = acts[i] || {};
+            if (activity.id && act.id === activity.id) return i;
+            if (activity.googlePlaceId && act.googlePlaceId === activity.googlePlaceId) return i;
+            if (activity.time && act.time === activity.time && act.name === activity.name) return i;
+        }
+        return -1;
+    }
+
+    function activeSelectedActivity() {
+        return window._liveSelectedActivity || null;
+    }
+
+    function selectedActivityBlock(activity) {
+        if (!activity) return null;
+        return {
+            status: activity.status || "진행 중",
+            remainingMinutes: activity.remainingMinutes != null ? activity.remainingMinutes : activity.durationMinutes,
+            name: activity.name || "",
+            location: activity.location || activity.address || "",
+            startTime: activity.startTime || activity.time || "-",
+            endTime: activity.endTime || activity.end || "-"
+        };
+    }
+
+    function selectedNextActivityBlock(activity) {
+        var day = getSelectedDayData(activity);
+        var acts = day && Array.isArray(day.activities) ? day.activities : [];
+        var idx = findActivityIndexInDay(activity, day);
+        if (idx < 0 || idx >= acts.length - 1) return null;
+        var next = acts[idx + 1] || {};
+        var leg = day && day.dayRoute && Array.isArray(day.dayRoute.legs) ? day.dayRoute.legs[idx] : null;
+        var parts = [];
+        if (next.time) parts.push(next.time + " 예정");
+        if (leg && leg.distanceMeters != null) parts.push((Number(leg.distanceMeters) / 1000).toFixed(1) + "km");
+        if (leg && leg.durationMinutes != null) parts.push(String(leg.durationMinutes) + "분");
+        return {
+            name: next.name || "",
+            startTime: next.time || "",
+            distanceText: leg && leg.distanceMeters != null ? (Number(leg.distanceMeters) / 1000).toFixed(1) + "km" : "",
+            travelTimeText: leg && leg.durationMinutes != null ? String(leg.durationMinutes) + "분" : "",
+            summaryText: parts.join(" · "),
+            routeActionLabel: "경로 보기"
+        };
+    }
+
+    function selectedTrafficRows(activity) {
+        var day = getSelectedDayData(activity);
+        var idx = findActivityIndexInDay(activity, day);
+        var leg = day && day.dayRoute && Array.isArray(day.dayRoute.legs) && idx >= 0 ? day.dayRoute.legs[idx] : null;
+        if (leg) {
+            var travelLabel = String(leg.travelModesLabelKo || "");
+            var travelModes = Array.isArray(leg.travelModes) ? leg.travelModes.map(function (mode) { return String(mode).toUpperCase(); }) : [];
+            var isCarLeg = /차|자동차/.test(travelLabel) || travelModes.indexOf("CAR") >= 0 || travelModes.indexOf("DRIVE") >= 0 || travelModes.indexOf("TAXI") >= 0;
+            if (isCarLeg) {
+                return [];
+            }
+            var line = leg.travelModesLabelKo || (Array.isArray(leg.travelModes) ? leg.travelModes.join(", ") : "교통");
+            if (Array.isArray(leg.lineNames) && leg.lineNames.length) {
+                line += " · " + leg.lineNames.join(", ");
+            }
+            var msgParts = [];
+            if (leg.distanceMeters != null) msgParts.push((Number(leg.distanceMeters) / 1000).toFixed(1) + "km");
+            if (leg.durationMinutes != null) msgParts.push(String(leg.durationMinutes) + "분");
+            if (leg.stepsSummary) msgParts.push(leg.stepsSummary);
+            return [{ line: line, status: "normal", message: msgParts.join(" · ") }];
+        }
+        if (activity && activity.transport) {
+            return [{
+                line: activity.transport.line || activity.transport.mode || "교통",
+                status: "normal",
+                message: activity.transport.mode ? String(activity.transport.mode) : "선택 일정 교통 정보"
+            }];
+        }
+        return [];
     }
 
     function renderEmergency(list) {
@@ -134,10 +252,6 @@
             host.innerHTML = "<p class='live-muted'>추천 장소 없음</p>";
             return;
         }
-        // 🔑 버그 수정: 이전에는 outer `var h = ""`(HTML 누적) 와 inner highlights 루프의
-        //    `var h = 0` 이 JS `var` 함수 스코프 때문에 같은 변수였음. 결과적으로 highlights 있는
-        //    추천 한 개만 처리해도 HTML 누적값이 숫자로 덮여 카드 1개 + 숫자만 남음.
-        //    outer 는 `html`, inner 카운터는 `hi` 로 분리.
         var html = "";
         for (var k = 0; k < items.length; k++) {
             var it = items[k];
@@ -207,7 +321,8 @@
             if (cd) cd.textContent = d.currentDateText;
         }
 
-        var cur = d.currentActivity;
+        var selected = activeSelectedActivity();
+        var cur = selectedActivityBlock(selected) || d.currentActivity;
         if (cur) {
             var st = document.getElementById("liveActivityStatus");
             if (st) st.textContent = cur.status || "진행 중";
@@ -236,7 +351,7 @@
             if (cm) cm.textContent = crowd.message || "";
         }
 
-        var next = d.nextActivity;
+        var next = selectedNextActivityBlock(selected) || d.nextActivity;
         if (next) {
             var nt = document.getElementById("liveNextTitle");
             if (nt) nt.textContent = next.name || "";
@@ -256,44 +371,58 @@
         }
         renderRecommendations(d.instantRecommendations, walkLabel);
         renderWeather(d.weather);
-        renderTraffic(d.traffic);
+        var hasDetailedTraffic = !!(d.traffic && d.traffic.length && (d.traffic[0].departureStop || d.traffic[0].delayMinutes != null || d.traffic[0].departureInMinutes != null || d.traffic[0].operator));
+        var trafficRows = (!hasDetailedTraffic && selected) ? selectedTrafficRows(selected) : null;
+        renderTraffic(hasDetailedTraffic ? d.traffic : (trafficRows && trafficRows.length ? trafficRows : d.traffic));
         renderEmergency(d.emergencyContacts);
     }
 
-    // focus: { id?, lat?, lng?, dayIndex? } — 선택된 activity 있으면 해당 좌표·id 기준으로 재요청.
-    // 없으면 기존처럼 목적지 전체 기준. 인자 없이 호출되는 주기적 polling 도 전역에 저장된
-    // window._liveSelectedActivity 를 자동 반영한다 (live-modal.js 에서 설정).
+    function selectedDay(selected) {
+        if (selected && selected.dayIndex !== undefined && selected.dayIndex !== null && !isNaN(selected.dayIndex)) {
+            return Number(selected.dayIndex) + 1;
+        }
+        if (selected && selected.day !== undefined && selected.day !== null && !isNaN(selected.day)) {
+            return Number(selected.day);
+        }
+        return null;
+    }
+
+    function selectedLocation(selected) {
+        if (!selected || selected.lat === undefined || selected.lng === undefined || selected.lat === null || selected.lng === null || selected.lat === "" || selected.lng === "") {
+            return null;
+        }
+        var lat = Number(selected.lat);
+        var lng = Number(selected.lng);
+        if (isNaN(lat) || isNaN(lng)) {
+            return null;
+        }
+        return { lat: lat, lng: lng };
+    }
+
     function loadDashboard(focus) {
-        var url = ctx + "/live/dashboard-data?planId=" + encodeURIComponent(planId);
-        if (destHint) {
-            url += "&destination=" + encodeURIComponent(destHint);
-        }
         var selected = focus || window._liveSelectedActivity || null;
-        if (selected) {
-            if (selected.id) {
-                url += "&activityId=" + encodeURIComponent(selected.id);
-            }
-            if (selected.dayIndex != null && !isNaN(selected.dayIndex)) {
-                // dayIndex 는 0-기반, 서버 계약은 1-기반(day=1,2,3,...) 이므로 +1
-                url += "&day=" + encodeURIComponent(Number(selected.dayIndex) + 1);
-            }
-            if (selected.lat != null && selected.lat !== "") {
-                url += "&lat=" + encodeURIComponent(selected.lat);
-            }
-            if (selected.lng != null && selected.lng !== "") {
-                url += "&lng=" + encodeURIComponent(selected.lng);
-            }
+        var body = {
+            planId: Number(planId) || 1,
+            planDetail: window.PLAN_DETAIL || null,
+            day: selectedDay(selected)
+        };
+        var loc = selectedLocation(selected);
+        if (loc) {
+            body.lastLocation = loc;
         }
-        fetch(url, { headers: { Accept: "application/json" } })
-            .then(function (r) {
-                if (!r.ok) {
-                    return r.text().then(function (t) {
-                        throw new Error("HTTP " + r.status + " " + t);
-                    });
-                }
-                return r.json();
+
+        fetch(ctx + "/live/dashboard-data", {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json; charset=UTF-8"
+            },
+            body: JSON.stringify(body)
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                renderDashboard(data || {});
             })
-            .then(renderDashboard)
             .catch(function (e) {
                 console.error(e);
                 showError(
@@ -303,11 +432,8 @@
             });
     }
 
-    // live-modal.js 의 showLocationRealtimeData 가 활동 클릭 시 호출할 수 있도록 노출.
     window.liveLoadDashboard = loadDashboard;
 
-    // 추천 여행지 카드의 "위치 보기" 버튼 → Google Maps 새 탭 오픈.
-    // 기존에는 data-lat/lng 가 렌더링되어도 클릭 핸들러가 없어 dormant 상태였다.
     var recHost = document.getElementById("liveRecommendations");
     if (recHost) {
         recHost.addEventListener("click", function (ev) {
@@ -318,10 +444,66 @@
             var lat = card.getAttribute("data-lat");
             var lng = card.getAttribute("data-lng");
             if (!lat || !lng) return;
-            var mapsUrl = "https://www.google.com/maps/search/?api=1&query=" +
-                encodeURIComponent(lat + "," + lng);
+            var mapsUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(lat + "," + lng);
             window.open(mapsUrl, "_blank", "noopener");
         });
+    }
+
+    function liveHasLatLng(activity) {
+        return !!(activity && activity.lat !== undefined && activity.lng !== undefined && activity.lat !== null && activity.lng !== null && activity.lat !== "" && activity.lng !== "" && !isNaN(Number(activity.lat)) && !isNaN(Number(activity.lng)));
+    }
+
+    function liveCoord(activity) {
+        return Number(activity.lat) + "," + Number(activity.lng);
+    }
+
+    function openLiveRouteFromSelection() {
+        var selected = window._liveSelectedActivity || null;
+        var routeActivities = [];
+
+        if (selected && window.PLAN_DETAIL && Array.isArray(window.PLAN_DETAIL.itinerary)) {
+            var dayIdx = selected.dayIndex !== undefined && selected.dayIndex !== null ? Number(selected.dayIndex) : null;
+            if ((dayIdx === null || isNaN(dayIdx)) && selected.day !== undefined && selected.day !== null) {
+                dayIdx = Number(selected.day) - 1;
+            }
+            var day = !isNaN(dayIdx) && window.PLAN_DETAIL.itinerary[dayIdx] ? window.PLAN_DETAIL.itinerary[dayIdx] : null;
+            var acts = day && Array.isArray(day.activities) ? day.activities : [];
+            var startIdx = acts.findIndex(function (act) {
+                return (selected.id && act.id === selected.id) ||
+                    (selected.googlePlaceId && act.googlePlaceId === selected.googlePlaceId) ||
+                    (selected.time && act.time === selected.time && act.name === selected.name);
+            });
+            if (startIdx < 0) {
+                startIdx = 0;
+            }
+            routeActivities = acts.slice(startIdx).filter(liveHasLatLng);
+        }
+
+        if (routeActivities.length >= 2) {
+            var origin = liveCoord(routeActivities[0]);
+            var destination = liveCoord(routeActivities[routeActivities.length - 1]);
+            var url = "https://www.google.com/maps/dir/?api=1&origin=" + encodeURIComponent(origin) + "&destination=" + encodeURIComponent(destination);
+            var waypoints = routeActivities.slice(1, -1).map(liveCoord);
+            if (waypoints.length) {
+                url += "&waypoints=" + encodeURIComponent(waypoints.join("|"));
+            }
+            window.open(url, "_blank", "noopener");
+            return;
+        }
+
+        if (selected && selected.googleMapsUrl) {
+            window.open(selected.googleMapsUrl, "_blank", "noopener");
+            return;
+        }
+
+        if (liveHasLatLng(selected)) {
+            window.open("https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(liveCoord(selected)), "_blank", "noopener");
+        }
+    }
+
+    var nextRouteBtn = document.getElementById("liveNextRouteBtn");
+    if (nextRouteBtn) {
+        nextRouteBtn.addEventListener("click", openLiveRouteFromSelection);
     }
 
     loadDashboard();
