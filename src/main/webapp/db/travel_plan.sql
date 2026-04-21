@@ -520,3 +520,7 @@ SET thumbnail_url = NULL
 WHERE plan_id = 435;
 
 select * from travel_plan;
+
+UPDATE travel_plan
+SET CREATED_AT = to_date ('2026-03-18 12:00:00', 'YYYY-MM-DD HH24:MI:SS')
+WHERE plan_id = 506;
