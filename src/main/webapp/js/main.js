@@ -316,6 +316,7 @@ const aiMessage = document.getElementById("aiMessage");
 
 let progress = 0;
 let currentStep = 0;
+let loadingProgressTimer = null;
 
 const messages = [
   "1,247개의 관광지 데이터를 분석하고 있습니다...",
@@ -352,6 +353,11 @@ function resetLoadingState() {
   progress = 0;
   currentStep = 0;
 
+  if (loadingProgressTimer) {
+    clearTimeout(loadingProgressTimer);
+    loadingProgressTimer = null;
+  }
+
   if (progressBar) progressBar.style.width = "0%";
   if (progressText) progressText.innerText = "0%";
 
@@ -378,6 +384,47 @@ function resetLoadingState() {
 
   updateAIMessage();
   renderLucideIcons();
+}
+
+function renderLoadingProgress(value) {
+  progress = Math.max(0, Math.min(100, Math.round(value)));
+  if (progressBar) progressBar.style.width = progress + "%";
+  if (progressText) progressText.innerText = progress + "%";
+}
+
+function startLoadingProgress() {
+  const checkpoints = [
+    { target: 12, delay: 180 },
+    { target: 24, delay: 260 },
+    { target: 38, delay: 380 },
+    { target: 52, delay: 520 },
+    { target: 67, delay: 720 },
+    { target: 79, delay: 960 },
+    { target: 88, delay: 1200 },
+    { target: 93, delay: 1500 },
+    { target: 95, delay: 1800 }
+  ];
+
+  let checkpointIndex = 0;
+
+  function advance() {
+    if (checkpointIndex >= checkpoints.length) {
+      loadingProgressTimer = null;
+      return;
+    }
+
+    const checkpoint = checkpoints[checkpointIndex];
+    if (progress < checkpoint.target) {
+      renderLoadingProgress(progress + 1);
+      loadingProgressTimer = setTimeout(advance, checkpoint.delay);
+      return;
+    }
+
+    checkpointIndex += 1;
+    advance();
+  }
+
+  advance();
 }
 
 function getFieldWrapper(control) {
@@ -498,15 +545,7 @@ if (form) {
     }
 
     // 진행률: 6초 동안 100%
-    const progressInterval = setInterval(() => {
-      if (progress < 100) {
-        progress++;
-        if (progressBar) progressBar.style.width = progress + "%";
-        if (progressText) progressText.innerText = progress + "%";
-      } else {
-        clearInterval(progressInterval);
-      }
-    }, 60);
+    startLoadingProgress();
 
     // 단계 전환: 1.5초마다
     const stepInterval = setInterval(() => {
@@ -534,11 +573,13 @@ if (form) {
     })
         .then((response) => response.text())
         .then((html) => {
-          clearInterval(progressInterval);
+          if (loadingProgressTimer) {
+            clearTimeout(loadingProgressTimer);
+            loadingProgressTimer = null;
+          }
           clearInterval(stepInterval);
 
-          if (progressBar) progressBar.style.width = "100%";
-          if (progressText) progressText.innerText = "100%";
+          renderLoadingProgress(100);
 
           setTimeout(() => {
             document.open();
@@ -547,7 +588,10 @@ if (form) {
           }, 800);
         })
         .catch((err) => {
-          clearInterval(progressInterval);
+          if (loadingProgressTimer) {
+            clearTimeout(loadingProgressTimer);
+            loadingProgressTimer = null;
+          }
           clearInterval(stepInterval);
           alert("서버 연결에 실패했습니다: " + err);
           window.location.reload();

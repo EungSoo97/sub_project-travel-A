@@ -17,12 +17,13 @@ public class TravelPlanDAO {
     public static boolean savePlan(int userId, TravelResultVDTO result, String title) {
         Connection con = null;
         PreparedStatement pstmt = null;
+        ResultSet rs = null;
 
         String sql = "INSERT INTO travel_plan (" +
                 "plan_id, user_id, destination, title, start_date, end_date, days, travelers, " +
                 "travel_style, request_styles, total_estimated_cost, currency, overview, success, message, response_json, thumbnail_url, created_at, updated_at" +
                 ") VALUES (" +
-                "travel_plan_seq.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE, SYSDATE" +
+                "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE, SYSDATE" +
                 ")";
 
         try {
@@ -30,35 +31,37 @@ public class TravelPlanDAO {
             String responseJson = mapper.writeValueAsString(result);
 
             con = DBManager_new.connect();
+            int planId = getNextPlanId(con);
             pstmt = con.prepareStatement(sql);
 
-            pstmt.setInt(1, userId);
-            pstmt.setString(2, result.getSummary().getDestination());
-            pstmt.setString(3, title);
+            pstmt.setInt(1, planId);
+            pstmt.setInt(2, userId);
+            pstmt.setString(3, result.getSummary().getDestination());
+            pstmt.setString(4, title);
 
             if (result.getSummary().getStartDate() != null && !result.getSummary().getStartDate().isEmpty()) {
-                pstmt.setDate(4, java.sql.Date.valueOf(result.getSummary().getStartDate()));
-            } else {
-                pstmt.setDate(4, null);
-            }
-
-            if (result.getSummary().getEndDate() != null && !result.getSummary().getEndDate().isEmpty()) {
-                pstmt.setDate(5, java.sql.Date.valueOf(result.getSummary().getEndDate()));
+                pstmt.setDate(5, java.sql.Date.valueOf(result.getSummary().getStartDate()));
             } else {
                 pstmt.setDate(5, null);
             }
 
-            pstmt.setInt(6, result.getSummary().getDays());
-            pstmt.setInt(7, result.getSummary().getTravelers());
-            pstmt.setString(8, result.getSummary().getTravelStyle());
-            pstmt.setString(9, buildRequestStyles(result));
-            pstmt.setInt(10, result.getSummary().getTotalEstimatedCost());
-            pstmt.setString(11, result.getSummary().getCurrency());
-            pstmt.setString(12, result.getSummary().getOverview());
-            pstmt.setInt(13, result.isSuccess() ? 1 : 0);
-            pstmt.setString(14, result.getMessage());
-            pstmt.setString(15, responseJson);
-            pstmt.setString(16, PlanImageResolver.resolveThumbnailUrl(result));
+            if (result.getSummary().getEndDate() != null && !result.getSummary().getEndDate().isEmpty()) {
+                pstmt.setDate(6, java.sql.Date.valueOf(result.getSummary().getEndDate()));
+            } else {
+                pstmt.setDate(6, null);
+            }
+
+            pstmt.setInt(7, result.getSummary().getDays());
+            pstmt.setInt(8, result.getSummary().getTravelers());
+            pstmt.setString(9, result.getSummary().getTravelStyle());
+            pstmt.setString(10, buildRequestStyles(result));
+            pstmt.setInt(11, result.getSummary().getTotalEstimatedCost());
+            pstmt.setString(12, result.getSummary().getCurrency());
+            pstmt.setString(13, result.getSummary().getOverview());
+            pstmt.setInt(14, result.isSuccess() ? 1 : 0);
+            pstmt.setString(15, result.getMessage());
+            pstmt.setString(16, responseJson);
+            pstmt.setString(17, PlanImageResolver.resolveThumbnailUrl(result, planId));
 
             return pstmt.executeUpdate() == 1;
 
@@ -67,12 +70,23 @@ public class TravelPlanDAO {
             return false;
         } finally {
             try {
+                if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
                 if (con != null) con.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static int getNextPlanId(Connection con) throws Exception {
+        try (PreparedStatement pstmt = con.prepareStatement("SELECT travel_plan_seq.NEXTVAL FROM dual");
+             ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        throw new IllegalStateException("Failed to allocate plan id");
     }
 
     private static String buildRequestStyles(TravelResultVDTO result) {

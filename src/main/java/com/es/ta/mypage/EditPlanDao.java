@@ -51,16 +51,19 @@ public class EditPlanDao {
     public boolean savePlan(String userId, TravelResultVDTO result) {
         Connection con = null;
         PreparedStatement ps = null;
+        int planId = -1;
         String sql =
-            "INSERT INTO travel_plan (user_id, destination, days, response_json, thumbnail_url, created_at) VALUES (?, ?, ?, ?, ?, sysdate)";
+            "INSERT INTO travel_plan (plan_id, user_id, destination, days, response_json, thumbnail_url, created_at) VALUES (?, ?, ?, ?, ?, ?, sysdate)";
         try {
             con = DBManager_new.connect();
+            planId = getNextPlanId(con);
             ps = con.prepareStatement(sql);
-            ps.setString(1, userId);
-            ps.setString(2, result.getSummary().getDestination());
-            ps.setInt(3, result.getSummary().getDays());
-            ps.setString(4, toJson(result));
-            ps.setString(5, PlanImageResolver.resolveThumbnailUrl(result));
+            ps.setInt(1, planId);
+            ps.setString(2, userId);
+            ps.setString(3, result.getSummary().getDestination());
+            ps.setInt(4, result.getSummary().getDays());
+            ps.setString(5, toJson(result));
+            ps.setString(6, PlanImageResolver.resolveThumbnailUrl(result, planId));
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -83,7 +86,7 @@ public class EditPlanDao {
             con = DBManager_new.connect();
             ps = con.prepareStatement(sql);
             ps.setString(1, toJson(result));
-            ps.setString(2, PlanImageResolver.resolveThumbnailUrl(result));
+            ps.setString(2, PlanImageResolver.resolveThumbnailUrl(result, Integer.parseInt(planId)));
             ps.setString(3, planId);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -92,6 +95,16 @@ public class EditPlanDao {
             DBManager_new.close(con, ps, null);
         }
         return false;
+    }
+
+    private int getNextPlanId(Connection con) throws SQLException {
+        try (PreparedStatement ps = con.prepareStatement("SELECT travel_plan_seq.NEXTVAL FROM dual");
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        throw new SQLException("Failed to allocate plan id");
     }
 
     // ── 플랜 삭제 ──

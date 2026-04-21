@@ -177,7 +177,7 @@ public class MyPlanPageDAO {
             pstmt.setString(9, plan.getCurrency());
             pstmt.setString(10, plan.getOverview());
             pstmt.setString(11, plan.getResponseJson());
-            pstmt.setString(12, PlanImageResolver.resolveThumbnailUrl(plan.getResponseJson(), plan.getDestination()));
+            pstmt.setString(12, PlanImageResolver.resolveThumbnailUrl(plan.getResponseJson(), plan.getDestination(), plan.getPlanId()));
             pstmt.setInt(13, plan.getPlanId());
             pstmt.setInt(14, plan.getUserId());
 
@@ -289,7 +289,7 @@ public class MyPlanPageDAO {
             ps.setString(1, responseJson);
             TravelPlanDTO plan = getPlanByPlanIdAndUserId(planId, userId);
             String destination = plan != null ? plan.getDestination() : "";
-            ps.setString(2, PlanImageResolver.resolveThumbnailUrl(responseJson, destination));
+            ps.setString(2, PlanImageResolver.resolveThumbnailUrl(responseJson, destination, planId));
             ps.setInt(3, planId);
             ps.setInt(4, userId);
 
