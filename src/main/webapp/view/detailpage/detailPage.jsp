@@ -91,6 +91,7 @@
                         <button type="button" class="action-btn icon-btn" onclick="copyUrl()"><i class="fa-solid fa-link"></i></button>
 
                         <form action="${pageContext.request.contextPath}/pdf" method="get">
+                            <input type="hidden" name="planId" value="${plan.planId}">
                             <button type="submit" class="action-btn download-btn">PDF</button>
                         </form>
 
@@ -1042,11 +1043,43 @@
             }
 
             function copyUrl() {
-                navigator.clipboard.writeText(window.location.href).then(function () {
+                var url = window.location.href;
+
+                function onSuccess() {
                     showDpSnackbar("링크가 복사되었습니다.");
-                }).catch(function () {
+                }
+
+                function onFail() {
+                    var textArea = document.createElement("textarea");
+                    textArea.value = url;
+                    textArea.setAttribute("readonly", "");
+                    textArea.style.position = "fixed";
+                    textArea.style.opacity = "0";
+                    textArea.style.pointerEvents = "none";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+
+                    try {
+                        var copied = document.execCommand("copy");
+                        document.body.removeChild(textArea);
+                        if (copied) {
+                            onSuccess();
+                            return;
+                        }
+                    } catch (error) {
+                        document.body.removeChild(textArea);
+                    }
+
                     showDpSnackbar("링크 복사에 실패했습니다.");
-                });
+                }
+
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(url).then(onSuccess).catch(onFail);
+                    return;
+                }
+
+                onFail();
             }
 
             function toggleHeart(btn, planId) {

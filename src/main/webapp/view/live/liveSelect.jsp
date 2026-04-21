@@ -68,6 +68,7 @@
                             </div>
 
                             <a class="live-plan-start-btn"
+                               data-plan-id="${plan.planId}"
                                href="${pageContext.request.contextPath}/my-live?planId=${plan.planId}&destination=${plan.destination}">
                                 이 플랜으로 시작
                             </a>
@@ -84,6 +85,95 @@
         const input = document.getElementById("planKeyword");
         const list = document.getElementById("autocompleteList");
         const contextPath = "${pageContext.request.contextPath}";
+        const liveNavLink = document.getElementById("liveNavLink");
+
+        function ensureLivePulseStyle() {
+            if (document.getElementById("livePulseStyle")) return;
+
+            const style = document.createElement("style");
+            style.id = "livePulseStyle";
+            style.textContent = "@keyframes livePulse{0%,100%{opacity:1;transform:translateY(-50%) scale(1)}50%{opacity:.4;transform:translateY(-50%) scale(1.4)}}";
+            document.head.appendChild(style);
+        }
+
+        function updateGlobalLiveNav(planId) {
+            if (!liveNavLink) return;
+
+            const dot = liveNavLink.querySelector(".live-nav-dot");
+            if (planId) {
+                ensureLivePulseStyle();
+                liveNavLink.href = contextPath + "/my-live?planId=" + encodeURIComponent(planId);
+                liveNavLink.style.position = "relative";
+
+                if (!dot) {
+                    const nextDot = document.createElement("span");
+                    nextDot.className = "live-nav-dot";
+                    nextDot.style.cssText = [
+                        "position:absolute",
+                        "left:-4px",
+                        "top:50%",
+                        "transform:translateY(-50%)",
+                        "width:9px",
+                        "height:9px",
+                        "border-radius:50%",
+                        "background:#ef4444",
+                        "animation:livePulse 1.4s ease-in-out infinite",
+                        "pointer-events:none"
+                    ].join(";");
+                    liveNavLink.appendChild(nextDot);
+                }
+                return;
+            }
+
+            if (dot) dot.remove();
+            liveNavLink.href = contextPath + "/live-select";
+        }
+
+        function startTracking(planId) {
+            return fetch(contextPath + "/live-tracking", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({ action: "start", planId: String(planId) })
+            }).then(function (response) {
+                return response.json().catch(function () {
+                    return {};
+                }).then(function (data) {
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || "tracking update failed");
+                    }
+                    return data;
+                });
+            });
+        }
+
+        document.querySelectorAll(".live-plan-start-btn").forEach(function (button) {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
+
+                const href = button.getAttribute("href");
+                const planId = button.dataset.planId;
+                if (!href || !planId) {
+                    window.location.href = href || (contextPath + "/live-select");
+                    return;
+                }
+
+                button.style.pointerEvents = "none";
+                button.setAttribute("aria-disabled", "true");
+
+                startTracking(planId).then(function () {
+                    localStorage.setItem("liveTrackingPlanId", String(planId));
+                    updateGlobalLiveNav(planId);
+                    window.location.href = href;
+                }).catch(function (error) {
+                    console.error(error);
+                    button.style.pointerEvents = "";
+                    button.removeAttribute("aria-disabled");
+                });
+            });
+        });
 
         if (!input || !list) return;
 
