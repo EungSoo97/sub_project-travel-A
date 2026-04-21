@@ -216,6 +216,8 @@
                              data-plan-id="${trip.planId}"
                              data-live-tracking="${trip.liveTracking}"
                              data-starred="${trip.starred}"
+                             data-posted="${trip.posted}"
+                             data-like-count="${trip.likeCnt}"
                              data-created-time="${empty trip.postDate ? (empty trip.createdAt ? 0 : trip.createdAt.time) : trip.postDate.time}"
                              data-destination="${empty trip.destination ? '여행지 미정' : trip.destination}"
                              data-travel-style="${empty trip.travelStyle ? '여행 스타일' : trip.travelStyle}">
@@ -1141,6 +1143,8 @@
             return {
                 source: source,
                 planId: Number(card.dataset.planId || 0),
+                posted: String(card.dataset.posted) === '1',
+                likeCount: Number(card.dataset.likeCount || 0),
                 createdTime: createdTime,
                 createdLabel: formatCreatedLabel(createdTime),
                 createdYearKey: createdMeta.yearKey,
@@ -1367,6 +1371,7 @@
             const safeDestination = escapeHtml(plan.destination);
             const safeDuration = escapeHtml(plan.duration);
             const safeTravelers = escapeHtml(plan.travelers);
+            const safeLikeCount = escapeHtml(String(plan.likeCount || 0));
             const styleTags = String(plan.travelStyle || '')
                 .split(/[#,/|]/)
                 .map(function (value) { return value.trim(); })
@@ -1399,6 +1404,8 @@
                     '<div class="plan-mini-info">',
                         '<span><i class="fa-regular fa-calendar"></i> ' + safeDuration + '</span>',
                         '<span><i class="fa-solid fa-user-group"></i> ' + safeTravelers + '</span>',
+                        '<span><i class="fa-solid fa-heart"></i> ' + safeLikeCount + '</span>',
+                        (plan.posted ? '<span class="plan-mini-post-badge">게시됨</span>' : ''),
                     '</div>',
                 '</button>'
             ].join('');
