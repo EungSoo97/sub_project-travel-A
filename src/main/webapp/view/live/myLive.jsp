@@ -230,7 +230,6 @@
     }
 
     function stopTracking() {
-        localStorage.removeItem('liveTrackingPlanId');
         fetch(window.LIVE_CTX + '/live-tracking', {
             method: 'POST',
             headers: {
@@ -238,8 +237,18 @@
                 'Accept': 'application/json'
             },
             body: JSON.stringify({ action: 'stop', planId: window.LIVE_PLAN_ID })
-        }).finally(function () {
-            window.location.href = window.LIVE_CTX + '/mypage?stopTracking=true';
+        }).then(function (response) {
+            return response.json().catch(function () {
+                return {};
+            }).then(function (data) {
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'tracking update failed');
+                }
+                localStorage.removeItem('liveTrackingPlanId');
+                window.location.href = window.LIVE_CTX + '/mypage';
+            });
+        }).catch(function (error) {
+            console.error(error);
         });
     }
 

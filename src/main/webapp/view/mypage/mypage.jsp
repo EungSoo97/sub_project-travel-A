@@ -327,6 +327,7 @@
                              data-plan-id="${trip.planId}"
                              data-live-tracking="${trip.liveTracking}"
                              data-starred="${trip.starred}"
+                             data-like-count="${trip.likeCnt}"
                              data-created-time="${empty trip.createdAt ? 0 : trip.createdAt.time}"
                              data-destination="${empty trip.destination ? '여행지 미정' : trip.destination}"
                              data-travel-style="${empty trip.travelStyle ? '여행 스타일' : trip.travelStyle}">
@@ -1461,7 +1462,7 @@
                 const nextGroup = groups[groupIndex + 1];
                 const previousGroup = groups[groupIndex - 1];
                 const showYearDivider = group.yearKey !== lastYearKey;
-                const connectMonthLine = nextGroup && nextGroup.yearMonthKey === group.yearMonthKey && group.yearMonthKey !== 'unknown';
+                const connectMonthLine = Boolean(nextGroup);
                 const showMonthLabel = state.mode === 'date' && (!previousGroup || previousGroup.yearMonthKey !== group.yearMonthKey);
                 let toneClass = 'is-sky';
                 if (state.mode === 'date') {
@@ -1885,6 +1886,61 @@
             renderFolderView('saved');
         }
 
+        function updateGlobalLiveNav(planId) {
+            const ctx = window.MYPAGE_CTX || '';
+            const liveNavLink = document.getElementById('liveNavLink');
+            if (!liveNavLink) return;
+
+            const dot = liveNavLink.querySelector('.live-nav-dot');
+            if (planId) {
+                liveNavLink.href = ctx + '/my-live?planId=' + encodeURIComponent(planId);
+                liveNavLink.style.position = 'relative';
+
+                if (!dot) {
+                    const nextDot = document.createElement('span');
+                    nextDot.className = 'live-nav-dot';
+                    nextDot.style.cssText = [
+                        'position:absolute',
+                        'left:-4px',
+                        'top:50%',
+                        'transform:translateY(-50%)',
+                        'width:9px',
+                        'height:9px',
+                        'border-radius:50%',
+                        'background:#ef4444',
+                        'animation:livePulse 1.4s ease-in-out infinite',
+                        'pointer-events:none'
+                    ].join(';');
+                    liveNavLink.appendChild(nextDot);
+                }
+                return;
+            }
+
+            if (dot) dot.remove();
+            liveNavLink.href = ctx + '/live-select';
+        }
+
+        function requestTrackingUpdate(action, planId) {
+            const ctx = window.MYPAGE_CTX || '';
+            return fetch(ctx + '/live-tracking', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ action: action, planId: planId })
+            }).then(function (response) {
+                return response.json().catch(function () {
+                    return {};
+                }).then(function (data) {
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'tracking update failed');
+                    }
+                    return data;
+                });
+            });
+        }
+
         function resetOtherSavedTrackingStates(activePlanId) {
             document.querySelectorAll('#content-saved .trip-card').forEach(function (card) {
                 if (String(card.dataset.planId) === String(activePlanId)) return;
@@ -1937,28 +1993,33 @@
                 event.preventDefault();
                 event.stopPropagation();
                 const isTracking = localStorage.getItem('liveTrackingPlanId') === planId || modalCard.dataset.liveTracking === '1';
+                liveBtn.disabled = true;
 
                 if (isTracking) {
-                    paintModalLiveState(false);
-                    localStorage.removeItem('liveTrackingPlanId');
-                    fetch(ctx + '/live-tracking', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({ action: 'stop', planId: planId })
-                    }).finally(function () {
+                    requestTrackingUpdate('stop', planId).then(function () {
+                        paintModalLiveState(false);
+                        localStorage.removeItem('liveTrackingPlanId');
                         updateSavedPlanTrackingState(planId, false);
+                        updateGlobalLiveNav('');
+                    }).catch(function (error) {
+                        console.error(error);
+                    }).finally(function () {
+                        liveBtn.disabled = false;
                     });
                     return;
                 }
 
-                resetOtherSavedTrackingStates(planId);
-                localStorage.setItem('liveTrackingPlanId', planId);
-                paintModalLiveState(true);
-                updateSavedPlanTrackingState(planId, true);
-                window.location.href = ctx + '/my-live?planId=' + encodeURIComponent(planId) + '&destination=' + destination;
+                requestTrackingUpdate('start', planId).then(function () {
+                    resetOtherSavedTrackingStates(planId);
+                    localStorage.setItem('liveTrackingPlanId', planId);
+                    paintModalLiveState(true);
+                    updateSavedPlanTrackingState(planId, true);
+                    updateGlobalLiveNav(planId);
+                    window.location.href = ctx + '/my-live?planId=' + encodeURIComponent(planId) + '&destination=' + destination;
+                }).catch(function (error) {
+                    console.error(error);
+                    liveBtn.disabled = false;
+                });
             });
         }
 

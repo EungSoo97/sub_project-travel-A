@@ -69,7 +69,7 @@
               </div>
             <a href="${pageContext.request.contextPath}/">여행 계획</a>
             <a href="${pageContext.request.contextPath}/explore">탐색</a>
-            <a href="${pageContext.request.contextPath}/live">실시간 여행</a>
+            <a href="${pageContext.request.contextPath}/live" id="liveNavLink" data-live-nav="true">실시간 여행</a>
 
               <c:choose>
                   <c:when test="${not empty sessionScope.user}">
@@ -174,7 +174,7 @@
         const ctx = '${pageContext.request.contextPath}';
         const dbTrackingPlanId = '${empty activeLiveTrackingPlanId ? "" : activeLiveTrackingPlanId}';
         const trackingPlanId = dbTrackingPlanId;
-        const liveLink = document.querySelector('.site-nav a[href*="/live"]');
+        const liveLink = document.getElementById('liveNavLink');
 
         if (!liveLink) return;
 
@@ -186,6 +186,7 @@
             liveLink.style.position = 'relative';
 
             const dot = document.createElement('span');
+            dot.className = 'live-nav-dot';
             dot.style.cssText = [
                 'position:absolute',
                 'left:-4px',
@@ -207,7 +208,9 @@
             }
         } else {
             localStorage.removeItem('liveTrackingPlanId');
-            liveLink.href = ctx + '/live';
+            const dot = liveLink.querySelector('.live-nav-dot');
+            if (dot) dot.remove();
+            liveLink.href = ctx + '/live-select';
         }
 
         /* ── 로그아웃 시 트래킹 상태 자동 해제 ── */
