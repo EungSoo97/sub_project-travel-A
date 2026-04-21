@@ -13,7 +13,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -30,7 +32,7 @@ public final class PlanImageResolver {
     }
 
     public static String resolveThumbnailUrl(TravelResponseDto responseDto, String responseJson, String destination, int planId) {
-        return uploadToCloudinary(resolveSourceImageUrl(responseDto, responseJson, destination), destination, planId);
+        return uploadToCloudinary(resolveSourceImageUrl(responseDto, responseJson, destination, planId), destination, planId);
     }
 
     public static String resolveThumbnailUrl(TravelResultVDTO result) {
@@ -48,12 +50,13 @@ public final class PlanImageResolver {
         } catch (Exception ignored) {
         }
         String destination = result.getSummary() != null ? nullSafe(result.getSummary().getDestination()) : "";
-        String sourceUrl = firstUsableImageUrl(result);
+        GeoPoint geoPoint = extractGeoPoint(result);
+        String sourceUrl = fetchPlaceThumbnail(destination, geoPoint, planId);
         if (sourceUrl.isBlank()) {
-            sourceUrl = extractFirstImageUrl(responseJson);
+            sourceUrl = firstUsableImageUrl(result);
         }
         if (sourceUrl.isBlank()) {
-            sourceUrl = fetchPlaceThumbnail(destination);
+            sourceUrl = extractFirstImageUrl(responseJson);
         }
         return uploadToCloudinary(sourceUrl, destination, planId);
     }
@@ -63,7 +66,7 @@ public final class PlanImageResolver {
     }
 
     public static String resolveThumbnailUrl(String responseJson, String destination, int planId) {
-        return uploadToCloudinary(resolveSourceImageUrl(null, responseJson, destination), destination, planId);
+        return uploadToCloudinary(resolveSourceImageUrl(null, responseJson, destination, planId), destination, planId);
     }
 
     public static String extractFirstImageUrl(String responseJson) {
@@ -78,8 +81,14 @@ public final class PlanImageResolver {
         }
     }
 
-    private static String resolveSourceImageUrl(TravelResponseDto responseDto, String responseJson, String destination) {
-        String imageUrl = firstUsableImageUrl(responseDto);
+    private static String resolveSourceImageUrl(TravelResponseDto responseDto, String responseJson, String destination, int planId) {
+        GeoPoint geoPoint = extractGeoPoint(responseDto, responseJson);
+        String imageUrl = fetchPlaceThumbnail(destination, geoPoint, planId);
+        if (!imageUrl.isBlank()) {
+            return imageUrl;
+        }
+
+        imageUrl = firstUsableImageUrl(responseDto);
         if (!imageUrl.isBlank()) {
             return imageUrl;
         }
@@ -89,7 +98,7 @@ public final class PlanImageResolver {
             return imageUrl;
         }
 
-        return fetchPlaceThumbnail(destination);
+        return "";
     }
 
     private static String firstUsableImageUrl(TravelResponseDto responseDto) {
@@ -120,7 +129,7 @@ public final class PlanImageResolver {
         return "";
     }
 
-    private static String fetchPlaceThumbnail(String destination) {
+    private static String fetchPlaceThumbnail(String destination, GeoPoint geoPoint, int planId) {
         String keyword = nullSafe(destination).trim();
         if (keyword.isEmpty()) {
             return "";
@@ -131,8 +140,161 @@ public final class PlanImageResolver {
             return "";
         }
 
-        String thumbnailUrl = GooglePlaceImageService.getThumbnailUrlByKeyword(keyword, apiKey);
+        Double lat = geoPoint != null ? geoPoint.lat() : null;
+        Double lng = geoPoint != null ? geoPoint.lng() : null;
+        String thumbnailUrl = GooglePlaceImageService.getThumbnailUrlByKeyword(keyword, apiKey, lat, lng, planId);
         return thumbnailUrl == null ? "" : thumbnailUrl.trim();
+    }
+
+    private static GeoPoint extractGeoPoint(TravelResponseDto responseDto, String responseJson) {
+        GeoPoint point = extractGeoPoint(responseDto);
+        if (point != null) {
+            return point;
+        }
+        return extractGeoPoint(responseJson);
+    }
+
+    private static GeoPoint extractGeoPoint(TravelResponseDto responseDto) {
+        if (responseDto == null || responseDto.getItinerary() == null) {
+            return null;
+        }
+
+        List<GeoPoint> points = new ArrayList<>();
+        for (TravelResponseDto.ItineraryItem item : responseDto.getItinerary()) {
+            if (item == null) {
+                continue;
+            }
+
+            if (item.getActivities() != null) {
+                for (TravelResponseDto.Activity activity : item.getActivities()) {
+                    addPoint(points, activity != null ? activity.getLat() : null, activity != null ? activity.getLng() : null);
+                }
+            }
+
+            if (item.getRoutePoints() != null) {
+                for (TravelResponseDto.RoutePoint routePoint : item.getRoutePoints()) {
+                    addPoint(points, routePoint == null ? null : routePoint.getLat(), routePoint == null ? null : routePoint.getLng());
+                }
+            }
+        }
+
+        return averagePoint(points);
+    }
+
+    private static GeoPoint extractGeoPoint(TravelResultVDTO result) {
+        if (result == null || result.getItinerary() == null) {
+            return null;
+        }
+
+        List<GeoPoint> points = new ArrayList<>();
+        for (TravelResultVDTO.Itinerary item : result.getItinerary()) {
+            if (item == null) {
+                continue;
+            }
+
+            if (item.getActivities() != null) {
+                for (TravelResultVDTO.Activity activity : item.getActivities()) {
+                    addPoint(points, activity != null ? activity.getLat() : null, activity != null ? activity.getLng() : null);
+                }
+            }
+
+            if (item.getRoutePoints() != null) {
+                for (TravelResultVDTO.RoutePoint routePoint : item.getRoutePoints()) {
+                    addPoint(points, routePoint == null ? null : routePoint.getLat(), routePoint == null ? null : routePoint.getLng());
+                }
+            }
+        }
+
+        return averagePoint(points);
+    }
+
+    private static GeoPoint extractGeoPoint(String responseJson) {
+        if (responseJson == null || responseJson.isBlank()) {
+            return null;
+        }
+
+        try {
+            List<GeoPoint> points = new ArrayList<>();
+            collectGeoPoints(JSON_MAPPER.readTree(responseJson), points, 12);
+            return averagePoint(points);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static void collectGeoPoints(JsonNode node, List<GeoPoint> points, int limit) {
+        if (node == null || node.isNull() || points.size() >= limit) {
+            return;
+        }
+
+        if (node.isObject()) {
+            Double lat = readCoordinate(node, "lat", "latitude");
+            Double lng = readCoordinate(node, "lng", "lon", "longitude");
+            addPoint(points, lat, lng);
+
+            Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+            while (fields.hasNext() && points.size() < limit) {
+                collectGeoPoints(fields.next().getValue(), points, limit);
+            }
+            return;
+        }
+
+        if (node.isArray()) {
+            for (JsonNode child : node) {
+                if (points.size() >= limit) {
+                    break;
+                }
+                collectGeoPoints(child, points, limit);
+            }
+        }
+    }
+
+    private static Double readCoordinate(JsonNode node, String... fieldNames) {
+        for (String fieldName : fieldNames) {
+            JsonNode value = node.get(fieldName);
+            if (value == null || value.isNull()) {
+                continue;
+            }
+            if (value.isNumber()) {
+                return value.doubleValue();
+            }
+            if (value.isTextual()) {
+                try {
+                    return Double.parseDouble(value.asText().trim());
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        return null;
+    }
+
+    private static void addPoint(List<GeoPoint> points, Double lat, Double lng) {
+        if (lat == null || lng == null) {
+            return;
+        }
+        if (Double.isNaN(lat) || Double.isNaN(lng)) {
+            return;
+        }
+        if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+            return;
+        }
+        points.add(new GeoPoint(lat, lng));
+    }
+
+    private static GeoPoint averagePoint(List<GeoPoint> points) {
+        if (points == null || points.isEmpty()) {
+            return null;
+        }
+
+        int count = Math.min(points.size(), 12);
+        double latSum = 0d;
+        double lngSum = 0d;
+        for (int i = 0; i < count; i++) {
+            GeoPoint point = points.get(i);
+            latSum += point.lat();
+            lngSum += point.lng();
+        }
+        return new GeoPoint(latSum / count, lngSum / count);
     }
 
     private static String uploadToCloudinary(String imageUrl, String destination, int planId) {
@@ -312,5 +474,8 @@ public final class PlanImageResolver {
 
     private static String nullSafe(String value) {
         return value == null ? "" : value;
+    }
+
+    private record GeoPoint(Double lat, Double lng) {
     }
 }

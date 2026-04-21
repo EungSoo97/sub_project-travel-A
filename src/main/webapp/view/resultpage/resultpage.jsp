@@ -28,6 +28,11 @@
                         <c:otherwise>AI 맞춤 여행 일정</c:otherwise>
                     </c:choose>
                 </h1>
+                <c:if test="${not empty result.summary.overview}">
+                    <div class="overview-subtitle" data-overview-marquee>
+                        <span class="overview-subtitle__text"><c:out value="${result.summary.overview}" /></span>
+                    </div>
+                </c:if>
                 <p class="sub">${result.summary.destination} · ${result.summary.days}일 여행</p>
             </div>
 
@@ -296,6 +301,46 @@
             toggleBtn.setAttribute("aria-expanded", String(!isCollapsed));
             toggleBtn.setAttribute("aria-label", isCollapsed ? "상단 정보 펼치기" : "상단 정보 접기");
             symbol.textContent = isCollapsed ? "+" : "−";
+        });
+    })();
+
+    (function initOverviewMarquee() {
+        const marquees = document.querySelectorAll("[data-overview-marquee]");
+        if (!marquees.length) return;
+
+        marquees.forEach(function (marquee) {
+            const text = marquee.querySelector(".overview-subtitle__text");
+            if (!text || !text.textContent.trim()) return;
+
+            function setupMarquee() {
+                marquee.classList.remove("is-animated");
+                marquee.style.removeProperty("--overview-gap");
+                marquee.style.removeProperty("--overview-distance");
+                marquee.style.removeProperty("--overview-duration");
+
+                Array.from(marquee.querySelectorAll(".overview-subtitle__clone")).forEach(function (node) {
+                    node.remove();
+                });
+
+                if (text.scrollWidth <= marquee.clientWidth + 4) return;
+
+                const clone = text.cloneNode(true);
+                clone.classList.add("overview-subtitle__clone");
+                clone.setAttribute("aria-hidden", "true");
+                marquee.appendChild(clone);
+
+                const gap = 48;
+                const distance = text.scrollWidth + gap;
+                const duration = Math.max(distance / 28, 18);
+
+                marquee.style.setProperty("--overview-gap", gap + "px");
+                marquee.style.setProperty("--overview-distance", distance + "px");
+                marquee.style.setProperty("--overview-duration", duration + "s");
+                marquee.classList.add("is-animated");
+            }
+
+            setupMarquee();
+            window.addEventListener("resize", setupMarquee);
         });
     })();
 
