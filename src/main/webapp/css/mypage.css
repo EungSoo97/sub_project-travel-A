@@ -1368,11 +1368,12 @@
 
 .plan-mini-info {
     font-size: 12px;
-    color: #777;
+    color: #6b7280;
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
     width: 100%;
+    align-items: center;
 }
 
 .plan-mini-info span {
@@ -1380,6 +1381,19 @@
     align-items: center;
     gap: 6px;
     min-width: 0;
+    line-height: 1.2;
+}
+
+.plan-mini-info .plan-mini-post-badge {
+    margin-left: auto;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #d9f99d;
+    border: 1px solid #bef264;
+    color: #3f6212;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
 }
 
 .plan-modal-backdrop {
