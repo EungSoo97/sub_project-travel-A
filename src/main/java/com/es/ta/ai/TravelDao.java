@@ -44,70 +44,73 @@ public class TravelDao {
                         "plan_id, user_id, destination, title, start_date, end_date, days, travelers, " +
                         "travel_style, request_styles, total_estimated_cost, currency, overview, success, message, response_json, thumbnail_url " +
                         ") VALUES ( " +
-                        "travel_plan_seq.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? " +
+                        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? " +
                         ")";
 
         try {
             System.out.println("[TravelDao] insertTravelPlan START");
             con = DBManager_new.connect();
+            int planId = getNextPlanId(con);
             ps = con.prepareStatement(sql);
 
             TravelResponseDto.Summary summary = responseDto != null ? responseDto.getSummary() : null;
 
             // 1. user_id
             if (userId != null) {
-                ps.setInt(1, userId);
+                ps.setInt(2, userId);
             } else {
-                ps.setNull(1, Types.NUMERIC);
+                ps.setNull(2, Types.NUMERIC);
             }
+            ps.setInt(1, planId);
 
             // 2. destination
-            ps.setString(2, getDestination(requestDto, summary));
+            ps.setString(3, getDestination(requestDto, summary));
 
             // 3. title
-            ps.setString(3, getSafeString(summary != null ? summary.getTitle() : null));
+            ps.setString(4, getSafeString(summary != null ? summary.getTitle() : null));
 
             // 4. start_date
-            setDateOrNull(ps, 4, getStartDate(requestDto, summary));
+            setDateOrNull(ps, 5, getStartDate(requestDto, summary));
 
             // 5. end_date
-            setDateOrNull(ps, 5, getEndDate(requestDto, summary));
+            setDateOrNull(ps, 6, getEndDate(requestDto, summary));
 
             // 6. days
-            ps.setInt(6, getDays(requestDto, summary));
+            ps.setInt(7, getDays(requestDto, summary));
 
             // 7. travelers
-            ps.setInt(7, getTravelers(requestDto, summary));
+            ps.setInt(8, getTravelers(requestDto, summary));
 
             // 8. travel_style
-            ps.setString(8, getTravelStyle(requestDto, summary));
+            ps.setString(9, getTravelStyle(requestDto, summary));
 
             // 9. request_styles
-            ps.setString(9, getRequestStyles(requestDto, summary));
+            ps.setString(10, getRequestStyles(requestDto, summary));
 
             // 10. total_estimated_cost
-            ps.setInt(10, summary != null ? summary.getTotalEstimatedCost() : 0);
+            ps.setInt(11, summary != null ? summary.getTotalEstimatedCost() : 0);
 
             // 11. currency
-            ps.setString(11, getSafeString(summary != null ? summary.getCurrency() : null, "KRW"));
+            ps.setString(12, getSafeString(summary != null ? summary.getCurrency() : null, "KRW"));
 
             // 12. overview
-            ps.setString(12, getSafeString(summary != null ? summary.getOverview() : null));
+            ps.setString(13, getSafeString(summary != null ? summary.getOverview() : null));
 
             // 13. success
-            ps.setInt(13, (responseDto != null && responseDto.isSuccess()) ? 1 : 0);
+            ps.setInt(14, (responseDto != null && responseDto.isSuccess()) ? 1 : 0);
 
             // 14. message
-            ps.setString(14, getSafeString(responseDto != null ? responseDto.getMessage() : null));
+            ps.setString(15, getSafeString(responseDto != null ? responseDto.getMessage() : null));
 
             // 15. response_json
-            ps.setString(15, getSafeString(responseJson, "{}"));
+            ps.setString(16, getSafeString(responseJson, "{}"));
 
             // 16. thumbnail_url
-            ps.setString(16, PlanImageResolver.resolveThumbnailUrl(
+            ps.setString(17, PlanImageResolver.resolveThumbnailUrl(
                     responseDto,
                     responseJson,
-                    getDestination(requestDto, summary)
+                    getDestination(requestDto, summary),
+                    planId
             ));
 
             System.out.println("[TravelDao] executing insert. destination=" + getDestination(requestDto, summary)
@@ -223,6 +226,16 @@ public class TravelDao {
         for (String value : source) {
             addCsv(values, value);
         }
+    }
+
+    private int getNextPlanId(Connection con) throws Exception {
+        try (PreparedStatement ps = con.prepareStatement("SELECT travel_plan_seq.NEXTVAL FROM dual");
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        throw new IllegalStateException("Failed to allocate plan id");
     }
 
     private void addCustomTagsFromStrategy(LinkedHashSet<String> values, Map<String, Object> strategy) {
@@ -461,11 +474,6 @@ public class TravelDao {
                 String thumbnailUrl = nullSafe(imageRs.getString("thumbnail_url")).trim();
                 if (!thumbnailUrl.isBlank() && (thumbnailUrl.startsWith("http://") || thumbnailUrl.startsWith("https://"))) {
                     return thumbnailUrl;
-                }
-
-                String imageUrl = PlanImageResolver.extractFirstImageUrl(imageRs.getString("response_json"));
-                if (!imageUrl.isBlank()) {
-                    return imageUrl;
                 }
             }
         } catch (Exception e) {
