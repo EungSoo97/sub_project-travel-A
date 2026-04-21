@@ -135,7 +135,8 @@ public class ResultpageDAO {
                     String keyword = pickThumbnailKeyword(dto);
                     System.out.println("thumbnail keyword = " + keyword);
 
-                    thumbnailUrl = GooglePlaceImageService.getThumbnailUrlByKeyword(keyword, googleApiKey);
+                    Double[] point = pickThumbnailCoordinates(dto);
+                    thumbnailUrl = GooglePlaceImageService.getThumbnailUrlByKeyword(keyword, googleApiKey, point[0], point[1], dto.getPlanId());
 
                     if (thumbnailUrl != null && !thumbnailUrl.trim().isEmpty()) {
                         updateThumbnailUrl(dto.getPlanId(), thumbnailUrl);
@@ -206,7 +207,8 @@ public class ResultpageDAO {
                 if (thumbnailUrl == null || thumbnailUrl.trim().isEmpty()) {
                     String keyword = pickThumbnailKeyword(dto);
 
-                    thumbnailUrl = GooglePlaceImageService.getThumbnailUrlByKeyword(keyword, googleApiKey);
+                    Double[] point = pickThumbnailCoordinates(dto);
+                    thumbnailUrl = GooglePlaceImageService.getThumbnailUrlByKeyword(keyword, googleApiKey, point[0], point[1], dto.getPlanId());
 
                     if (thumbnailUrl != null && !thumbnailUrl.trim().isEmpty()) {
                         updateThumbnailUrl(dto.getPlanId(), thumbnailUrl);
@@ -333,6 +335,10 @@ public class ResultpageDAO {
             destination = safeTrim(dto.getSummary().getDestination());
         }
 
+        if (destination != null && !destination.isEmpty()) {
+            return destination;
+        }
+
         if (dto != null && dto.getItinerary() != null) {
             for (TravelResultVDTO.Itinerary day : dto.getItinerary()) {
                 if (day == null || day.getActivities() == null) {
@@ -393,7 +399,74 @@ public class ResultpageDAO {
         return "Japan";
     }
 
+    private static Double[] pickThumbnailCoordinates(TravelResultVDTO dto) {
+        Double latSum = 0d;
+        Double lngSum = 0d;
+        int count = 0;
+
+        if (dto == null || dto.getItinerary() == null) {
+            return new Double[]{null, null};
+        }
+
+        for (TravelResultVDTO.Itinerary day : dto.getItinerary()) {
+            if (day == null) {
+                continue;
+            }
+
+            if (day.getActivities() != null) {
+                for (TravelResultVDTO.Activity activity : day.getActivities()) {
+                    if (count >= 12) {
+                        break;
+                    }
+                    Double lat = activity != null ? activity.getLat() : null;
+                    Double lng = activity != null ? activity.getLng() : null;
+                    if (isValidCoordinate(lat, lng)) {
+                        latSum += lat;
+                        lngSum += lng;
+                        count++;
+                    }
+                }
+            }
+
+            if (count >= 12) {
+                break;
+            }
+
+            if (day.getRoutePoints() != null) {
+                for (TravelResultVDTO.RoutePoint routePoint : day.getRoutePoints()) {
+                    if (count >= 12) {
+                        break;
+                    }
+                    Double lat = routePoint != null ? routePoint.getLat() : null;
+                    Double lng = routePoint != null ? routePoint.getLng() : null;
+                    if (isValidCoordinate(lat, lng)) {
+                        latSum += lat;
+                        lngSum += lng;
+                        count++;
+                    }
+                }
+            }
+
+            if (count >= 12) {
+                break;
+            }
+        }
+
+        if (count == 0) {
+            return new Double[]{null, null};
+        }
+
+        return new Double[]{latSum / count, lngSum / count};
+    }
+
     private static String safeTrim(String text) {
         return text == null ? null : text.trim();
+    }
+
+    private static boolean isValidCoordinate(Double lat, Double lng) {
+        return lat != null && lng != null
+                && !lat.isNaN() && !lng.isNaN()
+                && lat >= -90 && lat <= 90
+                && lng >= -180 && lng <= 180;
     }
 }

@@ -523,3 +523,16 @@ WHERE plan_id = 435;
 
 select * from travel_plan;
 >>>>>>> 820afc9a72e722982cc65fd127e60b6f44b05e05
+
+select plan_id, thumbnail_url, destination from travel_plan;
+
+update travel_plan
+set thumbnail_url = 'https://res.cloudinary.com/dlq407oy3/image/upload/v1776767464/thumbnail/501.jpg'
+where plan_id = 501;
+
+UPDATE travel_plan
+SET created_at = TO_DATE('2026-03-19 04:56:24', 'YYYY-MM-DD HH24:MI:SS')
+WHERE plan_id = 529;
+
+delete travel_plan
+where plan_id = 518;

@@ -93,6 +93,42 @@
     color: var(--text-secondary);
 }
 
+.overview-subtitle {
+    --overview-gap: 48px;
+    --overview-distance: 0px;
+    --overview-duration: 18s;
+    margin: 6px 0 4px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #4b5563;
+    max-width: min(62ch, 100%);
+    white-space: nowrap;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: var(--overview-gap);
+}
+
+.overview-subtitle__text,
+.overview-subtitle__clone {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.overview-subtitle.is-animated .overview-subtitle__text,
+.overview-subtitle.is-animated .overview-subtitle__clone {
+    animation: overview-marquee var(--overview-duration) linear infinite;
+}
+
+@keyframes overview-marquee {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(calc(-1 * var(--overview-distance)));
+    }
+}
+
 .plan-creator-meta {
     display: flex;
     flex-wrap: wrap;
@@ -1396,6 +1432,7 @@
 
 .header a,
 .mp-back-link,
+.overview-subtitle,
 .title-area .sub,
 .title-meta-row,
 .mp-sub,
@@ -1414,6 +1451,7 @@
     padding-bottom: 6px;
 }
 
+.is-header-collapsed .overview-subtitle,
 .is-header-collapsed .title-area .sub,
 .is-header-collapsed .title-meta-row,
 .is-header-collapsed .mp-sub,

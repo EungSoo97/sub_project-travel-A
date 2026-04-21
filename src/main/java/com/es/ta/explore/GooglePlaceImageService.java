@@ -11,13 +11,25 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 public class GooglePlaceImageService {
 
+    private static final double DEFAULT_LOCATION_BIAS_RADIUS_METERS = 12000d;
+
     public static String getThumbnailUrlByKeyword(String keyword, String apiKey) {
+        return getThumbnailUrlByKeyword(keyword, apiKey, null, null, 0);
+    }
+
+    public static String getThumbnailUrlByKeyword(String keyword, String apiKey, int variantSeed) {
+        return getThumbnailUrlByKeyword(keyword, apiKey, null, null, variantSeed);
+    }
+
+    public static String getThumbnailUrlByKeyword(String keyword, String apiKey, Double lat, Double lng, int variantSeed) {
         System.out.println("API KEY = " + apiKey);
 
         if (keyword == null || keyword.trim().isEmpty()) {
@@ -32,10 +44,12 @@ public class GooglePlaceImageService {
         try {
             List<String> queries = buildTravelQueries(keyword);
 
-            for (String query : queries) {
-                System.out.println("[GooglePlaceImageService] trying query = " + query);
+            for (int i = 0; i < queries.size(); i++) {
+                String query = queries.get(i);
+                System.out.println("[GooglePlaceImageService] trying query = " + query
+                        + ", lat=" + lat + ", lng=" + lng);
 
-                String photoName = searchBestPhotoName(query, apiKey);
+                String photoName = searchBestPhotoName(query, apiKey, lat, lng, variantSeed + i);
                 if (photoName != null && !photoName.isEmpty()) {
                     return buildPhotoMediaUrl(photoName, apiKey);
                 }
@@ -50,7 +64,6 @@ public class GooglePlaceImageService {
 
     private static List<String> buildTravelQueries(String keyword) {
         String k = keyword == null ? "" : keyword.trim();
-
         Set<String> queries = new LinkedHashSet<>();
 
         if (k.isEmpty()) {
@@ -58,25 +71,25 @@ public class GooglePlaceImageService {
             return new ArrayList<>(queries);
         }
 
-        boolean korean = k.matches(".*[가-힣].*");
+        queries.add(k);
 
-        // 특정 장소보다 도시명일 가능성이 높은 경우 scenic 우선
+        boolean korean = k.matches(".*[가-힣].*");
         boolean broadCityKeyword =
-                !(k.toLowerCase().contains("museum") ||
-                        k.toLowerCase().contains("gallery") ||
-                        k.toLowerCase().contains("station") ||
-                        k.toLowerCase().contains("airport") ||
-                        k.contains("박물관") ||
-                        k.contains("미술관") ||
-                        k.contains("역") ||
-                        k.contains("공항"));
+                !(k.toLowerCase(Locale.ROOT).contains("museum")
+                        || k.toLowerCase(Locale.ROOT).contains("gallery")
+                        || k.toLowerCase(Locale.ROOT).contains("station")
+                        || k.toLowerCase(Locale.ROOT).contains("airport")
+                        || k.contains("박물관")
+                        || k.contains("미술관")
+                        || k.contains("역")
+                        || k.contains("공항"));
 
         if (korean) {
             if (broadCityKeyword) {
                 queries.add(k + " 일본 랜드마크");
                 queries.add(k + " 일본 관광명소");
                 queries.add(k + " 일본 여행지");
-                queries.add(k + " 일본 야경");
+                queries.add(k + " 일본 풍경");
             }
             queries.add(k + " 일본");
         } else {
@@ -91,7 +104,8 @@ public class GooglePlaceImageService {
 
         return new ArrayList<>(queries);
     }
-    private static String searchBestPhotoName(String query, String apiKey) throws Exception {
+
+    private static String searchBestPhotoName(String query, String apiKey, Double lat, Double lng, int variantSeed) throws Exception {
         URL url = new URL("https://places.googleapis.com/v1/places:searchText");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -101,7 +115,7 @@ public class GooglePlaceImageService {
         conn.setRequestProperty("X-Goog-FieldMask", "places.displayName,places.formattedAddress,places.photos");
         conn.setDoOutput(true);
 
-        String body = "{\"textQuery\":\"" + escapeJson(query) + "\"}";
+        String body = buildSearchRequestBody(query, lat, lng);
 
         try (OutputStream os = conn.getOutputStream()) {
             os.write(body.getBytes(StandardCharsets.UTF_8));
@@ -110,87 +124,162 @@ public class GooglePlaceImageService {
         String response = readResponse(conn);
         JsonObject root = JsonParser.parseString(response).getAsJsonObject();
 
-        if (!root.has("places")) return null;
+        if (!root.has("places")) {
+            return null;
+        }
 
         JsonArray places = root.getAsJsonArray("places");
-
-        int bestScore = -9999;
-        String bestPhoto = null;
+        List<PhotoCandidate> candidates = new ArrayList<>();
 
         for (int i = 0; i < places.size(); i++) {
             JsonObject place = places.get(i).getAsJsonObject();
 
             String name = "";
             if (place.has("displayName")) {
-                JsonObject dn = place.getAsJsonObject("displayName");
-                if (dn.has("text")) {
-                    name = dn.get("text").getAsString().toLowerCase();
+                JsonObject displayName = place.getAsJsonObject("displayName");
+                if (displayName.has("text")) {
+                    name = placeText(displayName.get("text").getAsString());
                 }
             }
 
             String address = place.has("formattedAddress")
-                    ? place.get("formattedAddress").getAsString().toLowerCase()
+                    ? placeText(place.get("formattedAddress").getAsString())
                     : "";
 
-            if (!place.has("photos")) continue;
+            if (!place.has("photos")) {
+                continue;
+            }
 
             JsonArray photos = place.getAsJsonArray("photos");
-            if (photos == null || photos.size() == 0) continue;
+            if (photos == null || photos.size() == 0) {
+                continue;
+            }
 
-            int score = 0;
+            int score = scorePlace(name, address);
 
-            // ❌ 나쁜 후보
-            if (name.contains("hotel") || name.contains("airport") || name.contains("station")) score -= 50;
-            if (address.contains("airport")) score -= 50;
-
-            // ❌ 흔한 건물 느낌
-            if (name.contains("building") || name.contains("office")) score -= 20;
-
-            // ⭐ 좋은 후보
-            if (name.contains("temple") || name.contains("shrine")) score += 40;
-            if (name.contains("tower") || name.contains("castle")) score += 40;
-            if (name.contains("park") || name.contains("garden")) score += 30;
-            if (name.contains("street") || name.contains("market")) score += 30;
-
-            // ⭐ 일본 특화
-            if (name.contains("sensō") || name.contains("asakusa")) score += 50;
-            if (name.contains("shibuya") || name.contains("tokyo tower")) score += 50;
-
-            // ⭐ 점수 높은 place 선택
-            if (score > bestScore) {
-                bestScore = score;
-
-                // 🔥 여기 핵심 (사진 선택 개선)
-                if (photos.size() >= 3) {
-                    JsonObject photo = photos.get(2).getAsJsonObject(); // ⭐ 3번째 사진
-                    if (photo.has("name")) {
-                        bestPhoto = photo.get("name").getAsString();
-                    }
-                } else {
-                    // fallback (2번째 or 1번째)
-                    int idx = Math.min(1, photos.size() - 1);
-                    JsonObject photo = photos.get(idx).getAsJsonObject();
-                    if (photo.has("name")) {
-                        bestPhoto = photo.get("name").getAsString();
-                    }
+            for (int photoIndex : buildPhotoPreferenceOrder(photos.size(), variantSeed + i)) {
+                JsonObject photo = photos.get(photoIndex).getAsJsonObject();
+                if (!photo.has("name")) {
+                    continue;
                 }
+                candidates.add(new PhotoCandidate(photo.get("name").getAsString(), score, i, photoIndex));
             }
         }
 
-        return bestPhoto;
+        if (candidates.isEmpty()) {
+            return null;
+        }
+
+        candidates.sort(Comparator
+                .comparingInt(PhotoCandidate::score).reversed()
+                .thenComparingInt(PhotoCandidate::placeIndex)
+                .thenComparingInt(PhotoCandidate::photoIndex));
+
+        int candidateIndex = Math.floorMod(variantSeed, Math.min(candidates.size(), 6));
+        return candidates.get(candidateIndex).photoName();
     }
+
+    private static String buildSearchRequestBody(String query, Double lat, Double lng) {
+        JsonObject body = new JsonObject();
+        body.addProperty("textQuery", query);
+
+        if (isValidCoordinate(lat, lng)) {
+            JsonObject center = new JsonObject();
+            center.addProperty("latitude", lat);
+            center.addProperty("longitude", lng);
+
+            JsonObject circle = new JsonObject();
+            circle.add("center", center);
+            circle.addProperty("radius", DEFAULT_LOCATION_BIAS_RADIUS_METERS);
+
+            JsonObject locationBias = new JsonObject();
+            locationBias.add("circle", circle);
+            body.add("locationBias", locationBias);
+        }
+
+        return body.toString();
+    }
+
+    private static int scorePlace(String name, String address) {
+        int score = 0;
+
+        if (name.contains("hotel") || name.contains("airport") || name.contains("station")) {
+            score -= 50;
+        }
+        if (address.contains("airport")) {
+            score -= 50;
+        }
+
+        if (name.contains("building") || name.contains("office")) {
+            score -= 20;
+        }
+
+        if (name.contains("temple") || name.contains("shrine")) {
+            score += 40;
+        }
+        if (name.contains("tower") || name.contains("castle")) {
+            score += 40;
+        }
+        if (name.contains("park") || name.contains("garden")) {
+            score += 30;
+        }
+        if (name.contains("street") || name.contains("market")) {
+            score += 30;
+        }
+
+        if (name.contains("senso") || name.contains("asakusa")) {
+            score += 50;
+        }
+        if (name.contains("shibuya") || name.contains("tokyo tower")) {
+            score += 50;
+        }
+
+        return score;
+    }
+
+    private static List<Integer> buildPhotoPreferenceOrder(int photoCount, int variantSeed) {
+        List<Integer> indices = new ArrayList<>();
+        if (photoCount <= 0) {
+            return indices;
+        }
+
+        int preferredIndex;
+        if (photoCount >= 3) {
+            preferredIndex = 2;
+        } else if (photoCount == 2) {
+            preferredIndex = 1;
+        } else {
+            preferredIndex = 0;
+        }
+
+        indices.add(preferredIndex);
+
+        int rotatedStart = Math.floorMod(variantSeed, photoCount);
+        for (int offset = 0; offset < photoCount; offset++) {
+            int idx = (rotatedStart + offset) % photoCount;
+            if (!indices.contains(idx)) {
+                indices.add(idx);
+            }
+        }
+
+        return indices;
+    }
+
     private static String buildPhotoMediaUrl(String photoName, String apiKey) {
         return "https://places.googleapis.com/v1/" + photoName
                 + "/media?key=" + apiKey
                 + "&maxWidthPx=1200";
     }
 
-    private static String escapeJson(String text) {
-        return text
-                .replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", " ")
-                .replace("\r", " ");
+    private static String placeText(String text) {
+        return text == null ? "" : text.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private static boolean isValidCoordinate(Double lat, Double lng) {
+        return lat != null && lng != null
+                && !lat.isNaN() && !lng.isNaN()
+                && lat >= -90 && lat <= 90
+                && lng >= -180 && lng <= 180;
     }
 
     private static String readResponse(HttpURLConnection conn) throws Exception {
@@ -211,5 +300,8 @@ public class GooglePlaceImageService {
         br.close();
 
         return sb.toString();
+    }
+
+    private record PhotoCandidate(String photoName, int score, int placeIndex, int photoIndex) {
     }
 }
