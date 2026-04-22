@@ -63,7 +63,8 @@
                             <input type="hidden" name="id" value="${savedPlan.planId}">
                             <button type="submit" class="action-btn edit-btn">✏️ 편집</button>
                         </form>
-                        <form action="pdf" method="get">
+                        <form action="${pageContext.request.contextPath}/pdf" method="get">
+                            <input type="hidden" name="planId" value="${savedPlan.planId}">
                             <button type="submit" class="action-btn download-btn">⬇ PDF</button>
                         </form>
                         <c:choose>
